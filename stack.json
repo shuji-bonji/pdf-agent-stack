@@ -1,0 +1,235 @@
+{
+  "$comment": [
+    "PDF Agent Stack の構成表。**手で書くのは scripts/generate-stack.mjs の REGISTRY だけ**。",
+    "版は実測（npm view / ローカルの package.json・git tag）で、推測は書かない。",
+    "正典は npm（published）。local は「手元が公開版より進んでいないか」の参考値。",
+    "layer = 役割 / form = 配布形態（誰が起動するか）。2 軸で見ると、同じ役割を違う形態で",
+    "実装したもの（pdf-specialist = plugin / pdf-agent-pipeline = app）が並べて見える。"
+  ],
+  "generatedAt": "2026-07-29T18:05:42.375Z",
+  "generatedBy": "scripts/generate-stack.mjs",
+  "npmScope": "@shuji-bonji",
+  "repos": [
+    {
+      "name": "pdf-spec-mcp",
+      "dir": "mcp/pdf-spec-mcp",
+      "npm": "@shuji-bonji/pdf-spec-mcp",
+      "layer": "canon",
+      "form": "mcp-server",
+      "public": true,
+      "published": "0.4.5",
+      "local": {
+        "version": "0.4.5",
+        "tag": "v0.4.5",
+        "dirty": false,
+        "unpushedCommits": 0
+      },
+      "consistency": {
+        "status": "match",
+        "detail": "0.4.5"
+      }
+    },
+    {
+      "name": "pdf-reader-mcp",
+      "dir": "mcp/pdf-reader-mcp",
+      "npm": "@shuji-bonji/pdf-reader-mcp",
+      "layer": "structure",
+      "form": "mcp-server",
+      "public": true,
+      "published": "0.11.1",
+      "local": {
+        "version": "0.11.1",
+        "tag": "v0.11.1",
+        "dirty": false,
+        "unpushedCommits": 0
+      },
+      "consistency": {
+        "status": "match",
+        "detail": "0.11.1"
+      }
+    },
+    {
+      "name": "pdf-verify-mcp",
+      "dir": "mcp/pdf-verify-mcp",
+      "npm": "@shuji-bonji/pdf-verify-mcp",
+      "layer": "judgment",
+      "form": "mcp-server",
+      "public": true,
+      "published": "0.13.0",
+      "local": {
+        "version": "0.13.0",
+        "tag": "v0.13.0",
+        "dirty": true,
+        "unpushedCommits": 0
+      },
+      "consistency": {
+        "status": "match",
+        "detail": "0.13.0"
+      }
+    },
+    {
+      "name": "pdf-writer-mcp",
+      "dir": "mcp/pdf-writer-mcp",
+      "npm": "@shuji-bonji/pdf-writer-mcp",
+      "layer": "action",
+      "form": "mcp-server",
+      "public": true,
+      "published": "0.17.0",
+      "local": {
+        "version": "0.17.0",
+        "tag": "v0.17.0",
+        "dirty": false,
+        "unpushedCommits": 0
+      },
+      "consistency": {
+        "status": "match",
+        "detail": "0.17.0"
+      }
+    },
+    {
+      "name": "pdf-constraints",
+      "dir": "lib/pdf-constraints",
+      "npm": "@shuji-bonji/pdf-constraints",
+      "layer": "judgment",
+      "form": "library",
+      "public": true,
+      "published": "0.3.0",
+      "local": {
+        "version": "0.3.0",
+        "tag": "v0.3.0",
+        "dirty": false,
+        "unpushedCommits": 0
+      },
+      "consistency": {
+        "status": "match",
+        "detail": "0.3.0"
+      }
+    },
+    {
+      "name": "normativepdf",
+      "dir": "lib/normativepdf",
+      "npm": null,
+      "layer": "action",
+      "form": "library",
+      "public": false,
+      "note": "設計のみ・実装未着手",
+      "published": null,
+      "local": {
+        "version": null,
+        "tag": null,
+        "dirty": true,
+        "unpushedCommits": null
+      },
+      "consistency": {
+        "status": "not_published",
+        "detail": "npm 未公開のため照合対象外"
+      }
+    },
+    {
+      "name": "pdf-trust-skill",
+      "dir": "skill/pdf-trust-skill",
+      "npm": null,
+      "layer": "procedure",
+      "form": "skill",
+      "public": true,
+      "published": null,
+      "local": {
+        "version": "0.5.0",
+        "tag": "v0.1.1",
+        "dirty": false,
+        "unpushedCommits": 0
+      },
+      "consistency": {
+        "status": "not_published",
+        "detail": "npm 未公開のため照合対象外"
+      }
+    },
+    {
+      "name": "pdf-publish-skill",
+      "dir": "skill/pdf-publish-skill",
+      "npm": null,
+      "layer": "procedure",
+      "form": "skill",
+      "public": true,
+      "published": null,
+      "local": {
+        "version": "0.5.0",
+        "tag": null,
+        "dirty": false,
+        "unpushedCommits": 0
+      },
+      "consistency": {
+        "status": "not_published",
+        "detail": "npm 未公開のため照合対象外"
+      }
+    },
+    {
+      "name": "pdf-specialist-plugin",
+      "dir": "agent/pdf-specialist-plugin",
+      "npm": null,
+      "layer": "orchestration",
+      "form": "plugin",
+      "public": true,
+      "published": null,
+      "local": {
+        "version": "0.6.0",
+        "tag": null,
+        "dirty": false,
+        "unpushedCommits": 0
+      },
+      "consistency": {
+        "status": "not_published",
+        "detail": "npm 未公開のため照合対象外"
+      }
+    },
+    {
+      "name": "pdf-agent-pipeline",
+      "dir": "agent/pdf-agent-pipeline",
+      "npm": null,
+      "layer": "orchestration",
+      "form": "app",
+      "public": false,
+      "note": "private: true。runAudit() 切り出しでライブラリ化予定",
+      "published": null,
+      "local": {
+        "version": "0.1.0",
+        "tag": null,
+        "dirty": true,
+        "unpushedCommits": null
+      },
+      "consistency": {
+        "status": "not_published",
+        "detail": "npm 未公開のため照合対象外"
+      }
+    },
+    {
+      "name": "pdf-agent-stack",
+      "dir": ".",
+      "npm": null,
+      "layer": "hub",
+      "form": "site",
+      "public": false,
+      "note": "本リポジトリ。site/ に VitePress",
+      "published": null,
+      "local": {
+        "version": null,
+        "tag": null,
+        "dirty": true,
+        "unpushedCommits": null
+      },
+      "consistency": {
+        "status": "not_published",
+        "detail": "npm 未公開のため照合対象外"
+      }
+    }
+  ],
+  "external": [
+    {
+      "name": "claude-plugins",
+      "layer": "distribution",
+      "form": "marketplace",
+      "public": true,
+      "note": "PDF 専用ではないので束ねの外"
+    }
+  ]
+}

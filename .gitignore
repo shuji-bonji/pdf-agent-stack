@@ -1,0 +1,6 @@
+/mcp/
+/lib/
+/agent/
+/skill/ 
+/docs/
+.DS_Store
