@@ -1,0 +1,17 @@
+{
+  "name": "pdf-agent-stack",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Documentation site for the PDF Family MCP servers and skills",
+  "scripts": {
+    "dev": "vitepress dev docs",
+    "build": "vitepress build docs",
+    "preview": "vitepress preview docs"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.0",
+    "vitepress-plugin-mermaid": "^2.0.17",
+    "mermaid": "^11.6.0"
+  }
+}

@@ -1,0 +1,7 @@
+# 仕様調査
+
+<!-- TODO (Phase 2): シナリオ → 登場 MCP/Skill → シーケンス図 (Mermaid) → プロンプト例 → 結果の読み方 -->
+
+::: warning 執筆中
+このページは Phase 2 で執筆します。[一覧](/ja/use-cases/) に戻る
+:::

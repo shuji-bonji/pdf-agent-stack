@@ -1,0 +1,56 @@
+name: Deploy site to GitHub Pages
+
+# **ワークフローはリポジトリルートの .github/ にしか置けない。**
+# site/ 配下に置くと、GitHub はそれを見ないので何も起きない（2026-07-29 に踏んだ）。
+# ビルド対象だけ site/ に向ける。
+
+on:
+  push:
+    branches: [main]
+    # hub 側（stack.json / README）の更新では再デプロイしない
+    paths:
+      - 'site/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          # ロックファイルがルートに無いので明示する（無いとキャッシュが黙って効かない）
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/configure-pages@v4
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          # **action の input は working-directory の影響を受けない。**
+          # ここだけリポジトリルートからの相対で書く
+          path: site/docs/.vitepress/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

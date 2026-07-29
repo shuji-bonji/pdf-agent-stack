@@ -1,0 +1,8 @@
+node_modules/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+# vitepress が設定を評価するときに吐く一時ファイル
+docs/.vitepress/*.timestamp-*
+
+# macOS
+.DS_Store
