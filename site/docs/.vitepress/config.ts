@@ -2,6 +2,10 @@ import { defineConfig } from 'vitepress';
 import llmstxt from 'vitepress-plugin-llms';
 import { withMermaid } from 'vitepress-plugin-mermaid';
 
+/** プロジェクトページなので base を含む。OGP の URL は絶対でなければ無視される。 */
+const BASE = '/pdf-agent-stack/';
+const SITE = `https://shuji-bonji.github.io${BASE}`;
+
 const mcpSidebar = (prefix: string, labels: Record<string, string>) => [
   {
     text: labels.mcp,
@@ -109,18 +113,58 @@ export default withMermaid(
     title: 'PDF Agent Stack',
     description:
       'Read, verify, write and reason about PDFs — a family of MCP servers and skills for AI agents',
-    base: '/pdf-agent-stack/',
+    base: BASE,
     lastUpdated: true,
     // プロジェクトページなので base まで含める（sitemap の URL は hostname + ページパスで組まれる）
-    sitemap: { hostname: 'https://shuji-bonji.github.io/pdf-agent-stack/' },
+    sitemap: { hostname: SITE },
     // llms.txt 生成はビルド時のみ有効化する。
     // プラグインの dev ミドルウェアは「.md で終わる全リクエスト」を横取りして
     // dist の生 Markdown を返すため、dist が存在すると dev の SPA 遷移
     // （ページを .md モジュールとして取得する）が全ページで壊れる。
     vite: { plugins: [llmstxt().map((p) => ({ ...p, apply: 'build' as const }))] },
     head: [
-      ['link', { rel: 'icon', type: 'image/svg+xml', href: '/pdf-agent-stack/images/logo.svg' }]
+      // favicon: SVG を優先し、対応しないブラウザは .ico に落ちる
+      ['link', { rel: 'icon', type: 'image/svg+xml', href: `${BASE}images/logo.svg` }],
+      ['link', { rel: 'icon', type: 'image/x-icon', href: `${BASE}favicon.ico` }],
+      ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: `${BASE}apple-touch-icon.png` }],
+      ['link', { rel: 'manifest', href: `${BASE}site.webmanifest` }],
+      ['meta', { name: 'theme-color', content: '#b41535' }],
+      // OGP / Twitter の固定分。url・title・description・image はページごとに
+      // transformPageData が差し替える（og:image は絶対 URL でなければ無視される）。
+      ['meta', { property: 'og:type', content: 'website' }],
+      ['meta', { property: 'og:site_name', content: 'PDF Agent Stack' }],
+      ['meta', { property: 'og:image:width', content: '1200' }],
+      ['meta', { property: 'og:image:height', content: '630' }],
+      ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+      ['meta', { name: 'twitter:creator', content: '@shuji_bonji' }]
     ],
+    transformPageData(pageData) {
+      const isJa = pageData.relativePath.startsWith('ja/');
+      const path = pageData.relativePath.replace(/(^|\/)index\.md$/, '$1').replace(/\.md$/, '.html');
+      // layout: home のページは title を持たない（h1 が無いため）。
+      // その場合サイト名だけを使う — " | PDF Agent Stack" の頭が空になるのを防ぐ。
+      const pageTitle = (pageData.frontmatter.title ?? pageData.title ?? '').trim();
+      const title = pageTitle ? `${pageTitle} | PDF Agent Stack` : 'PDF Agent Stack';
+      const description =
+        pageData.frontmatter.description ??
+        (isJa
+          ? 'AI エージェントのための PDF ツール群 — 4 つの MCP サーバーと 2 つの Skill'
+          : 'PDF tooling for AI agents — four MCP servers and two Skills');
+      const image = `${SITE}${isJa ? 'images/og-image-ja.png' : 'images/og-image.png'}`;
+
+      pageData.frontmatter.head ??= [];
+      pageData.frontmatter.head.push(
+        ['meta', { property: 'og:url', content: `${SITE}${path}` }],
+        ['meta', { property: 'og:title', content: title }],
+        ['meta', { property: 'og:description', content: description }],
+        ['meta', { property: 'og:image', content: image }],
+        ['meta', { property: 'og:image:alt', content: 'PDF Agent Stack' }],
+        ['meta', { property: 'og:locale', content: isJa ? 'ja_JP' : 'en' }],
+        ['meta', { name: 'twitter:title', content: title }],
+        ['meta', { name: 'twitter:description', content: description }],
+        ['meta', { name: 'twitter:image', content: image }]
+      );
+    },
     locales: {
       root: {
         label: 'English',

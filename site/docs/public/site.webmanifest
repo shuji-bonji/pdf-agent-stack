@@ -1,0 +1,15 @@
+{
+  "name": "PDF Agent Stack",
+  "short_name": "PDF Agent Stack",
+  "description": "Read, verify, write — grounded in the spec. PDF tooling for AI agents.",
+  "start_url": "/pdf-agent-stack/",
+  "scope": "/pdf-agent-stack/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#b41535",
+  "icons": [
+    { "src": "/pdf-agent-stack/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/pdf-agent-stack/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/pdf-agent-stack/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
