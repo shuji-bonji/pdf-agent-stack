@@ -153,12 +153,18 @@ function makeTr(lang, memory, pending) {
 function handshake(cfg) {
   return new Promise((resolveHS, rejectHS) => {
     const p = spawn(cfg.command, cfg.args, {
-      stdio: ['pipe', 'pipe', 'ignore'],
+      stdio: ['pipe', 'pipe', 'pipe'],
       env: { ...process.env, ...cfg.env }
+    });
+    let stderrTail = '';
+    p.stderr.on('data', (d) => {
+      stderrTail = (stderrTail + d).slice(-2000);
     });
     const timer = setTimeout(() => {
       p.kill();
-      rejectHS(new Error('handshake timeout (20s)'));
+      rejectHS(
+        new Error(`handshake timeout (20s)${stderrTail ? `\n--- server stderr (tail) ---\n${stderrTail}` : ''}`)
+      );
     }, 20_000);
 
     let buf = '';
@@ -372,6 +378,14 @@ for (const name of names) {
   if (!cfg) {
     console.error(`unknown server: ${name} (known: ${Object.keys(REGISTRY).join(', ')})`);
     process.exit(1);
+  }
+  // mcp/ is a local-only working tree (gitignored) — on CI and fresh clones the
+  // server dists do not exist. Skip and build from the committed pages there;
+  // a present-but-broken server still fails the build (stale pages must not ship
+  // silently when regeneration was possible).
+  if (!existsSync(cfg.args[0])) {
+    console.warn(`⚠ skip ${name}: server dist not found (${cfg.args[0]}) — using committed pages`);
+    continue;
   }
   const { serverInfo, tools } = await handshake(cfg);
   console.log(`${serverInfo.name} v${serverInfo.version} — ${tools.length} tools`);
