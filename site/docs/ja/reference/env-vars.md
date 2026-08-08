@@ -1,6 +1,6 @@
 # 環境変数一覧
 
-| 変数 | サーバ | 必須 | 用途 |
+| 変数 | サーバー | 必須 | 用途 |
 |---|---|---|---|
 | `PDF_SPEC_DIR` | pdf-spec | **必須** | 仕様 PDF コーパスのディレクトリ |
 | `PDF_VERIFY_VERAPDF` | pdf-verify | 任意 | veraPDF 実行パス（無ければ PATH 探索 → 内蔵ルール） |

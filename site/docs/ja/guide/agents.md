@@ -4,15 +4,15 @@ PDF Family を「PDF 専門エージェント」に組み上げる 3 つのレ�
 
 ## Lv1 — MCP を繋ぐだけ
 
-4 サーバを登録するだけで、各サーバが自己申告する **MCP instructions**（責務境界の宣言）が効きます。reader は「観測であり判定ではない」、verify は「反証はできるが証明はしない」、writer は「宣言は書けるが準拠は作れない」— これらの境界をエージェントが自然に守るよう設計されています。
+4 サーバーを登録するだけで、各サーバーが自己申告する **MCP instructions**（責務境界の宣言）が効く。reader は「観測であり判定ではない」、verify は「反証はできるが証明はしない」、writer は「宣言は書けるが準拠は作れない」— これらの境界をエージェントが自然に守るよう設計されている。
 
 ## Lv2 — Skill で編成
 
-[pdf-trust](/ja/skills/pdf-trust) / [pdf-publish](/ja/skills/pdf-publish) を導入すると、「この PDF は信用できる？」「PDF/UA で納品して」といった依頼に対し、複数 MCP の呼び出し順序・判定の読み方・レポート形式が定型化されます。
+[pdf-trust](/ja/skills/pdf-trust) / [pdf-publish](/ja/skills/pdf-publish) を導入すると、「この PDF は信用できる？」「PDF/UA で納品して」といった依頼に対し、複数 MCP の呼び出し順序・判定の読み方・レポート形式が定型化される。
 
 ## Lv3 — 専門サブエージェント
 
-用途を絞ったサブエージェントを定義します。例: 受入監査専用の `pdf-auditor`。
+用途を絞ったサブエージェントを定義する。例: 受入監査専用の `pdf-auditor`。
 
 ```markdown
 ---
@@ -40,6 +40,16 @@ tools: mcp__pdf-verify__*, mcp__pdf-reader__*
 - **判定ロジックをプロンプトに書かない** — ジャッジはコード（evaluate_policy）、ナラティブは LLM
 - **言い切り強度をプロンプトに埋め込む** — 出力の校正基準になる
 
+## ローカル LLM での適用
+
+3 つのレベルのうち、**原則はモデル非依存だが、Lv1 だけは前提が逆転する**。
+
+- そのまま効くもの — 「ジャッジはコード、ナラティブは LLM」・tools を絞る・言い切り強度。判定を `evaluate_policy` に委ねる設計は、モデルが小さいほど価値が上がる
+- 成立しにくいもの — Lv1 の「MCP instructions を自然に守る」は、instructions を尊重できる大型モデルの性質に依存する。小型モデルではツール呼び出しの形自体が崩れることも多い
+- 器の読み替え — Skill / サブエージェント定義は Claude Code の器。ローカルでは system prompt 埋め込みと、呼び出し順序を LLM に任せず**コード側で固定する**決定論的パイプラインで代替する
+
+つまりローカルでは Lv1 からではなく、Lv3 的な構成（絞る・固定する・コードで判定）から始めるのが現実的である。
+
 ## 運用の知見
 
 - **宣言 ≠ 準拠**: `ensure_pdfa` で宣言を書いたら、必ず `validate_conformance` で測る
@@ -48,4 +58,4 @@ tools: mcp__pdf-verify__*, mcp__pdf-reader__*
 
 ## プラグイン配布
 
-MCP + Skill + サブエージェント定義を 1 つのプラグインにまとめると、marketplace 経由でチーム配布できます。実例として pdf-trust / pdf-publish プラグインの構成を参照してください。
+MCP + Skill + サブエージェント定義を 1 つのプラグインにまとめると、marketplace 経由でチーム配布できる。実例として pdf-trust / pdf-publish プラグインの構成を参照してください。

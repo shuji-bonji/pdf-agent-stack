@@ -78,7 +78,7 @@ const en = {
 const ja = {
   guide: 'ガイド', overview: 'PDF Agent Stack とは', architecture: '全体構成と責務',
   gettingStarted: '導入手順', agents: '専門エージェント構築',
-  mcp: 'MCP サーバ', mcpIndex: '一覧', skillsIndex: '一覧',
+  mcp: 'MCP サーバー', mcpIndex: '一覧', skillsIndex: '一覧',
   useCases: 'ユースケース', ucIndex: '一覧', ucIncoming: '受入監査',
   ucPublish: '納品パイプライン', ucPdfa: '長期保存 (PDF/A)', ucA11y: 'アクセシビリティ (PDF/UA)',
   ucSpec: '仕様調査', ucBatch: '一括監査',
@@ -119,14 +119,17 @@ export default withMermaid(
         link: '/ja/',
         title: 'PDF Agent Stack',
         description:
-          '読む・検証する・書く・仕様で裏付ける — AI エージェントのための PDF ツール群。4 つの MCP サーバと 2 つの Skill。',
+          '読む・検証する・書く・仕様で裏付ける — AI エージェントのための PDF ツール群。4 つの MCP サーバーと 2 つの Skill。',
         themeConfig: { siteTitle: 'PDF Agent Stack', nav: nav('/ja', ja), sidebar: sidebar('/ja', ja) }
       }
     },
     themeConfig: {
       logo: '/images/logo.svg',
       search: { provider: 'local' },
-      socialLinks: [{ icon: 'github', link: 'https://github.com/shuji-bonji' }],
+      socialLinks: [
+        { icon: 'github', link: 'https://github.com/shuji-bonji/pdf-agent-stack' },
+        { icon: 'npm', link: 'https://www.npmjs.com/~shuji-bonji' }
+      ],
       footer: {
         message: 'MIT Licensed',
         copyright: '© shuji-bonji'

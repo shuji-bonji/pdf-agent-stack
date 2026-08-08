@@ -1,6 +1,6 @@
 # pdf-reader-mcp
 
-> **実体の層 (fact)** — このサーバは PDF の中身を**観測する**。正しいかどうかは判定しない。出力は常に「証拠」であり「判定」ではない。
+> **実体の層 (fact)** — このサーバーは PDF の中身を**観測する**。正しいかどうかは判定しない。出力は常に「証拠」であり「判定」ではない。
 
 - npm: `@shuji-bonji/pdf-reader-mcp` / 現行 v0.11.1
 - 環境変数なしで動作
@@ -13,17 +13,17 @@
 
 ## すること — 位置も返す
 
-「中身に何があるか」だけでなく、**それがページのどこに描かれているか**も返します。矩形は
+「中身に何があるか」だけでなく、**それがページのどこに描かれているか**も返す。矩形は
 [pdf-writer-mcp](/ja/mcp/pdf-writer) の `add_annotation` が**そのまま取る形**（PDF default user space・
-左下原点・pt・正規化済み）なので、受け渡しの途中で座標系を解釈し直す必要がありません。
+左下原点・pt・正規化済み）なので、受け渡しの途中で座標系を解釈し直す必要がない。
 
 | 問い | ツール |
 |---|---|
 | 「**オブジェクト 27** はどこか」 | [`locate_objects`](#locate-objects) |
 | 「**この段落 / この見出し** はどこか」 | [`extract_structured_text`](#extract-structured-text) の `include_bbox` |
 
-どちらも各矩形に **`basis`（根拠）** を付けて返します。実測なのか、ファイルの自己申告なのか、
-それともページ全体を指しているだけなのか ── **強さの違う主張を同じ顔で返さない**ための機構です。
+どちらも各矩形に **`basis`（根拠）** を付けて返す。実測なのか、ファイルの自己申告なのか、
+それともページ全体を指しているだけなのか ── **強さの違う主張を同じ顔で返さない**ための機構である。
 
 ## インストール
 
@@ -40,7 +40,7 @@
 
 ## 共通引数
 
-ほぼ全ツールが以下を受け取ります（各表では省略）。
+ほぼ全ツールが以下を受け取る（各表では省略）。
 
 | 引数 | 型 | 説明 |
 |---|---|---|
@@ -75,7 +75,7 @@
 
 ### read_text
 
-Y 座標ベースの読み順（上→下、左→右）でテキストを抽出します。`/ActualText` 置換（ISO 32000-2 §14.9.4）を構造要素・`Span` マーク付きコンテンツの両経路で解決するため、合字・ハイフン処理された語も見た目どおりの綴りで返ります。
+Y 座標ベースの読み順（上→下、左→右）でテキストを抽出する。`/ActualText` 置換（ISO 32000-2 §14.9.4）を構造要素・`Span` マーク付きコンテンツの両経路で解決するため、合字・ハイフン処理された語も見た目どおりの綴りで返る。
 
 使い分け:
 
@@ -91,7 +91,7 @@ Y 座標ベースの読み順（上→下、左→右）でテキストを抽出
 
 ### read_url
 
-URL（HTTP/HTTPS）から PDF を取得してテキスト抽出します。最大 50MB・タイムアウト 30 秒。`split_columns` / `compact_whitespace` も read_text と同様に使えます。
+URL（HTTP/HTTPS）から PDF を取得してテキスト抽出する。最大 50MB・タイムアウト 30 秒。`split_columns` / `compact_whitespace` も read_text と同様に使える。
 
 | 引数 | 型 | 説明 |
 |---|---|---|
@@ -99,11 +99,11 @@ URL（HTTP/HTTPS）から PDF を取得してテキスト抽出します。最�
 
 ### read_images
 
-埋め込み画像をメタ情報（寸法・色空間・ビット深度）付きの base64 で返します。大きな画像は応答が巨大になるため `pages` で範囲を絞ること。
+埋め込み画像をメタ情報（寸法・色空間・ビット深度）付きの base64 で返す。大きな画像は応答が巨大になるため `pages` で範囲を絞ること。
 
 ### search_text
 
-大文字小文字を無視して検索し、ページ番号・一致文字列・前後の文脈を返します。`read_text` と同じテキストに対して検索するため `/ActualText` 置換後の綴りでヒットします。
+大文字小文字を無視して検索し、ページ番号・一致文字列・前後の文脈を返す。`read_text` と同じテキストに対して検索するため `/ActualText` 置換後の綴りでヒットする。
 
 | 引数 | 型 | 説明 |
 |---|---|---|
@@ -113,7 +113,7 @@ URL（HTTP/HTTPS）から PDF を取得してテキスト抽出します。最�
 
 ### get_metadata
 
-タイトル・作成者・作成日時・ページ数・PDF バージョン・各種フラグ（linearized / encrypted / tagged / 署名有無）・ファイルサイズを返します。
+タイトル・作成者・作成日時・ページ数・PDF バージョン・各種フラグ（linearized / encrypted / tagged / 署名有無）・ファイルサイズを返す。
 
 ### get_page_count
 
@@ -121,13 +121,13 @@ URL（HTTP/HTTPS）から PDF を取得してテキスト抽出します。最�
 
 ### summarize
 
-メタデータ・テキスト有無・画像数・1 ページ目のプレビューをまとめた概観。**どの詳細ツールを使うか決める最初の一手**に向きます。
+メタデータ・テキスト有無・画像数・1 ページ目のプレビューをまとめた概観。**どの詳細ツールを使うか決める最初の一手**に向く。
 
 ## ツール別マニュアル — Tier 2
 
 ### extract_structured_text
 
-タグ付き PDF のテキストを**論理コンテンツ順**（ISO 32000-2 §14.8.2.5 の深さ優先走査）で、構造タイプ（role）付きで返します。「H1 のテキストは何か」に答えられる唯一のツールです。
+タグ付き PDF のテキストを**論理コンテンツ順**（ISO 32000-2 §14.8.2.5 の深さ優先走査）で、構造タイプ（role）付きで返す。「H1 のテキストは何か」に答えられる唯一のツールである。
 
 - 要素は `role` / `depth` / `text` / `pages` を持つフラットなリスト（深さ優先 + depth で木を完全に符号化）。Table のみ 2 次元のため `rows` を持つ
 - ページをまたぐ要素は**1 要素のまま**（段落は分割されない）
@@ -157,11 +157,11 @@ extract_structured_text({ file_path: "/doc.pdf", roles: ["P"], include_bbox: tru
 | `layout-attribute-bbox` | ファイルが**宣言**している `/BBox`（ISO 32000-2 Table 379）。生成者の自称であって測定値ではない。**テキストを持たない要素（画像だけの Figure 等）について言える唯一の根拠** |
 | `text-extent` | 要素が持つテキストからの**実測**。ベースライン原点＋フォントの ascent/descent = 行ボックスであってグリフ輪郭ではない。画像・ベクター描画は一切寄与しない |
 
-- **宣言はそのまま返した上で突き合わせます。** ページボックス（§7.7.3.3）と要素自身の本文の
-  両方に照合し、矛盾すれば `boxNote` で報告します。ファイルは平気で嘘を書く ──
+- **宣言はそのまま返した上で突き合わせる。** ページボックス（§7.7.3.3）と要素自身の本文の
+  両方に照合し、矛盾すれば `boxNote` で報告する。ファイルは平気で嘘を書く ──
   *Well-Tagged PDF 1.0* の表紙 Figure は `/BBox [-32768 -32768 32767 32767]`
-  （矩形であるべき場所に int16 のセンチネル）を宣言しています
-- **矩形が出せない要素は 0 幅の矩形を返さず、`boxNote` で理由を述べます**
+  （矩形であるべき場所に int16 のセンチネル）を宣言している
+- **矩形が出せない要素は 0 幅の矩形を返さず、`boxNote` で理由を述べる**
 
 ::: tip 独立した正解との突き合わせ
 *Well-Tagged PDF 1.0* の `Link` 構造要素 166 件の実測矩形を、生成者が同じリンクに置いた
@@ -170,46 +170,46 @@ extract_structured_text({ file_path: "/doc.pdf", roles: ["P"], include_bbox: tru
 
 ### extract_tables
 
-タグ付き PDF の全 `<Table>` サブツリーを `<TR>` → `<TH>/<TD>` で構造化抽出し、カーニング空白を除去します（「消 費 税 法」→「消費税法」）。多段組表での読み順抽出の失敗（新旧対照表で典型）を回避できます。改ページをまたぐ表は 1 つの表として返ります。
+タグ付き PDF の全 `<Table>` サブツリーを `<TR>` → `<TH>/<TD>` で構造化抽出し、カーニング空白を除去する（「消 費 税 法」→「消費税法」）。多段組表での読み順抽出の失敗（新旧対照表で典型）を回避できる。改ページをまたぐ表は 1 つの表として返る。
 
 制約: タグ無し PDF は空結果 + note。colspan/rowspan は展開しない。入れ子の表は外側セルの文字列に含まれる。
 
 ### inspect_structure
 
-カタログのエントリ・ページツリー（ページ数・MediaBox）・オブジェクト統計（総数・ストリーム数・型分布）・暗号化状態を返します。
+カタログのエントリ・ページツリー（ページ数・MediaBox）・オブジェクト統計（総数・ストリーム数・型分布）・暗号化状態を返す。
 
 ### inspect_tags
 
-タグ付きかどうか・構造ツリー階層と role・最大ネスト深さ・要素総数・role 分布を返します。準拠判定ではなく**構造の事実**が必要なとき（PDF/UA 判定は pdf-verify へ）。
+タグ付きかどうか・構造ツリー階層と role・最大ネスト深さ・要素総数・role 分布を返す。準拠判定ではなく**構造の事実**が必要なとき（PDF/UA 判定は pdf-verify へ）。
 
 ### inspect_fonts
 
-フォント名・型（TrueType / Type1 / CIDFont 等）・エンコーディング・埋め込み/サブセット状況・使用ページを返します。PDF/A・PDF/X の前提となる「全フォント埋め込みか」の観測に。
+フォント名・型（TrueType / Type1 / CIDFont 等）・エンコーディング・埋め込み/サブセット状況・使用ページを返す。PDF/A・PDF/X の前提となる「全フォント埋め込みか」の観測に。
 
 ### inspect_annotations
 
-注釈を種類別（Link / Widget / Highlight / Text 等）・ページ別に分類し、リンク・フォーム・マークアップの有無フラグと個別詳細を返します。
+注釈を種類別（Link / Widget / Highlight / Text 等）・ページ別に分類し、リンク・フォーム・マークアップの有無フラグと個別詳細を返す。
 
 ### inspect_signatures
 
-署名フィールド数・署名済み/未署名の内訳・各フィールドの詳細（署名者名・理由・場所・署名日時・filter/subFilter）を返します。
+署名フィールド数・署名済み/未署名の内訳・各フィールドの詳細（署名者名・理由・場所・署名日時・filter/subFilter）を返す。
 
 ::: warning 構造の観測のみ
-**暗号学的検証は行いません。** 署名が数学的に有効かは pdf-verify の `verify_signatures` / `verify_integrity` の答えです。
+**暗号学的検証は行わない。** 署名が数学的に有効かは pdf-verify の `verify_signatures` / `verify_integrity` の答えである。
 :::
 
 ### locate_objects
 
-オブジェクト番号を**ページと矩形**に変換します。[pdf-verify](/ja/mcp/pdf-verify) の `verify_integrity` が
+オブジェクト番号を**ページと矩形**に変換する。[pdf-verify](/ja/mcp/pdf-verify) の `verify_integrity` が
 「署名後にどのオブジェクトが変わったか」を返すので、その番号をここへ渡すと
-[pdf-writer](/ja/mcp/pdf-writer) の `add_annotation` にそのまま渡せる矩形になります
+[pdf-writer](/ja/mcp/pdf-writer) の `add_annotation` にそのまま渡せる矩形になる
 （PDF 座標系・左下原点・pt・ISO 32000-1 §7.9.5 正規化済み）。
 
 | 引数 | 型 | 説明 |
 |---|---|---|
 | `object_numbers` **必須** | array\<number\> | 調べるオブジェクト番号 |
 
-**各位置は `basis`（根拠）を持ちます。強さが違うので、1 つの矩形に潰しません。**
+**各位置は `basis`（根拠）を持つ。強さが違うので、1 つの矩形に潰さない。**
 
 | `basis` | 意味 |
 |---|---|
@@ -220,20 +220,20 @@ extract_structured_text({ file_path: "/doc.pdf", roles: ["P"], include_bbox: tru
 
 - 存在しない番号は `found: false`（「座標が不明」ではない）。リビジョンで解放された番号が
   差分から渡ってくるため、両者を混ぜると「あるが位置不明」と誤読される
-- 暗号化文書では座標と型は返しますが `/T` は `null`（数値と名前は非暗号 = §7.6.2。
+- 暗号化文書では座標と型は返すが `/T` は `null`（数値と名前は非暗号 = §7.6.2。
   文字列は暗号文のまま）
 
 ::: tip 「この段落はどこか」は別の経路
-`locate_objects` はコンテンツストリームについて「ページ全体」までしか言えません。
+`locate_objects` はコンテンツストリームについて「ページ全体」までしか言えない。
 段落・見出し単位で指したいときは
-[`extract_structured_text`](#extract-structured-text) の `include_bbox` を使います。
+[`extract_structured_text`](#extract-structured-text) の `include_bbox` を使う。
 :::
 
 ## ツール別マニュアル — Tier 3
 
 ### compare_structure
 
-2 つの PDF の構造を比較します（ページ数・バージョン・暗号化・タグ・オブジェクト数・寸法・サイズ・カタログ・署名のプロパティ別 diff + フォント比較）。生成パイプラインの一貫性検証や版比較に。
+2 つの PDF の構造を比較する（ページ数・バージョン・暗号化・タグ・オブジェクト数・寸法・サイズ・カタログ・署名のプロパティ別 diff + フォント比較）。生成パイプラインの一貫性検証や版比較に。
 
 | 引数 | 型 | 説明 |
 |---|---|---|
@@ -242,8 +242,8 @@ extract_structured_text({ file_path: "/doc.pdf", roles: ["P"], include_bbox: tru
 
 ### validate_metadata <Badge type="danger" text="deprecated" />
 
-次メジャーで削除予定。検査対象が Info 辞書のみで、PDF/UA-1 §7.1 が要求する XMP `dc:title` 等を見ません。規格判定は pdf-verify の `validate_conformance` へ。メタデータを読むだけなら `get_metadata` を。
+次メジャーで削除予定。検査対象が Info 辞書のみで、PDF/UA-1 §7.1 が要求する XMP `dc:title` 等を見ない。規格判定は pdf-verify の `validate_conformance` へ。メタデータを読むだけなら `get_metadata` を。
 
 ### validate_tagged <Badge type="danger" text="deprecated" />
 
-次メジャーで削除予定。pdf-verify の `validate_conformance`（flavour: `pdfua-1` / `pdfua-2`）が上位互換です（Figure の `/Alt` 実値検証・Link `/Contents`・ISO 14289 条文引用・veraPDF 委譲）。構造ツリーの**事実**が要るなら `inspect_tags`（こちらは deprecated ではありません）。
+次メジャーで削除予定。pdf-verify の `validate_conformance`（flavour: `pdfua-1` / `pdfua-2`）が上位互換である（Figure の `/Alt` 実値検証・Link `/Contents`・ISO 14289 条文引用・veraPDF 委譲）。構造ツリーの**事実**が要るなら `inspect_tags`（こちらは deprecated ではない）。

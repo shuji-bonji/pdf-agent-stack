@@ -1,6 +1,6 @@
 # pdf-writer-mcp
 
-> **生成の層 (production)** — このサーバは PDF を**書く**。準拠の「宣言」は書けるが、準拠そのものを作ることはできない。宣言を書いたら必ず pdf-verify で測ること。
+> **生成の層 (production)** — このサーバーは PDF を**書く**。準拠の「宣言」は書けるが、準拠そのものを作ることはできない。宣言を書いたら必ず pdf-verify で測ること。
 
 - npm: `@shuji-bonji/pdf-writer-mcp` / 現行 v0.16.0
 - pdf-lib + fontkit。日本語フォント埋め込み（サブセット化）対応
@@ -27,7 +27,7 @@
 
 ## 共通引数
 
-ほとんどのツールが以下を受け取ります（各表では省略し、ツール固有の引数のみ記載します）。
+ほとんどのツールが以下を受け取る（各表では省略し、ツール固有の引数のみ記載する）。
 
 | 引数 | 型 | 説明 |
 |---|---|---|
@@ -61,7 +61,7 @@ graph TD
 
 ## ツール別マニュアル — 作成
 
-create 系 3 ツールは共通で以下を受け取ります。
+create 系 3 ツールは共通で以下を受け取る。
 
 | 引数 | 型 | 説明 |
 |---|---|---|
@@ -72,7 +72,7 @@ create 系 3 ツールは共通で以下を受け取ります。
 | `onMissingGlyph` | `error` / `replace` / `ignore` | フォントに無い文字の扱い。既定 error（欠落文字を列挙してエラー）。replace = 〓 に置換して警告 |
 | `tagged` | boolean | **タグ付き PDF（PDF/UA-1）として生成**。構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与。PDF/UA はタイトル必須のため `title` が必須になる |
 | `lang` | string | 文書言語（BCP 47。例 `"ja"`）。tagged 時に省略すると本文から推定し warnings で報告。誤った言語宣言はスクリーンリーダの誤読を招くため確実なら明示 |
-| `pdfVersion` | `"1.7"` \| `"2.0"` | 出力する PDF の版。既定 `"1.7"`（バイト列は従来どおり）。`"2.0"`（ISO 32000-2）にすると版の宣言に加えて **trailer /ID を付与**（Table 15 で Required）し、**Info 辞書を CreationDate / ModDate だけに絞って**題名・作成者・Producer を XMP へ移します（§14.3.3）。**`tagged: true` とは併用不可** — 本サーバが書ける宣言は PDF/UA-1（PDF 1.7 基盤）だけで、2.0 の器に載せると誰にも測れない宣言になるため |
+| `pdfVersion` | `"1.7"` \| `"2.0"` | 出力する PDF の版。既定 `"1.7"`（バイト列は従来どおり）。`"2.0"`（ISO 32000-2）にすると版の宣言に加えて **trailer /ID を付与**（Table 15 で Required）し、**Info 辞書を CreationDate / ModDate だけに絞って**題名・作成者・Producer を XMP へ移す（§14.3.3）。**`tagged: true` とは併用不可** — 本サーバーが書ける宣言は PDF/UA-1（PDF 1.7 基盤）だけで、2.0 の器に載せると誰にも測れない宣言になるため |
 
 ### create_text_pdf
 
@@ -84,7 +84,7 @@ create 系 3 ツールは共通で以下を受け取ります。
 
 ### create_markdown_pdf
 
-Markdown から PDF を生成。見出し・段落・リスト・コードブロック・引用・水平線・表に対応。単一フォントのため、インライン装飾（**強調**等）は記号を除去し字面のみ反映します。
+Markdown から PDF を生成。見出し・段落・リスト・コードブロック・引用・水平線・表に対応。単一フォントのため、インライン装飾（**強調**等）は記号を除去し字面のみ反映する。
 
 | 引数 | 型 | 説明 |
 |---|---|---|
@@ -102,7 +102,7 @@ Markdown から PDF を生成。見出し・段落・リスト・コードブロ
 ## ツール別マニュアル — ページ操作
 
 ::: warning ページ複製系は文書レベル情報を引き継がない
-`merge_pdfs` / `split_pdf` / `extract_pages` / `delete_pages` / `reorder_pages` はページを新しい文書へ複製するため、**タグ付き構造・XMP・添付・AcroForm・しおり等は引き継がれません**。失われたものは warnings で報告されるので、必要なら出力に `attach_file` / `ensure_tagged` / `add_bookmarks` / `set_metadata` を後がけしてください。
+`merge_pdfs` / `split_pdf` / `extract_pages` / `delete_pages` / `reorder_pages` はページを新しい文書へ複製するため、**タグ付き構造・XMP・添付・AcroForm・しおり等は引き継がれない**。失われたものは warnings で報告されるので、必要なら出力に `attach_file` / `ensure_tagged` / `add_bookmarks` / `set_metadata` を後がけしてください。
 :::
 
 ### merge_pdfs
@@ -168,7 +168,7 @@ Markdown から PDF を生成。見出し・段落・リスト・コードブロ
 
 ### add_annotation
 
-注釈を 1 つ追加: 付箋（text）/ ハイライト（highlight）/ 矩形（square）。座標は **PDF 座標系（左下原点・pt）**。タグ付き文書では Annot 構造要素への内包（PDF/UA 7.18.1-1）も行い、`preserveSignatures` 時は増分に含めて PDF/UA 準拠を維持します（DocMDP では P=3 のときのみ許可）。
+注釈を 1 つ追加: 付箋（text）/ ハイライト（highlight）/ 矩形（square）。座標は **PDF 座標系（左下原点・pt）**。タグ付き文書では Annot 構造要素への内包（PDF/UA 7.18.1-1）も行い、`preserveSignatures` 時は増分に含めて PDF/UA 準拠を維持する（DocMDP では P=3 のときのみ許可）。
 
 | 引数 | 型 | 説明 |
 |---|---|---|
@@ -210,7 +210,7 @@ Markdown から PDF を生成。見出し・段落・リスト・コードブロ
 
 ### set_metadata
 
-Info 辞書の更新（指定フィールドのみ変更）。title / author / subject / keywords / creator のうち最低 1 つが必要。**XMP を持つ文書では dc:title 等も同期**して不整合を防ぎます。`preserveSignatures` 対応。
+Info 辞書の更新（指定フィールドのみ変更）。title / author / subject / keywords / creator のうち最低 1 つが必要。**XMP を持つ文書では dc:title 等も同期**して不整合を防ぐ。`preserveSignatures` 対応。
 
 ### attach_file
 
@@ -228,7 +228,7 @@ Info 辞書の更新（指定フィールドのみ変更）。title / author / s
 
 ### fill_form
 
-AcroForm にフィールド値を流し込み。**フィールド名が分からないときは、存在しない名前を指定するとエラーに全フィールド名と型が列挙される**という調査法が使えます。XFA 非対応。
+AcroForm にフィールド値を流し込み。**フィールド名が分からないときは、存在しない名前を指定するとエラーに全フィールド名と型が列挙される**という調査法が使える。XFA 非対応。
 
 | 引数 | 型 | 説明 |
 |---|---|---|
@@ -251,14 +251,14 @@ AcroForm にフィールド値を流し込み。**フィールド名が分から
 ## ツール別マニュアル — 宣言
 
 ::: danger 宣言を書いたら必ず測る
-`ensure_tagged` / `ensure_pdfa` は XMP に pdfuaid / pdfaid を書きます — これは**宣言**であって準拠ではありません。適合していない文書に適用すると**嘘を名乗る PDF** ができます（適用時は常に警告が返ります）。書いたら必ず pdf-verify の `validate_conformance` で測ること（flavour は `ensure_pdfa` に渡したものと同じ文字列 — `pdfua-1` / `pdfa-3b` / `pdfa-4` / `pdfa-4f`）。**測れないなら宣言を書かない。**
+`ensure_tagged` / `ensure_pdfa` は XMP に pdfuaid / pdfaid を書く — これは**宣言**であって準拠ではない。適合していない文書に適用すると**嘘を名乗る PDF** ができる（適用時は常に警告が返る）。書いたら必ず pdf-verify の `validate_conformance` で測ること（flavour は `ensure_pdfa` に渡したものと同じ文字列 — `pdfua-1` / `pdfa-3b` / `pdfa-4` / `pdfa-4f`）。**測れないなら宣言を書かない。**
 :::
 
 ### ensure_tagged
 
-既存 PDF を PDF/UA-1 の「器」に載せます。タグ付きなら構造木に触らず欠落した文書レベル要件（MarkInfo / Lang / DisplayDocTitle / XMP の pdfuaid・dc:title）のみ補い、タグ無しなら最小構造木（各ページ = 1 つの P 要素）を新設します。
+既存 PDF を PDF/UA-1 の「器」に載せる。タグ付きなら構造木に触らず欠落した文書レベル要件（MarkInfo / Lang / DisplayDocTitle / XMP の pdfuaid・dc:title）のみ補い、タグ無しなら最小構造木（各ページ = 1 つの P 要素）を新設する。
 
-**機械は意味を推定できない**ため、見出し・表・リスト・読み順・図の代替テキストは作られません。新設は「足場」であって「アクセシブルな文書」ではなく、人手のレビューが要ります。最初から正しく作れるなら create 系の `tagged: true` を。
+**機械は意味を推定できない**ため、見出し・表・リスト・読み順・図の代替テキストは作られない。新設は「足場」であって「アクセシブルな文書」ではなく、人手のレビューが要る。最初から正しく作れるなら create 系の `tagged: true` を。
 
 | 引数 | 型 | 説明 |
 |---|---|---|
@@ -267,21 +267,21 @@ AcroForm にフィールド値を流し込み。**フィールド名が分から
 
 ### ensure_pdfa
 
-既存 PDF を PDF/A の「器」に載せます（ensure_tagged の PDF/A 版）。`flavour` で **`"pdfa-3b"`（既定）/ `"pdfa-4"` / `"pdfa-4f"`** を選びます。補うのは trailer /ID（ISO 32000-1 14.4）・sRGB OutputIntent（ICC プロファイル生成・埋め込み）・XMP pdfaid で、**本文・構造木・フォントには触りません**。フォント未埋め込み・暗号化・JavaScript・LZW などの違反は直りません。
+既存 PDF を PDF/A の「器」に載せる（ensure_tagged の PDF/A 版）。`flavour` で **`"pdfa-3b"`（既定）/ `"pdfa-4"` / `"pdfa-4f"`** を選ぶ。補うのは trailer /ID（ISO 32000-1 14.4）・sRGB OutputIntent（ICC プロファイル生成・埋め込み）・XMP pdfaid で、**本文・構造木・フォントには触らない**。フォント未埋め込み・暗号化・JavaScript・LZW などの違反は直らない。
 
-**-4 系はさらにヘッダを PDF 2.0 にし、Info 辞書を削除します。** PDF/A-4 は catalog に `/PieceInfo` が無い限り Info を許さず（veraPDF `ISO 19005-4:2020 6.1.3-4`）、これは ISO 32000-2 §14.3.3 より厳しい要求です。作成日時は `xmp:CreateDate` が持つので情報は失われません。`pdfaid:rev` を書き、`pdfaid:conformance` は書きません（-4 は conformance level を持たないため）。
+**-4 系はさらにヘッダを PDF 2.0 にし、Info 辞書を削除する。** PDF/A-4 は catalog に `/PieceInfo` が無い限り Info を許さず（veraPDF `ISO 19005-4:2020 6.1.3-4`）、これは ISO 32000-2 §14.3.3 より厳しい要求である。作成日時は `xmp:CreateDate` が持つので情報は失われない。`pdfaid:rev` を書き、`pdfaid:conformance` は書かない（-4 は conformance level を持たないため）。
 
 ::: warning 添付があるなら `"pdfa-4f"`
-素の `"pdfa-4"` は**添付ファイル自身が PDF/A であること**を要求します（`6.9-3`）。CSV や JSON を同梱する電帳法の使い方では非適合になるため、**`"pdfa-4f"`** を使ってください。実測: 同一文書が `pdfa-4` で 108/109、`pdfa-4f` で **109/109 COMPLIANT**。
+素の `"pdfa-4"` は**添付ファイル自身が PDF/A であること**を要求する（`6.9-3`）。CSV や JSON を同梱する電帳法の使い方では非適合になるため、**`"pdfa-4f"`** を使ってください。実測: 同一文書が `pdfa-4` で 108/109、`pdfa-4f` で **109/109 COMPLIANT**。
 :::
 
-`preserveSignatures` との併用は、-4 系では**入力が既に PDF 2.0 でない限り拒否**されます。増分更新はファイル先頭のヘッダを書き換えられず、書き換えれば守るはずの署名が壊れるためです。
+`preserveSignatures` との併用は、-4 系では**入力が既に PDF 2.0 でない限り拒否**される。増分更新はファイル先頭のヘッダを書き換えられず、書き換えれば守るはずの署名が壊れるためである。
 
-電帳法の文脈では `attach_file` で機械可読データを添付した**後**に適用します。判定は veraPDF が下すため、「veraPDF はこう判定した」までしか言えません（ISO 19005 は条文を引けない）。
+電帳法の文脈では `attach_file` で機械可読データを添付した**後**に適用する。判定は veraPDF が下すため、「veraPDF はこう判定した」までしか言えない（ISO 19005 は条文を引けない）。
 
 ## エラーコード
 
-構造化エラー（`code` / `next_actions` / `retryable`）で返ります。メッセージ文字列をパースしないこと。
+構造化エラー（`code` / `next_actions` / `retryable`）で返る。メッセージ文字列をパースしないこと。
 
 | コード | 対処 |
 |---|---|

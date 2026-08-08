@@ -4,7 +4,7 @@ layout: home
 hero:
   name: PDF Agent Stack
   text: PDF 専門家 AI エージェントの構築
-  tagline: 読む・検証する・書く・仕様で裏付ける — AI エージェントのための PDF ツール群（4 つの MCP サーバと 2 つの Skill）
+  tagline: 読む・検証する・書く・仕様で裏付ける — AI エージェントのための PDF ツール群（4 つの MCP サーバーと 2 つの Skill）
   image:
     src: /images/logo.svg
     alt: PDF Agent Stack
@@ -51,5 +51,5 @@ features:
 }
 ```
 
-まずは pdf-reader だけで PDF を読んでみて、必要に応じて family を足していけます。
+まずは pdf-reader だけで PDF を読んでみて、必要に応じて family を足していける。
 → [導入手順（env / veraPDF / フォント）](/ja/guide/getting-started)
