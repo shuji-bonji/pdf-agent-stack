@@ -62,9 +62,10 @@
 - **Safari のみ**: preview/dev でページナビゲーション時にコンテンツが非表示になり、
   リロードで表示される（Chrome では起きない）。llms プラグインの dev 問題とは別。
   原因未特定 — 再現時は Safari の Web インスペクタでコンソールエラーを取ること。
-- en サイトの Translation pending 多数（guide / mcp / reference / use-cases）。
-  llms-full.txt にもスタブ文言が 23 件写る（無害・翻訳が進めば消える）。
-- ja use-cases 6 ページは Phase 2 執筆待ち。
+- ~~en サイトの Translation pending~~ → **2026-08-08 解消**。手書き層 23 ページを英訳済み
+  （ja が正典。ja を更新したら en も追従させること — 同期の仕組みは未整備で人力）。
+  en に残る日本語は pdf-writer リファレンスの生成部のみ（→ Issue 下書き・案 a）。
+- ja / en とも use-cases 6 ページは Phase 2 執筆待ち。
 
 ## このセッションで済んだこと（サイト関連）
 

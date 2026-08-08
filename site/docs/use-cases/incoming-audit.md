@@ -1,5 +1,7 @@
-# Incoming audit
+# Incoming PDF Audit
 
-::: warning Translation pending
-The English version of this page is being prepared. See the [Japanese version](/ja/use-cases/incoming-audit) for now.
+<!-- TODO (Phase 2): scenario -> MCPs/Skills -> sequence diagram (Mermaid) -> prompt examples -> how to read the results -->
+
+::: warning Work in progress
+This page will be written in Phase 2. Back to the [overview](/use-cases/).
 :::
