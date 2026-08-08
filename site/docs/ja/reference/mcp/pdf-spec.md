@@ -14,14 +14,14 @@ description: "pdf-spec-mcp v0.4.5 の全 8 ツールの引数・型・既定値�
 
 | ツール | 概要 |
 |---|---|
-| [`list_specs`](#list-specs) | 利用可能な PDF 仕様文書を一覧する。文書 ID・タイトル・ページ数・カテゴリに加え、`coverage.gaps` — このコーパスに**存在しない**規範領域（PDF/A・PAdES）— を返す。「要求が存在しない」と結論づける前に gaps を読むこと。返された ID は他ツールの `spec` 引数に使う。 |
-| [`get_structure`](#get-structure) | PDF 仕様（ISO 32000-2）の節階層を取得する。節番号・タイトル・ページ番号付きの目次を返す。 |
-| [`get_section`](#get-section) | PDF 仕様（ISO 32000-2）の指定節の本文を取得する。見出し・段落・リスト・表・注記を含む構造化コンテンツを返す。親節を指定するとサブツリー全体（全下位節・文書順）が返るため、最上位の節では応答が非常に大きくなりうる — 分かっている最も具体的な節番号を使うこと。 |
-| [`search_spec`](#search-spec) | PDF 仕様（ISO 32000-2）をキーワード・フレーズで検索する。該当節を文脈スニペット付きで返す。初回は検索インデックス構築のため数秒かかることがある。ヒット 0 件は「このコーパスでは答えられない」であって「そのような要求は存在しない」では**ない** — ISO 19005（PDF/A）と ETSI PAdES はコーパス外である（list_specs → coverage.gaps を参照）。 |
-| [`get_requirements`](#get-requirements) | あなたのファイルではなく**規格**を読む。PDF 仕様（ISO 32000-2）から規範的要求（shall/must/may）を抽出する。文の文脈・節・要求レベル付きの構造化要求を返す。仕様が何を要求するかを教えるだけで、特定の PDF がそれを満たすかは決して答えない — ファイルの検査は pdf-verify-mcp（validate_conformance / evaluate_policy）へ。 |
-| [`get_definitions`](#get-definitions) | PDF 仕様（ISO 32000-2）の第 3 節から用語定義を取得する。用語・定義文・注記・出典付きの構造化定義を返す。 |
-| [`get_tables`](#get-tables) | PDF 仕様（ISO 32000-2）の指定節から表構造を抽出する。ヘッダ・行・キャプション（任意）付きで表を返す。親節を指定するとサブツリー全体（全下位節）の表が返る。 |
-| [`compare_versions`](#compare-versions) | PDF 1.7（ISO 32000-1）と PDF 2.0（ISO 32000-2）の節を比較する。一致（同一または移動）・追加（2.0 で新設）・削除（2.0 に無い）を返す。タイトルベースの自動マッチングを使う。 |
+| [`list_specs`](#list-specs) | 利用可能な PDF 仕様文書を一覧する。 |
+| [`get_structure`](#get-structure) | PDF 仕様（ISO 32000-2）の節階層を取得する。 |
+| [`get_section`](#get-section) | PDF 仕様（ISO 32000-2）の指定節の本文を取得する。 |
+| [`search_spec`](#search-spec) | PDF 仕様（ISO 32000-2）をキーワード・フレーズで検索する。 |
+| [`get_requirements`](#get-requirements) | あなたのファイルではなく**規格**を読む。 |
+| [`get_definitions`](#get-definitions) | PDF 仕様（ISO 32000-2）の第 3 節から用語定義を取得する。 |
+| [`get_tables`](#get-tables) | PDF 仕様（ISO 32000-2）の指定節から表構造を抽出する。 |
+| [`compare_versions`](#compare-versions) | PDF 1.7（ISO 32000-1）と PDF 2.0（ISO 32000-2）の節を比較する。 |
 
 ## list_specs
 

@@ -17,7 +17,7 @@ description: "pdf-reader-mcp v0.11.1 の全 18 ツールの引数・型・既定
 | [`get_page_count`](#get-page-count) | PDF 文書の総ページ数を取得する。 |
 | [`get_metadata`](#get-metadata) | タイトル・作成者・作成日・ページ数・PDF バージョン・構造情報など、PDF 文書のメタデータを抽出する。 |
 | [`read_text`](#read-text) | Y 座標に基づく読み順を保って PDF 文書からテキストを抽出する。 |
-| [`search_text`](#search-text) | PDF 文書内のテキストを検索する。一致位置を前後の文脈付きで返す。 |
+| [`search_text`](#search-text) | PDF 文書内のテキストを検索する。 |
 | [`read_images`](#read-images) | PDF 文書から画像を base64 エンコードで抽出する。 |
 | [`read_url`](#read-url) | URL から PDF を取得してテキストを抽出する。 |
 | [`summarize`](#summarize) | PDF 文書の概観レポートを手早く生成する。 |
@@ -26,7 +26,7 @@ description: "pdf-reader-mcp v0.11.1 の全 18 ツールの引数・型・既定
 | [`inspect_fonts`](#inspect-fonts) | PDF 文書で使われている全フォントをプロパティ付きで一覧する。 |
 | [`inspect_annotations`](#inspect-annotations) | PDF 文書内の全注釈を抽出して種類別に分類する。 |
 | [`inspect_signatures`](#inspect-signatures) | PDF 文書のデジタル署名フィールドを調べる。 |
-| [`extract_tables`](#extract-tables) | タグ付き PDF の全 `<Table>` サブツリーを、構造化された行/セルのリストとして抽出する。オプションで Markdown 表としても描画できる。 |
+| [`extract_tables`](#extract-tables) | タグ付き PDF の全 `<Table>` サブツリーを、構造化された行/セルのリストとして抽出する。 |
 | [`extract_structured_text`](#extract-structured-text) | タグ付き PDF のテキストを論理コンテンツ順で抽出し、各断片に構造タイプのラベルを付ける。 |
 | [`locate_objects`](#locate-objects) | 指定したオブジェクトがページ上のどこにあるかを報告する。 |
 | [`validate_tagged`](#validate-tagged) | [非推奨 — 次のメジャーバージョンで削除予定] |

@@ -15,20 +15,24 @@ description: "pdf-verify-mcp v0.14.0 の全 7 ツールの引数・型・既定�
 | ツール | 概要 |
 |---|---|
 | [`verify_signatures`](#verify-signatures) | PDF 文書の電子署名を暗号学的に検証する。 |
-| [`verify_integrity`](#verify-integrity) | 署名後の変更の有無を分析する。 |
+| [`verify_integrity`](#verify-integrity) | 署名後に文書が変更されていないかを分析する。 |
 | [`detect_pades_level`](#detect-pades-level) | 各署名の構造がどの PAdES baseline レベル（ETSI EN 319 142）に一致するかを**観測**する。 |
 | [`identify_conformance`](#identify-conformance) | PDF の XMP メタデータに宣言された PDF/A（pdfaid）・PDF/UA（pdfuaid）準拠を特定する。 |
 | [`validate_conformance`](#validate-conformance) | PDF/A フレーバー（ISO 19005・長期保存）または PDF/UA フレーバー（ISO 14289・アクセシビリティ）に対して PDF を検証する。 |
-| [`validate_clauses`](#validate-clauses) | ISO 32000-1/-2 の条文から写像された制約に照らして PDF を検査する —— PDF/A や PDF/UA ではなく、PDF 仕様本体である。 |
+| [`validate_clauses`](#validate-clauses) | ISO 32000-1/-2 の条文から写像された制約に照らして PDF を検査する。 |
 | [`evaluate_policy`](#evaluate-policy) | PDF に対する決定論的な 4 値信頼判定（trust_and_use / use_with_caution / human_review_required / reject）を下す。 |
 
 ## verify_signatures
 
 **Verify PDF Digital Signatures (cryptographic)**
 
-PDF 文書の電子署名を暗号学的に検証する。
+PDF 文書の電子署名を暗号学的に検証する。各署名について行うこと:
 
-各署名について: ByteRange ダイジェストを再計算して CMS の messageDigest 属性と照合し、署名者証明書に対して CMS/PKCS#7 署名値を検証し、RFC 3161 署名タイムスタンプを検証し、信頼アンカーに対して証明書チェーンを評価し、失効状態を確認する。
+- ByteRange ダイジェストを再計算し、CMS の messageDigest 属性と照合する
+- 署名者証明書に対して CMS/PKCS#7 署名値を検証する
+- RFC 3161 署名タイムスタンプを検証する
+- 信頼アンカーに対して証明書チェーンを評価する
+- 失効状態を確認する
 
 ### 引数
 
@@ -57,21 +61,26 @@ PDF 文書の電子署名を暗号学的に検証する。
 
 **Verify PDF Integrity (tamper detection)**
 
-署名後の変更の有無を分析する。
+署名後に文書が変更されていないかを分析する。報告するのは:
 
-報告内容: リビジョン数（増分更新）、各署名の署名済み範囲の後にバイトが追加されたか、最後の署名がファイル全体を覆うか、DocMDP 認証の許可と違反、DSS の有無。
+- リビジョン数（増分更新の回数）
+- 各署名の署名済み範囲の後にバイトが追加されたか
+- 最後の署名がファイル全体を覆っているか
+- DocMDP 認証の許可と違反
+- DSS の有無
 
-DocMDP は P 値が実際に許可する範囲（ISO 32000-2 Table 257）に照らして評価される: P=1 は何も許可しない、P=2 はフォーム記入と署名、P=3 はさらに注釈の作成・削除・変更。後続の変更はオブジェクトレベル差分（changeClass）から分類されるため、P=2 文書への注釈追加は違反として報告され、P=3 文書への同じ変更は違反にならない。許可された変更が必然的に連れてくるオブジェクト —— /Annots が増えたページ・カタログ・/Info・XMP ストリーム —— は housekeeping に分類され、それ自体は違反を構成しない。ISO 32000-2 §12.8.2.2 により、P=1 認証後の DSS/文書タイムスタンプの増分更新は違反では**ない**（laterChangesAppearLtvOnly として印が付く）。
+DocMDP は、P 値が実際に許可する範囲（ISO 32000-2 Table 257）に照らして評価する。P=1 は何も許可しない。P=2 はフォーム記入と署名まで。P=3 はさらに注釈の作成・削除・変更まで。後続の変更はオブジェクトレベル差分（changeClass）から分類するので、P=2 文書への注釈追加は違反と報告し、P=3 文書への同じ変更は違反にしない。許可された変更に伴って必ず書き換わるオブジェクト（/Annots が増えたページ・カタログ・/Info・XMP ストリーム）は housekeeping に分類し、それ自体は違反にしない。なお ISO 32000-2 §12.8.2.2 により、P=1 認証後の DSS / 文書タイムスタンプの増分更新は違反では**ない**（laterChangesAppearLtvOnly の印が付く）。
 
-violationAssessment は 3 値である: "permitted" / "violated" / "indeterminate"。**"indeterminate" は合格ではない** —— チェーンを歩けなかった、または変更オブジェクトの種類を読めなかったことを意味し、何も反証できていない。boolean の violatedByLaterChanges は後方互換のため indeterminate を false に潰す。「判定できなかった」を「問題なし」と取り違えてはならない場面では violationAssessment を読むこと。
+violationAssessment は "permitted" / "violated" / "indeterminate" の 3 値である。**"indeterminate" は合格ではない**。チェーンを歩けなかった、または変更されたオブジェクトの種類を読めなかった、つまり何も反証できていないことを意味する。boolean の violatedByLaterChanges は後方互換のため indeterminate を false に潰しているので、「判定できなかった」と「問題なし」を区別すべき場面では violationAssessment の方を読むこと。
 
-さらに増分更新チェーンのオブジェクトレベル差分も報告する: リビジョンごとに、どのオブジェクトが追加・書き換え・解放されたかを、/Type と平易な役割名（注釈・フォームフィールド Widget・ページオブジェクト・コンテンツストリーム等）付きで返し、最後の署名済み範囲の後に書かれたオブジェクトの短いリスト（objectChangesAfterLastSignature）も返す。相互参照・オブジェクトストリームは bookkeeping として印が付く。オブジェクトがページ上のどこにあるかは pdf-reader-mcp の答えであり、本サーバーの答えではない。
+増分更新チェーンのオブジェクトレベル差分も報告する。リビジョンごとに、追加・書き換え・解放されたオブジェクトを /Type と平易な役割名（注釈・フォームフィールド Widget・ページオブジェクト・コンテンツストリーム等）付きで列挙し、最後の署名済み範囲の後に書かれたオブジェクトの短いリスト（objectChangesAfterLastSignature）も返す。相互参照・オブジェクトストリームには bookkeeping の印が付く。オブジェクトがページ上のどこにあるかは pdf-reader-mcp の担当である。
 
-差分の限界 —— これは観測であり、判定ではない:
-  - 増分更新は PDF として正当である（ISO 32000-2 §7.5.6）。書き換えられたオブジェクトは「レビューすべき点」を言うのであって、改ざんされたと言うのではない。これによって判定は動かない。
-  - revisions: null は相互参照チェーンを歩けなかったことを意味する —— 「判定不能」であって「変更なし」では**ない**。
-  - オブジェクトストリーム内のオブジェクトは inObjectStream: true・型なしで列挙される。
-  - 線形化ファイル（ISO 32000-1 Annex F）は 1 回の保存で 2 つの相互参照節を持つ。これは更新として報告せず 1 リビジョンに畳む。
+差分は観測であり、判定ではない:
+
+- 増分更新は PDF として正当な操作である（ISO 32000-2 §7.5.6）。書き換えられたオブジェクトは「レビューすべき点」を示すだけで、改ざんを意味しない。差分によって判定は動かない
+- revisions: null は相互参照チェーンを歩けなかったことを意味する。「判定不能」であって「変更なし」では**ない**
+- オブジェクトストリーム内のオブジェクトは inObjectStream: true・型なしで列挙される
+- 線形化ファイル（ISO 32000-1 Annex F）は 1 回の保存で 2 つの相互参照節を持つため、更新として報告せず 1 リビジョンに畳む
 
 ### 引数
 
@@ -95,9 +104,9 @@ violationAssessment は 3 値である: "permitted" / "violated" / "indeterminat
 
 各署名の構造がどの PAdES baseline レベル（ETSI EN 319 142）に一致するかを**観測**する。
 
-**これは観測であり、準拠判定ではない。** ETSI EN 319 142 は family の仕様コーパスに無く、PDF/A と違って委譲できる第三者検証器も存在しない —— 結果は「構造が B-LT に一致する」であって「PAdES B-LT に準拠」では決してない。これを明示するため全レポートに normativeBasis: "T3" が付く。
+**これは観測であり、準拠判定ではない。** ETSI EN 319 142 は family の仕様コーパスに無く、PDF/A と違って委譲できる第三者検証器も存在しない。したがって結果は「構造が B-LT に一致する」であって「PAdES B-LT に準拠」ではない。これを明示するため、全レポートに normativeBasis: "T3" が付く。
 
-検出は構造的: B-B（CAdES 署名）、B-T（+ RFC 3161 署名タイムスタンプ）、B-LT（+ 検証データ入り DSS）、B-LTA（+ 文書タイムスタンプ）。旧式の adbe.pkcs7.detached 署名は非 PAdES として報告される。
+構造から検出するレベル: B-B（CAdES 署名）→ B-T（+ RFC 3161 署名タイムスタンプ）→ B-LT（+ 検証データ入り DSS）→ B-LTA（+ 文書タイムスタンプ）。旧式の adbe.pkcs7.detached 署名は非 PAdES として報告する。
 
 ### 引数
 
@@ -174,7 +183,7 @@ ISO 条文参照付きのルール別結果。compliant は veraPDF なら true/
 
 **Check ISO 32000 Clause Constraints**
 
-ISO 32000-1/-2 の条文から写像された制約に照らして PDF を検査する —— PDF/A や PDF/UA ではなく、PDF 仕様本体である。
+ISO 32000-1/-2 の条文から写像された制約に照らして PDF を検査する。対象は PDF/A や PDF/UA のプロファイルではなく、PDF 仕様の本体である。
 
 veraPDF が見ない領域を覆う。veraPDF は PDF/A・PDF/UA プロファイルを判定するが、それに合格しながら ISO 32000 に違反する文書は作れる（例: CFF フォントプログラムを /FontFile2 に埋め込む。Table 124 が禁じている）。
 
@@ -216,7 +225,7 @@ veraPDF が見ない領域を覆う。veraPDF は PDF/A・PDF/UA プロファイ
 
 PDF に対する決定論的な 4 値信頼判定（trust_and_use / use_with_caution / human_review_required / reject）を下す。
 
-内部で verify_signatures・verify_integrity・detect_pades_level を実行し（長期保存プロファイルでは validate_conformance も）、事実を固定のルール表に通す —— 同じ事実と同じプロファイルからは常に同じ判定が出る。判定は完全にコードが下す。返される firedRules/advisories は結果の説明に使い、判定の上書きには決して使わないこと。判定するのは真正性と完全性のみで、文書の内容の真偽は決して判定しない。
+内部で verify_signatures・verify_integrity・detect_pades_level を実行し（長期保存プロファイルでは validate_conformance も）、得られた事実を固定のルール表に通す。同じ事実と同じプロファイルからは常に同じ判定が出る。判定は完全にコードが下す。返される firedRules / advisories は結果の説明に使い、判定の上書きには使わないこと。判定の対象は真正性と完全性のみで、文書の内容の真偽は判定しない。
 
 ### 引数
 

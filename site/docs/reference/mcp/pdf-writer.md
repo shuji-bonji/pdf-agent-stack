@@ -14,26 +14,26 @@ Auto-generated from the `tools/list` handshake of **v0.17.0** (20 tools, 2026-08
 
 | Tool | Summary |
 |---|---|
-| [`create_text_pdf`](#create-text-pdf) | プレーンテキストから PDF を生成する。改行(\n)を尊重し、空行を段落区切りとして扱う。長い行は自動で折り返す。 |
-| [`create_markdown_pdf`](#create-markdown-pdf) | Markdown から PDF を生成する。見出し・段落・箇条書き/番号リスト・コードブロック・引用・水平線・表に対応。インライン装飾の記号は除去し字面のみ反映する(単一フォントのため)。 |
-| [`create_table_pdf`](#create-table-pdf) | ヘッダと行データから罫線付きの表 PDF を生成する。列幅は内容から自動算出し、セル内は折り返す。改ページ時はヘッダを再描画する。 |
-| [`set_metadata`](#set-metadata) | 既存 PDF のメタデータ(Info 辞書)を更新する。指定したフィールドのみ変更し、他は保持する。title / author / subject / keywords / creator のうち最低 1 つが必要。XMP(/Metadata)を持つ文書では dc:title 等も同期して不整合を防ぐ。署名済み PDF には preserveSignatures: true で署名を保持したまま更新できる。 |
-| [`merge_pdfs`](#merge-pdfs) | 複数の PDF を指定順に 1 つへ結合する。文書メタデータは先頭ファイルから引き継ぐ。ページを新しい文書へ複製するため、文書レベルの情報（タグ付き構造・XMP・添付・AcroForm・しおり等）は引き継がれない。失われたものは warnings で報告するので、必要なら出力に対して attach_file / ensure_tagged / add_bookmarks / set_metadata を後がけすること。 |
-| [`split_pdf`](#split-pdf) | PDF をページ範囲ごとに複数ファイルへ分割する。ranges の各要素が 1 ファイルになる。出力は "`<prefix>`1.pdf", "`<prefix>`2.pdf", ... |
-| [`extract_pages`](#extract-pages) | 指定ページだけを含む新しい PDF を作る。指定順を保持するため、ページの並べ替えを兼ねた抽出も可能。ページを新しい文書へ複製するため、文書レベルの情報（タグ付き構造・XMP・添付・AcroForm・しおり等）は引き継がれない。失われたものは warnings で報告するので、必要なら出力に対して attach_file / ensure_tagged / add_bookmarks / set_metadata を後がけすること。 |
-| [`delete_pages`](#delete-pages) | 指定ページを削除した新しい PDF を作る。全ページの削除はエラー。ページを新しい文書へ複製するため、文書レベルの情報（タグ付き構造・XMP・添付・AcroForm・しおり等）は引き継がれない。失われたものは warnings で報告するので、必要なら出力に対して attach_file / ensure_tagged / add_bookmarks / set_metadata を後がけすること。 |
-| [`reorder_pages`](#reorder-pages) | ページを並べ替える。order には全ページを新しい順序で 1 回ずつ列挙する。ページを新しい文書へ複製するため、文書レベルの情報（タグ付き構造・XMP・添付・AcroForm・しおり等）は引き継がれない。失われたものは warnings で報告するので、必要なら出力に対して attach_file / ensure_tagged / add_bookmarks / set_metadata を後がけすること。 |
-| [`add_bookmarks`](#add-bookmarks) | PDF にしおり(アウトライン)を設定する。既存のしおりは置換される。children で入れ子にできる。署名済み PDF には preserveSignatures: true で署名を保持したまま設定できる。 |
-| [`add_annotation`](#add-annotation) | ページに注釈を 1 つ追加する。付箋(text) / ハイライト(highlight) / 矩形(square) に対応。座標は PDF 座標系(左下原点・pt)で指定する。署名済み PDF には preserveSignatures: true で、既存署名を無効化せず増分更新で追加できる(タグ付き文書では Annot 構造要素への内包も増分に含まれ PDF/UA 準拠を維持する)。 |
-| [`stamp_page_numbers`](#stamp-page-numbers) | 各ページにページ番号を刻む。タグ付き PDF では Artifact として囲むため PDF/UA 準拠を維持する。日本語を含む書式を使う場合は fontPath か環境変数 PDF_WRITER_FONT が必要。 |
-| [`add_watermark`](#add-watermark) | 各ページの中央に斜めの透かし文字を重ねる("社外秘" / "DRAFT" / "COPY" 等)。既定では本文の背面に薄く敷く。タグ付き PDF では Artifact として囲むため PDF/UA 準拠を維持する。日本語の透かしには fontPath か環境変数 PDF_WRITER_FONT が必要。 |
-| [`fill_form`](#fill-form) | 既存 PDF の対話フォーム(AcroForm)にフィールド値を流し込む。フィールド名が分からない場合は、存在しない名前を指定するとエラーに全フィールド名と型が列挙される。日本語の値には fontPath か環境変数 PDF_WRITER_FONT が必要。flatten: true で記入後に非対話化できるが、タグ付き PDF では PDF/UA 準拠が壊れるため allowBreakingTags: true も要る。XFA フォームは非対応。 |
-| [`flatten_form`](#flatten-form) | 既存 PDF の対話フォーム(AcroForm)をフラット化し、記入済みの見た目を保ったまま非対話にする。配布前に値を固定したい場合に使う。外観の再生成が要る場合に備え、既存の値に日本語が含まれるなら fontPath か環境変数 PDF_WRITER_FONT を指定しておくこと。タグ付き PDF では Widget 注釈が消えて Form 構造要素が宙に浮くため既定で拒否する(allowBreakingTags: true で強行可)。 |
-| [`tag_form_fields`](#tag-form-fields) | タグ付き PDF のフォームを PDF/UA-1 準拠へ修復する。Widget 注釈を Form 構造要素に内包し(7.18.4-1)、対象ページに /Tabs S を立て(7.18.3-1)、フィールドに代替名 /TU を付与する(7.18.1-3)。labels でスクリーンリーダ向けの人間可読な名前を渡すこと。既に構造木に結ばれた Widget はスキップするため何度実行しても安全。タグ無し文書は対象外(create 系の tagged: true でゼロから作るか、将来の ensure_tagged を待つ)。署名済み PDF には preserveSignatures: true で署名を保持したまま修復できる(承認署名のみ。認証署名は拒否)。 |
-| [`ensure_tagged`](#ensure-tagged) | 既存 PDF を PDF/UA-1 の「器」に載せる。既にタグ付きなら構造木には触らず、欠落した文書レベル要件(MarkInfo / Lang / DisplayDocTitle / XMP の pdfuaid:part・dc:title)のみ補う。タグ無し文書には最小限の構造木(各ページ = 1 つの P 要素)を新設して本文を支援技術から到達可能にする。**重要**: 機械は意味を推定できないため、見出し・表・リスト・読み順・図の代替テキストは作られない。新設は「足場」であって「アクセシブルな文書」ではなく、人手のレビューが要る。構造を最初から正しく作れる場合は create 系の tagged: true を使うこと。署名済み PDF には preserveSignatures: true(承認署名のみ。認証署名は拒否)。 |
-| [`ensure_pdfa`](#ensure-pdfa) | 既存 PDF を PDF/A の「器」に載せる(ensure_tagged の PDF/A 版)。flavour で "pdfa-3b"(既定) / "pdfa-4" / "pdfa-4f" を選ぶ。文書レベルの欠落要件だけを補う: trailer の /ID(ISO 32000-1 14.4)・sRGB の OutputIntent(GTS_PDFA1。ICC プロファイルを生成して埋め込む)・XMP の pdfaid。**-4 系はさらにヘッダを PDF 2.0 にし、Info 辞書を削除する**(-4 は catalog に /PieceInfo が無い限り Info を許さない。ISO 32000-2 14.3.3 より厳しい)。**本文・構造木・フォントには触らない**。**添付がある文書は "pdfa-4f" を使うこと** — 素の "pdfa-4" は添付ファイル自身が PDF/A であることを要求するため、CSV や JSON を添える電帳法の使い方では非適合になる。**重要**: これは「PDF/A を名乗るための下準備」であって適合の保証ではない。フォント未埋め込み・暗号化・JavaScript・LZW などの違反は直らない。**XMP に pdfaid を書く = その文書が「PDF/A です」と名乗る**ため、適合していない文書に適用すると**嘘を名乗る PDF ができる**(だから適用時は常に警告を返す)。適合したかは pdf-verify-mcp の validate_conformance(flavour: 同じ値) で必ず確認すること(判定は veraPDF が下す。ISO 19005 は条文を引けないため「veraPDF はこう判定した」までしか言えない)。電帳法の文脈では attach_file で機械可読データを添付した**後**に適用する。署名済み PDF には preserveSignatures: true(承認署名のみ。認証署名は拒否)。ただし **-4 系 × preserveSignatures は、入力が既に PDF 2.0 でない限り拒否する**(増分更新では先頭のヘッダを書き換えられず、書き換えれば署名が壊れるため)。 |
-| [`attach_file`](#attach-file) | PDF にファイルを埋め込む(添付する)。/Names /EmbeddedFiles と catalog /AF に登録し、AFRelationship を付与する。PDF/A-3(ISO 19005-3)や電子帳簿保存法の文脈で、「人が読む請求書 PDF + 機械可読データ(CSV/XML)」を 1 ファイルに束ねる用途に使う。 |
-| [`rotate_pages`](#rotate-pages) | ページを時計回りに回転する(90/180/270 度)。pages 省略時は全ページ。 |
+| [`create_text_pdf`](#create-text-pdf) | プレーンテキストから PDF を生成する。 |
+| [`create_markdown_pdf`](#create-markdown-pdf) | Markdown から PDF を生成する。 |
+| [`create_table_pdf`](#create-table-pdf) | ヘッダと行データから罫線付きの表 PDF を生成する。 |
+| [`set_metadata`](#set-metadata) | 既存 PDF のメタデータ(Info 辞書)を更新する。 |
+| [`merge_pdfs`](#merge-pdfs) | 複数の PDF を指定順に 1 つへ結合する。 |
+| [`split_pdf`](#split-pdf) | PDF をページ範囲ごとに複数ファイルへ分割する。 |
+| [`extract_pages`](#extract-pages) | 指定ページだけを含む新しい PDF を作る。 |
+| [`delete_pages`](#delete-pages) | 指定ページを削除した新しい PDF を作る。 |
+| [`reorder_pages`](#reorder-pages) | ページを並べ替える。 |
+| [`add_bookmarks`](#add-bookmarks) | PDF にしおり(アウトライン)を設定する。 |
+| [`add_annotation`](#add-annotation) | ページに注釈を 1 つ追加する。 |
+| [`stamp_page_numbers`](#stamp-page-numbers) | 各ページにページ番号を刻む。 |
+| [`add_watermark`](#add-watermark) | 各ページの中央に斜めの透かし文字を重ねる("社外秘" / "DRAFT" / "COPY" 等)。 |
+| [`fill_form`](#fill-form) | 既存 PDF の対話フォーム(AcroForm)にフィールド値を流し込む。 |
+| [`flatten_form`](#flatten-form) | 既存 PDF の対話フォーム(AcroForm)をフラット化し、記入済みの見た目を保ったまま非対話にする。 |
+| [`tag_form_fields`](#tag-form-fields) | タグ付き PDF のフォームを PDF/UA-1 準拠へ修復する。 |
+| [`ensure_tagged`](#ensure-tagged) | 既存 PDF を PDF/UA-1 の「器」に載せる。 |
+| [`ensure_pdfa`](#ensure-pdfa) | 既存 PDF を PDF/A の「器」に載せる(ensure_tagged の PDF/A 版)。 |
+| [`attach_file`](#attach-file) | PDF にファイルを埋め込む(添付する)。 |
+| [`rotate_pages`](#rotate-pages) | ページを時計回りに回転する(90/180/270 度)。 |
 
 ## create_text_pdf
 

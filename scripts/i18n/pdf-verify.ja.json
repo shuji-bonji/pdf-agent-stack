@@ -1,15 +1,15 @@
 {
  "verify_signatures|prose": {
   "src": "68f2e0ff7e4d7058f33fc5c8f43ea02c",
-  "text": "PDF 文書の電子署名を暗号学的に検証する。\n\n各署名について: ByteRange ダイジェストを再計算して CMS の messageDigest 属性と照合し、署名者証明書に対して CMS/PKCS#7 署名値を検証し、RFC 3161 署名タイムスタンプを検証し、信頼アンカーに対して証明書チェーンを評価し、失効状態を確認する。"
+  "text": "PDF 文書の電子署名を暗号学的に検証する。各署名について行うこと:\n\n- ByteRange ダイジェストを再計算し、CMS の messageDigest 属性と照合する\n- 署名者証明書に対して CMS/PKCS#7 署名値を検証する\n- RFC 3161 署名タイムスタンプを検証する\n- 信頼アンカーに対して証明書チェーンを評価する\n- 失効状態を確認する"
  },
  "verify_integrity|prose": {
   "src": "de446a4dc5c90620e5dbe9152b54789f",
-  "text": "署名後の変更の有無を分析する。\n\n報告内容: リビジョン数（増分更新）、各署名の署名済み範囲の後にバイトが追加されたか、最後の署名がファイル全体を覆うか、DocMDP 認証の許可と違反、DSS の有無。\n\nDocMDP は P 値が実際に許可する範囲（ISO 32000-2 Table 257）に照らして評価される: P=1 は何も許可しない、P=2 はフォーム記入と署名、P=3 はさらに注釈の作成・削除・変更。後続の変更はオブジェクトレベル差分（changeClass）から分類されるため、P=2 文書への注釈追加は違反として報告され、P=3 文書への同じ変更は違反にならない。許可された変更が必然的に連れてくるオブジェクト —— /Annots が増えたページ・カタログ・/Info・XMP ストリーム —— は housekeeping に分類され、それ自体は違反を構成しない。ISO 32000-2 §12.8.2.2 により、P=1 認証後の DSS/文書タイムスタンプの増分更新は違反では**ない**（laterChangesAppearLtvOnly として印が付く）。\n\nviolationAssessment は 3 値である: \"permitted\" / \"violated\" / \"indeterminate\"。**\"indeterminate\" は合格ではない** —— チェーンを歩けなかった、または変更オブジェクトの種類を読めなかったことを意味し、何も反証できていない。boolean の violatedByLaterChanges は後方互換のため indeterminate を false に潰す。「判定できなかった」を「問題なし」と取り違えてはならない場面では violationAssessment を読むこと。\n\nさらに増分更新チェーンのオブジェクトレベル差分も報告する: リビジョンごとに、どのオブジェクトが追加・書き換え・解放されたかを、/Type と平易な役割名（注釈・フォームフィールド Widget・ページオブジェクト・コンテンツストリーム等）付きで返し、最後の署名済み範囲の後に書かれたオブジェクトの短いリスト（objectChangesAfterLastSignature）も返す。相互参照・オブジェクトストリームは bookkeeping として印が付く。オブジェクトがページ上のどこにあるかは pdf-reader-mcp の答えであり、本サーバーの答えではない。\n\n差分の限界 —— これは観測であり、判定ではない:\n  - 増分更新は PDF として正当である（ISO 32000-2 §7.5.6）。書き換えられたオブジェクトは「レビューすべき点」を言うのであって、改ざんされたと言うのではない。これによって判定は動かない。\n  - revisions: null は相互参照チェーンを歩けなかったことを意味する —— 「判定不能」であって「変更なし」では**ない**。\n  - オブジェクトストリーム内のオブジェクトは inObjectStream: true・型なしで列挙される。\n  - 線形化ファイル（ISO 32000-1 Annex F）は 1 回の保存で 2 つの相互参照節を持つ。これは更新として報告せず 1 リビジョンに畳む。"
+  "text": "署名後に文書が変更されていないかを分析する。報告するのは:\n\n- リビジョン数（増分更新の回数）\n- 各署名の署名済み範囲の後にバイトが追加されたか\n- 最後の署名がファイル全体を覆っているか\n- DocMDP 認証の許可と違反\n- DSS の有無\n\nDocMDP は、P 値が実際に許可する範囲（ISO 32000-2 Table 257）に照らして評価する。P=1 は何も許可しない。P=2 はフォーム記入と署名まで。P=3 はさらに注釈の作成・削除・変更まで。後続の変更はオブジェクトレベル差分（changeClass）から分類するので、P=2 文書への注釈追加は違反と報告し、P=3 文書への同じ変更は違反にしない。許可された変更に伴って必ず書き換わるオブジェクト（/Annots が増えたページ・カタログ・/Info・XMP ストリーム）は housekeeping に分類し、それ自体は違反にしない。なお ISO 32000-2 §12.8.2.2 により、P=1 認証後の DSS / 文書タイムスタンプの増分更新は違反では**ない**（laterChangesAppearLtvOnly の印が付く）。\n\nviolationAssessment は \"permitted\" / \"violated\" / \"indeterminate\" の 3 値である。**\"indeterminate\" は合格ではない**。チェーンを歩けなかった、または変更されたオブジェクトの種類を読めなかった、つまり何も反証できていないことを意味する。boolean の violatedByLaterChanges は後方互換のため indeterminate を false に潰しているので、「判定できなかった」と「問題なし」を区別すべき場面では violationAssessment の方を読むこと。\n\n増分更新チェーンのオブジェクトレベル差分も報告する。リビジョンごとに、追加・書き換え・解放されたオブジェクトを /Type と平易な役割名（注釈・フォームフィールド Widget・ページオブジェクト・コンテンツストリーム等）付きで列挙し、最後の署名済み範囲の後に書かれたオブジェクトの短いリスト（objectChangesAfterLastSignature）も返す。相互参照・オブジェクトストリームには bookkeeping の印が付く。オブジェクトがページ上のどこにあるかは pdf-reader-mcp の担当である。\n\n差分は観測であり、判定ではない:\n\n- 増分更新は PDF として正当な操作である（ISO 32000-2 §7.5.6）。書き換えられたオブジェクトは「レビューすべき点」を示すだけで、改ざんを意味しない。差分によって判定は動かない\n- revisions: null は相互参照チェーンを歩けなかったことを意味する。「判定不能」であって「変更なし」では**ない**\n- オブジェクトストリーム内のオブジェクトは inObjectStream: true・型なしで列挙される\n- 線形化ファイル（ISO 32000-1 Annex F）は 1 回の保存で 2 つの相互参照節を持つため、更新として報告せず 1 リビジョンに畳む"
  },
  "detect_pades_level|prose": {
   "src": "72c8e8c13dd2e3b07ce245946cb0c726",
-  "text": "各署名の構造がどの PAdES baseline レベル（ETSI EN 319 142）に一致するかを**観測**する。\n\n**これは観測であり、準拠判定ではない。** ETSI EN 319 142 は family の仕様コーパスに無く、PDF/A と違って委譲できる第三者検証器も存在しない —— 結果は「構造が B-LT に一致する」であって「PAdES B-LT に準拠」では決してない。これを明示するため全レポートに normativeBasis: \"T3\" が付く。\n\n検出は構造的: B-B（CAdES 署名）、B-T（+ RFC 3161 署名タイムスタンプ）、B-LT（+ 検証データ入り DSS）、B-LTA（+ 文書タイムスタンプ）。旧式の adbe.pkcs7.detached 署名は非 PAdES として報告される。"
+  "text": "各署名の構造がどの PAdES baseline レベル（ETSI EN 319 142）に一致するかを**観測**する。\n\n**これは観測であり、準拠判定ではない。** ETSI EN 319 142 は family の仕様コーパスに無く、PDF/A と違って委譲できる第三者検証器も存在しない。したがって結果は「構造が B-LT に一致する」であって「PAdES B-LT に準拠」ではない。これを明示するため、全レポートに normativeBasis: \"T3\" が付く。\n\n構造から検出するレベル: B-B（CAdES 署名）→ B-T（+ RFC 3161 署名タイムスタンプ）→ B-LT（+ 検証データ入り DSS）→ B-LTA（+ 文書タイムスタンプ）。旧式の adbe.pkcs7.detached 署名は非 PAdES として報告する。"
  },
  "identify_conformance|prose": {
   "src": "3f2d6028a912c422debf94ddd4570576",
@@ -21,11 +21,11 @@
  },
  "validate_clauses|prose": {
   "src": "ace4d120d4752a3a0c7ce9cbe22d9983",
-  "text": "ISO 32000-1/-2 の条文から写像された制約に照らして PDF を検査する —— PDF/A や PDF/UA ではなく、PDF 仕様本体である。\n\nveraPDF が見ない領域を覆う。veraPDF は PDF/A・PDF/UA プロファイルを判定するが、それに合格しながら ISO 32000 に違反する文書は作れる（例: CFF フォントプログラムを /FontFile2 に埋め込む。Table 124 が禁じている）。\n\n写像とその評価は @shuji-bonji/pdf-constraints にあり、本ツールはどの版が判定したかを報告する。同じファイルと同じ与件からは常に同じ結果が出る。\n\n同梱ドメイン: font-embedding, document-metadata, annotation"
+  "text": "ISO 32000-1/-2 の条文から写像された制約に照らして PDF を検査する。対象は PDF/A や PDF/UA のプロファイルではなく、PDF 仕様の本体である。\n\nveraPDF が見ない領域を覆う。veraPDF は PDF/A・PDF/UA プロファイルを判定するが、それに合格しながら ISO 32000 に違反する文書は作れる（例: CFF フォントプログラムを /FontFile2 に埋め込む。Table 124 が禁じている）。\n\n写像とその評価は @shuji-bonji/pdf-constraints にあり、本ツールはどの版が判定したかを報告する。同じファイルと同じ与件からは常に同じ結果が出る。\n\n同梱ドメイン: font-embedding, document-metadata, annotation"
  },
  "evaluate_policy|prose": {
   "src": "c233b8b9100a9ec080d5e3ba24cfeba7",
-  "text": "PDF に対する決定論的な 4 値信頼判定（trust_and_use / use_with_caution / human_review_required / reject）を下す。\n\n内部で verify_signatures・verify_integrity・detect_pades_level を実行し（長期保存プロファイルでは validate_conformance も）、事実を固定のルール表に通す —— 同じ事実と同じプロファイルからは常に同じ判定が出る。判定は完全にコードが下す。返される firedRules/advisories は結果の説明に使い、判定の上書きには決して使わないこと。判定するのは真正性と完全性のみで、文書の内容の真偽は決して判定しない。"
+  "text": "PDF に対する決定論的な 4 値信頼判定（trust_and_use / use_with_caution / human_review_required / reject）を下す。\n\n内部で verify_signatures・verify_integrity・detect_pades_level を実行し（長期保存プロファイルでは validate_conformance も）、得られた事実を固定のルール表に通す。同じ事実と同じプロファイルからは常に同じ判定が出る。判定は完全にコードが下す。返される firedRules / advisories は結果の説明に使い、判定の上書きには使わないこと。判定の対象は真正性と完全性のみで、文書の内容の真偽は判定しない。"
  },
  "verify_signatures|returns": {
   "src": "aeb099d2bbc72d83fc833115438a655f",
