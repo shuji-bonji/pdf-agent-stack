@@ -7,9 +7,11 @@ name: Deploy site to GitHub Pages
 on:
   push:
     branches: [main]
-    # hub 側（stack.json / README）の更新では再デプロイしない
+    # hub 側（stack.json / README）の更新では再デプロイしない。
+    # scripts/ はリファレンス生成器と翻訳メモリ = ビルドの入力なので含める。
     paths:
       - 'site/**'
+      - 'scripts/**'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
