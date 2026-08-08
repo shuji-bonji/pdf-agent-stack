@@ -368,6 +368,51 @@ function renderPage(server, info, tools, t, lang, tr) {
   return L.join('\n');
 }
 
+/* ---------------- version sync (hand-written pages) ----------------
+ *
+ * The hand-written MCP pages state each server's current version in two places:
+ * the overview table (mcp/index.md) and the page header ("current v0.11.1").
+ * Both are updated here from the same handshake the reference is generated from,
+ * so a released server never leaves a stale number behind on the site.
+ * Only the numbers move — the prose around them is left alone.
+ */
+
+function syncVersions(server, info, toolCount) {
+  const npmName = REGISTRY[server].npm;
+  const edits = [];
+
+  for (const locale of LOCALES) {
+    // 1) page header: "- npm: `@scope/name` / current v0.0.0"
+    const pagePath = join(ROOT, locale.dir, `mcp/${server}.md`);
+    if (existsSync(pagePath)) {
+      const before = readFileSync(pagePath, 'utf8');
+      const after = before.replace(
+        new RegExp(`(\`${npmName.replace(/[/@]/g, '\\$&')}\`\\s*/\\s*(?:現行|current)\\s+v)[0-9][^\\s]*`),
+        `$1${info.version}`
+      );
+      if (after !== before) {
+        writeFileSync(pagePath, after);
+        edits.push(`${locale.lang} mcp/${server}.md`);
+      }
+    }
+
+    // 2) overview table row: "| [name](link) | layer | 0.0.0 | 18 | … |"
+    const indexPath = join(ROOT, locale.dir, 'mcp/index.md');
+    if (existsSync(indexPath)) {
+      const before = readFileSync(indexPath, 'utf8');
+      const after = before.replace(
+        new RegExp(`(^\\|\\s*\\[${server}-mcp\\]\\([^)]*\\)\\s*\\|[^|]*\\|\\s*)[0-9][^|\\s]*(\\s*\\|\\s*)\\d+(\\s*\\|)`, 'm'),
+        `$1${info.version}$2${toolCount}$3`
+      );
+      if (after !== before) {
+        writeFileSync(indexPath, after);
+        edits.push(`${locale.lang} mcp/index.md`);
+      }
+    }
+  }
+  return edits;
+}
+
 /* ---------------- main ---------------- */
 
 const targets = process.argv.slice(2);
@@ -397,6 +442,9 @@ for (const name of names) {
     mkdirSync(dirname(outPath), { recursive: true });
     writeFileSync(outPath, renderPage(name, serverInfo, tools, locale.t, locale.lang, tr));
     console.log(`  wrote ${outPath.replace(ROOT + '/', '')}`);
+  }
+  for (const edited of syncVersions(name, serverInfo, tools.length)) {
+    console.log(`  synced version in ${edited}`);
   }
   const pendingPath = join(ROOT, 'scripts/i18n', `pending-${name}.ja.json`);
   if (pending.length) {

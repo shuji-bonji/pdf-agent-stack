@@ -1,16 +1,77 @@
 ---
-description: 用語集 — 宣言・準拠・検証の区別、PAdES・LTV・信頼アンカー・veraPDF・4 値判定
+description: 用語集 — 宣言/準拠/検証の区別、言い切り強度 T1/T2/T3、basis（位置の根拠）、PAdES・LTV・DocMDP・veraPDF・4 値判定
 ---
 
 # 用語集
 
+Family の文書とツール出力に現れる用語。定義は ISO 規格の用語と衝突しないよう、規格側の意味に従う。
+
+## 主張の強さに関わる語
+
+この 3 つを混ぜないことが family 全体の設計思想である → [全体構成と責務](/ja/guide/architecture)。
+
 | 用語 | 定義 |
 |---|---|
-| 宣言 (declaration) | XMP の pdfaid / pdfuaid。文書の自己申告。何も証明しない |
-| 準拠 (conformance) | 証明不能。反証だけができる |
-| 検証 (validation) | 検証器が実装するルールの範囲内でのみ有効 |
-| PAdES | PDF の長期署名プロファイル (ETSI EN 319 142)。B-B / B-T / B-LT / B-LTA |
-| LTV | Long-Term Validation。失効情報等を文書に格納し長期検証を可能にする |
-| 信頼アンカー | 署名者チェーンの検証起点となる証明書 |
-| veraPDF | PDF/A・PDF/UA のオープンソース検証器。family の判定委譲先 |
-| 4 値判定 | evaluate_policy の verdict: trust_and_use / use_with_caution / human_review_required / reject |
+| 宣言 (declaration) | XMP の pdfaid / pdfuaid。文書の自己申告。何も証明しない。writer の `ensure_pdfa` / `ensure_tagged` が書くのはこれ |
+| 準拠 (conformance) | 証明不能。反証だけができる。「準拠している」と言い切れる立場は誰にも無い |
+| 検証 (validation) | 検証器が実装するルールの範囲内でのみ有効。「違反なし」は「そのルール集合で反証できなかった」の意 |
+| 観測 (observation) | ファイルに何が書かれているかの事実。合否を含まない（reader の全出力） |
+| 判定 (verdict) | 規格・ポリシーに照らした合否（verify の出力）。**観測から自動的には出ない** |
+
+### 言い切り強度 — T1 / T2 / T3
+
+検証結果をどこまで強く言えるかは、**規範文書が手元にあるか**で決まる。verify の出力にはこの tier が付く。
+
+| Tier | 規格 | 言える強さ | 根拠 |
+|---|---|---|---|
+| T1 | ISO 32000-1/-2、ISO 14289 (PDF/UA) | 条文を引用して言い切る | コーパスにあり原文を引ける |
+| T2 | ISO 19005 (PDF/A) | 「veraPDF が COMPLIANT と判定した」とだけ言う | コーパス外。判定は veraPDF に委譲 |
+| T3 | ETSI EN 319 142 (PAdES) | 構造の観測として「B-LT 相当の構造」と言う。**準拠とは言わない** | コーパス外かつ第三者検証器も無い |
+
+T3 のレポートには `normativeBasis: "T3"` が付き、観測であることが機械可読になっている。
+
+### basis — 位置情報の根拠
+
+reader が矩形を返すとき、その座標が**どこから来たか**を示す。強さの違う主張を同じ顔で返さないための機構である
+（[locate_objects](/ja/mcp/pdf-reader#locate-objects) / [extract_structured_text](/ja/mcp/pdf-reader#extract-structured-text) の `include_bbox`）。
+
+| basis | 意味 | 強さ |
+|---|---|---|
+| `annotation-rect` | 注釈自身の `/Rect` | 正確 |
+| `layout-attribute-bbox` | ファイルが**宣言**する `/BBox`（ISO 32000-2 Table 379） | 自己申告。実測ではない |
+| `text-extent` | 要素のテキストからの**実測**（ベースライン + ascent/descent = 行ボックス） | 実測。ただし画像・ベクター描画は寄与しない |
+| `page-box` | オブジェクトがページ。その crop / media box | 正確だが粒度はページ |
+| `page-content-stream` | オブジェクトがページを描いている。矩形は**ページ全体**で、変更箇所ではない | 粗い |
+| `page-resource` | フォント・画像などのリソース。**矩形は存在しない**（`rect: null`） | 該当なし |
+
+## 規格・技術用語
+
+| 用語 | 定義 |
+|---|---|
+| PAdES | PDF の長期署名プロファイル (ETSI EN 319 142)。B-B / B-T / B-LT / B-LTA の 4 レベル |
+| LTV | Long-Term Validation。失効情報等を文書に格納し、証明書の期限後も検証を可能にする |
+| DSS | Document Security Store。LTV のための検証データ（証明書・OCSP・CRL）を格納する辞書 |
+| DocMDP | 認証署名の変更許可レベル（ISO 32000-2 Table 257）。P=1 は何も許可しない / P=2 はフォーム記入と署名 / P=3 は加えて注釈操作 |
+| 増分更新 (incremental update) | ファイル末尾への追記による更新（ISO 32000-2 §7.5.6）。**PDF として正当な操作**であり、それ自体は改ざんを意味しない |
+| 信頼アンカー (trust anchor) | 署名者の証明書チェーンを検証する起点となる証明書。**未設定なら「valid」は暗号計算の一致のみを意味する** |
+| タグ付き PDF | 構造ツリー（StructTreeRoot）を持ち、論理コンテンツ順と役割が機械可読な PDF。PDF/UA の前提 |
+| Artifact | 論理コンテンツに属さないページ装飾（ページ番号・柱など）。ISO 32000-2 §14.8.2.5 NOTE 3 により読み順の外に置かれる。**日常語の「成果物」ではない** |
+| ActualText | グリフ列の**置換**テキスト（ISO 32000-2 §14.9.4）。合字やハイフン処理された語を見た目どおりに読ませる。説明ではない |
+| Alt | テキストを持たない内容の**説明**（§14.9.3）。ActualText と違い本文には混ぜない |
+| veraPDF | PDF/A・PDF/UA のオープンソース検証器。family が T2 の判定を委譲する先 |
+
+## 判定・運用の語
+
+| 用語 | 定義 |
+|---|---|
+| 4 値判定 | `evaluate_policy` が下すポリシー判定: `trust_and_use`（そのまま利用可）/ `use_with_caution`（留意事項付きで利用可）/ `human_review_required`（人間の確認が必要）/ `reject`（受け入れ不可）。**同じ事実と同じプロファイルからは常に同じ値** |
+| firedRules | 4 値判定で発火したルールの ID と理由。**結果の説明に使うもので、判定の上書きには使わない** |
+| advisory | 判定に影響しない推奨。**不在は合格を意味しない** |
+| needs_external_fact | `validate_clauses` の状態の一つ。ファイル外の事実が与えられず**判定しなかった**（pass に倒さない） |
+| trace | `validate_clauses` の失敗印の一つ。条文が PDF **処理系**に向けたもので、誰かが破った痕跡ではあるが最後に書いた者とは限らない |
+| 判定不能 (indeterminate) | 反証も立証もできなかった状態。**「問題なし」ではない**（`verify_integrity` の violationAssessment 等） |
+
+## 関連ページ
+
+- [全体構成と責務](/ja/guide/architecture) — 4 層モデルと言い切り強度
+- [ISO 仕様書の読み方（入門）](/ja/reference/iso-reading-primer) — NOTE / shall / 定義の読み分け
