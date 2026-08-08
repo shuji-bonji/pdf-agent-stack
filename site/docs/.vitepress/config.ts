@@ -101,6 +101,9 @@ export default withMermaid(
       'Read, verify, write and reason about PDFs — a family of MCP servers and skills for AI agents',
     base: '/pdf-agent-stack/',
     lastUpdated: true,
+    head: [
+      ['link', { rel: 'icon', type: 'image/svg+xml', href: '/pdf-agent-stack/images/logo.svg' }]
+    ],
     locales: {
       root: {
         label: 'English',
@@ -121,6 +124,7 @@ export default withMermaid(
       }
     },
     themeConfig: {
+      logo: '/images/logo.svg',
       search: { provider: 'local' },
       socialLinks: [{ icon: 'github', link: 'https://github.com/shuji-bonji' }],
       footer: {

@@ -5,6 +5,9 @@ hero:
   name: PDF Agent Stack
   text: Building a PDF-expert AI agent
   tagline: Read, verify, write — grounded in the spec. Four MCP servers and two skills for AI agents.
+  image:
+    src: /images/logo.svg
+    alt: PDF Agent Stack
   actions:
     - theme: brand
       text: Get Started

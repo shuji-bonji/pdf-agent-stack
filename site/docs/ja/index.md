@@ -5,6 +5,9 @@ hero:
   name: PDF Agent Stack
   text: PDF 専門家 AI エージェントの構築
   tagline: 読む・検証する・書く・仕様で裏付ける — AI エージェントのための PDF ツール群（4 つの MCP サーバと 2 つの Skill）
+  image:
+    src: /images/logo.svg
+    alt: PDF Agent Stack
   actions:
     - theme: brand
       text: はじめる
