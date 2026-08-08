@@ -1,5 +1,6 @@
 ---
 layout: home
+description: AI エージェントのための PDF ツール群 — 読む・検証する・書く・仕様で裏付ける 4 つの MCP サーバーと 2 つの Skill
 
 hero:
   name: PDF Agent Stack

@@ -1,3 +1,7 @@
+---
+description: 受け取った PDF の信頼性監査を編成する Skill — evaluate_policy の 4 値判定を軸に Trust Report を返す入口ゲート
+---
+
 # pdf-trust — 受入監査
 
 受け取った PDF（契約書・請求書・診療文書・行政文書など）が「本物か・信用してよいか・改ざんされていないか」を監査し、推奨判定付きの **Trust Report** を返す Skill である。

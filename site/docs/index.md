@@ -1,5 +1,6 @@
 ---
 layout: home
+description: PDF tooling for AI agents — four MCP servers and two skills to read, verify, and write PDFs, grounded in the ISO 32000 spec.
 
 hero:
   name: PDF Agent Stack

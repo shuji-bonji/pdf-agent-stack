@@ -1,3 +1,7 @@
+---
+description: write → read-back → verify の品質ゲートを回し Publish Report 付きで納品する出口ゲートの Skill
+---
+
 # pdf-publish — 納品パイプライン
 
 PDF の生成・編集から納品までを品質ゲート付きで編成する Skill。pdf-writer で書き、pdf-reader で読み戻し、pdf-verify（veraPDF）で機械採点する **write → read-back → verify ループ**を回し、**Publish Report** 付きで納品する。

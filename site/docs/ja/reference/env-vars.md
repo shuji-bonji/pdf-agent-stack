@@ -1,3 +1,7 @@
+---
+description: 各 MCP サーバーの環境変数一覧 — PDF_SPEC_DIR / PDF_VERIFY_VERAPDF / PDF_VERIFY_TRUST_ANCHORS / PDF_WRITER_FONT
+---
+
 # 環境変数一覧
 
 | 変数 | サーバー | 必須 | 用途 |

@@ -1,3 +1,7 @@
+---
+description: pdf-writer の構造化エラーコード一覧（code / next_actions / retryable）
+---
+
 # エラーコード一覧
 
 ## pdf-writer（構造化エラー: code / next_actions / retryable）

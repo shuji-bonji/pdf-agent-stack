@@ -1,3 +1,7 @@
+---
+description: 4 つの MCP サーバーの一覧と層構成 — pdf-spec（正典）/ pdf-reader（実体）/ pdf-verify（判定）/ pdf-writer（生成）
+---
+
 # MCP サーバー一覧
 
 | サーバー | 層 | ver | ツール数 | 一行定義 |

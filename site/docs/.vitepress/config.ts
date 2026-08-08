@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress';
+import llmstxt from 'vitepress-plugin-llms';
 import { withMermaid } from 'vitepress-plugin-mermaid';
 
 const mcpSidebar = (prefix: string, labels: Record<string, string>) => [
@@ -60,6 +61,10 @@ const sidebar = (prefix: string, l: Record<string, string>) => ({
         { text: l.errorCodes, link: `${prefix}/reference/error-codes` },
         { text: l.glossary, link: `${prefix}/reference/glossary` }
       ]
+    },
+    {
+      text: l.mcpTools,
+      items: [{ text: 'pdf-reader', link: `${prefix}/reference/mcp/pdf-reader` }]
     }
   ]
 });
@@ -72,7 +77,7 @@ const en = {
   ucPublish: 'Publish Pipeline', ucPdfa: 'PDF/A Archiving', ucA11y: 'Accessibility (PDF/UA)',
   ucSpec: 'Spec Research', ucBatch: 'Batch Audit',
   envVars: 'Environment Variables', errorCodes: 'Error Codes', glossary: 'Glossary',
-  isoPrimer: 'How to Read ISO Specs'
+  isoPrimer: 'How to Read ISO Specs', mcpTools: 'MCP Tools Reference'
 };
 
 const ja = {
@@ -83,7 +88,7 @@ const ja = {
   ucPublish: '納品パイプライン', ucPdfa: '長期保存 (PDF/A)', ucA11y: 'アクセシビリティ (PDF/UA)',
   ucSpec: '仕様調査', ucBatch: '一括監査',
   envVars: '環境変数', errorCodes: 'エラーコード', glossary: '用語集',
-  isoPrimer: 'ISO 仕様書の読み方'
+  isoPrimer: 'ISO 仕様書の読み方', mcpTools: 'MCP ツールリファレンス'
 };
 
 const nav = (prefix: string, l: Record<string, string>) => [
@@ -101,6 +106,7 @@ export default withMermaid(
       'Read, verify, write and reason about PDFs — a family of MCP servers and skills for AI agents',
     base: '/pdf-agent-stack/',
     lastUpdated: true,
+    vite: { plugins: [llmstxt()] },
     head: [
       ['link', { rel: 'icon', type: 'image/svg+xml', href: '/pdf-agent-stack/images/logo.svg' }]
     ],

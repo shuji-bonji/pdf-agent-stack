@@ -1,3 +1,7 @@
+---
+description: npx での導入手順 — 各 MCP サーバーの設定例、必須環境変数（PDF_SPEC_DIR / PDF_WRITER_FONT 等）、動作確認プロンプト
+---
+
 # 導入手順
 
 前提: Node.js 20+。全サーバー `npx` で起動できるためグローバルインストールは不要である。

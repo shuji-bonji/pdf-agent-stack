@@ -1,3 +1,7 @@
+---
+description: PDF Agent Stack（PDF Family）の全体像 — 4 つの MCP サーバーと 2 つの Skill の構成要素、観測・判定・生成・規範を分離する理由
+---
+
 # PDF Family とは
 
 PDF Family は、AI エージェントに PDF の「読む・検証する・書く・仕様で裏付ける」能力を与える、4 つの独立した MCP サーバーと 2 つの Skill の総称である。
