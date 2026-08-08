@@ -1,8 +1,18 @@
 # Issue 下書き: pdf-writer の tool description を英語化し、ja は翻訳メモリで持つ
 
-> 登録先の候補: shuji-bonji/pdf-writer-mcp（実装変更の主体）。
-> pdf-agent-stack 側にも追跡 Issue を置くなら本文から「サイト側の影響」を抜粋する。
-> **現マイルストーンに含めるかは未決**（2026-08-08 時点・サイト初回公開のスコープ外にできる）。
+> **✅ 実装済み（2026-08-08・案 a どおり）**。pdf-writer-mcp v0.18.0（未リリース）として
+> definitions.ts / validation.ts の description を英語化。ja 訳 190 件は翻訳メモリへ
+> 全件載せ替え済み（欠落 0）。残る手順は下記「リリース前チェック」のみ。
+> Issue 登録は不要になったが、経緯の記録として残す。
+
+## リリース前チェック（ホスト作業）
+
+1. `cd mcp/pdf-writer-mcp && npm test && npm run check`（テストが description 文字列を
+   assert していれば追従修正）
+2. リリース（**署名は push 前**・タグ v0.18.0）→ `npm publish` → **npx で公開版検証**
+3. リリース後にサイトを再デプロイ（生成ページは既に v0.18.0 を名乗っているため、
+   **writer のリリースより先にサイトを deploy しない**こと）
+4. `scripts/generate-stack.mjs` で stack.json を再生成
 
 ## 背景
 

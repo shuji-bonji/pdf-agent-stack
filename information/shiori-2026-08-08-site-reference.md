@@ -22,9 +22,10 @@
 - 翻訳器は差し替え可能。**DeepL は実測で不採用**: コードスパン破壊
   （`<Table>` 等をバッククォート内でも HTML と解釈）・`\n`→`n` 化け・文体混在・引用符化け。
   Markdown + コード混じりの技術文は LLM 翻訳の方が確実だった。
-- **pdf-writer は description がサーバー実装自体で日本語**。ja メモリは同一文の
-  identity 登録（190 エントリ）で充足済み。en ページには日本語が出る。
-  → 恒久対応は `information/issue-draft-writer-descriptions-english.md`（案 a）。
+- ~~pdf-writer は description が日本語ソース~~ → **2026-08-08 英語化済み（v0.18.0 未リリース）**。
+  ja 訳 190 件は翻訳メモリへ載せ替え済み。en に残る日本語は意図的な用例
+  （社外秘・氏名・電子帳簿保存法）のみ。リリース手順は issue-draft 参照 —
+  **writer を npm リリースしてからサイトを deploy**（順序厳守）。
 
 ## サンドボックスの制約（再現手順）
 
