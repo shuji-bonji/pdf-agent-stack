@@ -1,5 +1,5 @@
 ---
-description: pdf-reader-mcp v0.11.1 の全 18 ツールの引数・型・既定値・戻り値（tools/list から自動生成）
+description: "pdf-reader-mcp v0.11.1 の全 18 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-reader-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: pdf-reader-mcp v0.11.1 の全 18 ツールの引数・型・既定�
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-**v0.11.1** の `tools/list` ハンドシェイクから自動生成（18 ツール・2026-08-08）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。説明文はサーバ実装が返す原文（英語）。
+**v0.11.1** の `tools/list` ハンドシェイクから自動生成（18 ツール・2026-08-08）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 ## ツール一覧

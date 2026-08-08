@@ -64,7 +64,12 @@ const sidebar = (prefix: string, l: Record<string, string>) => ({
     },
     {
       text: l.mcpTools,
-      items: [{ text: 'pdf-reader', link: `${prefix}/reference/mcp/pdf-reader` }]
+      items: [
+        { text: 'pdf-spec', link: `${prefix}/reference/mcp/pdf-spec` },
+        { text: 'pdf-reader', link: `${prefix}/reference/mcp/pdf-reader` },
+        { text: 'pdf-verify', link: `${prefix}/reference/mcp/pdf-verify` },
+        { text: 'pdf-writer', link: `${prefix}/reference/mcp/pdf-writer` }
+      ]
     }
   ]
 });
@@ -106,7 +111,11 @@ export default withMermaid(
       'Read, verify, write and reason about PDFs — a family of MCP servers and skills for AI agents',
     base: '/pdf-agent-stack/',
     lastUpdated: true,
-    vite: { plugins: [llmstxt()] },
+    // llms.txt 生成はビルド時のみ有効化する。
+    // プラグインの dev ミドルウェアは「.md で終わる全リクエスト」を横取りして
+    // dist の生 Markdown を返すため、dist が存在すると dev の SPA 遷移
+    // （ページを .md モジュールとして取得する）が全ページで壊れる。
+    vite: { plugins: [llmstxt().map((p) => ({ ...p, apply: 'build' as const }))] },
     head: [
       ['link', { rel: 'icon', type: 'image/svg+xml', href: '/pdf-agent-stack/images/logo.svg' }]
     ],

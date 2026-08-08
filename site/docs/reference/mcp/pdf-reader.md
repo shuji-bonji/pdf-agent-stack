@@ -1,5 +1,5 @@
 ---
-description: Tools reference for pdf-reader-mcp v0.11.1 — parameters, types, defaults and returns of all 18 tools, generated from the server's tools/list.
+description: "Tools reference for pdf-reader-mcp v0.11.1 — parameters, types, defaults and returns of all 18 tools, generated from the server's tools/list."
 ---
 
 # pdf-reader-mcp — Tools Reference

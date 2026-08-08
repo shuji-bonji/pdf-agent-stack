@@ -1,0 +1,762 @@
+{
+ "create_text_pdf|prose": {
+  "src": "02938afd8699a20f3aaa6e39ae239593",
+  "text": "プレーンテキストから PDF を生成する。改行(\\n)を尊重し、空行を段落区切りとして扱う。長い行は自動で折り返す。"
+ },
+ "create_markdown_pdf|prose": {
+  "src": "21cba2eeec79901d894da15d5ecc4c0d",
+  "text": "Markdown から PDF を生成する。見出し・段落・箇条書き/番号リスト・コードブロック・引用・水平線・表に対応。インライン装飾の記号は除去し字面のみ反映する(単一フォントのため)。"
+ },
+ "create_table_pdf|prose": {
+  "src": "52bf9dcb6f960b5a090fb93fd0ccc981",
+  "text": "ヘッダと行データから罫線付きの表 PDF を生成する。列幅は内容から自動算出し、セル内は折り返す。改ページ時はヘッダを再描画する。"
+ },
+ "set_metadata|prose": {
+  "src": "6d6fe98adddfec9aea13999a14e1926f",
+  "text": "既存 PDF のメタデータ(Info 辞書)を更新する。指定したフィールドのみ変更し、他は保持する。title / author / subject / keywords / creator のうち最低 1 つが必要。XMP(/Metadata)を持つ文書では dc:title 等も同期して不整合を防ぐ。署名済み PDF には preserveSignatures: true で署名を保持したまま更新できる。"
+ },
+ "merge_pdfs|prose": {
+  "src": "43498e632f42ac831f09e8e2339cc162",
+  "text": "複数の PDF を指定順に 1 つへ結合する。文書メタデータは先頭ファイルから引き継ぐ。ページを新しい文書へ複製するため、文書レベルの情報（タグ付き構造・XMP・添付・AcroForm・しおり等）は引き継がれない。失われたものは warnings で報告するので、必要なら出力に対して attach_file / ensure_tagged / add_bookmarks / set_metadata を後がけすること。"
+ },
+ "split_pdf|prose": {
+  "src": "e8eae6991b8a455cea6553595ec37560",
+  "text": "PDF をページ範囲ごとに複数ファイルへ分割する。ranges の各要素が 1 ファイルになる。出力は \"<prefix>1.pdf\", \"<prefix>2.pdf\", ... の連番。ページを新しい文書へ複製するため、文書レベルの情報（タグ付き構造・XMP・添付・AcroForm・しおり等）は引き継がれない。失われたものは warnings で報告するので、必要なら出力に対して attach_file / ensure_tagged / add_bookmarks / set_metadata を後がけすること。"
+ },
+ "extract_pages|prose": {
+  "src": "b27905d1586849f0b84956e536aea267",
+  "text": "指定ページだけを含む新しい PDF を作る。指定順を保持するため、ページの並べ替えを兼ねた抽出も可能。ページを新しい文書へ複製するため、文書レベルの情報（タグ付き構造・XMP・添付・AcroForm・しおり等）は引き継がれない。失われたものは warnings で報告するので、必要なら出力に対して attach_file / ensure_tagged / add_bookmarks / set_metadata を後がけすること。"
+ },
+ "delete_pages|prose": {
+  "src": "9536efe168608f9e63f313df40435cdb",
+  "text": "指定ページを削除した新しい PDF を作る。全ページの削除はエラー。ページを新しい文書へ複製するため、文書レベルの情報（タグ付き構造・XMP・添付・AcroForm・しおり等）は引き継がれない。失われたものは warnings で報告するので、必要なら出力に対して attach_file / ensure_tagged / add_bookmarks / set_metadata を後がけすること。"
+ },
+ "reorder_pages|prose": {
+  "src": "675cad6f00ba65a5aa68455fb99e00a0",
+  "text": "ページを並べ替える。order には全ページを新しい順序で 1 回ずつ列挙する。ページを新しい文書へ複製するため、文書レベルの情報（タグ付き構造・XMP・添付・AcroForm・しおり等）は引き継がれない。失われたものは warnings で報告するので、必要なら出力に対して attach_file / ensure_tagged / add_bookmarks / set_metadata を後がけすること。"
+ },
+ "add_bookmarks|prose": {
+  "src": "3a1bff4e98d23eaa03afeedf38a864e8",
+  "text": "PDF にしおり(アウトライン)を設定する。既存のしおりは置換される。children で入れ子にできる。署名済み PDF には preserveSignatures: true で署名を保持したまま設定できる。"
+ },
+ "add_annotation|prose": {
+  "src": "1d1d8bef6e0c5b9bde5f6c749c5d43d1",
+  "text": "ページに注釈を 1 つ追加する。付箋(text) / ハイライト(highlight) / 矩形(square) に対応。座標は PDF 座標系(左下原点・pt)で指定する。署名済み PDF には preserveSignatures: true で、既存署名を無効化せず増分更新で追加できる(タグ付き文書では Annot 構造要素への内包も増分に含まれ PDF/UA 準拠を維持する)。"
+ },
+ "stamp_page_numbers|prose": {
+  "src": "f8bd5a8002ef8f1b434a699a3a34b7b5",
+  "text": "各ページにページ番号を刻む。タグ付き PDF では Artifact として囲むため PDF/UA 準拠を維持する。日本語を含む書式を使う場合は fontPath か環境変数 PDF_WRITER_FONT が必要。"
+ },
+ "add_watermark|prose": {
+  "src": "80975e78d9c9a09b64047b2a2c0d4f2f",
+  "text": "各ページの中央に斜めの透かし文字を重ねる(\"社外秘\" / \"DRAFT\" / \"COPY\" 等)。既定では本文の背面に薄く敷く。タグ付き PDF では Artifact として囲むため PDF/UA 準拠を維持する。日本語の透かしには fontPath か環境変数 PDF_WRITER_FONT が必要。"
+ },
+ "fill_form|prose": {
+  "src": "57dcf7cc678bbd4ff839e7d5c80ab19d",
+  "text": "既存 PDF の対話フォーム(AcroForm)にフィールド値を流し込む。フィールド名が分からない場合は、存在しない名前を指定するとエラーに全フィールド名と型が列挙される。日本語の値には fontPath か環境変数 PDF_WRITER_FONT が必要。flatten: true で記入後に非対話化できるが、タグ付き PDF では PDF/UA 準拠が壊れるため allowBreakingTags: true も要る。XFA フォームは非対応。"
+ },
+ "flatten_form|prose": {
+  "src": "a88fe6dcdf1b419fce357a3e7ed675f6",
+  "text": "既存 PDF の対話フォーム(AcroForm)をフラット化し、記入済みの見た目を保ったまま非対話にする。配布前に値を固定したい場合に使う。外観の再生成が要る場合に備え、既存の値に日本語が含まれるなら fontPath か環境変数 PDF_WRITER_FONT を指定しておくこと。タグ付き PDF では Widget 注釈が消えて Form 構造要素が宙に浮くため既定で拒否する(allowBreakingTags: true で強行可)。"
+ },
+ "tag_form_fields|prose": {
+  "src": "d507a43539b66e212ebc4006dd73b804",
+  "text": "タグ付き PDF のフォームを PDF/UA-1 準拠へ修復する。Widget 注釈を Form 構造要素に内包し(7.18.4-1)、対象ページに /Tabs S を立て(7.18.3-1)、フィールドに代替名 /TU を付与する(7.18.1-3)。labels でスクリーンリーダ向けの人間可読な名前を渡すこと。既に構造木に結ばれた Widget はスキップするため何度実行しても安全。タグ無し文書は対象外(create 系の tagged: true でゼロから作るか、将来の ensure_tagged を待つ)。署名済み PDF には preserveSignatures: true で署名を保持したまま修復できる(承認署名のみ。認証署名は拒否)。"
+ },
+ "ensure_tagged|prose": {
+  "src": "80d29452e003fa96adcac182874f6ede",
+  "text": "既存 PDF を PDF/UA-1 の「器」に載せる。既にタグ付きなら構造木には触らず、欠落した文書レベル要件(MarkInfo / Lang / DisplayDocTitle / XMP の pdfuaid:part・dc:title)のみ補う。タグ無し文書には最小限の構造木(各ページ = 1 つの P 要素)を新設して本文を支援技術から到達可能にする。**重要**: 機械は意味を推定できないため、見出し・表・リスト・読み順・図の代替テキストは作られない。新設は「足場」であって「アクセシブルな文書」ではなく、人手のレビューが要る。構造を最初から正しく作れる場合は create 系の tagged: true を使うこと。署名済み PDF には preserveSignatures: true(承認署名のみ。認証署名は拒否)。"
+ },
+ "ensure_pdfa|prose": {
+  "src": "1caf38d4f37af0b4acad139a5eb1f60c",
+  "text": "既存 PDF を PDF/A の「器」に載せる(ensure_tagged の PDF/A 版)。flavour で \"pdfa-3b\"(既定) / \"pdfa-4\" / \"pdfa-4f\" を選ぶ。文書レベルの欠落要件だけを補う: trailer の /ID(ISO 32000-1 14.4)・sRGB の OutputIntent(GTS_PDFA1。ICC プロファイルを生成して埋め込む)・XMP の pdfaid。**-4 系はさらにヘッダを PDF 2.0 にし、Info 辞書を削除する**(-4 は catalog に /PieceInfo が無い限り Info を許さない。ISO 32000-2 14.3.3 より厳しい)。**本文・構造木・フォントには触らない**。**添付がある文書は \"pdfa-4f\" を使うこと** — 素の \"pdfa-4\" は添付ファイル自身が PDF/A であることを要求するため、CSV や JSON を添える電帳法の使い方では非適合になる。**重要**: これは「PDF/A を名乗るための下準備」であって適合の保証ではない。フォント未埋め込み・暗号化・JavaScript・LZW などの違反は直らない。**XMP に pdfaid を書く = その文書が「PDF/A です」と名乗る**ため、適合していない文書に適用すると**嘘を名乗る PDF ができる**(だから適用時は常に警告を返す)。適合したかは pdf-verify-mcp の validate_conformance(flavour: 同じ値) で必ず確認すること(判定は veraPDF が下す。ISO 19005 は条文を引けないため「veraPDF はこう判定した」までしか言えない)。電帳法の文脈では attach_file で機械可読データを添付した**後**に適用する。署名済み PDF には preserveSignatures: true(承認署名のみ。認証署名は拒否)。ただし **-4 系 × preserveSignatures は、入力が既に PDF 2.0 でない限り拒否する**(増分更新では先頭のヘッダを書き換えられず、書き換えれば署名が壊れるため)。"
+ },
+ "attach_file|prose": {
+  "src": "9445d9be04813cf2a79edaeb0e3f61ff",
+  "text": "PDF にファイルを埋め込む(添付する)。/Names /EmbeddedFiles と catalog /AF に登録し、AFRelationship を付与する。PDF/A-3(ISO 19005-3)や電子帳簿保存法の文脈で、「人が読む請求書 PDF + 機械可読データ(CSV/XML)」を 1 ファイルに束ねる用途に使う。"
+ },
+ "rotate_pages|prose": {
+  "src": "f91cf6571d1ab8855546c76b17b6908b",
+  "text": "ページを時計回りに回転する(90/180/270 度)。pages 省略時は全ページ。"
+ },
+ "create_text_pdf|param:text": {
+  "src": "8fe50852ff2f4cdb832bae6d121e6c61",
+  "text": "本文テキスト。\\n で改行、空行で段落区切り。"
+ },
+ "create_text_pdf|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "create_text_pdf|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "create_text_pdf|param:fontPath": {
+  "src": "f2b10ffa0483157733856038939f7eb1",
+  "text": "埋め込むフォントファイル(.ttf / .otf)の絶対パス。日本語など非ラテン文字を含む場合は必須。.ttc(TrueTypeCollection)は非対応。環境変数 PDF_WRITER_FONT でも指定可。"
+ },
+ "create_text_pdf|param:fontSize": {
+  "src": "e1fb990057599dcd0e8797531eb1ccf2",
+  "text": "本文フォントサイズ(pt)。既定 11。範囲 4〜96。"
+ },
+ "create_text_pdf|param:pageSize": {
+  "src": "345a7791a8387db3f71611f6f6559b45",
+  "text": "ページサイズ。既定 A4。"
+ },
+ "create_text_pdf|param:margin": {
+  "src": "771cc76a025a3d7d40e610efa56157a0",
+  "text": "上下左右マージン(pt)。既定 56(≒20mm)。範囲 0〜300。"
+ },
+ "create_text_pdf|param:title": {
+  "src": "9a73cf217b7568a6098b3b0b4c5bfe31",
+  "text": "PDF タイトル。メタデータに設定し、本文冒頭にも見出しとして描画する。"
+ },
+ "create_text_pdf|param:author": {
+  "src": "483bca9c7c8eef36f1c0fe0b9a80c142",
+  "text": "PDF 作成者(メタデータ)。"
+ },
+ "create_text_pdf|param:onMissingGlyph": {
+  "src": "644a00b1089b4552b888c46d8b104cf5",
+  "text": "フォントに存在しない文字(例: Noto Sans JP に無い ✔ U+2714)の扱い。error(既定)=欠落文字を列挙してエラー / replace=〓 に置換して警告 / ignore=空白のまま描画して警告。"
+ },
+ "create_text_pdf|param:tagged": {
+  "src": "4489d9a9198d0718f34e2ed5112907e6",
+  "text": "タグ付き PDF(PDF/UA-1・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。"
+ },
+ "create_text_pdf|param:lang": {
+  "src": "917dfa9d500cc8caf861bb0ffcbb9f2b",
+  "text": "文書の自然言語(BCP 47。例 \"ja\" / \"en-US\")。tagged 時に省略すると本文から推定し、推定結果を warnings で報告する。誤った言語宣言はスクリーンリーダの誤読を招くため、確実な場合は明示すること。"
+ },
+ "create_text_pdf|param:pdfVersion": {
+  "src": "7e1310c0c0614234958d23106db697f2",
+  "text": "出力する PDF の版。既定 \"1.7\"。\"2.0\"(ISO 32000-2)にすると版の宣言だけでなく、版に紐づく義務も満たす: trailer /ID を付与し(Table 15 で Required)、Info 辞書を CreationDate / ModDate に絞って題名・作成者・Producer は XMP へ移す(§14.3.3)。tagged: true とは併用できない(writer が書けるのは PDF 1.7 基盤の PDF/UA-1 宣言のみ)。"
+ },
+ "create_markdown_pdf|param:markdown": {
+  "src": "96a53e8941b2aa9a9065ee8a0afa0929",
+  "text": "Markdown 文字列。"
+ },
+ "create_markdown_pdf|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "create_markdown_pdf|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "create_markdown_pdf|param:fontPath": {
+  "src": "f2b10ffa0483157733856038939f7eb1",
+  "text": "埋め込むフォントファイル(.ttf / .otf)の絶対パス。日本語など非ラテン文字を含む場合は必須。.ttc(TrueTypeCollection)は非対応。環境変数 PDF_WRITER_FONT でも指定可。"
+ },
+ "create_markdown_pdf|param:fontSize": {
+  "src": "e1fb990057599dcd0e8797531eb1ccf2",
+  "text": "本文フォントサイズ(pt)。既定 11。範囲 4〜96。"
+ },
+ "create_markdown_pdf|param:pageSize": {
+  "src": "345a7791a8387db3f71611f6f6559b45",
+  "text": "ページサイズ。既定 A4。"
+ },
+ "create_markdown_pdf|param:margin": {
+  "src": "771cc76a025a3d7d40e610efa56157a0",
+  "text": "上下左右マージン(pt)。既定 56(≒20mm)。範囲 0〜300。"
+ },
+ "create_markdown_pdf|param:title": {
+  "src": "9a73cf217b7568a6098b3b0b4c5bfe31",
+  "text": "PDF タイトル。メタデータに設定し、本文冒頭にも見出しとして描画する。"
+ },
+ "create_markdown_pdf|param:author": {
+  "src": "483bca9c7c8eef36f1c0fe0b9a80c142",
+  "text": "PDF 作成者(メタデータ)。"
+ },
+ "create_markdown_pdf|param:onMissingGlyph": {
+  "src": "644a00b1089b4552b888c46d8b104cf5",
+  "text": "フォントに存在しない文字(例: Noto Sans JP に無い ✔ U+2714)の扱い。error(既定)=欠落文字を列挙してエラー / replace=〓 に置換して警告 / ignore=空白のまま描画して警告。"
+ },
+ "create_markdown_pdf|param:tagged": {
+  "src": "4489d9a9198d0718f34e2ed5112907e6",
+  "text": "タグ付き PDF(PDF/UA-1・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。"
+ },
+ "create_markdown_pdf|param:lang": {
+  "src": "917dfa9d500cc8caf861bb0ffcbb9f2b",
+  "text": "文書の自然言語(BCP 47。例 \"ja\" / \"en-US\")。tagged 時に省略すると本文から推定し、推定結果を warnings で報告する。誤った言語宣言はスクリーンリーダの誤読を招くため、確実な場合は明示すること。"
+ },
+ "create_markdown_pdf|param:pdfVersion": {
+  "src": "7e1310c0c0614234958d23106db697f2",
+  "text": "出力する PDF の版。既定 \"1.7\"。\"2.0\"(ISO 32000-2)にすると版の宣言だけでなく、版に紐づく義務も満たす: trailer /ID を付与し(Table 15 で Required)、Info 辞書を CreationDate / ModDate に絞って題名・作成者・Producer は XMP へ移す(§14.3.3)。tagged: true とは併用できない(writer が書けるのは PDF 1.7 基盤の PDF/UA-1 宣言のみ)。"
+ },
+ "create_table_pdf|param:headers": {
+  "src": "fdde7315852519f112a3fcb89f597127",
+  "text": "ヘッダ行(列見出し)の配列。"
+ },
+ "create_table_pdf|param:rows": {
+  "src": "809c128bedd68c41658dc0826c242ed2",
+  "text": "データ行の配列。各行は文字列の配列で、headers と同じ列数を推奨。"
+ },
+ "create_table_pdf|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "create_table_pdf|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "create_table_pdf|param:fontPath": {
+  "src": "f2b10ffa0483157733856038939f7eb1",
+  "text": "埋め込むフォントファイル(.ttf / .otf)の絶対パス。日本語など非ラテン文字を含む場合は必須。.ttc(TrueTypeCollection)は非対応。環境変数 PDF_WRITER_FONT でも指定可。"
+ },
+ "create_table_pdf|param:fontSize": {
+  "src": "e1fb990057599dcd0e8797531eb1ccf2",
+  "text": "本文フォントサイズ(pt)。既定 11。範囲 4〜96。"
+ },
+ "create_table_pdf|param:pageSize": {
+  "src": "345a7791a8387db3f71611f6f6559b45",
+  "text": "ページサイズ。既定 A4。"
+ },
+ "create_table_pdf|param:margin": {
+  "src": "771cc76a025a3d7d40e610efa56157a0",
+  "text": "上下左右マージン(pt)。既定 56(≒20mm)。範囲 0〜300。"
+ },
+ "create_table_pdf|param:title": {
+  "src": "9a73cf217b7568a6098b3b0b4c5bfe31",
+  "text": "PDF タイトル。メタデータに設定し、本文冒頭にも見出しとして描画する。"
+ },
+ "create_table_pdf|param:author": {
+  "src": "483bca9c7c8eef36f1c0fe0b9a80c142",
+  "text": "PDF 作成者(メタデータ)。"
+ },
+ "create_table_pdf|param:onMissingGlyph": {
+  "src": "644a00b1089b4552b888c46d8b104cf5",
+  "text": "フォントに存在しない文字(例: Noto Sans JP に無い ✔ U+2714)の扱い。error(既定)=欠落文字を列挙してエラー / replace=〓 に置換して警告 / ignore=空白のまま描画して警告。"
+ },
+ "create_table_pdf|param:tagged": {
+  "src": "4489d9a9198d0718f34e2ed5112907e6",
+  "text": "タグ付き PDF(PDF/UA-1・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。"
+ },
+ "create_table_pdf|param:lang": {
+  "src": "917dfa9d500cc8caf861bb0ffcbb9f2b",
+  "text": "文書の自然言語(BCP 47。例 \"ja\" / \"en-US\")。tagged 時に省略すると本文から推定し、推定結果を warnings で報告する。誤った言語宣言はスクリーンリーダの誤読を招くため、確実な場合は明示すること。"
+ },
+ "create_table_pdf|param:pdfVersion": {
+  "src": "7e1310c0c0614234958d23106db697f2",
+  "text": "出力する PDF の版。既定 \"1.7\"。\"2.0\"(ISO 32000-2)にすると版の宣言だけでなく、版に紐づく義務も満たす: trailer /ID を付与し(Table 15 で Required)、Info 辞書を CreationDate / ModDate に絞って題名・作成者・Producer は XMP へ移す(§14.3.3)。tagged: true とは併用できない(writer が書けるのは PDF 1.7 基盤の PDF/UA-1 宣言のみ)。"
+ },
+ "set_metadata|param:inputPath": {
+  "src": "3f9bd08e05abad81442ccb93a820de2c",
+  "text": "編集対象 PDF の絶対パス。"
+ },
+ "set_metadata|param:title": {
+  "src": "995f5a0b9ec5fd36753939f7e917dc31",
+  "text": "タイトル。"
+ },
+ "set_metadata|param:author": {
+  "src": "c3145524c5ac82b776ef347d6e108b7d",
+  "text": "作成者。"
+ },
+ "set_metadata|param:subject": {
+  "src": "45fb289371166d0ea037cc66b2bf4526",
+  "text": "サブタイトル・件名。"
+ },
+ "set_metadata|param:keywords": {
+  "src": "88b18c152c1ac5fc49178cfcc954ea04",
+  "text": "キーワードの配列。"
+ },
+ "set_metadata|param:creator": {
+  "src": "dca2a7968028bd54e4dff0d8668efe36",
+  "text": "作成アプリケーション名。"
+ },
+ "set_metadata|param:preserveSignatures": {
+  "src": "08d534a13fc3def3ca8437cd1f10fe64",
+  "text": "署名済み PDF に対し、既存署名を無効化せず増分更新（末尾追記）で編集する。既定 false。元のバイト列には一切触れないため /ByteRange が保たれる。認証署名（DocMDP）の許可レベルに反する変更は拒否される。"
+ },
+ "set_metadata|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "set_metadata|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "set_metadata|param:allowBreakingSignatures": {
+  "src": "0bcb1b90addc4e493047fcefb131305e",
+  "text": "編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。"
+ },
+ "merge_pdfs|param:inputPaths": {
+  "src": "a2af26796e8fe97188c97cf59ab54003",
+  "text": "結合する PDF の絶対パスの配列(結合順・2 件以上)。"
+ },
+ "merge_pdfs|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "merge_pdfs|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "merge_pdfs|param:allowBreakingSignatures": {
+  "src": "0bcb1b90addc4e493047fcefb131305e",
+  "text": "編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。"
+ },
+ "split_pdf|param:inputPath": {
+  "src": "ff67091cfeb1b7f60645645dd19911bb",
+  "text": "分割対象 PDF の絶対パス。"
+ },
+ "split_pdf|param:ranges": {
+  "src": "5ff05896ea79312d2bc25cdf84ace0f1",
+  "text": "ページ範囲指定の配列。各要素は \"1-3\" / \"5\" / \"7-\" / \"-2\" 形式(1 始まり)。例: [\"1-3\", \"4-\"]。"
+ },
+ "split_pdf|param:outputDir": {
+  "src": "72659c2a31b0bfbe3515271d7fcff0e5",
+  "text": "出力先ディレクトリ（絶対パス）。"
+ },
+ "split_pdf|param:prefix": {
+  "src": "3a069dfdcfeeb9ba158103fc3377467f",
+  "text": "出力ファイル名の接頭辞。既定は \"<入力ファイル名>-part\"。"
+ },
+ "split_pdf|param:allowBreakingSignatures": {
+  "src": "0bcb1b90addc4e493047fcefb131305e",
+  "text": "編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。"
+ },
+ "extract_pages|param:inputPath": {
+  "src": "f519bda21f2f5f6f3273e551fd8a083f",
+  "text": "対象 PDF の絶対パス。"
+ },
+ "extract_pages|param:pages": {
+  "src": "cb8884b3d9ca1780aa390147d4428897",
+  "text": "ページ指定。\"1,3-5,8-\" 形式(1 始まり)。指定順が出力順になる。"
+ },
+ "extract_pages|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "extract_pages|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "extract_pages|param:allowBreakingSignatures": {
+  "src": "0bcb1b90addc4e493047fcefb131305e",
+  "text": "編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。"
+ },
+ "delete_pages|param:inputPath": {
+  "src": "f519bda21f2f5f6f3273e551fd8a083f",
+  "text": "対象 PDF の絶対パス。"
+ },
+ "delete_pages|param:pages": {
+  "src": "e3bf1f3e72539bebd2a1b9dbb8d2d51c",
+  "text": "削除するページ指定。\"1,3-5,8-\" 形式(1 始まり)。"
+ },
+ "delete_pages|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "delete_pages|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "delete_pages|param:allowBreakingSignatures": {
+  "src": "0bcb1b90addc4e493047fcefb131305e",
+  "text": "編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。"
+ },
+ "reorder_pages|param:inputPath": {
+  "src": "f519bda21f2f5f6f3273e551fd8a083f",
+  "text": "対象 PDF の絶対パス。"
+ },
+ "reorder_pages|param:order": {
+  "src": "f2ed16eb9e5576b243f03bbd8d172e27",
+  "text": "新しいページ順(1 始まり)。例: 5 ページの逆順は [5,4,3,2,1]。"
+ },
+ "reorder_pages|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "reorder_pages|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "reorder_pages|param:allowBreakingSignatures": {
+  "src": "0bcb1b90addc4e493047fcefb131305e",
+  "text": "編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。"
+ },
+ "add_bookmarks|param:inputPath": {
+  "src": "f519bda21f2f5f6f3273e551fd8a083f",
+  "text": "対象 PDF の絶対パス。"
+ },
+ "add_bookmarks|param:bookmarks": {
+  "src": "bc82968d44d08c8339680ef3c8b7c176",
+  "text": "しおりの配列。各要素は { title, page, open?, children? }。page は 1 始まり。children で階層化でき、最大 8 階層・合計 2000 件まで。"
+ },
+ "add_bookmarks|param:preserveSignatures": {
+  "src": "08d534a13fc3def3ca8437cd1f10fe64",
+  "text": "署名済み PDF に対し、既存署名を無効化せず増分更新（末尾追記）で編集する。既定 false。元のバイト列には一切触れないため /ByteRange が保たれる。認証署名（DocMDP）の許可レベルに反する変更は拒否される。"
+ },
+ "add_bookmarks|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "add_bookmarks|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "add_bookmarks|param:allowBreakingSignatures": {
+  "src": "0bcb1b90addc4e493047fcefb131305e",
+  "text": "編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。"
+ },
+ "add_annotation|param:inputPath": {
+  "src": "f519bda21f2f5f6f3273e551fd8a083f",
+  "text": "対象 PDF の絶対パス。"
+ },
+ "add_annotation|param:page": {
+  "src": "beb2f2eed21ec832659871782861299a",
+  "text": "対象ページ(1 始まり)。"
+ },
+ "add_annotation|param:type": {
+  "src": "8c711c50503f0e4e2fa0974e77923e8b",
+  "text": "text=付箋アイコン / highlight=ハイライト / square=矩形。"
+ },
+ "add_annotation|param:rect": {
+  "src": "d5f524247dc26231f1ba2b0ade9fa9ef",
+  "text": "注釈の矩形。PDF 座標系(左下原点・pt)。x1<x2 かつ y1<y2 であること。"
+ },
+ "add_annotation|param:contents": {
+  "src": "c8d283a109c1c479583c42ba1c47c28a",
+  "text": "注釈の本文(日本語可)。"
+ },
+ "add_annotation|param:author": {
+  "src": "0901a9f43476cab93e9a99fc5bc6bb85",
+  "text": "作成者名。"
+ },
+ "add_annotation|param:alt": {
+  "src": "8c4b805f161b7c22cfd4e3f516d568e8",
+  "text": "支援技術向けの代替テキスト。タグ付き PDF では注釈が Annot 構造要素に内包される(PDF/UA 7.18.1-1)ため、その要素の /Alt になる。タグ無し文書では無視される。"
+ },
+ "add_annotation|param:color": {
+  "src": "2d8a65273769d935b4ed2db21dbdeb5b",
+  "text": "#rrggbb 形式。既定は type ごと(text=#ffd400 / highlight=#ffff00 / square=#ff0000)。"
+ },
+ "add_annotation|param:interiorColor": {
+  "src": "76615cfdc0d9d0ae3a66cdf58486a896",
+  "text": "square の塗り色(#rrggbb)。"
+ },
+ "add_annotation|param:icon": {
+  "src": "04bb96d43c07734e4a38ed1152c6a7ff",
+  "text": "text のアイコン。既定 Note。"
+ },
+ "add_annotation|param:open": {
+  "src": "903500f72673c3f67b2e326676e9979d",
+  "text": "text を開いた状態にするか。既定 false。"
+ },
+ "add_annotation|param:preserveSignatures": {
+  "src": "c5ff11b6a920f75e6b45c0ac711f2dd0",
+  "text": "署名済み PDF に対し、既存署名を無効化せず増分更新（末尾追記）で注釈を追加する。既定 false。元のバイト列には一切触れないため /ByteRange が保たれる。タグ付き PDF では Annot 構造要素への内包も増分に含めて PDF/UA 準拠を維持する。認証署名（DocMDP）では P=3 のときのみ許可。"
+ },
+ "add_annotation|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "add_annotation|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "add_annotation|param:allowBreakingSignatures": {
+  "src": "0bcb1b90addc4e493047fcefb131305e",
+  "text": "編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。"
+ },
+ "stamp_page_numbers|param:inputPath": {
+  "src": "f519bda21f2f5f6f3273e551fd8a083f",
+  "text": "対象 PDF の絶対パス。"
+ },
+ "stamp_page_numbers|param:format": {
+  "src": "25cdd3724616129f1e3e3c04a47a0d6b",
+  "text": "書式。{n}=現在ページ、{total}=総ページ数。既定 \"{n}\"。例: \"- {n} -\" / \"{n} / {total}\" / \"{n} ページ\"。{n} を必ず含めること。"
+ },
+ "stamp_page_numbers|param:position": {
+  "src": "d93c79ad5f2334604f339c4b206479dd",
+  "text": "配置。既定 bottom-center。ページの回転(/Rotate)を考慮した見た目の位置。"
+ },
+ "stamp_page_numbers|param:margin": {
+  "src": "3f57465de766e8612a6ee727bbe6daaa",
+  "text": "端からの余白(pt)。既定 24。範囲 0〜300。"
+ },
+ "stamp_page_numbers|param:fontSize": {
+  "src": "d2f739f55419de343229e11e228578b2",
+  "text": "フォントサイズ(pt)。既定 9。範囲 4〜96。"
+ },
+ "stamp_page_numbers|param:color": {
+  "src": "497800c9d5cf6c7d63ffdcca823318cd",
+  "text": "#rrggbb。既定 #666666。"
+ },
+ "stamp_page_numbers|param:fontPath": {
+  "src": "f30432b219db02bfcbcd7790d990e755",
+  "text": "埋め込むフォント(.ttf/.otf)。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。日本語を含む書式には必須。"
+ },
+ "stamp_page_numbers|param:pages": {
+  "src": "4e1769190f4200fd4fe1794bffc2250a",
+  "text": "番号を刻むページ指定。\"1,3-5,8-\" 形式(1 始まり)。省略時は全ページ。表紙を除くなら \"2-\" のように指定する。"
+ },
+ "stamp_page_numbers|param:startAt": {
+  "src": "e42369bb84080e1f58e0c7d387b013e2",
+  "text": "最初に刻む番号。既定 1。表紙を除いて 1 から始めたい場合などに使う。"
+ },
+ "stamp_page_numbers|param:preserveSignatures": {
+  "src": "08d534a13fc3def3ca8437cd1f10fe64",
+  "text": "署名済み PDF に対し、既存署名を無効化せず増分更新（末尾追記）で編集する。既定 false。元のバイト列には一切触れないため /ByteRange が保たれる。認証署名（DocMDP）の許可レベルに反する変更は拒否される。"
+ },
+ "stamp_page_numbers|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "stamp_page_numbers|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "stamp_page_numbers|param:allowBreakingSignatures": {
+  "src": "0bcb1b90addc4e493047fcefb131305e",
+  "text": "編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。"
+ },
+ "add_watermark|param:inputPath": {
+  "src": "f519bda21f2f5f6f3273e551fd8a083f",
+  "text": "対象 PDF の絶対パス。"
+ },
+ "add_watermark|param:text": {
+  "src": "7b4530457d56c4adb495f8d413208a80",
+  "text": "透かし文字。例: \"社外秘\" / \"DRAFT\" / \"COPY\"。"
+ },
+ "add_watermark|param:fontSize": {
+  "src": "9afb16172b3851864608f8f78c78c1b8",
+  "text": "フォントサイズ(pt)。既定 60。範囲 4〜96。"
+ },
+ "add_watermark|param:color": {
+  "src": "e76afeea15d381dd118b073b924e85eb",
+  "text": "#rrggbb。既定 #808080(灰)。"
+ },
+ "add_watermark|param:opacity": {
+  "src": "7c7f7a1c8c7879bc765c8da9672563af",
+  "text": "不透明度 0(透明)〜1(不透明)。既定 0.15。本文を読める程度に薄くする。"
+ },
+ "add_watermark|param:angle": {
+  "src": "2316cce8dd114978b40c1017bdbf533b",
+  "text": "反時計回りの角度(度)。既定 45。0 で水平。"
+ },
+ "add_watermark|param:behind": {
+  "src": "7c1d4ce3df23a97e62d637f2373203dc",
+  "text": "本文の背面に敷くか。既定 true。false にすると本文の上に重なる(改ざん防止の主張を強めたい場合)。"
+ },
+ "add_watermark|param:fontPath": {
+  "src": "c73ab2f21f15c6b19b109f14302abec3",
+  "text": "埋め込むフォント(.ttf/.otf)。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。日本語の透かしには必須。"
+ },
+ "add_watermark|param:pages": {
+  "src": "0daaf392ae17928e9583b9c817440613",
+  "text": "対象ページ指定。\"1,3-5,8-\" 形式(1 始まり)。省略時は全ページ。"
+ },
+ "add_watermark|param:preserveSignatures": {
+  "src": "08d534a13fc3def3ca8437cd1f10fe64",
+  "text": "署名済み PDF に対し、既存署名を無効化せず増分更新（末尾追記）で編集する。既定 false。元のバイト列には一切触れないため /ByteRange が保たれる。認証署名（DocMDP）の許可レベルに反する変更は拒否される。"
+ },
+ "add_watermark|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "add_watermark|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "add_watermark|param:allowBreakingSignatures": {
+  "src": "0bcb1b90addc4e493047fcefb131305e",
+  "text": "編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。"
+ },
+ "fill_form|param:inputPath": {
+  "src": "f519bda21f2f5f6f3273e551fd8a083f",
+  "text": "対象 PDF の絶対パス。"
+ },
+ "fill_form|param:fields": {
+  "src": "2df14f5288b2da68ad5d5ffe5df05ac6",
+  "text": "フィールド名 → 値のオブジェクト。値の型はフィールド種別に対応する: text=文字列か数値 / checkbox=真偽値 / dropdown・optionlist=文字列か文字列配列 / radio=文字列。例: {\"user.name\": \"山田 太郎\", \"agree\": true, \"plan\": \"A\"}"
+ },
+ "fill_form|param:fontPath": {
+  "src": "4c6c16171a419d5bce10a89c3bf756ca",
+  "text": "値の描画に使うフォント(.ttf/.otf)。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。日本語の値には必須。"
+ },
+ "fill_form|param:flatten": {
+  "src": "38943aa46e9131f8ff5a88e1c904941a",
+  "text": "記入後にフラット化して非対話にするか。既定 false。true にすると値は編集できなくなる。"
+ },
+ "fill_form|param:allowBreakingTags": {
+  "src": "f5299d989c28581fc606635dc36f5467",
+  "text": "タグ付き PDF でもフラット化を許すか。既定 false。true にすると PDF/UA-1 準拠が壊れる。"
+ },
+ "fill_form|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "fill_form|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "fill_form|param:allowBreakingSignatures": {
+  "src": "0bcb1b90addc4e493047fcefb131305e",
+  "text": "編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。"
+ },
+ "flatten_form|param:inputPath": {
+  "src": "f519bda21f2f5f6f3273e551fd8a083f",
+  "text": "対象 PDF の絶対パス。"
+ },
+ "flatten_form|param:fontPath": {
+  "src": "ce69dd0fba21d5495f038972f00d4803",
+  "text": "外観生成に使うフォント。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。既存の外観をそのまま使える場合は不要だが、再生成が必要な日本語フォームでは要る。"
+ },
+ "flatten_form|param:allowBreakingTags": {
+  "src": "084590fc6b3fb22cf9a8c37be969089e",
+  "text": "タグ付き PDF でもフラット化を許すか。既定 false。"
+ },
+ "flatten_form|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "flatten_form|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "flatten_form|param:allowBreakingSignatures": {
+  "src": "0bcb1b90addc4e493047fcefb131305e",
+  "text": "編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。"
+ },
+ "tag_form_fields|param:inputPath": {
+  "src": "f519bda21f2f5f6f3273e551fd8a083f",
+  "text": "対象 PDF の絶対パス。"
+ },
+ "tag_form_fields|param:labels": {
+  "src": "59f5e52bdeca1626c814a3a1c3a90bde",
+  "text": "フィールド名 → 人間可読な代替名(/TU)。スクリーンリーダが読み上げる名前で、例: {\"user.name\": \"氏名\", \"agree\": \"利用規約に同意する\"}。省略したフィールドはフィールド名を /TU に代用し、warnings で報告する。存在しないフィールド名を指定するとエラーに全フィールド名が列挙される。"
+ },
+ "tag_form_fields|param:preserveSignatures": {
+  "src": "08d534a13fc3def3ca8437cd1f10fe64",
+  "text": "署名済み PDF に対し、既存署名を無効化せず増分更新（末尾追記）で編集する。既定 false。元のバイト列には一切触れないため /ByteRange が保たれる。認証署名（DocMDP）の許可レベルに反する変更は拒否される。"
+ },
+ "tag_form_fields|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "tag_form_fields|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "tag_form_fields|param:allowBreakingSignatures": {
+  "src": "0bcb1b90addc4e493047fcefb131305e",
+  "text": "編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。"
+ },
+ "ensure_tagged|param:inputPath": {
+  "src": "f519bda21f2f5f6f3273e551fd8a083f",
+  "text": "対象 PDF の絶対パス。"
+ },
+ "ensure_tagged|param:title": {
+  "src": "abbe7ea14062afb3547e2c006926655e",
+  "text": "文書タイトル(PDF/UA-1 7.1 で必須)。省略時は既存 Info の Title を使う。"
+ },
+ "ensure_tagged|param:lang": {
+  "src": "216f44a7d46815c305606a11a703bb75",
+  "text": "文書の自然言語(BCP 47。例 \"ja\")。PDF/UA-1 7.2 で必須。"
+ },
+ "ensure_tagged|param:preserveSignatures": {
+  "src": "08d534a13fc3def3ca8437cd1f10fe64",
+  "text": "署名済み PDF に対し、既存署名を無効化せず増分更新（末尾追記）で編集する。既定 false。元のバイト列には一切触れないため /ByteRange が保たれる。認証署名（DocMDP）の許可レベルに反する変更は拒否される。"
+ },
+ "ensure_tagged|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "ensure_tagged|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "ensure_tagged|param:allowBreakingSignatures": {
+  "src": "0bcb1b90addc4e493047fcefb131305e",
+  "text": "編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。"
+ },
+ "ensure_pdfa|param:inputPath": {
+  "src": "f519bda21f2f5f6f3273e551fd8a083f",
+  "text": "対象 PDF の絶対パス。"
+ },
+ "ensure_pdfa|param:flavour": {
+  "src": "3d4ac01920cf87c250128d354449f17d",
+  "text": "名乗らせる PDF/A。既定 \"pdfa-3b\"。\"pdfa-4\"(ISO 19005-4) は PDF 2.0 基盤なので、/ID・OutputIntent・XMP pdfaid に加えて**ヘッダを 2.0 にし、Info 辞書を落とす**(-4 は PieceInfo が無い限り Info を許さない)。**-4 は conformance level を持たない**ため pdfaid:conformance を書かず pdfaid:rev を書く。**添付がある文書は \"pdfa-4f\" を使うこと** — 素の \"pdfa-4\" は添付ファイル自身が PDF/A であることを要求するので、JSON や CSV を添える電帳法の使い方では非適合になる。署名保持(preserveSignatures)との併用は、入力が既に PDF 2.0 でない限り拒否する(増分更新では先頭のヘッダを書き換えられず、書き換えれば署名が壊れるため)。"
+ },
+ "ensure_pdfa|param:preserveSignatures": {
+  "src": "08d534a13fc3def3ca8437cd1f10fe64",
+  "text": "署名済み PDF に対し、既存署名を無効化せず増分更新（末尾追記）で編集する。既定 false。元のバイト列には一切触れないため /ByteRange が保たれる。認証署名（DocMDP）の許可レベルに反する変更は拒否される。"
+ },
+ "ensure_pdfa|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "ensure_pdfa|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "ensure_pdfa|param:allowBreakingSignatures": {
+  "src": "0bcb1b90addc4e493047fcefb131305e",
+  "text": "編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。"
+ },
+ "attach_file|param:inputPath": {
+  "src": "f519bda21f2f5f6f3273e551fd8a083f",
+  "text": "対象 PDF の絶対パス。"
+ },
+ "attach_file|param:attachmentPath": {
+  "src": "06f7d9ee43af305ed06e8c7ecbe5621c",
+  "text": "埋め込むファイルの絶対パス。"
+ },
+ "attach_file|param:name": {
+  "src": "6b35f0c59fc1d4ea296837118714378c",
+  "text": "PDF 内での表示名。省略時は元のファイル名。既存の添付と同名にはできない。"
+ },
+ "attach_file|param:description": {
+  "src": "0682e3b0433e226983524fd47c827414",
+  "text": "添付の説明(/Desc・日本語可)。"
+ },
+ "attach_file|param:mimeType": {
+  "src": "ff35f07223dc813cba8ee10873a97299",
+  "text": "MIME 型。省略時は拡張子から推定(例 .csv → text/csv)。"
+ },
+ "attach_file|param:relationship": {
+  "src": "1813e0e6d2cc7a49dfb63ff9a0ff6928",
+  "text": "本文との関係(PDF/A-3 §6.8)。Data=本文と同じ内容の機械可読データ(請求書の XML/CSV 等) / Source=本文の元データ / Alternative=代替表現 / Supplement=補足資料 / Unspecified=不明(既定)。PDF/A-3 では意味のある値が必須のため、省略すると警告する。"
+ },
+ "attach_file|param:preserveSignatures": {
+  "src": "08d534a13fc3def3ca8437cd1f10fe64",
+  "text": "署名済み PDF に対し、既存署名を無効化せず増分更新（末尾追記）で編集する。既定 false。元のバイト列には一切触れないため /ByteRange が保たれる。認証署名（DocMDP）の許可レベルに反する変更は拒否される。"
+ },
+ "attach_file|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "attach_file|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "attach_file|param:allowBreakingSignatures": {
+  "src": "0bcb1b90addc4e493047fcefb131305e",
+  "text": "編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。"
+ },
+ "rotate_pages|param:inputPath": {
+  "src": "f519bda21f2f5f6f3273e551fd8a083f",
+  "text": "対象 PDF の絶対パス。"
+ },
+ "rotate_pages|param:rotation": {
+  "src": "8b84295896abc4f03f8d8fcc68955973",
+  "text": "時計回りの回転角(度)。90 / 180 / 270。"
+ },
+ "rotate_pages|param:pages": {
+  "src": "91e5fe81903b1782612c34469f33dffb",
+  "text": "対象ページ指定。\"1,3-5\" 形式(1 始まり)。省略時は全ページ。"
+ },
+ "rotate_pages|param:outputPath": {
+  "src": "c0d997e287346a7e8b497f9fd88c0d95",
+  "text": "保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。"
+ },
+ "rotate_pages|param:returnBase64": {
+  "src": "73601adf1f204753c77005f42175a6f0",
+  "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
+ },
+ "rotate_pages|param:allowBreakingSignatures": {
+  "src": "0bcb1b90addc4e493047fcefb131305e",
+  "text": "編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。"
+ }
+}

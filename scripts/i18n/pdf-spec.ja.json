@@ -1,0 +1,102 @@
+{
+ "list_specs|prose": {
+  "src": "6f95f39f59dcf66e2dd85415208eea4f",
+  "text": "利用可能な PDF 仕様文書を一覧する。文書 ID・タイトル・ページ数・カテゴリに加え、`coverage.gaps` — このコーパスに**存在しない**規範領域（PDF/A・PAdES）— を返す。「要求が存在しない」と結論づける前に gaps を読むこと。返された ID は他ツールの `spec` 引数に使う。"
+ },
+ "get_structure|prose": {
+  "src": "c480222542e97150e23ca3d7ec9a3a71",
+  "text": "PDF 仕様（ISO 32000-2）の節階層を取得する。節番号・タイトル・ページ番号付きの目次を返す。"
+ },
+ "get_section|prose": {
+  "src": "844384337d1e8e944f602338f8677306",
+  "text": "PDF 仕様（ISO 32000-2）の指定節の本文を取得する。見出し・段落・リスト・表・注記を含む構造化コンテンツを返す。親節を指定するとサブツリー全体（全下位節・文書順）が返るため、最上位の節では応答が非常に大きくなりうる — 分かっている最も具体的な節番号を使うこと。"
+ },
+ "search_spec|prose": {
+  "src": "abe56223c00f38a060ef072a9d0b9369",
+  "text": "PDF 仕様（ISO 32000-2）をキーワード・フレーズで検索する。該当節を文脈スニペット付きで返す。初回は検索インデックス構築のため数秒かかることがある。ヒット 0 件は「このコーパスでは答えられない」であって「そのような要求は存在しない」では**ない** — ISO 19005（PDF/A）と ETSI PAdES はコーパス外である（list_specs → coverage.gaps を参照）。"
+ },
+ "get_requirements|prose": {
+  "src": "e614a3b2d5b9ebb130725845743941d3",
+  "text": "あなたのファイルではなく**規格**を読む。PDF 仕様（ISO 32000-2）から規範的要求（shall/must/may）を抽出する。文の文脈・節・要求レベル付きの構造化要求を返す。仕様が何を要求するかを教えるだけで、特定の PDF がそれを満たすかは決して答えない — ファイルの検査は pdf-verify-mcp（validate_conformance / evaluate_policy）へ。"
+ },
+ "get_definitions|prose": {
+  "src": "d1181e28d4bc5c4b95290db21df82fc8",
+  "text": "PDF 仕様（ISO 32000-2）の第 3 節から用語定義を取得する。用語・定義文・注記・出典付きの構造化定義を返す。"
+ },
+ "get_tables|prose": {
+  "src": "c28dbe37661a793327485ffbe3e2e9d5",
+  "text": "PDF 仕様（ISO 32000-2）の指定節から表構造を抽出する。ヘッダ・行・キャプション（任意）付きで表を返す。親節を指定するとサブツリー全体（全下位節）の表が返る。"
+ },
+ "compare_versions|prose": {
+  "src": "6e007aeed48d4a9462293921269b77b7",
+  "text": "PDF 1.7（ISO 32000-1）と PDF 2.0（ISO 32000-2）の節を比較する。一致（同一または移動）・追加（2.0 で新設）・削除（2.0 に無い）を返す。タイトルベースの自動マッチングを使う。"
+ },
+ "list_specs|param:category": {
+  "src": "8f217d06abd70fd21c4c84d77fb07f78",
+  "text": "カテゴリで絞り込む（standard, ts, pdfua, guide, appnote）。"
+ },
+ "get_structure|param:spec": {
+  "src": "7b6ef50d00d9dade75af6955fa72938a",
+  "text": "Spec ID（例: \"iso32000-2\"・\"pdf17\"）。省略時は既定の仕様。"
+ },
+ "get_structure|param:max_depth": {
+  "src": "ae2c903c145bebf813fe4caa749181c8",
+  "text": "返す見出しの最大深さ（1-10）。"
+ },
+ "get_section|param:spec": {
+  "src": "7b6ef50d00d9dade75af6955fa72938a",
+  "text": "Spec ID（例: \"iso32000-2\"・\"pdf17\"）。省略時は既定の仕様。"
+ },
+ "get_section|param:section": {
+  "src": "168626a4452c8ec4f4e8a0ef3c617a38",
+  "text": "節番号。例: \"12.5.6.10\" または \"Annex A\"。"
+ },
+ "search_spec|param:spec": {
+  "src": "7b6ef50d00d9dade75af6955fa72938a",
+  "text": "Spec ID（例: \"iso32000-2\"・\"pdf17\"）。省略時は既定の仕様。"
+ },
+ "search_spec|param:query": {
+  "src": "30dd46bc0943dd8bc2879b201992eb17",
+  "text": "検索語。まず完全フレーズ、次に単語の AND でマッチする。"
+ },
+ "search_spec|param:max_results": {
+  "src": "27e7d7e5733732e3a9f28cb854f37b0f",
+  "text": "返すヒットの最大数（1-50）。"
+ },
+ "get_requirements|param:spec": {
+  "src": "7b6ef50d00d9dade75af6955fa72938a",
+  "text": "Spec ID（例: \"iso32000-2\"・\"pdf17\"）。省略時は既定の仕様。"
+ },
+ "get_requirements|param:section": {
+  "src": "54a4e2bb75077be6a11d7e0e94c81aab",
+  "text": "この節とその下位節に限定する。"
+ },
+ "get_requirements|param:level": {
+  "src": "3e2c039ffe81d9995422ef83d6264ef2",
+  "text": "要求レベルで絞り込む（shall, shall not, should, should not, may）。"
+ },
+ "get_definitions|param:spec": {
+  "src": "7b6ef50d00d9dade75af6955fa72938a",
+  "text": "Spec ID（例: \"iso32000-2\"・\"pdf17\"）。省略時は既定の仕様。"
+ },
+ "get_definitions|param:term": {
+  "src": "ec817147e6ecfb36d9295f23d6517a1f",
+  "text": "この用語に一致する定義に絞り込む。"
+ },
+ "get_tables|param:spec": {
+  "src": "7b6ef50d00d9dade75af6955fa72938a",
+  "text": "Spec ID（例: \"iso32000-2\"・\"pdf17\"）。省略時は既定の仕様。"
+ },
+ "get_tables|param:section": {
+  "src": "91fda2a35be718622ce9115d594a0032",
+  "text": "表を含む節の番号。"
+ },
+ "get_tables|param:table_index": {
+  "src": "880bf89462451d28d8b1a2066606bfa3",
+  "text": "この表だけを返す（0 始まり）。省略時は節内の全表。"
+ },
+ "compare_versions|param:section": {
+  "src": "3cbbd576609aca3d5bf159cd25e4bffd",
+  "text": "この節のサブツリーに比較を限定する。"
+ }
+}

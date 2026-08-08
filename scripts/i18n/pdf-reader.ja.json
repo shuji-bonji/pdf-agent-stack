@@ -1,0 +1,354 @@
+{
+ "get_page_count|prose": {
+  "src": "911cc14717b90451c42c5308fcabe77f",
+  "text": "PDF 文書の総ページ数を取得する。\n\nPDF ヘッダのみを読む軽量な操作で、本文全体は読まない。"
+ },
+ "get_metadata|prose": {
+  "src": "03bc9931c6831d0f405c20eb07128626",
+  "text": "タイトル・作成者・作成日・ページ数・PDF バージョン・構造情報など、PDF 文書のメタデータを抽出する。"
+ },
+ "read_text|prose": {
+  "src": "d64f72f1dd342a2793214ad27aa68c7c",
+  "text": "Y 座標に基づく読み順を保って PDF 文書からテキストを抽出する。\n\nテキストはページごとに抽出され、垂直位置（上→下）、次いで水平位置（左→右）で並べ替えられ、自然な読み順になる。\n\n`/ActualText` 置換（ISO 32000-2 §14.9.4）は、同条項が定義する 2 つの経路 — 構造要素の `/ActualText` と、`Span` マーク付きコンテンツのプロパティリスト内のもの — の両方で解決される。後者はタグなし文書にも現れる。そのため ActualText として運ばれる語（合字の置換・ハイフネーション処理）は、グリフの形ではなく、ページを見る人が目にする綴りで読める。\n\n**タグ付き** PDF で順序が重要な場合は、依然として `extract_structured_text` の方が適している。あちらは論理コンテンツ順（ISO 32000-2 §14.8.2.5）で返すのに対し、read_text は座標で並べ替えるだけだからである。タグ付き PDF の表は `extract_tables` で読むのが最善。\n\n**タグなし**の多段組 PDF（構造ツリーを持たない旧式の新旧対照表 PDF など）では、`split_columns: 2` または `3` を渡すと X 座標で左から右へ項目を振り分ける。\n\nU+3000 全角空白を視覚的な字下げに使う日本語の帳票・様式 PDF では、`compact_whitespace: true` を渡すと連続する空白が 1 つの ASCII 空白に畳まれる。内容を失わずにトークン消費を 20〜40% 削減できる。"
+ },
+ "search_text|prose": {
+  "src": "2871f6d12677082a0d24f423cbeb16cb",
+  "text": "PDF 文書内のテキストを検索する。一致位置を前後の文脈付きで返す。\n\n全ページまたは指定ページを対象に、大文字小文字を区別せず検索する。各一致にはページ番号・一致テキスト・設定可能な前後文脈が含まれる。\n\n検索は `read_text` が返すのと同じテキストに対して走るため、`/ActualText` 置換（ISO 32000-2 §14.9.4）後の綴りでヒットする。ActualText として運ばれる語（合字の置換・ハイフネーション処理）は、グリフの形ではなくビューアが表示する綴りで見つかる。まれにページのマーク付きコンテンツを抽出テキストと突き合わせられず、置換が未解決のまま残ることがある。ヒット 0 件の検索でそれが起きた場合、結果に該当ページを名指しする `note` が付く。"
+ },
+ "read_images|prose": {
+  "src": "40590c218339b4d879368414f356631a",
+  "text": "PDF 文書から画像を base64 エンコードで抽出する。\n\n指定ページまたは全ページから埋め込み画像を抽出し、画像のメタ情報（寸法・色空間）と base64 の生ピクセルデータを返す。"
+ },
+ "read_url|prose": {
+  "src": "4e1c41770a2a7d3496f271cbf597da32",
+  "text": "URL から PDF を取得してテキストを抽出する。\n\n指定 URL から PDF をダウンロードし、Y 座標に基づく読み順でテキストを抽出する。HTTP / HTTPS に対応。最大ファイルサイズ 50MB、タイムアウト 30 秒。\n\n`read_text` と同様に、**タグなし**の多段組 PDF 向けの `split_columns: 2 | 3` と、U+3000 / ASCII の連続空白を畳む `compact_whitespace: true` を受け付ける。タグ付き PDF は代わりに `extract_tables` を使うこと。"
+ },
+ "summarize|prose": {
+  "src": "8b6ec6d90ab534724e22ba573f2893c4",
+  "text": "PDF 文書の概観レポートを手早く生成する。\n\nメタデータ・テキスト有無の確認・画像数・1 ページ目のテキストプレビューを 1 つの要約にまとめる。どの詳細ツールを使うか決める前の最初の一手に向く。"
+ },
+ "inspect_structure|prose": {
+  "src": "11f15b93b9e04b56fd232336e3f44582",
+  "text": "カタログのエントリ・ページツリー・オブジェクト統計など、PDF の内部オブジェクト構造を調べる。"
+ },
+ "inspect_tags|prose": {
+  "src": "3dae8de4ce6e1775b2f792072752367f",
+  "text": "アクセシビリティ評価のために、タグ付き PDF の構造ツリーを分析する。"
+ },
+ "inspect_fonts|prose": {
+  "src": "bd9ebf0ad3797e7660e9fb2b54d3c663",
+  "text": "PDF 文書で使われている全フォントをプロパティ付きで一覧する。"
+ },
+ "inspect_annotations|prose": {
+  "src": "3ea2498f2cf39af5a32c45ebb3fc85a2",
+  "text": "PDF 文書内の全注釈を抽出して種類別に分類する。"
+ },
+ "inspect_signatures|prose": {
+  "src": "130370b6d32e3458f9640ee400b4d547",
+  "text": "PDF 文書のデジタル署名フィールドを調べる。"
+ },
+ "extract_tables|prose": {
+  "src": "0329016e8bdbd9ec8b6a15de875d204e",
+  "text": "タグ付き PDF の全 `<Table>` サブツリーを、構造化された行/セルのリストとして抽出する。オプションで Markdown 表としても描画できる。\n\n仕組み: 文書の StructTreeRoot を深さ優先で走査し（`extract_structured_text` / `inspect_tags` と同じウォーカー）、各 `<TR>` → `<TH>`/`<TD>` のセルテキストを取り出し、カーニング空白を畳む（例: \"消 費 税 法\" → \"消費税法\"）。これにより多段組の表（新旧対照表 PDF に典型）で読み順抽出が陥る失敗モードを回避する。\n\n改ページをまたいで続く表は 1 つの表である（ISO 32000-2 §14.8.2.5 NOTE 2）— `pages` は配列であり、指定ページ範囲に触れる表は丸ごと返る。セルテキストは `/ActualText` 置換（§14.9.4）を反映する。"
+ },
+ "extract_structured_text|prose": {
+  "src": "52061287fd6ebb20e62af9f676ac2173",
+  "text": "タグ付き PDF のテキストを論理コンテンツ順で抽出し、各断片に構造タイプのラベルを付ける。\n\n「H1 のテキストは何か」に答えるツールである — read_text（フラット・座標順）、inspect_tags（構造のみ・テキストなし）、extract_tables（テキストは表のみ）のいずれにもできない。"
+ },
+ "locate_objects|prose": {
+  "src": "61fbe5ac42dc112bff192c54dc139220",
+  "text": "指定したオブジェクトがページ上のどこにあるかを報告する。\n\n「どのオブジェクトか」を「どの座標か」へ橋渡しする: pdf-verify-mcp の verify_integrity は増分更新が変更したオブジェクトを名指しし、pdf-writer-mcp の add_annotation はページ番号と矩形を要求する。矩形は PDF ユーザー空間（原点は左下・pt・x1 < x2 かつ y1 < y2 — ISO 32000-1 §7.9.5 の正規化形）で返り、これはまさに add_annotation が受け取る形である。"
+ },
+ "validate_tagged|prose": {
+  "src": "62b2324bba2bd789e622f72a129351ae",
+  "text": "[非推奨 — 次のメジャーバージョンで削除予定]\n\npdf-verify-mcp の `validate_conformance`（`flavour: \"pdfua-1\"` または `\"pdfua-2\"`）を推奨する。\n単なる置き換えではなく上位互換である: Figure タグの `/Alt`・`/ActualText` の実値を検証し（本ツールは Figure を数えるだけ）、Link の `/Contents` を確認し、カタログから StructTreeRoot を直接検査し（本ツールはページごとに合成する）、ISO 14289 の条文を引用し、利用可能なら veraPDF に委譲する。\n\n理由: family の境界は「ISO 規格に対する合否は pdf-verify-mcp、観測の報告は pdf-reader-mcp」である。本ツールは pdf-verify-mcp より前からあり、例外だった。構造ツリーの事実が要るなら `inspect_tags` を使うこと — そちらは非推奨ではない。\n\n本ツールは手早い事前チェックとしては今も機能する。実行されるのは以下の検査のみで、ここで合格しても PDF/UA 準拠を意味しない。\n\nPDF/UA のタグ付き構造要件を検証する。"
+ },
+ "validate_metadata|prose": {
+  "src": "48fef6e9a0ad1fabd2c04f9ea12ca61d",
+  "text": "[非推奨 — 次のメジャーバージョンで削除予定]\n\n規格準拠の判定には pdf-verify-mcp の `validate_conformance`（`flavour: \"pdfua-1\"` / `\"pdfa-*\"`）を推奨する。ISO の本文に照らして判定し、利用可能なら veraPDF に委譲する。メタデータのフィールドを読むだけなら `get_metadata` を使うこと。\n\n理由: family の境界は「ISO 規格に対する合否は pdf-verify-mcp、観測の報告は pdf-reader-mcp」である。本ツールは pdf-verify-mcp より前からある。\n\n既知の制限（修正予定なし — 上位互換に置き換え）: 検査対象は文書情報辞書（Info）のみである。PDF/UA-1 §7.1 は XMP メタデータストリームの `dc:title` を要求し、適合リーダーは Info 辞書を「無視しなければならない」と定める。さらに `ViewerPreferences/DisplayDocTitle = true` と `Suspects = false` も要求されるが、ここではいずれも検査しない。ISO 32000-2 §14.3.3 は CreationDate/ModDate を除き Info 辞書を非推奨としている。以下の結果は一般的なベストプラクティスの示唆として扱い、PDF/UA・PDF/A の根拠にしないこと。\n\nメタデータをベストプラクティスと仕様要件に照らして検証する。"
+ },
+ "compare_structure|prose": {
+  "src": "d0fed1c0809585a3e10e7af88c2e563f",
+  "text": "2 つの PDF 文書の内部構造を比較し、差分を特定する。"
+ },
+ "get_page_count|returns": {
+  "src": "8629310666429786e6250173da651571",
+  "text": "ページ数（数値）。\n\n例:\n- どのページを抽出するか決める前の簡易チェック\n- PDF ファイルが読めるかの確認"
+ },
+ "get_page_count|param:file_path": {
+  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+ },
+ "get_metadata|returns": {
+  "src": "5b60463e5f7b6d0ce94639a775520618",
+  "text": "メタデータ一式: タイトル・作成者・件名・キーワード・作成アプリ・生成アプリ・作成/更新日時・ページ数・PDF バージョン・linearized/暗号化/タグ付き/署名フラグ・ファイルサイズ。\n\n例:\n- 台帳管理用に文書プロパティを取得\n- タグ付き PDF か確認（アクセシビリティ）\n- PDF バージョン互換性の確認"
+ },
+ "get_metadata|param:file_path": {
+  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+ },
+ "get_metadata|param:response_format": {
+  "src": "c7a8f32a1936716e2c56515f7cab88d9",
+  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+ },
+ "read_text|returns": {
+  "src": "bed2b9ac8382fb05fa3da1e50b699172",
+  "text": "ページ番号ごとに整理された抽出テキスト。`split_columns >= 2` の場合、後段の LLM が区別できるよう段組は空行で区切られる。\n\n例:\n- 全文抽出: { file_path: \"/path/to/doc.pdf\" }\n- タグなしの新旧対照表: { file_path: \"/path/to/older-shinkyu.pdf\", split_columns: 2 }\n- 日本語の帳票: { file_path: \"/path/to/form.pdf\", compact_whitespace: true }"
+ },
+ "read_text|param:file_path": {
+  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+ },
+ "read_text|param:pages": {
+  "src": "6ab4608dbd91701e20e3d16dac5c9f5a",
+  "text": "処理するページ範囲。形式: \"1-5\"・\"3\"・\"1,3,5-7\"。省略時は全ページ。"
+ },
+ "read_text|param:response_format": {
+  "src": "c7a8f32a1936716e2c56515f7cab88d9",
+  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+ },
+ "read_text|param:split_columns": {
+  "src": "0e265b61850b30ea15f4b814bb0f96b6",
+  "text": "テキスト並べ替えに使う段数。1（既定）= 従来の Y ソート。2 または 3 = X 座標で左から右へ振り分け。Y ソートでは段が交錯するタグなしの新旧対照表 / 2 段組 PDF に使う。適切な <Table> マークアップを持つタグ付き PDF は extract_tables を使うこと。"
+ },
+ "read_text|param:compact_whitespace": {
+  "src": "96aa2a2e6e65821e4460f1a4829ebda2",
+  "text": "true にすると連続空白（全角空白 U+3000 含む）を 1 つの ASCII 空白に畳み、各行をトリムする。日本語の帳票様式 PDF でトークン消費を削減する。既定: false（空白の正規化なし）。"
+ },
+ "search_text|returns": {
+  "src": "a877db47197cdb3c4974ad13cd3e4a30",
+  "text": "ページ番号・一致テキスト・前後文脈付きの検索結果。\n\n例:\n- PDF 全体を検索: { file_path: \"/path/to/doc.pdf\", query: \"digital signature\" }\n- ページを絞って検索: { file_path: \"/path/to/doc.pdf\", query: \"error\", pages: \"1-10\" }"
+ },
+ "search_text|param:file_path": {
+  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+ },
+ "search_text|param:query": {
+  "src": "f5cbfa7eef0a4364e6136600136c95eb",
+  "text": "検索するテキスト（大文字小文字を区別しない）"
+ },
+ "search_text|param:pages": {
+  "src": "6ab4608dbd91701e20e3d16dac5c9f5a",
+  "text": "処理するページ範囲。形式: \"1-5\"・\"3\"・\"1,3,5-7\"。省略時は全ページ。"
+ },
+ "search_text|param:context_chars": {
+  "src": "60a772c3fd65efaade2bf3d78c15bc5f",
+  "text": "各一致の前後に表示する文字数"
+ },
+ "search_text|param:max_results": {
+  "src": "b7292a7c5eb2da25b5cc150139de43c5",
+  "text": "返す一致の最大数"
+ },
+ "search_text|param:response_format": {
+  "src": "c7a8f32a1936716e2c56515f7cab88d9",
+  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+ },
+ "read_images|returns": {
+  "src": "94035d636b7840d67fb7eb7be1a42405",
+  "text": "抽出画像の配列: ページ番号・インデックス・幅・高さ・色空間（RGB/RGBA/Grayscale）・成分あたりビット数・base64 データ。\n\n注意: 大きな画像は応答が非常に大きくなる。pages で範囲を絞ること。\n\n例:\n- 全画像を抽出: { file_path: \"/path/to/doc.pdf\" }\n- 1 ページ目から抽出: { file_path: \"/path/to/doc.pdf\", pages: \"1\" }"
+ },
+ "read_images|param:file_path": {
+  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+ },
+ "read_images|param:pages": {
+  "src": "6ab4608dbd91701e20e3d16dac5c9f5a",
+  "text": "処理するページ範囲。形式: \"1-5\"・\"3\"・\"1,3,5-7\"。省略時は全ページ。"
+ },
+ "read_url|returns": {
+  "src": "e967c8c356969727586a63fad48a496a",
+  "text": "ページ番号ごとに整理された抽出テキスト（read_text と同じ形式）。\n\n例:\n- リモート PDF を読む: { url: \"https://example.com/document.pdf\" }\n- タグなし 2 段組 PDF: { url: \"https://...\", split_columns: 2 }\n- 日本語の帳票: { url: \"https://...\", compact_whitespace: true }"
+ },
+ "read_url|param:url": {
+  "src": "e19eb41e7abf330cead28d072616dcf9",
+  "text": "PDF ファイルを指す URL（HTTP または HTTPS）"
+ },
+ "read_url|param:pages": {
+  "src": "6ab4608dbd91701e20e3d16dac5c9f5a",
+  "text": "処理するページ範囲。形式: \"1-5\"・\"3\"・\"1,3,5-7\"。省略時は全ページ。"
+ },
+ "read_url|param:response_format": {
+  "src": "c7a8f32a1936716e2c56515f7cab88d9",
+  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+ },
+ "read_url|param:split_columns": {
+  "src": "0e265b61850b30ea15f4b814bb0f96b6",
+  "text": "テキスト並べ替えに使う段数。1（既定）= 従来の Y ソート。2 または 3 = X 座標で左から右へ振り分け。Y ソートでは段が交錯するタグなしの新旧対照表 / 2 段組 PDF に使う。適切な <Table> マークアップを持つタグ付き PDF は extract_tables を使うこと。"
+ },
+ "read_url|param:compact_whitespace": {
+  "src": "96aa2a2e6e65821e4460f1a4829ebda2",
+  "text": "true にすると連続空白（全角空白 U+3000 含む）を 1 つの ASCII 空白に畳み、各行をトリムする。日本語の帳票様式 PDF でトークン消費を削減する。既定: false（空白の正規化なし）。"
+ },
+ "summarize|returns": {
+  "src": "b77e0bcceb64caa41300668c4bf0dfd1",
+  "text": "概要: ページ数・PDF バージョン・ファイルサイズ・タグ付き/暗号化/署名フラグ・テキスト有無・画像数・1 ページ目のプレビュー。\n\n例:\n- 手早く概観: { file_path: \"/path/to/doc.pdf\" }\n- 機械可読で: { file_path: \"/path/to/doc.pdf\", response_format: \"json\" }"
+ },
+ "summarize|param:file_path": {
+  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+ },
+ "summarize|param:response_format": {
+  "src": "c7a8f32a1936716e2c56515f7cab88d9",
+  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+ },
+ "inspect_structure|returns": {
+  "src": "16f036c71f4217fc22a4b2cdf678159c",
+  "text": "カタログのエントリ（キーと型）・ページツリー情報（ページ数・MediaBox のサンプル）・オブジェクト統計（総数・ストリーム数・型分布）・暗号化状態。\n\n例:\n- 構造的特徴を見るためにカタログを調べる\n- PDF のオブジェクトとストリームを数える\n- 文書全体のページ寸法を確認する"
+ },
+ "inspect_structure|param:file_path": {
+  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+ },
+ "inspect_structure|param:response_format": {
+  "src": "c7a8f32a1936716e2c56515f7cab88d9",
+  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+ },
+ "inspect_tags|returns": {
+  "src": "170a3fdb12a77c397c2205d1755cfee7",
+  "text": "タグ付きかどうか・role 付き構造ツリー階層・最大ネスト深さ・要素総数・role 分布（例: Document, P, H1, Table, Figure）。\n\n例:\n- アクセシビリティ（PDF/UA）向けにタグ付きか確認\n- タグ階層と role 分布を調べる\n- 文書構造の品質を評価する"
+ },
+ "inspect_tags|param:file_path": {
+  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+ },
+ "inspect_tags|param:response_format": {
+  "src": "c7a8f32a1936716e2c56515f7cab88d9",
+  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+ },
+ "inspect_fonts|returns": {
+  "src": "8f1305b9b1d84b080f036b05541c5a2a",
+  "text": "フォント名・型（TrueType, Type1, CIDFont 等）・エンコーディング・埋め込み/サブセット状況・使用ページ。\n\n例:\n- 全フォント埋め込みか確認（PDF/A・PDF/X の前提）\n- フォントの型とエンコーディングを特定\n- 特定フォントを使うページを探す"
+ },
+ "inspect_fonts|param:file_path": {
+  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+ },
+ "inspect_fonts|param:response_format": {
+  "src": "c7a8f32a1936716e2c56515f7cab88d9",
+  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+ },
+ "inspect_annotations|returns": {
+  "src": "5795353de216eddbc552da0a121e6e35",
+  "text": "注釈総数・種類別（Link, Widget, Highlight, Text 等）とページ別の内訳・リンク/フォーム/マークアップ有無のフラグ・個別詳細。\n\n例:\n- フォームフィールド（Widget 注釈）の有無を確認\n- 文書内の全リンクを探す\n- マークアップ注釈（ハイライト・コメント）の棚卸し"
+ },
+ "inspect_annotations|param:file_path": {
+  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+ },
+ "inspect_annotations|param:pages": {
+  "src": "6ab4608dbd91701e20e3d16dac5c9f5a",
+  "text": "処理するページ範囲。形式: \"1-5\"・\"3\"・\"1,3,5-7\"。省略時は全ページ。"
+ },
+ "inspect_annotations|param:response_format": {
+  "src": "c7a8f32a1936716e2c56515f7cab88d9",
+  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+ },
+ "inspect_signatures|returns": {
+  "src": "f9e9a43536e58a68c864b6e45b8b5331",
+  "text": "署名フィールド総数・署名済み/未署名の内訳・各フィールドの詳細（署名者名・理由・場所・署名日時・filter/subFilter）。\n\n注意: 本ツールは署名フィールドの構造を調べるだけで、暗号学的な署名検証は行わない。\n\n例:\n- PDF が電子署名されているか確認\n- 署名者情報と署名日時を調べる\n- 署名フィールドの構造を確認"
+ },
+ "inspect_signatures|param:file_path": {
+  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+ },
+ "inspect_signatures|param:response_format": {
+  "src": "c7a8f32a1936716e2c56515f7cab88d9",
+  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+ },
+ "extract_tables|returns": {
+  "src": "fed7179a767567ce0827389f2c9942d1",
+  "text": "Markdown — `# Extracted Tables` の要約ブロックに続き、表ごとに GFM 表付きの `## Table N — Page(s) …` 節。\n\nJSON — `{ isTagged, tables: [{ pages, index, headerRows, bodyRows, footerRows }], totalTables, pagesScanned, note? }`。`index` は文書全体の論理コンテンツ順での 1 始まりの位置。\n\n制限:\n- タグなし PDF は空の結果と `note` を返す。\n- colspan/rowspan は反映されない（セルはソース順に列挙）。\n- 入れ子の表は個別に出力されない（テキストは外側のセルに現れる）。\n\n例:\n- 改正通達 PDF から新旧対照表を取り出して差分を取る\n- 帳票（様式）の表を構造化データに変換する"
+ },
+ "extract_tables|param:file_path": {
+  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+ },
+ "extract_tables|param:pages": {
+  "src": "6ab4608dbd91701e20e3d16dac5c9f5a",
+  "text": "処理するページ範囲。形式: \"1-5\"・\"3\"・\"1,3,5-7\"。省略時は全ページ。"
+ },
+ "extract_tables|param:response_format": {
+  "src": "c7a8f32a1936716e2c56515f7cab88d9",
+  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+ },
+ "extract_structured_text|returns": {
+  "src": "ce60988897573ca47317625358a47dbd",
+  "text": "isTagged・文書の言語・論理コンテンツ順の要素のフラットなリスト。\n各要素は role・depth（ネスト。トップレベルは 0）・text・pages と、必要に応じて alt / label / rows / boxes / boxNote を持つ。\n\nリストは入れ子ではなく depth フィールド付きのフラット構造である — 深さ優先の行きがけ順 + depth で木は正確に符号化され、失われるものはない。例外は Table で、rows を持つ。表は二次元であり、depth では「2 行目の 3 列目」を表せないからである。\n\n主な性質:\n- 順序は文書の構造ツリーの深さ優先走査で、ISO 32000-2 §14.8.2.5 が定義する論理コンテンツ順そのものである。\n- ページをまたぐ要素は 1 つの要素のまま（pages は配列）。改ページで分かれた段落は 2 つではなく 1 つの段落として返る。\n- ActualText があればグリフを置き換える（§14.9.4:「説明ではなく置換」）。Alt は alt に分けて報告され、text には決して入らない — テキストを持たない内容の説明であり（§14.9.3）、本文に漏れてはならない。\n- Lbl（リストの行頭記号や番号）は label に報告され、text には混ざらない。\n- アーティファクト（ページ番号・柱）は除外される: §14.8.2.5 NOTE 3 が論理コンテンツ順の外に置いている。\n\ninclude_bbox 付き（「この段落はどこにあるか」に答え、注釈を置けるようにする）:\n各要素に boxes が付く — ページごとに 1 矩形。ページをまたぐ要素に単一の矩形は無いからである。各矩形は PDF 既定ユーザー空間（原点は左下・pt・正規化済み）の { page, rect: {x1,y1,x2,y2}, basis } で、pdf-writer-mcp の add_annotation がそのまま受け取る形 — 途中で座標系を解釈し直す必要はない。/Rotate やずれた /CropBox の影響も受けない。\n\nbasis は主張の強さを示し、両者は同じ種類の主張ではない:\n  - layout-attribute-bbox — ファイルが要素について宣言する /BBox（ISO 32000-2 Table 379）。生成者による自己申告の幾何で、そのまま報告される。テキストを持たない内容ではこれが唯一の情報源。\n  - text-extent — 要素が持つテキストから実測した値: ベースライン原点とフォントの ascent/descent。つまり行ボックスであり、グリフの輪郭ではない。画像やベクター描画は寄与しない。\n\n宣言された /BBox が中で実測されたテキストを覆わない場合、その食い違いは均されず boxNote で報告される。\n\n矩形を持たない要素は boxes を持たず、理由を述べる boxNote が付く — 画像 1 つを持つ Figure が典型である（§14.8.4.8.5: そのような要素は「BBox 属性を持つべき」）。「無い」は「大きさゼロ」ではなく、推測もしない。\n\nタグなし PDF は理由付きの isTagged: false を返し、要素は返さない。座標からの推測は行わない — §14.8.2.5 NOTE 1 はページ順が論理順と一致するとは限らないと明記しており、推測は信頼できないからである。構造の足場を足すには pdf-writer-mcp の ensure_tagged を使って再試行すること。\n\n例:\n- 文書のアウトラインを抽出: { file_path: \"/doc.pdf\", roles: [\"H1\",\"H2\",\"H3\"] }\n- リフロー/変換用に構造を保ったまま内容を取得: { file_path: \"/doc.pdf\" }\n- 特定の節のページのテキストを読む: { file_path: \"/doc.pdf\", pages: \"4-6\" }\n- 注釈を置く場所を探す:\n  { file_path: \"/doc.pdf\", roles: [\"P\"], include_bbox: true } → 矩形をそのまま pdf-writer-mcp の add_annotation へ。逆方向（差分が報告したオブジェクト番号 → 矩形）は locate_objects を使う。"
+ },
+ "extract_structured_text|param:file_path": {
+  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+ },
+ "extract_structured_text|param:pages": {
+  "src": "20abfb75ec87166ed55d4b4f6b43b282",
+  "text": "処理するページ範囲。形式: \"1-5\"・\"3\"・\"1,3,5-7\"。省略時は全ページ。範囲に触れる要素は、範囲外に続いていても丸ごと返る。"
+ },
+ "extract_structured_text|param:roles": {
+  "src": "90693924a412f0d9e4f3686aff72a669",
+  "text": "含める構造タイプ。例: アウトライン抽出なら [\"H1\",\"H2\"]。省略時は全 role。"
+ },
+ "extract_structured_text|param:include_bbox": {
+  "src": "deb2c62094cc8eecf7ca2280a2d9f1fa",
+  "text": "各要素の描画位置も boxes として報告する: PDF 既定ユーザー空間（原点は左下・pt・正規化済み）でページごとに 1 矩形 — pdf-writer-mcp の add_annotation が受け取る形。各矩形には basis が付く: \"layout-attribute-bbox\"（ファイルが宣言する /BBox）または \"text-extent\"（要素のテキストから実測。画像・ベクター描画は寄与しない）。矩形の無い要素には理由を述べる boxNote が付く。既定は off: 全ページをもう一巡するコストがかかる。"
+ },
+ "extract_structured_text|param:response_format": {
+  "src": "c7a8f32a1936716e2c56515f7cab88d9",
+  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+ },
+ "locate_objects|returns": {
+  "src": "6d1263952b339d14e8c9078f2b2dd7e2",
+  "text": "オブジェクトごとに: 存在の有無・/Type と /Subtype・占める場所。各場所には座標の根拠（basis）が付く:\n- annotation-rect — オブジェクト自身の /Rect。正確。\n- page-box — オブジェクトはページで、矩形はその crop/media box。\n- page-content-stream — オブジェクトはページを描く。矩形はページ全体であり、変わった部分ではない。\n- page-resource — ページが使うフォント・画像・色空間。矩形は存在しない。\n\n限界（観測であり判定ではない）:\n- コンテンツストリームを移動した段落まで絞り込むにはグラフィックス状態付きのストリーム走査が要る。本ツールはそれを行わず、矩形を発明する代わりにそう言う。\n- 存在しないオブジェクト（後のリビジョンで解放）は found: false で返る —「座標なし」としてではなく。\n- 暗号化文書でも座標と型は信頼できる（数値と名前は暗号化されない。ISO 32000-1 §7.6.2）が、フィールド名は文字化けの代わりに null で報告される。\n\n例:\n- verify_integrity の「obj 27 が署名後に追加された」をページと矩形に変換する\n- 変更されたフォームフィールドの Widget がどのページにあるか、注釈を付ける前に特定する"
+ },
+ "locate_objects|param:file_path": {
+  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+ },
+ "locate_objects|param:object_numbers": {
+  "src": "961dd497663643709669b0beb363a98b",
+  "text": "位置を特定するオブジェクト番号。例: [25, 27]。通常は pdf-verify-mcp の verify_integrity が「変更された」と報告したオブジェクト。"
+ },
+ "locate_objects|param:response_format": {
+  "src": "c7a8f32a1936716e2c56515f7cab88d9",
+  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+ },
+ "validate_tagged|returns": {
+  "src": "b83f2adea083cda0d295259115f8da22",
+  "text": "検証結果: タグ付きかどうか・実施した検査数・合否件数・重要度（error/warning/info）付きの詳細・要約。\n\n実施される検査:\n- 文書がタグ付きとしてマークされているか\n- 構造ツリーのルートの存在\n- 文書ルートタグの有無\n- 見出し階層（H1-H6）の順序\n- 画像の Figure タグ\n- 段落タグの有無\n- 構造要素数\n- 表タグの構造（TR/TH/TD）\n\n例:\n- PDF が PDF/UA のアクセシビリティ要件を満たすか確認\n- 欠落・不正なタグ構造の特定\n- 文書のアクセシビリティ品質の評価"
+ },
+ "validate_tagged|param:file_path": {
+  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+ },
+ "validate_tagged|param:response_format": {
+  "src": "c7a8f32a1936716e2c56515f7cab88d9",
+  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+ },
+ "validate_metadata|returns": {
+  "src": "b8b54df7363bec075d278e9db8fe7ef9",
+  "text": "検証結果: 検査総数・合否件数・重要度付きの詳細・メタデータフィールド有無の要約・全体要約。\n\n実施される検査（すべて Info 辞書に対して — 上記の制限を参照）:\n- タイトルの有無（ベストプラクティス。PDF/UA の根拠は XMP の dc:title であり、これではない）\n- 作成者の有無\n- 作成日の形式検証\n- 更新日の有無\n- 生成アプリの特定\n- PDF バージョンの検出\n- タグ付きフラグの状態\n- 件名・キーワードの有無\n- 暗号化とアクセシビリティへの影響\n\n例:\n- 公開基準に向けたメタデータ充足の簡易チェック\n- （PDF/A 長期保存・PDF/UA 準拠の判定は pdf-verify-mcp の validate_conformance を使うこと）"
+ },
+ "validate_metadata|param:file_path": {
+  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+ },
+ "validate_metadata|param:response_format": {
+  "src": "c7a8f32a1936716e2c56515f7cab88d9",
+  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+ },
+ "compare_structure|returns": {
+  "src": "0925ad828b08721814b5d99364d21cf8",
+  "text": "構造比較: 項目ごとの差分（ページ数・PDF バージョン・暗号化・タグ付き状態・オブジェクト数・ページ寸法・ファイルサイズ・カタログエントリ・署名）、フォント比較（各ファイル固有のフォントと共有フォント）、要約。\n\n例:\n- 同じ文書の 2 版を比較\n- PDF 出力間の構造的一貫性を確認\n- PDF 生成パイプラインの違いを特定"
+ },
+ "compare_structure|param:file_path_1": {
+  "src": "2955460397c9df9c5547aa76d6c863ae",
+  "text": "比較する 1 つ目の PDF ファイルへの絶対パス"
+ },
+ "compare_structure|param:file_path_2": {
+  "src": "72dc07aedd7ffc1f661e5d4ab6dfa424",
+  "text": "比較する 2 つ目の PDF ファイルへの絶対パス"
+ },
+ "compare_structure|param:response_format": {
+  "src": "c7a8f32a1936716e2c56515f7cab88d9",
+  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+ }
+}
