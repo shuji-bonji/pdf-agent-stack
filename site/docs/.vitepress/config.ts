@@ -111,6 +111,8 @@ export default withMermaid(
       'Read, verify, write and reason about PDFs — a family of MCP servers and skills for AI agents',
     base: '/pdf-agent-stack/',
     lastUpdated: true,
+    // プロジェクトページなので base まで含める（sitemap の URL は hostname + ページパスで組まれる）
+    sitemap: { hostname: 'https://shuji-bonji.github.io/pdf-agent-stack/' },
     // llms.txt 生成はビルド時のみ有効化する。
     // プラグインの dev ミドルウェアは「.md で終わる全リクエスト」を横取りして
     // dist の生 Markdown を返すため、dist が存在すると dev の SPA 遷移
