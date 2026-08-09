@@ -119,6 +119,14 @@ export default withMermaid(
       'Read, verify, write and reason about PDFs — a family of MCP servers and skills for AI agents',
     base: BASE,
     lastUpdated: true,
+    // markdown-it-attrs を無効化する。生成リファレンスの例示行
+    // 「- 全文抽出: { file_path: "/doc.pdf" }」の行末 {...} を attrs が属性として
+    // 消費し、`<li file_path:="" doc.pdf,="">` のような不正な属性名（カンマ・角括弧入り）
+    // を生む。例示テキストが全ブラウザで消えるうえ、リリース版 Safari は SPA 遷移の
+    // mount 時に setAttribute が InvalidCharacterError を投げて本文が空白になる
+    // （リロード時は SSG HTML の hydration なので発症しない）。attrs 構文 {.class}
+    // の意図的使用はサイト内に無い。
+    markdown: { attrs: { disable: true } },
     // プロジェクトページなので base まで含める（sitemap の URL は hostname + ページパスで組まれる）
     sitemap: { hostname: SITE },
     // llms.txt 生成はビルド時のみ有効化する。
