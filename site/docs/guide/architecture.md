@@ -1,12 +1,46 @@
 ---
-description: The four-layer model and each MCP's responsibility boundary — independent MCPs orchestrated by Skills, declaration ≠ conformance, assertion strength T1/T2/T3, the judge is code and the narrative is the LLM
+description: The whole picture of PDF Family and each MCP's responsibility boundary — independent MCPs orchestrated by Skills, the four-layer model, declaration ≠ conformance, assertion strength T1/T2/T3, the judge is code and the narrative is the LLM
 ---
 
 # Architecture & Responsibilities
 
 PDF Family is built as **independent MCPs × Skill orchestration**. Each MCP is self-contained with no dependency on the others; orchestrating multiple servers (procedure and knowledge) is the Skills' job.
 
-## The four-layer model
+## The whole picture
+
+```mermaid
+graph LR
+  AGENT["AI agent<br>(Claude Code / Desktop, …)"]
+
+  subgraph FAMILY["PDF Family"]
+    direction TB
+    subgraph SKILL["Skills — procedure & orchestration"]
+      TRUST["pdf-trust<br>incoming audit"]
+      PUBLISH["pdf-publish<br>delivery pipeline"]
+    end
+    subgraph MCP["MCPs — computation & cryptography (each server independent)"]
+      SPEC["pdf-spec<br>canon (norm)"]
+      READER["pdf-reader<br>substance (fact)"]
+      VERIFY["pdf-verify<br>judgment"]
+      WRITER["pdf-writer<br>creation"]
+    end
+    SKILL --> MCP
+  end
+
+  IN["Incoming PDF"] --> AGENT
+  NEED["PDF to produce"] --> AGENT
+  AGENT <--> FAMILY
+  FAMILY --> OUT["Trust Report / Publish Report<br>verified, deliverable PDFs"]
+
+  SPECDOC[("ISO 32000<br>+ 17 documents")] -.-> SPEC
+  VERA[("veraPDF")] -.-> VERIFY
+```
+
+An agent may call the MCPs directly, or leave the orchestration to a Skill. With the Skills installed, the **call order, how to read the verdicts, and the report format** are all fixed for you.
+
+There are only two external dependencies: pdf-spec needs the corpus of specification PDFs (not bundled, as they may not be redistributed), and pdf-verify delegates PDF/A and PDF/UA verdicts to veraPDF. The reader and the writer depend on nothing outside themselves.
+
+## The four-layer model — who orchestrates what
 
 ```mermaid
 graph TB
@@ -47,12 +81,12 @@ That is why the writer's `ensure_pdfa` is a tool that *writes a declaration*, an
 
 ## Two gates: intake and exit
 
-```mermaid
-graph LR
-  IN[Incoming PDF] --> TRUST[pdf-trust<br>incoming audit] --> USE[use / archive]
-  MAKE[PDF to produce] --> PUBLISH[pdf-publish<br>write → read-back → verify] --> OUT[delivery]
-  TRUST & PUBLISH -.->|axis of judgment| V[pdf-verify-mcp]
-```
+The two inputs in the diagram above (an incoming PDF, a PDF to produce) each pass through their own gate.
+
+| Gate | Skill | Flow |
+|---|---|---|
+| Intake (audit) | [pdf-trust](/skills/pdf-trust) | incoming PDF → audit → use / archive |
+| Exit (delivery) | [pdf-publish](/skills/pdf-publish) | PDF to produce → write → read-back → verify → delivery |
 
 verify is the gatekeeper standing at both the intake (audit) and the exit (delivery). The 4-value verdict (trust_and_use / use_with_caution / human_review_required / reject) is decided by `evaluate_policy`'s deterministic rule engine; the LLM only supplies the explanation and recommended actions — **the judge is code, the narrative is the LLM**.
 

@@ -8,20 +8,22 @@ PDF Family is the collective name for four independent MCP servers and two Skill
 
 ## Components
 
-| Kind | Name | One-line definition | npm / distribution |
+| Kind | Name | Role | Distribution |
 |---|---|---|---|
-| MCP | [pdf-spec-mcp](/mcp/pdf-spec) | What the specification requires (ISO 32000 + 17 more documents) | `@shuji-bonji/pdf-spec-mcp` |
-| MCP | [pdf-reader-mcp](/mcp/pdf-reader) | What is inside, and where it is (18 observation tools) | `@shuji-bonji/pdf-reader-mcp` |
-| MCP | [pdf-verify-mcp](/mcp/pdf-verify) | Is it genuine, and does it meet the standard (7 judgment tools) | `@shuji-bonji/pdf-verify-mcp` |
-| MCP | [pdf-writer-mcp](/mcp/pdf-writer) | Can we write it the way the spec says (20 creation/editing tools) | `@shuji-bonji/pdf-writer-mcp` |
-| Skill | [pdf-trust](/skills/pdf-trust) | Orchestrates incoming audits (Trust Report) | GitHub |
-| Skill | [pdf-publish](/skills/pdf-publish) | Orchestrates quality-gated delivery (Publish Report) | GitHub |
+| MCP | [pdf-spec-mcp](/mcp/pdf-spec) | Consult the PDF specification (ISO 32000 + 17 more documents) | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-spec-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-spec-mcp) |
+| MCP | [pdf-reader-mcp](/mcp/pdf-reader) | Observe a PDF's internal state (18 observation tools) | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-reader-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-reader-mcp) |
+| MCP | [pdf-verify-mcp](/mcp/pdf-verify) | Verify authenticity and conformance (7 judgment tools) | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp) |
+| MCP | [pdf-writer-mcp](/mcp/pdf-writer) | Generate PDFs following the spec (20 creation/editing tools) | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-writer-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-writer-mcp) |
+| Skill | [pdf-trust](/skills/pdf-trust) | Vet incoming PDFs and confirm trust (Trust Report) | [GitHub](https://github.com/shuji-bonji/pdf-trust-skill) |
+| Skill | [pdf-publish](/skills/pdf-publish) | Generate through a quality-gated pipeline (Publish Report) | [GitHub](https://github.com/shuji-bonji/pdf-publish-skill) |
 
-## Why are they separate?
+The MCPs are accompanied by [pdf-constraints](https://github.com/shuji-bonji/pdf-constraints) ([npm](https://www.npmjs.com/package/@shuji-bonji/pdf-constraints)), the data library behind verify's clause checks. It maps ISO 32000 clauses to machine-checkable constraint tables and can be used on its own.
 
-Because mixing **observation**, **judgment**, **creation** and **norms** makes it easy to lie. The moment a reader starts declaring pass/fail, you get "probably genuine" without any cryptographic verification. The moment a writer claims it "can produce a conformant PDF", declaration gets confused with conformance. By separating responsibilities, the Family keeps **the trustworthy range of each answer** explicit.
+::: info On architecture and responsibilities
+How these fit together and run — see [Architecture & Responsibilities](/guide/architecture) for the details.
+:::
 
-See [Architecture & Responsibilities](/guide/architecture) for the details.
+An agent may call the MCPs directly, or leave the orchestration to a Skill. With the Skills installed, the **call order, how to read the verdicts, and the report format** are all fixed for you.
 
 ## Try it in 5 minutes
 

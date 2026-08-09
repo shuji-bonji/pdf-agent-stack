@@ -8,20 +8,22 @@ PDF Family は、AI エージェントに PDF の「読む・検証する・書�
 
 ## 構成要素
 
-| 種別 | 名前 | 一行定義 | npm / 配布 |
-|---|---|---|---|
-| MCP | [pdf-spec-mcp](/ja/mcp/pdf-spec) | 仕様は何を要求するか（ISO 32000 ほか 17 文書） | `@shuji-bonji/pdf-spec-mcp` |
-| MCP | [pdf-reader-mcp](/ja/mcp/pdf-reader) | 中身に何があるか・それはどこか（観測 18 ツール） | `@shuji-bonji/pdf-reader-mcp` |
-| MCP | [pdf-verify-mcp](/ja/mcp/pdf-verify) | 本物で規格に適っているか（判定 7 ツール） | `@shuji-bonji/pdf-verify-mcp` |
-| MCP | [pdf-writer-mcp](/ja/mcp/pdf-writer) | 仕様通りに書けるか（生成・編集 20 ツール） | `@shuji-bonji/pdf-writer-mcp` |
-| Skill | [pdf-trust](/ja/skills/pdf-trust) | 受入監査の編成（Trust Report） | GitHub |
-| Skill | [pdf-publish](/ja/skills/pdf-publish) | 品質ゲート付き納品の編成（Publish Report） | GitHub |
+| 種別  | 名前                                  | 役割                                                                   | 配布                                                                                                                       |
+| ----- | ------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| MCP   | [pdf-spec-mcp](/ja/mcp/pdf-spec)      | PDF 仕様を参照する（ISO 32000 ほか 17 文書）                            | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-spec-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-spec-mcp)     |
+| MCP   | [pdf-reader-mcp](/ja/mcp/pdf-reader)  | PDF の内部状態を観測する（観測 18 ツール）                              | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-reader-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-reader-mcp) |
+| MCP   | [pdf-verify-mcp](/ja/mcp/pdf-verify)  | 真正性・準拠性を検証する（判定 7 ツール）                              | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp) |
+| MCP   | [pdf-writer-mcp](/ja/mcp/pdf-writer)  | 仕様に沿って PDF を生成する（生成・編集 20 ツール）                    | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-writer-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-writer-mcp) |
+| Skill | [pdf-trust](/ja/skills/pdf-trust)     | 受領した PDF を精査し、信頼性を確認する（Trust Report）                  | [GitHub](https://github.com/shuji-bonji/pdf-trust-skill)                                                                   |
+| Skill | [pdf-publish](/ja/skills/pdf-publish) | 品質管理（ゲート）を組み込んだパイプラインで生成する（Publish Report） | [GitHub](https://github.com/shuji-bonji/pdf-publish-skill)                                                                 |
 
-## なぜ分かれているのか
+MCP は verify の条文検査が使うデータライブラリ [pdf-constraints](https://github.com/shuji-bonji/pdf-constraints)（[npm](https://www.npmjs.com/package/@shuji-bonji/pdf-constraints)）を伴う。ISO 32000 の条文を機械検査可能な制約テーブルへ写像したもので、単体でも利用できる。
 
-「観測」と「判定」と「生成」と「規範」は、混ぜると嘘をつきやすくなるからである。reader が合否を言い始めると、暗号検証なしの「たぶん本物」が生まれる。writer が「準拠 PDF を作れる」と言うと、宣言と準拠の混同が起きる。Family は責務を分けることで、**それぞれの答えの信頼できる範囲**を明確にしている。
+::: info 構成と責務について
+これらがどう繋がって動くか。詳しくは [全体構成と責務](/ja/guide/architecture) を参照してください。
+:::
 
-詳しくは [全体構成と責務](/ja/guide/architecture) へ。
+エージェントは MCP を直接呼んでもよいし、Skill に編成を任せてもよい。Skill を入れると、複数 MCP の**呼び出し順序・判定の読み方・レポート形式**が定型化される。
 
 ## 5 分で試す
 

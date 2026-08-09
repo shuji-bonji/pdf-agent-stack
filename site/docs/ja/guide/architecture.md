@@ -1,12 +1,46 @@
 ---
-description: 4 層モデルと各 MCP の責務境界 — 独立 MCP × Skill 連携、宣言 ≠ 準拠、言い切り強度 T1/T2/T3、ジャッジはコード・ナラティブは LLM
+description: PDF Family の全体構成と各 MCP の責務境界 — 独立 MCP × Skill 連携、4 層モデル、宣言 ≠ 準拠、言い切り強度 T1/T2/T3、ジャッジはコード・ナラティブは LLM
 ---
 
 # 全体構成と責務
 
 PDF Family は「独立 MCP × Skill 連携」で構成される。各 MCP は相互非依存で単独完結し、複数サーバーの編成（手順・知識）は Skill が担う。
 
-## 4 層モデル
+## 全体構成
+
+```mermaid
+graph LR
+  AGENT["AI エージェント<br>(Claude Code / Desktop など)"]
+
+  subgraph FAMILY["PDF Family"]
+    direction TB
+    subgraph SKILL["Skill — 手順・編成"]
+      TRUST["pdf-trust<br>受入監査"]
+      PUBLISH["pdf-publish<br>納品パイプライン"]
+    end
+    subgraph MCP["MCP — 計算・暗号（各サーバーは独立）"]
+      SPEC["pdf-spec<br>正典 norm"]
+      READER["pdf-reader<br>実体 fact"]
+      VERIFY["pdf-verify<br>判定 judgment"]
+      WRITER["pdf-writer<br>生成 production"]
+    end
+    SKILL --> MCP
+  end
+
+  IN["受け取った PDF"] --> AGENT
+  NEED["作りたい PDF"] --> AGENT
+  AGENT <--> FAMILY
+  FAMILY --> OUT["Trust Report / Publish Report<br>検証済み・納品可能な PDF"]
+
+  SPECDOC[("ISO 32000 ほか<br>17 文書")] -.-> SPEC
+  VERA[("veraPDF")] -.-> VERIFY
+```
+
+エージェントは MCP を直接呼んでもよいし、Skill に編成を任せてもよい。Skill を入れると、複数 MCP の**呼び出し順序・判定の読み方・レポート形式**が定型化される。
+
+外部依存は 2 つだけである。pdf-spec は仕様 PDF のコーパス（再配布不可のため同梱しない）を、pdf-verify は PDF/A・PDF/UA の判定を委譲する veraPDF を必要とする。reader と writer は外部に依存しない。
+
+## 4 層モデル — 誰が何を編成するか
 
 ```mermaid
 graph TB
@@ -47,12 +81,12 @@ Family 全体を貫く思想である。
 
 ## 入口と出口の 2 ゲート
 
-```mermaid
-graph LR
-  IN[受け取った PDF] --> TRUST[pdf-trust<br>受入監査] --> USE[利用・保存]
-  MAKE[作る PDF] --> PUBLISH[pdf-publish<br>write → read-back → verify] --> OUT[納品]
-  TRUST & PUBLISH -.->|判定の軸| V[pdf-verify-mcp]
-```
+全体構成図の 2 本の入力（受け取った PDF / 作りたい PDF）は、それぞれ別のゲートを通る。
+
+| ゲート | Skill | 流れ |
+|---|---|---|
+| 入口（受入） | [pdf-trust](/ja/skills/pdf-trust) | 受け取った PDF → 監査 → 利用・保存 |
+| 出口（納品） | [pdf-publish](/ja/skills/pdf-publish) | 作る PDF → write → read-back → verify → 納品 |
 
 verify は入口（受入）と出口（納品）の両方に立つゲートキーパーである。4 値判定（trust_and_use / use_with_caution / human_review_required / reject）は `evaluate_policy` の決定論的ルールエンジンが下し、LLM は解説と推奨アクションだけを担う — **ジャッジはコード、ナラティブは LLM**。
 

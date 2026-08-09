@@ -30,3 +30,162 @@
   --vp-c-brand-3: #c22945;
   --vp-c-brand-soft: rgba(228, 80, 111, 0.16);
 }
+
+/* ---------------------------------------------------------------------------
+ * Mermaid — クリックで全画面表示（theme/index.ts が svg-pan-zoom を適用する）
+ * ------------------------------------------------------------------------- */
+
+.mermaid {
+  position: relative;
+  overflow: visible;
+  margin: 1em 0;
+}
+
+.mermaid svg {
+  cursor: zoom-in;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  background-color: var(--vp-c-bg-soft);
+  transition:
+    border-color 0.25s,
+    box-shadow 0.25s;
+}
+
+.mermaid svg:hover {
+  border-color: var(--vp-c-brand-1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dark .mermaid svg {
+  background-color: var(--vp-c-bg-alt);
+}
+
+.mermaid-fullscreen-dialog {
+  width: 95vw;
+  height: 95vh;
+  max-width: 95vw;
+  max-height: 95vh;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.mermaid-fullscreen-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+}
+
+.mermaid-fullscreen-dialog .dialog-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 1rem;
+  border-radius: 12px;
+  background-color: var(--vp-c-bg);
+}
+
+.mermaid-fullscreen-dialog .dialog-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-1);
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    transform 0.2s;
+}
+
+.mermaid-fullscreen-dialog .dialog-close:hover {
+  background-color: var(--vp-c-brand-1);
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.mermaid-fullscreen-dialog .dialog-close:active {
+  transform: scale(0.95);
+}
+
+.mermaid-fullscreen-dialog .dialog-svg-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: var(--vp-c-bg-soft);
+}
+
+.mermaid-fullscreen-dialog .dialog-svg-container svg {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: transparent;
+  cursor: grab;
+}
+
+.mermaid-fullscreen-dialog .dialog-svg-container svg:active {
+  cursor: grabbing;
+}
+
+.mermaid-fullscreen-dialog[open] {
+  animation: mermaid-dialog-in 0.25s ease;
+}
+
+@keyframes mermaid-dialog-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* svg-pan-zoom のコントロールをテーマ色に合わせる */
+.mermaid-fullscreen-dialog .svg-pan-zoom-control {
+  cursor: pointer;
+}
+
+.mermaid-fullscreen-dialog .svg-pan-zoom-control-background {
+  fill: var(--vp-c-bg);
+  fill-opacity: 0.8;
+}
+
+.mermaid-fullscreen-dialog .svg-pan-zoom-control-background:hover {
+  fill: var(--vp-c-bg-soft);
+}
+
+.dark .mermaid-fullscreen-dialog .dialog-content {
+  background-color: var(--vp-c-bg);
+}
+
+.dark .mermaid-fullscreen-dialog .dialog-svg-container {
+  background-color: var(--vp-c-bg-alt);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mermaid-fullscreen-dialog[open] {
+    animation: none;
+  }
+}
