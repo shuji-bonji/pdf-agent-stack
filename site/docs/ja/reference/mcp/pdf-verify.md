@@ -7,7 +7,7 @@ description: "pdf-verify-mcp v0.14.0 の全 7 ツールの引数・型・既定�
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-**v0.14.0** の `tools/list` ハンドシェイクから自動生成（7 ツール・2026-08-08）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.14.0** の `tools/list` ハンドシェイクから自動生成（7 ツール・2026-08-09）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 ## ツール一覧

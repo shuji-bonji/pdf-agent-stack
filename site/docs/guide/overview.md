@@ -17,7 +17,7 @@ PDF Family is the collective name for four independent MCP servers and two Skill
 | Skill | [pdf-trust](/skills/pdf-trust) | Vet incoming PDFs and confirm trust (Trust Report) | [GitHub](https://github.com/shuji-bonji/pdf-trust-skill) |
 | Skill | [pdf-publish](/skills/pdf-publish) | Generate through a quality-gated pipeline (Publish Report) | [GitHub](https://github.com/shuji-bonji/pdf-publish-skill) |
 
-The MCPs are accompanied by [pdf-constraints](https://github.com/shuji-bonji/pdf-constraints) ([npm](https://www.npmjs.com/package/@shuji-bonji/pdf-constraints)), the data library behind verify's clause checks. It maps ISO 32000 clauses to machine-checkable constraint tables and can be used on its own.
+The MCPs are accompanied by [pdf-constraints](/reference/pdf-constraints), the data library behind verify's clause checks. It maps ISO 32000 clauses to machine-checkable constraint tables and can be used on its own.
 
 ::: info On architecture and responsibilities
 How these fit together and run — see [Architecture & Responsibilities](/guide/architecture) for the details.

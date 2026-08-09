@@ -103,8 +103,9 @@ Checks constraints mapped from the **body clauses of ISO 32000-1/-2** — the ar
 A document can pass PDF/A or PDF/UA and still violate ISO 32000 (example: embedding a CFF font program under
 `/FontFile2`, which Table 124 forbids).
 
-The mapping and its evaluation live in [`@shuji-bonji/pdf-constraints`](https://www.npmjs.com/package/@shuji-bonji/pdf-constraints),
-and the output names the version that decided. **Same file plus same given facts always produce the same result.**
+The mapping and its evaluation live in [pdf-constraints](/reference/pdf-constraints), and the output names the
+version that decided. **Same file plus same given facts always produce the same result.** The bundled domains
+and their constraint counts are listed there.
 
 | Parameter | Type | Description |
 |---|---|---|

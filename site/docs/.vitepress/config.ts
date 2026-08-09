@@ -74,6 +74,10 @@ const sidebar = (prefix: string, l: Record<string, string>) => ({
         { text: 'pdf-verify', link: `${prefix}/reference/mcp/pdf-verify` },
         { text: 'pdf-writer', link: `${prefix}/reference/mcp/pdf-writer` }
       ]
+    },
+    {
+      text: l.library,
+      items: [{ text: 'pdf-constraints', link: `${prefix}/reference/pdf-constraints` }]
     }
   ]
 });
@@ -86,7 +90,7 @@ const en = {
   ucPublish: 'Publish Pipeline', ucPdfa: 'PDF/A Archiving', ucA11y: 'Accessibility (PDF/UA)',
   ucSpec: 'Spec Research', ucBatch: 'Batch Audit',
   envVars: 'Environment Variables', errorCodes: 'Error Codes', glossary: 'Glossary',
-  isoPrimer: 'How to Read ISO Specs', mcpTools: 'MCP Tools Reference'
+  isoPrimer: 'How to Read ISO Specs', mcpTools: 'MCP Tools Reference', library: 'Library'
 };
 
 const ja = {
@@ -97,7 +101,7 @@ const ja = {
   ucPublish: '納品パイプライン', ucPdfa: '長期保存 (PDF/A)', ucA11y: 'アクセシビリティ (PDF/UA)',
   ucSpec: '仕様調査', ucBatch: '一括監査',
   envVars: '環境変数', errorCodes: 'エラーコード', glossary: '用語集',
-  isoPrimer: 'ISO 仕様書の読み方', mcpTools: 'MCP ツールリファレンス'
+  isoPrimer: 'ISO 仕様書の読み方', mcpTools: 'MCP ツールリファレンス', library: 'ライブラリ'
 };
 
 const nav = (prefix: string, l: Record<string, string>) => [

@@ -7,7 +7,7 @@ description: "Tools reference for pdf-spec-mcp v0.4.5 — parameters, types, def
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.4.5** (8 tools, 2026-08-08). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.4.5** (8 tools, 2026-08-09). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 ## Tools

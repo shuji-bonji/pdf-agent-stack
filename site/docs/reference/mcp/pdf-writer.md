@@ -7,7 +7,7 @@ description: "Tools reference for pdf-writer-mcp v0.18.0 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.18.0** (20 tools, 2026-08-08). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.18.0** (20 tools, 2026-08-09). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 ## Tools

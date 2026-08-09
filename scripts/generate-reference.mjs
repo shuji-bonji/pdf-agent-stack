@@ -16,7 +16,7 @@
 
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -413,6 +413,90 @@ function syncVersions(server, info, toolCount) {
   return edits;
 }
 
+/* ---------------- pdf-constraints (library, not a server) ----------------
+ *
+ * pdf-constraints ships as a library, so there is no handshake to read a version
+ * from. Its two facts that go stale — the released version and how many constraints
+ * each bundled table holds — are taken from measurements instead:
+ *   version : stack.json (generated from `npm view`, and committed, so CI has it)
+ *   counts  : lib/pdf-constraints/tables/*.json (gitignored working tree; skipped
+ *             on CI, exactly like mcp/)
+ * A table that ships without a row on the page is reported loudly: coverage that
+ * was built but never written down is coverage nobody can see.
+ */
+
+const CONSTRAINTS_NPM = '@shuji-bonji/pdf-constraints';
+const CONSTRAINTS_PAGE = 'reference/pdf-constraints.md';
+
+function syncConstraints() {
+  const edits = [];
+
+  let version = null;
+  const stackPath = join(ROOT, 'stack.json');
+  if (existsSync(stackPath)) {
+    const stack = JSON.parse(readFileSync(stackPath, 'utf8'));
+    version = stack.repos?.find((r) => r.npm === CONSTRAINTS_NPM)?.published ?? null;
+  }
+
+  /** domain -> constraint count, from the tables themselves */
+  const counts = new Map();
+  const tablesDir = join(ROOT, 'lib/pdf-constraints/tables');
+  if (existsSync(tablesDir)) {
+    for (const file of readdirSync(tablesDir)) {
+      if (!file.endsWith('.json') || file === 'schema.json') continue;
+      const table = JSON.parse(readFileSync(join(tablesDir, file), 'utf8'));
+      counts.set(file.replace(/\.json$/, ''), (table.constraints ?? []).length);
+    }
+  }
+
+  for (const locale of LOCALES) {
+    const pagePath = join(ROOT, locale.dir, CONSTRAINTS_PAGE);
+    if (!existsSync(pagePath)) continue;
+    const before = readFileSync(pagePath, 'utf8');
+    let after = before;
+
+    if (version) {
+      after = after.replace(
+        new RegExp(`(\`${CONSTRAINTS_NPM.replace(/[/@]/g, '\\$&')}\`\\s*/\\s*(?:現行|current)\\s+v)[0-9][^\\s]*`),
+        `$1${version}`
+      );
+    }
+
+    if (counts.size) {
+      const seen = new Set();
+      after = after.replace(
+        /(<!-- constraints:tables -->)([\s\S]*?)(<!-- \/constraints:tables -->)/,
+        (_all, open, body, close) => {
+          const rows = body.split('\n').map((line) => {
+            const cells = line.split('|');
+            // | `domain` | clauses | count | what it looks at |
+            if (cells.length < 6) return line;
+            const domain = cells[1].trim().replace(/^`|`$/g, '');
+            if (!counts.has(domain)) return line;
+            seen.add(domain);
+            cells[3] = ` ${counts.get(domain)} `;
+            return cells.join('|');
+          });
+          return open + rows.join('\n') + close;
+        }
+      );
+      for (const domain of counts.keys()) {
+        if (!seen.has(domain)) {
+          console.warn(
+            `  ⚠ ${locale.lang}: table "${domain}" ships but has no row in ${CONSTRAINTS_PAGE}`
+          );
+        }
+      }
+    }
+
+    if (after !== before) {
+      writeFileSync(pagePath, after);
+      edits.push(`${locale.lang} ${CONSTRAINTS_PAGE}`);
+    }
+  }
+  return edits;
+}
+
 /* ---------------- main ---------------- */
 
 const targets = process.argv.slice(2);
@@ -465,4 +549,10 @@ for (const name of names) {
     }
     console.log('  ja: translation memory complete');
   }
+}
+
+// The library page is not tied to any one server, so it is synced once at the end
+// (and also when a single server was regenerated — the numbers are cheap to check).
+for (const edited of syncConstraints()) {
+  console.log(`synced pdf-constraints numbers in ${edited}`);
 }

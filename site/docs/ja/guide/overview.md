@@ -17,7 +17,7 @@ PDF Family は、AI エージェントに PDF の「読む・検証する・書�
 | Skill | [pdf-trust](/ja/skills/pdf-trust)     | 受領した PDF を精査し、信頼性を確認する（Trust Report）                  | [GitHub](https://github.com/shuji-bonji/pdf-trust-skill)                                                                   |
 | Skill | [pdf-publish](/ja/skills/pdf-publish) | 品質管理（ゲート）を組み込んだパイプラインで生成する（Publish Report） | [GitHub](https://github.com/shuji-bonji/pdf-publish-skill)                                                                 |
 
-MCP は verify の条文検査が使うデータライブラリ [pdf-constraints](https://github.com/shuji-bonji/pdf-constraints)（[npm](https://www.npmjs.com/package/@shuji-bonji/pdf-constraints)）を伴う。ISO 32000 の条文を機械検査可能な制約テーブルへ写像したもので、単体でも利用できる。
+MCP は verify の条文検査が使うデータライブラリ [pdf-constraints](/ja/reference/pdf-constraints) を伴う。ISO 32000 の条文を機械検査可能な制約テーブルへ写像したもので、単体でも利用できる。
 
 ::: info 構成と責務について
 これらがどう繋がって動くか。詳しくは [全体構成と責務](/ja/guide/architecture) を参照してください。

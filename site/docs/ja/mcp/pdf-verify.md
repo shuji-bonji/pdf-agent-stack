@@ -102,8 +102,8 @@ xref チェーンを歩けなかった場合は空配列ではなく `null` を�
 PDF/A や PDF/UA に通っても ISO 32000 に違反しうるため（例: CFF フォントプログラムを `/FontFile2` に
 埋め込む。Table 124 が禁じている）。
 
-写像と評価は [`@shuji-bonji/pdf-constraints`](https://www.npmjs.com/package/@shuji-bonji/pdf-constraints)
-にあり、どの版が判定したかを出力に含める。**同じファイルと同じ与件からは常に同じ結果**である。
+写像と評価は [pdf-constraints](/ja/reference/pdf-constraints) にあり、どの版が判定したかを出力に含める。
+**同じファイルと同じ与件からは常に同じ結果**である。収録済みのドメインと制約数はそちらを参照。
 
 | 引数 | 型 | 説明 |
 |---|---|---|
