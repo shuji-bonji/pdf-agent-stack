@@ -56,10 +56,10 @@ graph LR
 | --- | --- | --- | --- | --- |
 | [pdf-spec-mcp](https://github.com/shuji-bonji/pdf-spec-mcp) | canon | mcp-server | 0.4.5 | `@shuji-bonji/pdf-spec-mcp` |
 | [pdf-reader-mcp](https://github.com/shuji-bonji/pdf-reader-mcp) | structure | mcp-server | 0.11.1 | `@shuji-bonji/pdf-reader-mcp` |
-| [pdf-verify-mcp](https://github.com/shuji-bonji/pdf-verify-mcp) | judgment | mcp-server | 0.14.0 | `@shuji-bonji/pdf-verify-mcp` |
+| [pdf-verify-mcp](https://github.com/shuji-bonji/pdf-verify-mcp) | judgment | mcp-server | 0.14.2 | `@shuji-bonji/pdf-verify-mcp` |
 | [pdf-writer-mcp](https://github.com/shuji-bonji/pdf-writer-mcp) | action | mcp-server | 0.18.0 | `@shuji-bonji/pdf-writer-mcp` |
 | [pdf-constraints](https://github.com/shuji-bonji/pdf-constraints) | judgment | library | 0.3.0 | `@shuji-bonji/pdf-constraints` |
-| [normativepdf](https://github.com/shuji-bonji/normativepdf) | action | library | 0.0.0 | — |
+| [normativepdf](https://github.com/shuji-bonji/normativepdf) | action | library | 0.1.0 | — |
 | [pdf-trust-skill](https://github.com/shuji-bonji/pdf-trust-skill) | procedure | skill | 0.5.0 | — |
 | [pdf-publish-skill](https://github.com/shuji-bonji/pdf-publish-skill) | procedure | skill | 0.5.0 | — |
 | [pdf-specialist-plugin](https://github.com/shuji-bonji/pdf-specialist-plugin) | orchestration | plugin | 0.6.0 | — |

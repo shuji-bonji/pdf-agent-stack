@@ -17,9 +17,22 @@
 4. 両ページ共通: インストール手順（marketplace 経由）と、前提 MCP が欠けたときの縮退の説明
 5. en 側も同内容で同期（Report 例は同一検体の英語実行で取得）
 
+## 検体計画（2026-08-11 決定・3 系統）
+
+外部検体は「正しく署名されている保証がない」（期待値は仮説）ため、3 系統を併用する。
+すべて `docs/specimens/`（gitignore 済み）に取得・生成済み:
+
+| 検体 | 位置づけ | 実測済みの事実 |
+| --- | --- | --- |
+| `selfmade-pades-lta.pdf` | **known-good**（全工程管理下: writer 生成 → pyHanko 署名 + TS + DocTS） | 署名 VALID / trusted（自作 CA）・署名 TS 検証成功 |
+| `kanpo-20260810-h01765-p1.pdf` | 実運用・日本文脈（内閣府署名 + AMANO DocTS + 権限暗号化） | 署名 VALID・PDF 1.4 |
+| `dss-pades-lta.pdf` ほか | EU 公式テストコーパス（PAdES レベル比較） | 署名 VALID・DSS に署名者カバーの OCSP/CRL |
+
 ## 依存・注意
 
-- Report 例の取得は軽い実測作業（一次情報）が要る。ユースケース詳細（優先度 5）の素材集めを兼ねられるので、得られたログは捨てずに保管する
+- **Issue 06（verify の DocTimeStamp 分岐バグ）を先に修正すること。** 現状のまま実測すると
+  3 検体すべての Trust Report に既知バグ由来の INDETERMINATE が載る
+- Report 例の取得はユースケース詳細（優先度 5）の素材集めを兼ねるので、得られたログは捨てずに保管する
 
 ## 受入基準
 
