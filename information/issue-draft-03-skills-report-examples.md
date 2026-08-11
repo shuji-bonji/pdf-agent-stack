@@ -2,6 +2,19 @@
 
 **優先度: 3**
 
+> **🏁 完了（2026-08-11・サイト 4 ページ未コミット）**
+>
+> - 実走: pdf-trust = **4 値判定すべてを実検体で採取**（trust_and_use は CRL を DSS に同梱した
+>   自作検体 + trust_anchors で到達・構造観測も B-LTA に。human_review_required は未署名 PDF ×
+>   contract で採取）/ pdf-publish = 請求書デモで veraPDF 権威判定 3b 146/146 + ua-1 106/106・ループ 0 回
+> - 素材（全記録）: `docs/specimens/trust-report-kanpo-2026-08-11.md` / `publish-report-demo-invoice-2026-08-11.md`
+> - サイト反映: ja/en × pdf-trust / pdf-publish の TODO を実測内容で置換
+>   （プロファイル表・4 値実測表・Report 抜粋・ensure_pdfa warning 転記・ループ打ち切り・
+>   インストール手順・縮退動作。実行日と検体の性質を明記・例文の捏造なし）
+> - 残: サイトのビルド確認とコミット・deploy はホスト作業
+
+
+
 ## 現象
 
 - `ja/skills/pdf-trust.md` = 34 行 / `ja/skills/pdf-publish.md` = 28 行。原則と 4 値判定の説明はあるが:
