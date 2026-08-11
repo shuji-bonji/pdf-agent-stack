@@ -1,0 +1,32 @@
+name: Stack version check
+
+# stack.json / README の構成表が npm の公開版とずれていないかを照合する。
+# 各 MCP のリリース後に stack 再生成を忘れると、ここが落ちて気づける
+# （2026-08-11: writer v0.18.0 / verify v0.14.0 のリリースで手順漏れが実際に起きた）。
+# 直すのは手元で: node scripts/generate-stack.mjs --readme → commit
+
+on:
+  schedule:
+    - cron: '0 21 * * 1' # 毎週月曜 06:00 JST
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'stack.json'
+      - 'README.md'
+      - 'scripts/generate-stack.mjs'
+      - '.github/workflows/stack-check.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # 依存なし（npm view と stack.json の突き合わせのみ）。install 不要
+      - run: node scripts/generate-stack.mjs --check

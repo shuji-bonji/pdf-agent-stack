@@ -13,20 +13,53 @@ PDF を **読む / 調べる / 反証する / 書く** を、LLM から決定論
 
 この区別を守るために、判定はコードが下し、LLM は理由を説明する側に置いている。
 
+## 全体像
+
+```mermaid
+graph LR
+  AGENT["AI エージェント<br>(Claude Code / Desktop など)"]
+
+  subgraph FAMILY["PDF Family"]
+    direction TB
+    subgraph SKILL["Skill — 手順・編成"]
+      TRUST["pdf-trust<br>受入監査"]
+      PUBLISH["pdf-publish<br>納品パイプライン"]
+    end
+    subgraph MCP["MCP — 計算・暗号（各サーバーは独立）"]
+      SPEC["pdf-spec<br>正典 norm"]
+      READER["pdf-reader<br>実体 fact"]
+      VERIFY["pdf-verify<br>判定 judgment"]
+      WRITER["pdf-writer<br>生成 production"]
+    end
+    SKILL --> MCP
+  end
+
+  IN["受け取った PDF"] --> AGENT
+  NEED["作りたい PDF"] --> AGENT
+  AGENT <--> FAMILY
+  FAMILY --> OUT["Trust Report / Publish Report<br>検証済み・納品可能な PDF"]
+
+  SPECDOC[("ISO 32000 ほか<br>17 文書")] -.-> SPEC
+  VERA[("veraPDF")] -.-> VERIFY
+```
+
+図の正典はサイトの[全体構成と責務](https://shuji-bonji.github.io/pdf-agent-stack/ja/guide/architecture)。
+責務境界・4 層モデル・言い切り強度（T1/T2/T3）はそちらで詳述している。
+
 ## 構成
 
 <!-- stack:begin — scripts/generate-stack.mjs が生成。手で編集しない -->
 
-> 版は実測（2026-07-29 時点の `npm view`）。
+> 版は実測（2026-08-11 時点の `npm view`）。
 
 | リポジトリ | 役割 | 配布形態 | 版 | npm |
 | --- | --- | --- | --- | --- |
 | [pdf-spec-mcp](https://github.com/shuji-bonji/pdf-spec-mcp) | canon | mcp-server | 0.4.5 | `@shuji-bonji/pdf-spec-mcp` |
 | [pdf-reader-mcp](https://github.com/shuji-bonji/pdf-reader-mcp) | structure | mcp-server | 0.11.1 | `@shuji-bonji/pdf-reader-mcp` |
-| [pdf-verify-mcp](https://github.com/shuji-bonji/pdf-verify-mcp) | judgment | mcp-server | 0.13.0 | `@shuji-bonji/pdf-verify-mcp` |
-| [pdf-writer-mcp](https://github.com/shuji-bonji/pdf-writer-mcp) | action | mcp-server | 0.17.0 | `@shuji-bonji/pdf-writer-mcp` |
+| [pdf-verify-mcp](https://github.com/shuji-bonji/pdf-verify-mcp) | judgment | mcp-server | 0.14.0 | `@shuji-bonji/pdf-verify-mcp` |
+| [pdf-writer-mcp](https://github.com/shuji-bonji/pdf-writer-mcp) | action | mcp-server | 0.18.0 | `@shuji-bonji/pdf-writer-mcp` |
 | [pdf-constraints](https://github.com/shuji-bonji/pdf-constraints) | judgment | library | 0.3.0 | `@shuji-bonji/pdf-constraints` |
-| [normativepdf](https://github.com/shuji-bonji/normativepdf) | action | library | — | — |
+| [normativepdf](https://github.com/shuji-bonji/normativepdf) | action | library | 0.0.0 | — |
 | [pdf-trust-skill](https://github.com/shuji-bonji/pdf-trust-skill) | procedure | skill | 0.5.0 | — |
 | [pdf-publish-skill](https://github.com/shuji-bonji/pdf-publish-skill) | procedure | skill | 0.5.0 | — |
 | [pdf-specialist-plugin](https://github.com/shuji-bonji/pdf-specialist-plugin) | orchestration | plugin | 0.6.0 | — |
