@@ -78,7 +78,10 @@ const LOCALES = [
       yes: 'yes',
       no: 'no',
       frontmatter: (name, v, n) =>
-        `Tools reference for ${name} v${v} — parameters, types, defaults and returns of all ${n} tools, generated from the server's tools/list.`
+        `Tools reference for ${name} v${v} — parameters, types, defaults and returns of all ${n} tools, generated from the server's tools/list.`,
+      roleNote: (server) =>
+        `**This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's \`tools/list\` (the source of truth is the server itself). ` +
+        `For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/${server}).`
     }
   },
   {
@@ -105,7 +108,10 @@ const LOCALES = [
       yes: '必須',
       no: '任意',
       frontmatter: (name, v, n) =>
-        `${name} v${v} の全 ${n} ツールの引数・型・既定値・戻り値（tools/list から自動生成）`
+        `${name} v${v} の全 ${n} ツールの引数・型・既定値・戻り値（tools/list から自動生成）`,
+      roleNote: (server) =>
+        `**このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を \`tools/list\`（正典 = サーバー実装）から写したもの。` +
+        `責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/${server})へ。`
     }
   }
 ];
@@ -314,6 +320,8 @@ function renderPage(server, info, tools, t, lang, tr) {
   L.push('::: info');
   L.push(t.generated(info.version, tools.length, date));
   L.push(':::');
+  L.push('');
+  L.push(t.roleNote(server));
   L.push('');
   L.push(`## ${t.toc}`);
   L.push('');

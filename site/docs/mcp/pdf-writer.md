@@ -7,6 +7,7 @@ description: The MCP that creates and edits PDFs (20 tools) — creation from te
 > **The creation layer (production)** — this server **writes** PDFs. It can write a *declaration* of conformance, but it cannot produce conformance itself. Whatever you declare, measure it with pdf-verify.
 
 - npm: `@shuji-bonji/pdf-writer-mcp` / current v0.18.0
+- This page is the **guide** — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-writer) (generated from `tools/list`)
 - pdf-lib + fontkit. CJK font embedding (with subsetting)
 
 ## What it does not do

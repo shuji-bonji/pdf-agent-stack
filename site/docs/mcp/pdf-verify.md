@@ -7,6 +7,7 @@ description: The MCP that judges authenticity and conformance (7 tools) — sign
 > **The authenticity & conformance layer (judgment)** — this server **disproves**. It can never **prove** that a document conforms or that a signature is trustworthy. Read every result as "what could be shown to be wrong, was looked for".
 
 - npm: `@shuji-bonji/pdf-verify-mcp` / current v0.14.2
+- This page is the **guide** — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-verify) (generated from `tools/list`)
 - Cryptographic signature verification, tamper detection, PAdES level observation, PDF/A / PDF/UA validation, deterministic policy verdicts
 
 ## What it does not do

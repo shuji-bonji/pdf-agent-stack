@@ -7,8 +7,10 @@ description: "pdf-spec-mcp v0.4.5 の全 8 ツールの引数・型・既定値�
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-**v0.4.5** の `tools/list` ハンドシェイクから自動生成（8 ツール・2026-08-09）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.4.5** の `tools/list` ハンドシェイクから自動生成（8 ツール・2026-08-11）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
+
+**このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-spec)へ。
 
 ## ツール一覧
 

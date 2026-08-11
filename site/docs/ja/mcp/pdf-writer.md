@@ -7,6 +7,7 @@ description: PDF を生成・編集する MCP（20 ツール） — text / Markd
 > **生成の層 (production)** — このサーバーは PDF を**書く**。準拠の「宣言」は書けるが、準拠そのものを作ることはできない。宣言を書いたら必ず pdf-verify で測ること。
 
 - npm: `@shuji-bonji/pdf-writer-mcp` / 現行 v0.18.0
+- このページは責務と使いどころの**解説**。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-writer)（`tools/list` から自動生成）へ
 - pdf-lib + fontkit。日本語フォント埋め込み（サブセット化）対応
 
 ## しないこと
