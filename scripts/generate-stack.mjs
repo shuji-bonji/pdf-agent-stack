@@ -49,7 +49,7 @@ const REGISTRY = [
   { name: 'pdf-verify-mcp',        dir: 'mcp/pdf-verify-mcp',          npm: '@shuji-bonji/pdf-verify-mcp',  layer: 'judgment',      form: 'mcp-server',  public: true },
   { name: 'pdf-writer-mcp',        dir: 'mcp/pdf-writer-mcp',          npm: '@shuji-bonji/pdf-writer-mcp',  layer: 'action',        form: 'mcp-server',  public: true },
   { name: 'pdf-constraints',       dir: 'lib/pdf-constraints',         npm: '@shuji-bonji/pdf-constraints', layer: 'judgment',      form: 'library',     public: true },
-  { name: 'normativepdf',          dir: 'lib/normativepdf',            npm: null,                           layer: 'action',        form: 'library',     public: false, note: '設計のみ・実装未着手' },
+  { name: 'normativepdf',          dir: 'lib/normativepdf',            npm: 'normativepdf',                 layer: 'action',        form: 'library',     public: true,  note: '段階 0（COS + パーサ）。verify 0.15.0 が第 1 消費者 = revision-diff の歩行層' },
   { name: 'pdf-trust-skill',       dir: 'skill/pdf-trust-skill',       npm: null,                           layer: 'procedure',     form: 'skill',       public: true },
   { name: 'pdf-publish-skill',     dir: 'skill/pdf-publish-skill',     npm: null,                           layer: 'procedure',     form: 'skill',       public: true },
   { name: 'pdf-specialist-plugin', dir: 'agent/pdf-specialist-plugin', npm: null,                           layer: 'orchestration', form: 'plugin',      public: true },
