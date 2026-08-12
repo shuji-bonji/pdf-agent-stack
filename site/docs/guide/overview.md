@@ -4,12 +4,7 @@ description: The big picture of PDF Agent Stack (PDF Family) — four MCP server
 
 # What is PDF Agent Stack?
 
-PDF Family is the collective name for four independent MCP servers and two Skills that give AI agents the ability to **read, verify, and write PDFs — grounded in the spec**. **PDF Agent Stack is the name of the whole system (this site and its repositories) — it refers to the same thing as PDF Family.**
-
-Two terms are worth having up front (→ [glossary](/reference/glossary#base-vocabulary-of-this-site-ai-engineering)).
-
-- **[MCP](/reference/glossary#base-vocabulary-of-this-site-ai-engineering) (Model Context Protocol)**: a standard for connecting external tools to AI applications. An **MCP server** is a program that provides capabilities through this standard, callable as tools by an AI such as Claude
-- **[Skill](/reference/glossary#base-vocabulary-of-this-site-ai-engineering)**: a **procedure document** an AI agent reads — it standardizes which tools to call in what order, how to read the results, and how to report them (it is also the name of the Claude feature)
+PDF Family is the collective name for four independent [MCP](/reference/glossary#base-vocabulary-of-this-site-ai-engineering) servers and two [Skills](/reference/glossary#base-vocabulary-of-this-site-ai-engineering) that give AI agents the ability to **read, verify, and write PDFs — grounded in the spec**. **PDF Agent Stack is the name of the whole system (this site and its repositories) — it refers to the same thing as PDF Family.**
 
 ## Components
 

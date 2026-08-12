@@ -4,12 +4,7 @@ description: PDF Agent Stack（PDF Family）の全体像 — 4 つの MCP サー
 
 # PDF Family とは
 
-PDF Family は、AI エージェントに PDF の「読む・検証する・書く・仕様で裏付ける」能力を与える、4 つの独立した MCP サーバーと 2 つの Skill の総称である。**PDF Agent Stack はこの体系全体（サイト・リポジトリ群）の名前で、PDF Family と同じもの**を指す。
-
-前提となる 2 語だけ先に押さえておく（→ [用語集](/ja/reference/glossary#本サイトの基本用語-ai-開発)）。
-
-- **[MCP](/ja/reference/glossary#本サイトの基本用語-ai-開発)（Model Context Protocol）**: AI アプリケーションに外部ツールを接続するための標準規格。**MCP サーバー**はこの規格で機能を提供するプログラムで、AI（Claude など）がツールとして呼び出せる
-- **[Skill](/ja/reference/glossary#本サイトの基本用語-ai-開発)**: AI エージェントに読ませる**手順書**。どのツールをどの順で呼び、結果をどう読み、どう報告するかを定型化する（Claude の機能名でもある）
+PDF Family は、AI エージェントに PDF の「読む・検証する・書く・仕様で裏付ける」能力を与える、4 つの独立した [MCP](/ja/reference/glossary#本サイトの基本用語-ai-開発) サーバーと 2 つの [Skill](/ja/reference/glossary#本サイトの基本用語-ai-開発) の総称である。**PDF Agent Stack はこの体系全体（サイト・リポジトリ群）の名前で、PDF Family と同じもの**を指す。
 
 ## 構成要素
 
