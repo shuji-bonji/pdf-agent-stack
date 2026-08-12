@@ -1,10 +1,10 @@
 ---
-description: PDF Family の全体構成と各 MCP の責務境界 — 独立 MCP × Skill 連携、4 層モデル、宣言 ≠ 準拠、言い切り強度 T1/T2/T3、ジャッジはコード・ナラティブは LLM
+description: PDF Agent Stack の全体構成と各 MCP の責務境界 — 独立 MCP × Skill 連携、4 層モデル、宣言 ≠ 準拠、言い切り強度 T1/T2/T3、ジャッジはコード・ナラティブは LLM
 ---
 
 # 全体構成と責務
 
-PDF Family は「独立 MCP × Skill 連携」で構成される。各 MCP は相互非依存で単独完結し、複数サーバーの編成（手順・知識）は Skill が担う。
+PDF Agent Stack は「独立 MCP × Skill 連携」で構成される。各 MCP は相互非依存で単独完結し、複数サーバーの編成（手順・知識）は Skill が担う。
 
 ## 全体構成
 
@@ -12,7 +12,7 @@ PDF Family は「独立 MCP × Skill 連携」で構成される。各 MCP は�
 graph LR
   AGENT(["AI エージェント<br>(Claude Code / Desktop など)"])
 
-  subgraph FAMILY["PDF Family"]
+  subgraph FAMILY["PDF Agent Stack"]
     direction TB
     subgraph SKILL["Skill — 手順・編成"]
       TRUST{{"pdf-trust<br>受入監査"}}
@@ -73,13 +73,13 @@ graph TB
 
 ## 宣言・準拠・検証の三区別
 
-Family 全体を貫く思想である。
+PDF Agent Stack 全体を貫く思想である。
 
 - **宣言 (declaration)** — XMP の pdfaid / pdfuaid。文書の自己申告であり、何も証明しない
 - **準拠 (conformance)** — 誰にも証明できない。反証だけができる
 - **検証 (validation)** — 検証器が実装するルールの範囲内でのみ有効
 
-だから writer の `ensure_pdfa` は「宣言を書く」ツールであり、書いたら必ず verify の `validate_conformance` で測る、が family の作法である。
+だから writer の `ensure_pdfa` は「宣言を書く」ツールであり、書いたら必ず verify の `validate_conformance` で測る、が PDF Agent Stack の作法である。
 
 ## 入口と出口の 2 ゲート
 

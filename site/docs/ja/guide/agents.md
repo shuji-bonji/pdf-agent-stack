@@ -4,7 +4,7 @@ description: PDF 専門エージェント構築の 3 レベル — MCP 接続・
 
 # 専門エージェントの構築方法
 
-PDF Family を「PDF 専門エージェント」に組み上げる 3 つのレベル。
+PDF Agent Stack を「PDF 専門エージェント」に組み上げる 3 つのレベル。
 
 ## Lv1 — MCP を繋ぐだけ
 

@@ -1,10 +1,10 @@
 ---
-description: The whole picture of PDF Family and each MCP's responsibility boundary — independent MCPs orchestrated by Skills, the four-layer model, declaration ≠ conformance, assertion strength T1/T2/T3, the judge is code and the narrative is the LLM
+description: The whole picture of PDF Agent Stack and each MCP's responsibility boundary — independent MCPs orchestrated by Skills, the four-layer model, declaration ≠ conformance, assertion strength T1/T2/T3, the judge is code and the narrative is the LLM
 ---
 
 # Architecture & Responsibilities
 
-PDF Family is built as **independent MCPs × Skill orchestration**. Each MCP is self-contained with no dependency on the others; orchestrating multiple servers (procedure and knowledge) is the Skills' job.
+PDF Agent Stack is built as **independent MCPs × Skill orchestration**. Each MCP is self-contained with no dependency on the others; orchestrating multiple servers (procedure and knowledge) is the Skills' job.
 
 ## The whole picture
 
@@ -12,7 +12,7 @@ PDF Family is built as **independent MCPs × Skill orchestration**. Each MCP is 
 graph LR
   AGENT(["AI agent<br>(Claude Code / Desktop, …)"])
 
-  subgraph FAMILY["PDF Family"]
+  subgraph FAMILY["PDF Agent Stack"]
     direction TB
     subgraph SKILL["Skills — procedure & orchestration"]
       TRUST{{"pdf-trust<br>incoming audit"}}
@@ -73,13 +73,13 @@ graph TB
 
 ## Declaration, conformance, validation
 
-This distinction runs through the whole Family.
+This distinction runs through the whole of PDF Agent Stack.
 
 - **Declaration** — pdfaid / pdfuaid in XMP. The document's claim about itself; proves nothing
 - **Conformance** — nobody can prove it; it can only be disproved
 - **Validation** — valid only within the rules a validator actually implements
 
-That is why the writer's `ensure_pdfa` is a tool that *writes a declaration*, and the Family's rule is: whatever you declare, you measure with verify's `validate_conformance`.
+That is why the writer's `ensure_pdfa` is a tool that *writes a declaration*, and the rule across PDF Agent Stack is: whatever you declare, you measure with verify's `validate_conformance`.
 
 ## Two gates: intake and exit
 

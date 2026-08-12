@@ -52,7 +52,7 @@ sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出�
 ```
 
 ::: warning
-`PDF_SPEC_DIR` は必須である。このコーパスは family の**規範知識の根拠そのもの** — 条文を引用して言い切れる（T1）のは、手元に原文があるからである。ISO 19005 (PDF/A) と ETSI PAdES はコーパス外である — 何が引けないかは `list_specs` の `coverage.gaps` を確認してください。
+`PDF_SPEC_DIR` は必須である。このコーパスは PDF Agent Stack の**規範知識の根拠そのもの** — 条文を引用して言い切れる（T1）のは、手元に原文があるからである。ISO 19005 (PDF/A) と ETSI PAdES はコーパス外である — 何が引けないかは `list_specs` の `coverage.gaps` を確認してください。
 :::
 
 ## Step 3 — pdf-verify（veraPDF と信頼アンカー）

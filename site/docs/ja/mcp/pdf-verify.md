@@ -140,7 +140,7 @@ PDF/A や PDF/UA に通っても ISO 32000 に違反しうるため（例: CFF �
 旧式の adbe.pkcs7.detached は非 PAdES として報告。
 
 ::: warning これは観測であり準拠判定ではない
-ETSI EN 319 142 は family のコーパスに無く、第三者検証器も存在しない。結果は「構造が B-LT に一致する」であって「PAdES B-LT に準拠」ではない — 全レポートに `normativeBasis: "T3"` が付く。
+ETSI EN 319 142 は仕様コーパスに無く、第三者検証器も存在しない。結果は「構造が B-LT に一致する」であって「PAdES B-LT に準拠」ではない — 全レポートに `normativeBasis: "T3"` が付く。
 :::
 
 B-LT / B-LTA は DSS の失効データが署名者証明書を実際にカバーしていることを追加要求する（満たさなければ B-T 止まり）。

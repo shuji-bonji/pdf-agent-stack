@@ -1,10 +1,10 @@
 ---
-description: The big picture of PDF Agent Stack (PDF Family) — four MCP servers, two Skills, and why observation, judgment, creation and norms are kept apart
+description: The big picture of PDF Agent Stack — four MCP servers, two Skills, and why observation, judgment, creation and norms are kept apart
 ---
 
 # What is PDF Agent Stack?
 
-PDF Family is the collective name for four independent [MCP](/reference/glossary#base-vocabulary-of-this-site-ai-engineering) servers and two [Skills](/reference/glossary#base-vocabulary-of-this-site-ai-engineering) that give AI agents the ability to **read, verify, and write PDFs — grounded in the spec**. **PDF Agent Stack is the name of the whole system (this site and its repositories) — it refers to the same thing as PDF Family.**
+PDF Agent Stack is the collective name for four independent [MCP](/reference/glossary#base-vocabulary-of-this-site-ai-engineering) servers and two [Skills](/reference/glossary#base-vocabulary-of-this-site-ai-engineering) that give AI agents the ability to **read, verify, and write PDFs — grounded in the spec**.
 
 ## Components
 

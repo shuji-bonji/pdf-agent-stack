@@ -7,7 +7,7 @@ description: Accessibility (PDF/UA) — from tagged generation to veraPDF scorin
 ## Scenario
 
 **Produce** a PDF a screen reader can read (tagged generation → scoring), or **measure** whether
-an incoming PDF has a readable structure. PDF/UA-1 (ISO 14289-1) is inside the family's corpus,
+an incoming PDF has a readable structure. PDF/UA-1 (ISO 14289-1) is inside the spec corpus,
 so violations can be stated **with the clause quoted** (T1 — the big difference from PDF/A).
 
 Everything below is a **real measurement from 2026-08-11** (tagged demo invoice = the passing

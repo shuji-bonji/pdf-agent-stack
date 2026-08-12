@@ -23,7 +23,7 @@ veraPDF decides PDF/A and PDF/UA, but it does not look at the **body of ISO 3200
 > `hmtx`, `loca` and `maxp` tables. CFF satisfies none of that. The file passes PDF/A and
 > PDF/UA all the same — and still violates the specification body.
 
-Lining up the question each family member answers puts the library in place:
+Lining up the question each server answers puts the library in place:
 
 | Who | Question it answers |
 |---|---|
@@ -64,7 +64,7 @@ Every constraint resolves to one of these. **No verdict is issued** — that is 
 ::: warning No failures is not proof of conformance
 It means nothing in the constraints that shipped could be disproved. Conformance cannot be proven, only
 disproven — which is where [declaration, conformance, validation](/guide/architecture#declaration-conformance-validation)
-lands for the whole Family.
+lands for the whole of PDF Agent Stack.
 :::
 
 ### `given.*` — facts that live outside the file

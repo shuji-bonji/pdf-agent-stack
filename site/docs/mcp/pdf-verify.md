@@ -141,7 +141,7 @@ PDF **processor** — evidence that someone broke it, not necessarily the last w
 Legacy adbe.pkcs7.detached is reported as non-PAdES.
 
 ::: warning An observation, not a conformance verdict
-ETSI EN 319 142 is not in the family's corpus and there is no third-party validator to delegate to. The result is "the structure matches B-LT", never "conforms to PAdES B-LT" — every report carries `normativeBasis: "T3"`.
+ETSI EN 319 142 is not in the spec corpus and there is no third-party validator to delegate to. The result is "the structure matches B-LT", never "conforms to PAdES B-LT" — every report carries `normativeBasis: "T3"`.
 :::
 
 B-LT / B-LTA additionally require that the DSS revocation data actually covers the signer certificate (otherwise the level caps at B-T).

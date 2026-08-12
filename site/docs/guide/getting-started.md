@@ -52,7 +52,7 @@ Put the downloaded PDFs in one directory and point `PDF_SPEC_DIR` at it in the p
 ```
 
 ::: warning
-`PDF_SPEC_DIR` is required. This corpus is the very ground of the family's **normative knowledge** — clauses can be quoted with full force (T1) precisely because the original text is at hand. ISO 19005 (PDF/A) and ETSI PAdES are outside the corpus — check `coverage.gaps` in `list_specs` to see what cannot be looked up.
+`PDF_SPEC_DIR` is required. This corpus is the very ground of PDF Agent Stack's **normative knowledge** — clauses can be quoted with full force (T1) precisely because the original text is at hand. ISO 19005 (PDF/A) and ETSI PAdES are outside the corpus — check `coverage.gaps` in `list_specs` to see what cannot be looked up.
 :::
 
 ## Step 3 — pdf-verify (veraPDF and trust anchors)

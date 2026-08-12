@@ -1,10 +1,10 @@
 ---
-description: PDF family を編成する 2 つの Skill — 入口の pdf-trust（受入監査）と出口の pdf-publish（品質ゲート付き納品）
+description: PDF Agent Stack を編成する 2 つの Skill — 入口の pdf-trust（受入監査）と出口の pdf-publish（品質ゲート付き納品）
 ---
 
 # Skill 一覧
 
-MCP が「決定論的計算（同じ入力なら常に同じ結果になる計算）・暗号」を担うのに対し、Skill は「手順・知識・編成」を担う。判定はコード、ナラティブ（説明の文章）は LLM — この分業が family の設計原則である。
+MCP が「決定論的計算（同じ入力なら常に同じ結果になる計算）・暗号」を担うのに対し、Skill は「手順・知識・編成」を担う。判定はコード、ナラティブ（説明の文章）は LLM — この分業が PDF Agent Stack の設計原則である。
 
 ```mermaid
 graph LR

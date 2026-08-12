@@ -24,7 +24,7 @@ veraPDF は PDF/A・PDF/UA を判定するが、**ISO 32000 本体の条文違�
 > 含まなければならない (shall) と述べている。CFF はこれを満たさない。
 > PDF/A にも PDF/UA にも通るが、本体条文には違反している。
 
-family の各メンバーが答える問いを並べると、このライブラリの位置が決まる。
+PDF Agent Stack の各サーバーが答える問いを並べると、このライブラリの位置が決まる。
 
 | 誰が | 答える問い |
 |---|---|
@@ -64,7 +64,7 @@ import table from '@shuji-bonji/pdf-constraints/tables/font-embedding.json' with
 
 ::: warning fail が無いことは適合の証明ではない
 「収録した制約の範囲で反証できなかった」以上を意味しない。適合は証明できず、反証だけができる —— これは
-family 全体を貫く [宣言・準拠・検証の三区別](/ja/guide/architecture#宣言・準拠・検証の三区別) の帰結である。
+PDF Agent Stack 全体を貫く [宣言・準拠・検証の三区別](/ja/guide/architecture#宣言・準拠・検証の三区別) の帰結である。
 :::
 
 ### `given.*` — ファイルの外にある事実

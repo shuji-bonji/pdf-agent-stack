@@ -1,10 +1,10 @@
 ---
-description: The two Skills that orchestrate the PDF family — pdf-trust at the intake gate (incoming audit) and pdf-publish at the exit gate (quality-gated delivery)
+description: The two Skills that orchestrate PDF Agent Stack — pdf-trust at the intake gate (incoming audit) and pdf-publish at the exit gate (quality-gated delivery)
 ---
 
 # Skills
 
-Where the MCPs own deterministic computation and cryptography, the Skills own procedure, knowledge and orchestration. The judge is code, the narrative is the LLM — that division of labour is the family's design principle.
+Where the MCPs own deterministic computation and cryptography, the Skills own procedure, knowledge and orchestration. The judge is code, the narrative is the LLM — that division of labour is the design principle of PDF Agent Stack.
 
 ```mermaid
 graph LR

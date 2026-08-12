@@ -4,11 +4,11 @@ description: Glossary — declaration vs conformance vs validation, assertion st
 
 # Glossary
 
-Terms that appear in the family's documentation and tool output. Definitions follow the ISO usage wherever the standards define the term.
+Terms that appear in PDF Agent Stack's documentation and tool output. Definitions follow the ISO usage wherever the standards define the term.
 
 ## Terms about the strength of a claim
 
-Keeping these three apart is the design philosophy of the whole family → [Architecture & Responsibilities](/guide/architecture).
+Keeping these three apart is the design philosophy of the whole of PDF Agent Stack → [Architecture & Responsibilities](/guide/architecture).
 
 | Term | Definition |
 |---|---|
@@ -58,7 +58,7 @@ When the reader returns a rectangle, `basis` says **where the coordinates came f
 | Artifact | Page decoration outside the logical content (page numbers, running heads). ISO 32000-2 §14.8.2.5 NOTE 3 places it outside reading order. **Not the everyday "artifact/deliverable"** |
 | ActualText | **Replacement** text for a run of glyphs (ISO 32000-2 §14.9.4). Makes ligatures and hyphenation-fixed words read as they look. Not a description |
 | Alt | A **description** of content that has no text (§14.9.3). Unlike ActualText, it must never be mixed into the body |
-| veraPDF | The open-source PDF/A and PDF/UA validator the family delegates its T2 verdicts to |
+| veraPDF | The open-source PDF/A and PDF/UA validator PDF Agent Stack delegates its T2 verdicts to |
 
 ## Verdict and operational terms
 

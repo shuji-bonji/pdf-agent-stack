@@ -51,5 +51,5 @@ features:
 }
 ```
 
-Start with pdf-reader alone, then grow into the family as you need it.
+Start with pdf-reader alone, then add the other servers as you need them.
 → [Getting Started (env / veraPDF / fonts)](/guide/getting-started)

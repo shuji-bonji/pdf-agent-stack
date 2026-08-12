@@ -4,7 +4,7 @@ description: Three levels of building a PDF-specialist agent — connecting MCPs
 
 # Building PDF Agents
 
-Three levels of assembling the PDF Family into a "PDF-specialist agent".
+Three levels of assembling PDF Agent Stack into a "PDF-specialist agent".
 
 ## Lv1 — Just connect the MCPs
 
