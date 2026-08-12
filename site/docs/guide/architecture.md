@@ -10,31 +10,33 @@ PDF Family is built as **independent MCPs × Skill orchestration**. Each MCP is 
 
 ```mermaid
 graph LR
-  AGENT["AI agent<br>(Claude Code / Desktop, …)"]
+  AGENT(["AI agent<br>(Claude Code / Desktop, …)"])
 
   subgraph FAMILY["PDF Family"]
     direction TB
     subgraph SKILL["Skills — procedure & orchestration"]
-      TRUST["pdf-trust<br>incoming audit"]
-      PUBLISH["pdf-publish<br>delivery pipeline"]
+      TRUST{{"pdf-trust<br>incoming audit"}}
+      PUBLISH{{"pdf-publish<br>delivery pipeline"}}
     end
     subgraph MCP["MCPs — computation & cryptography (each server independent)"]
-      SPEC["pdf-spec<br>canon (norm)"]
-      READER["pdf-reader<br>substance (fact)"]
-      VERIFY["pdf-verify<br>judgment"]
-      WRITER["pdf-writer<br>creation"]
+      SPEC[["pdf-spec<br>canon (norm)"]]
+      READER[["pdf-reader<br>substance (fact)"]]
+      VERIFY[["pdf-verify<br>judgment"]]
+      WRITER[["pdf-writer<br>creation"]]
     end
     SKILL --> MCP
   end
 
-  IN["Incoming PDF"] --> AGENT
-  NEED["PDF to produce"] --> AGENT
+  IN[/"Incoming PDF"/] --> AGENT
+  NEED[/"PDF to produce"/] --> AGENT
   AGENT <--> FAMILY
-  FAMILY --> OUT["Trust Report / Publish Report<br>verified, deliverable PDFs"]
+  FAMILY --> OUT(["Trust Report / Publish Report<br>verified, deliverable PDFs"])
 
   SPECDOC[("ISO 32000<br>+ 17 documents")] -.-> SPEC
   VERA[("veraPDF")] -.-> VERIFY
 ```
+
+Shapes indicate the kind of each element (→ [shape legend](/reference/glossary#how-to-read-the-diagrams-shape-legend)).
 
 An agent may call the MCPs directly, or leave the orchestration to a Skill. With the Skills installed, the **call order, how to read the verdicts, and the report format** are all fixed for you.
 
@@ -45,14 +47,14 @@ There are only two external dependencies: pdf-spec needs the corpus of specifica
 ```mermaid
 graph TB
   subgraph Skills["Skill layer (orchestration)"]
-    TRUST["pdf-trust<br>incoming audit (intake gate)"]
-    PUBLISH["pdf-publish<br>delivery pipeline (exit gate)"]
+    TRUST{{"pdf-trust<br>incoming audit (intake gate)"}}
+    PUBLISH{{"pdf-publish<br>delivery pipeline (exit gate)"}}
   end
   subgraph MCPs["MCP layer (independent, self-contained)"]
-    SPEC["pdf-spec-mcp<br>canon (norm)<br>what the spec requires"]
-    READER["pdf-reader-mcp<br>substance (fact)<br>what is inside"]
-    VERIFY["pdf-verify-mcp<br>authenticity & conformance (judgment)<br>genuine and up to standard?"]
-    WRITER["pdf-writer-mcp<br>creation (production)<br>written the way the spec says"]
+    SPEC[["pdf-spec-mcp<br>canon (norm)<br>what the spec requires"]]
+    READER[["pdf-reader-mcp<br>substance (fact)<br>what is inside"]]
+    VERIFY[["pdf-verify-mcp<br>authenticity & conformance (judgment)<br>genuine and up to standard?"]]
+    WRITER[["pdf-writer-mcp<br>creation (production)<br>written the way the spec says"]]
   end
   TRUST -.->|orchestrates| VERIFY & READER & SPEC
   PUBLISH -.->|orchestrates| WRITER & READER & VERIFY

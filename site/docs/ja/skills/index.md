@@ -8,8 +8,8 @@ MCP が「決定論的計算（同じ入力なら常に同じ結果になる計�
 
 ```mermaid
 graph LR
-  IN[受け取った PDF] --> TRUST[pdf-trust<br>入口ゲート] --> USE[利用・保存]
-  MAKE[作りたい PDF] --> PUBLISH[pdf-publish<br>出口ゲート] --> OUT[納品]
+  IN[/"受け取った PDF"/] --> TRUST{{"pdf-trust<br>入口ゲート"}} --> USE(["利用・保存"])
+  MAKE[/"作りたい PDF"/] --> PUBLISH{{"pdf-publish<br>出口ゲート"}} --> OUT(["納品"])
 ```
 
 | Skill | 役割 | 前提 MCP |

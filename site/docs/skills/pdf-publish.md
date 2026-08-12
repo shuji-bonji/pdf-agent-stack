@@ -8,9 +8,9 @@ A Skill that orchestrates PDF creation and editing all the way to delivery, with
 
 ```mermaid
 graph LR
-  W[pdf-writer<br>write] --> R[pdf-reader<br>read-back] --> V[pdf-verify<br>veraPDF scoring]
+  W[["pdf-writer<br>write"]] --> R[["pdf-reader<br>read-back"]] --> V[["pdf-verify<br>veraPDF scoring"]]
   V -->|fail| W
-  V -->|pass| D[delivery + Publish Report]
+  V -->|pass| D(["delivery + Publish Report"])
 ```
 
 ## Supported scenarios

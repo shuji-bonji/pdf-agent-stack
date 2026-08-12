@@ -8,9 +8,9 @@ PDF の生成・編集から納品までを品質ゲート付きで編成する 
 
 ```mermaid
 graph LR
-  W[pdf-writer<br>write] --> R[pdf-reader<br>read-back] --> V[pdf-verify<br>veraPDF 採点]
+  W[["pdf-writer<br>write"]] --> R[["pdf-reader<br>read-back"]] --> V[["pdf-verify<br>veraPDF 採点"]]
   V -->|不合格| W
-  V -->|合格| D[納品 + Publish Report]
+  V -->|合格| D(["納品 + Publish Report"])
 ```
 
 ## 対応シナリオ

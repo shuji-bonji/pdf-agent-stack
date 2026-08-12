@@ -6,10 +6,10 @@ description: The big picture of PDF Agent Stack (PDF Family) — four MCP server
 
 PDF Family is the collective name for four independent MCP servers and two Skills that give AI agents the ability to **read, verify, and write PDFs — grounded in the spec**. **PDF Agent Stack is the name of the whole system (this site and its repositories) — it refers to the same thing as PDF Family.**
 
-Two terms are worth defining up front.
+Two terms are worth having up front (→ [glossary](/reference/glossary#base-vocabulary-of-this-site-ai-engineering)).
 
-- **MCP (Model Context Protocol)**: a standard for connecting external tools to AI applications. An **MCP server** is a program that provides capabilities through this standard, callable as tools by an AI such as Claude
-- **Skill**: a **procedure document** an AI agent reads — it standardizes which tools to call in what order, how to read the results, and how to report them (it is also the name of the Claude feature)
+- **[MCP](/reference/glossary#base-vocabulary-of-this-site-ai-engineering) (Model Context Protocol)**: a standard for connecting external tools to AI applications. An **MCP server** is a program that provides capabilities through this standard, callable as tools by an AI such as Claude
+- **[Skill](/reference/glossary#base-vocabulary-of-this-site-ai-engineering)**: a **procedure document** an AI agent reads — it standardizes which tools to call in what order, how to read the results, and how to report them (it is also the name of the Claude feature)
 
 ## Components
 
@@ -22,7 +22,7 @@ Two terms are worth defining up front.
 | Skill | [pdf-trust](/skills/pdf-trust) | Vet incoming PDFs and confirm trust (Trust Report) | [GitHub](https://github.com/shuji-bonji/pdf-trust-skill) |
 | Skill | [pdf-publish](/skills/pdf-publish) | Generate through a quality-gated pipeline (Publish Report) | [GitHub](https://github.com/shuji-bonji/pdf-publish-skill) |
 
-The MCPs are accompanied by [pdf-constraints](/reference/pdf-constraints), the data library behind verify's clause checks. It maps ISO 32000 clauses to machine-checkable constraint tables and can be used on its own.
+pdf-verify's clause checking uses a separate package, [pdf-constraints](/reference/pdf-constraints) — a data library that transcribes ISO 32000 clauses into machine-checkable constraint tables. It can also be used on its own.
 
 ::: info On architecture and responsibilities
 How these fit together and run — see [Architecture & Responsibilities](/guide/architecture) for the details.

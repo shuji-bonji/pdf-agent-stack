@@ -6,10 +6,10 @@ description: PDF Agent Stack（PDF Family）の全体像 — 4 つの MCP サー
 
 PDF Family は、AI エージェントに PDF の「読む・検証する・書く・仕様で裏付ける」能力を与える、4 つの独立した MCP サーバーと 2 つの Skill の総称である。**PDF Agent Stack はこの体系全体（サイト・リポジトリ群）の名前で、PDF Family と同じもの**を指す。
 
-前提となる 2 語だけ先に定義しておく。
+前提となる 2 語だけ先に押さえておく（→ [用語集](/ja/reference/glossary#本サイトの基本用語-ai-開発)）。
 
-- **MCP（Model Context Protocol）**: AI アプリケーションに外部ツールを接続するための標準規格。**MCP サーバー**はこの規格で機能を提供するプログラムで、AI（Claude など）がツールとして呼び出せる
-- **Skill**: AI エージェントに読ませる**手順書**。どのツールをどの順で呼び、結果をどう読み、どう報告するかを定型化する（Claude の機能名でもある）
+- **[MCP](/ja/reference/glossary#本サイトの基本用語-ai-開発)（Model Context Protocol）**: AI アプリケーションに外部ツールを接続するための標準規格。**MCP サーバー**はこの規格で機能を提供するプログラムで、AI（Claude など）がツールとして呼び出せる
+- **[Skill](/ja/reference/glossary#本サイトの基本用語-ai-開発)**: AI エージェントに読ませる**手順書**。どのツールをどの順で呼び、結果をどう読み、どう報告するかを定型化する（Claude の機能名でもある）
 
 ## 構成要素
 
@@ -22,7 +22,7 @@ PDF Family は、AI エージェントに PDF の「読む・検証する・書�
 | Skill | [pdf-trust](/ja/skills/pdf-trust)     | 受領した PDF を精査し、信頼性を確認する（Trust Report）                  | [GitHub](https://github.com/shuji-bonji/pdf-trust-skill)                                                                   |
 | Skill | [pdf-publish](/ja/skills/pdf-publish) | 品質管理（ゲート）を組み込んだパイプラインで生成する（Publish Report） | [GitHub](https://github.com/shuji-bonji/pdf-publish-skill)                                                                 |
 
-MCP は verify の条文検査が使うデータライブラリ [pdf-constraints](/ja/reference/pdf-constraints) を伴う。ISO 32000 の条文を機械検査できる制約テーブルの形に書き起こしたもので、単体でも利用できる。
+pdf-verify の条文検査は、別パッケージの [pdf-constraints](/ja/reference/pdf-constraints) を使う。ISO 32000 の条文を機械検査できる制約テーブルの形に書き起こしたデータライブラリで、単体でも利用できる。
 
 ::: info 構成と責務について
 これらがどう繋がって動くか。詳しくは [全体構成と責務](/ja/guide/architecture) を参照してください。

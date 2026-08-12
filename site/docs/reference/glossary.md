@@ -71,11 +71,6 @@ When the reader returns a rectangle, `basis` says **where the coordinates came f
 | trace | A failure mark in `validate_clauses`: the clause binds the PDF **processor**, so the file shows that someone broke it — not necessarily the last writer |
 | indeterminate | Neither disproved nor established. **Not the same as "fine"** (e.g. `verify_integrity`'s violationAssessment) |
 
-## Related pages
-
-- [Architecture & Responsibilities](/guide/architecture) — the four-layer model and assertion strength
-- [How to Read ISO Specs](/reference/iso-reading-primer) — telling NOTE, shall and definitions apart
-
 ## Base vocabulary of this site (AI / engineering)
 
 Not PDF-standard terms, but words this site uses without in-line explanation.
@@ -94,3 +89,21 @@ Not PDF-standard terms, but words this site uses without in-line explanation.
 | Token | The unit in which an LLM processes text (roughly a few characters); the unit of volume and cost |
 | Context | The working memory an LLM can read at once. "Wasting context" on this site means this |
 | Structured error | A machine-readable error carrying `code` (kind), `next_actions` (what to do next) and `retryable`. Lets an AI recover without guessing at message text |
+
+## How to read the diagrams (shape legend)
+
+The structural diagrams (Mermaid) on this site distinguish element kinds by shape.
+
+| Shape | Meaning |
+|---|---|
+| Rounded | Actor (the AI agent) or end state (delivery, use, …) |
+| Hexagon | Skill (procedure & orchestration) |
+| Double-framed | MCP server |
+| Parallelogram | Input (the PDF under examination, …) |
+| Cylinder | External resource (spec corpus, veraPDF) |
+| Diamond | Decision / branch |
+
+## Related pages
+
+- [Architecture & Responsibilities](/guide/architecture) — the four-layer model and assertion strength
+- [How to Read ISO Specs](/reference/iso-reading-primer) — telling NOTE, shall and definitions apart

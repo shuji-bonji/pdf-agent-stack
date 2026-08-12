@@ -10,31 +10,33 @@ PDF Family は「独立 MCP × Skill 連携」で構成される。各 MCP は�
 
 ```mermaid
 graph LR
-  AGENT["AI エージェント<br>(Claude Code / Desktop など)"]
+  AGENT(["AI エージェント<br>(Claude Code / Desktop など)"])
 
   subgraph FAMILY["PDF Family"]
     direction TB
     subgraph SKILL["Skill — 手順・編成"]
-      TRUST["pdf-trust<br>受入監査"]
-      PUBLISH["pdf-publish<br>納品パイプライン"]
+      TRUST{{"pdf-trust<br>受入監査"}}
+      PUBLISH{{"pdf-publish<br>納品パイプライン"}}
     end
     subgraph MCP["MCP — 計算・暗号（各サーバーは独立）"]
-      SPEC["pdf-spec<br>正典 norm"]
-      READER["pdf-reader<br>実体 fact"]
-      VERIFY["pdf-verify<br>判定 judgment"]
-      WRITER["pdf-writer<br>生成 production"]
+      SPEC[["pdf-spec<br>正典 norm"]]
+      READER[["pdf-reader<br>実体 fact"]]
+      VERIFY[["pdf-verify<br>判定 judgment"]]
+      WRITER[["pdf-writer<br>生成 production"]]
     end
     SKILL --> MCP
   end
 
-  IN["受け取った PDF"] --> AGENT
-  NEED["作りたい PDF"] --> AGENT
+  IN[/"受け取った PDF"/] --> AGENT
+  NEED[/"作りたい PDF"/] --> AGENT
   AGENT <--> FAMILY
-  FAMILY --> OUT["Trust Report / Publish Report<br>検証済み・納品可能な PDF"]
+  FAMILY --> OUT(["Trust Report / Publish Report<br>検証済み・納品可能な PDF"])
 
   SPECDOC[("ISO 32000 ほか<br>17 文書")] -.-> SPEC
   VERA[("veraPDF")] -.-> VERIFY
 ```
+
+図中の形は要素の種別を表す（→ [図の読み方](/ja/reference/glossary#図の読み方-形の凡例)）。
 
 エージェントは MCP を直接呼んでもよいし、Skill に編成を任せてもよい。Skill を入れると、複数 MCP の**呼び出し順序・判定の読み方・レポート形式**が定型化される。
 
@@ -45,25 +47,25 @@ graph LR
 ```mermaid
 graph TB
   subgraph Skills["Skill 層（編成）"]
-    TRUST["pdf-trust<br>受入監査（入口ゲート）"]
-    PUBLISH["pdf-publish<br>納品パイプライン（出口ゲート）"]
+    TRUST{{"pdf-trust<br>受入監査（入口ゲート）"}}
+    PUBLISH{{"pdf-publish<br>納品パイプライン（出口ゲート）"}}
   end
   subgraph MCPs["MCP 層（独立・単独完結）"]
-    SPEC["pdf-spec-mcp<br>正典 (norm)<br>仕様は何を要求するか"]
-    READER["pdf-reader-mcp<br>実体 (fact)<br>中身に何があるか"]
-    VERIFY["pdf-verify-mcp<br>真正性・準拠性 (judgment)<br>本物で規格に適っているか"]
-    WRITER["pdf-writer-mcp<br>生成 (production)<br>仕様通りに書けるか"]
+    SPEC[["pdf-spec-mcp<br>正典 (norm)<br>仕様は何を要求するか"]]
+    READER[["pdf-reader-mcp<br>実体 (fact)<br>中身に何があるか"]]
+    VERIFY[["pdf-verify-mcp<br>真正性・準拠性 (judgment)<br>本物で規格に適っているか"]]
+    WRITER[["pdf-writer-mcp<br>生成 (production)<br>仕様通りに書けるか"]]
   end
   TRUST -.->|編成| VERIFY & READER & SPEC
   PUBLISH -.->|編成| WRITER & READER & VERIFY
 ```
 
-| 層 | サーバー | 返すもの | やらないこと |
-|---|---|---|---|
-| 正典（= 正しさの基準となる原文） | pdf-spec | 規格条文・要求事項（shall/should/may） | 検証対象の PDF を開かない（読むのは自分の仕様コーパスだけ）。準拠判定しない |
-| 実体 | pdf-reader | 観測結果（テキスト・構造・署名フィールド） | **合否を言わない**。暗号検証しない |
-| 真正性・準拠性 | pdf-verify | 判定（署名・改ざん・PDF/A・PDF/UA・4 値ポリシー） | **証明はしない — 反証だけができる** |
-| 生成 | pdf-writer | 新規・編集済み PDF | 署名しない。宣言は書けるが**準拠は作れない** |
+| 層                               | サーバー   | 返すもの                                          | やらないこと                                                                |
+| -------------------------------- | ---------- | ------------------------------------------------- | --------------------------------------------------------------------------- |
+| 正典（= 正しさの基準となる原文） | pdf-spec   | 規格条文・要求事項（shall/should/may）            | 検証対象の PDF を開かない（読むのは自分の仕様コーパスだけ）。準拠判定しない |
+| 実体                             | pdf-reader | 観測結果（テキスト・構造・署名フィールド）        | **合否を言わない**。暗号検証しない                                          |
+| 真正性・準拠性                   | pdf-verify | 判定（署名・改ざん・PDF/A・PDF/UA・4 値ポリシー） | **証明はしない — 反証だけができる**                                         |
+| 生成                             | pdf-writer | 新規・編集済み PDF                                | 署名しない。宣言は書けるが**準拠は作れない**                                |
 
 ## 境界ルール（1 行）
 
@@ -83,9 +85,9 @@ Family 全体を貫く思想である。
 
 全体構成図の 2 本の入力（受け取った PDF / 作りたい PDF）は、それぞれ別のゲートを通る。
 
-| ゲート | Skill | 流れ |
-|---|---|---|
-| 入口（受入） | [pdf-trust](/ja/skills/pdf-trust) | 受け取った PDF → 監査 → 利用・保存 |
+| ゲート       | Skill                                 | 流れ                                         |
+| ------------ | ------------------------------------- | -------------------------------------------- |
+| 入口（受入） | [pdf-trust](/ja/skills/pdf-trust)     | 受け取った PDF → 監査 → 利用・保存           |
 | 出口（納品） | [pdf-publish](/ja/skills/pdf-publish) | 作る PDF → write → read-back → verify → 納品 |
 
 verify は入口（受入）と出口（納品）の両方に立つゲートキーパーである。4 値判定（trust_and_use / use_with_caution / human_review_required / reject）は `evaluate_policy` の決定論的（同じ入力なら常に同じ結果を返す）ルールエンジンが下し、LLM は解説と推奨アクションだけを担う — **ジャッジはコード、ナラティブは LLM**（判定はコードが下し、LLM が書くのは説明の文章だけ）。
@@ -94,10 +96,10 @@ verify は入口（受入）と出口（納品）の両方に立つゲートキ�
 
 検証結果をどこまで強く言えるかは、規範文書が手元にあるかで変わる。
 
-| Tier | 規格 | 言える強さ |
-|---|---|---|
-| T1 | ISO 32000-1/-2, ISO 14289 (PDF/UA) | 条文を引用して言い切る |
-| T2 | ISO 19005 (PDF/A) | 「veraPDF が COMPLIANT と判定した」とだけ言う |
-| T3 | ETSI PAdES | 構造の観測として「B-LT 相当の構造」と言う。準拠とは言わない |
+| Tier | 規格                               | 言える強さ                                                  |
+| ---- | ---------------------------------- | ----------------------------------------------------------- |
+| T1   | ISO 32000-1/-2, ISO 14289 (PDF/UA) | 条文を引用して言い切る                                      |
+| T2   | ISO 19005 (PDF/A)                  | 「veraPDF が COMPLIANT と判定した」とだけ言う               |
+| T3   | ETSI PAdES                         | 構造の観測として「B-LT 相当の構造」と言う。準拠とは言わない |
 
 本サイトの文章もこのルールに従って書かれている。

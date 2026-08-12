@@ -8,8 +8,8 @@ Where the MCPs own deterministic computation and cryptography, the Skills own pr
 
 ```mermaid
 graph LR
-  IN[Incoming PDF] --> TRUST[pdf-trust<br>intake gate] --> USE[use / archive]
-  MAKE[PDF to produce] --> PUBLISH[pdf-publish<br>exit gate] --> OUT[delivery]
+  IN[/"Incoming PDF"/] --> TRUST{{"pdf-trust<br>intake gate"}} --> USE(["use / archive"])
+  MAKE[/"PDF to produce"/] --> PUBLISH{{"pdf-publish<br>exit gate"}} --> OUT(["delivery"])
 ```
 
 | Skill | Role | Required MCPs |
