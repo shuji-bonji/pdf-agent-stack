@@ -58,7 +58,7 @@ was not checked — never deliver without measuring.
 |---|---|---|
 | Official gazette, 2026-08-10 issue | **B-B** (no signature TS, no DSS; DocTS present) | **Risk of becoming unverifiable** after certificate expiry/revocation. Reinforce via the acquisition channel |
 | Self-made specimen (no CRL) | B-T | Revocation checking still depends on the outside world |
-| Self-made specimen (**CRL embedded in DSS**) | **B-LTA** | Verification material is self-contained — the only difference is the CRL |
+| Self-made specimen (**CRL embedded in DSS**) | **B-LTA** | Verification material is self-contained — the only difference is the CRL (both specimens carry a document timestamp from the start, so the CRL completes B-LT and B-LTA at once) |
 
 `detect_pades_level` checks whether the DSS revocation data **actually covers the signer** —
 a "declared-only B-LT" is capped down to B-T.

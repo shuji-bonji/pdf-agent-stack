@@ -38,7 +38,7 @@ graph LR
 
 エージェントは MCP を直接呼んでもよいし、Skill に編成を任せてもよい。Skill を入れると、複数 MCP の**呼び出し順序・判定の読み方・レポート形式**が定型化される。
 
-外部依存は 2 つだけである。pdf-spec は仕様 PDF のコーパス（再配布不可のため同梱しない）を、pdf-verify は PDF/A・PDF/UA の判定を委譲する veraPDF を必要とする。reader と writer は外部に依存しない。
+外部依存は 2 つだけである。pdf-spec は仕様 PDF のコーパス（手元に集めた仕様原文の束。再配布不可のため同梱しない）を、pdf-verify は PDF/A・PDF/UA の判定を委ねる veraPDF を必要とする。reader と writer は外部に依存しない。
 
 ## 4 層モデル — 誰が何を編成するか
 
@@ -60,7 +60,7 @@ graph TB
 
 | 層 | サーバー | 返すもの | やらないこと |
 |---|---|---|---|
-| 正典 | pdf-spec | 規格条文・要求事項（shall/should/may） | 検証対象の PDF を開かない（読むのは自分の仕様コーパスだけ）。準拠判定しない |
+| 正典（= 正しさの基準となる原文） | pdf-spec | 規格条文・要求事項（shall/should/may） | 検証対象の PDF を開かない（読むのは自分の仕様コーパスだけ）。準拠判定しない |
 | 実体 | pdf-reader | 観測結果（テキスト・構造・署名フィールド） | **合否を言わない**。暗号検証しない |
 | 真正性・準拠性 | pdf-verify | 判定（署名・改ざん・PDF/A・PDF/UA・4 値ポリシー） | **証明はしない — 反証だけができる** |
 | 生成 | pdf-writer | 新規・編集済み PDF | 署名しない。宣言は書けるが**準拠は作れない** |
@@ -88,7 +88,7 @@ Family 全体を貫く思想である。
 | 入口（受入） | [pdf-trust](/ja/skills/pdf-trust) | 受け取った PDF → 監査 → 利用・保存 |
 | 出口（納品） | [pdf-publish](/ja/skills/pdf-publish) | 作る PDF → write → read-back → verify → 納品 |
 
-verify は入口（受入）と出口（納品）の両方に立つゲートキーパーである。4 値判定（trust_and_use / use_with_caution / human_review_required / reject）は `evaluate_policy` の決定論的ルールエンジンが下し、LLM は解説と推奨アクションだけを担う — **ジャッジはコード、ナラティブは LLM**。
+verify は入口（受入）と出口（納品）の両方に立つゲートキーパーである。4 値判定（trust_and_use / use_with_caution / human_review_required / reject）は `evaluate_policy` の決定論的（同じ入力なら常に同じ結果を返す）ルールエンジンが下し、LLM は解説と推奨アクションだけを担う — **ジャッジはコード、ナラティブは LLM**（判定はコードが下し、LLM が書くのは説明の文章だけ）。
 
 ## 言い切り強度（T1/T2/T3）
 

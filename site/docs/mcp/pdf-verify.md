@@ -129,7 +129,16 @@ PDF **processor** — evidence that someone broke it, not necessarily the last w
 
 ### detect_pades_level
 
-**Observes** which PAdES baseline level (ETSI EN 319 142) each signature's structure matches. Structural detection: B-B (CAdES signature) → B-T (+ RFC 3161 signature timestamp) → B-LT (+ DSS with validation data) → B-LTA (+ document timestamp). Legacy adbe.pkcs7.detached is reported as non-PAdES.
+**Observes** which PAdES baseline level (ETSI EN 319 142) each signature's structure matches. The levels stack up as follows:
+
+| Level | Structure (on top of the row above) | Meaning |
+|---|---|---|
+| B-B | CAdES signature | Signature only |
+| B-T | + signature timestamp (RFC 3161) | A third party attests the signing time |
+| B-LT | + DSS with validation data (certificates, OCSP/CRL) | Revocation-checking material is self-contained in the document |
+| B-LTA | + document timestamp | The validation material itself is sealed — survives long-term preservation |
+
+Legacy adbe.pkcs7.detached is reported as non-PAdES.
 
 ::: warning An observation, not a conformance verdict
 ETSI EN 319 142 is not in the family's corpus and there is no third-party validator to delegate to. The result is "the structure matches B-LT", never "conforms to PAdES B-LT" — every report carries `normativeBasis: "T3"`.

@@ -31,6 +31,20 @@ description: 受け取った PDF の信頼性監査を編成する Skill — eva
 | pdf-spec | 任意 | 逸脱時の ISO 32000 根拠引用 |
 | houki-egov / houki-nta / tax-law / labor-law | 任意 | プロファイルが指定する法令根拠 |
 
+## 監査の流れ（Phase）
+
+| Phase | やること |
+|---|---|
+| 0 | 目的の確認とプロファイルの選定 |
+| 1 | `evaluate_policy` で全ファイルを一括判定（4 値） |
+| 2 | 発火したルールの解釈・深掘り |
+| 2.5 | 署名後の変更の特定 — 「何バイト増えた」を「何が・どのページのどこに書かれたか」まで下ろす |
+| 3 | プロファイル別チェック（PDF/A・PDF/UA・長期保存など） |
+| 4 | 法令根拠の取得（プロファイル指定時） |
+| 5 | Trust Report の生成 |
+
+本文やユースケースで「Phase 2.5」のように参照するのは、この表の番号である。
+
 ## プロファイル
 
 | プロファイル | 想定文書 | 特徴 |
@@ -52,9 +66,10 @@ description: 受け取った PDF の信頼性監査を編成する Skill — eva
 | 未署名の請求書 PDF | contract | `human_review_required` | UNSIGNED-REQUIRED（署名の画像は電子署名ではない） |
 | 署名対象範囲を 1 バイト改変した検体 | general | `reject` | POL-REJECT-INVALID（digest 不一致） |
 
-1 行目と 3 行目の差分は **CRL の有無だけ**。アンカーを渡すだけでは最良判定に届かず、失効確認が
+1 行目と 3 行目の差分は **CRL の有無だけ**（trust_anchors はどちらも指定済み）。アンカーを渡すだけでは最良判定に届かず、失効確認が
 good になって初めて `trust_and_use` に到達する。CRL が署名者をカバーしたことで PAdES の構造観測も
-B-T → **B-LTA** に上がる — 判定表と LTV の関係が 1 対の検体で見える。
+B-T → **B-LTA** に上がる（この検体には文書タイムスタンプが最初から入っているため、CRL で B-LT の
+条件が満たされると同時に B-LTA の構造が揃う）— 4 値判定と LTV の関係が 1 対の検体で見える。
 
 ## Trust Report 抜粋（官報の個票より）
 
@@ -84,7 +99,7 @@ evaluate_policy の判定に加え、Phase 2.5（verify_integrity + locate_objec
 
 リポジトリ: [shuji-bonji/pdf-trust-skill](https://github.com/shuji-bonji/pdf-trust-skill)（SKILL.md 本体・プロファイル定義）
 
-## 縮退動作
+## ツールが足りないときの動き（縮退動作）
 
 - pdf-verify 未接続 → 監査は成立しない。接続を案内して停止する
 - 旧 verify（v0.7.0 未満・evaluate_policy なし）→ 手動判定表にフォールバックし、レポートに「手動判定」と明記

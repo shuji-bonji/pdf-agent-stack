@@ -31,6 +31,20 @@ A Skill that audits whether an incoming PDF (contract, invoice, medical document
 | pdf-spec | Optional | Citing ISO 32000 grounds for deviations |
 | houki-egov / houki-nta / tax-law / labor-law | Optional | Statutory grounds required by the chosen profile |
 
+## How an audit flows (Phases)
+
+| Phase | What happens |
+|---|---|
+| 0 | Confirm the purpose, choose a profile |
+| 1 | Batch verdict over every file with `evaluate_policy` (4 values) |
+| 2 | Interpret the fired rules, dig deeper |
+| 2.5 | Identify the post-signing changes — lowering "N bytes were added" to "what was written, on which page, where" |
+| 3 | Profile-specific checks (PDF/A, PDF/UA, long-term preservation, …) |
+| 4 | Fetch statutory grounds (when the profile requires them) |
+| 5 | Produce the Trust Report |
+
+References like "Phase 2.5" in this site point at this table.
+
 ## Profiles
 
 | Profile | Intended documents | Behaviour |
@@ -52,10 +66,11 @@ A Skill that audits whether an incoming PDF (contract, invoice, medical document
 | Unsigned invoice PDF | contract | `human_review_required` | UNSIGNED-REQUIRED (an image of a signature is not an electronic signature) |
 | Specimen with one byte flipped inside the signed range | general | `reject` | POL-REJECT-INVALID (digest mismatch) |
 
-Rows 1 and 3 differ **only in the presence of a CRL**. Supplying a trust anchor is not enough —
+Rows 1 and 3 differ **only in the presence of a CRL** (both had the trust anchor supplied). Supplying a trust anchor is not enough —
 the best verdict is reached only once revocation is confirmed good. With the CRL covering the
-signer, the PAdES structural observation also rises from B-T to **B-LTA**: one pair of specimens
-shows how the rule table and LTV relate.
+signer, the PAdES structural observation also rises from B-T to **B-LTA** (the specimen carries a
+document timestamp from the start, so satisfying the B-LT condition with the CRL completes the
+B-LTA structure at the same time): one pair of specimens shows how the verdict and LTV relate.
 
 ## Trust Report excerpt (from the gazette audit)
 

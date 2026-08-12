@@ -20,6 +20,16 @@ graph LR
 - フォームの PDF/UA 化（`tag_form_fields`）
 - 品質保証付き一般納品
 
+## 品質ゲート水準
+
+どこまで確認してから納品するかを 3 水準から選ぶ。この Skill の中心的な設定である。
+
+| 水準 | 内容 | 必須 MCP |
+|---|---|---|
+| `none` | 生成のみ。ゲートなし（下書き・使い捨て向け） | writer |
+| `readback` | reader で読み戻し、意図どおり出力されたかを観測するまで | writer + reader |
+| `conformance(flavour)` | veraPDF の採点で COMPLIANT になるまで。flavour は測る規格（`pdfa-3b` / `pdfa-4f` / `pdfua-1` など） | writer + verify（veraPDF 推奨） |
+
 ## 要点
 
 - 宣言（`ensure_pdfa` / `ensure_tagged`）を書いたら必ず対応する flavour で `validate_conformance` を実行 — **測れないなら宣言を書かない**
@@ -63,9 +73,9 @@ graph LR
 
 リポジトリ: [shuji-bonji/pdf-publish-skill](https://github.com/shuji-bonji/pdf-publish-skill)（SKILL.md 本体・エラーコード対応表）
 
-## 縮退動作
+## ツールが足りないときの動き（縮退動作）
 
 - pdf-writer 未接続 → 成立しない。接続を案内して停止する
 - pdf-verify 未接続 → `conformance` 水準は**中止**（`readback` に下げる合意が取れれば続行）。`ensure_pdfa` / `ensure_tagged` を使う案件は水準にかかわらず verify 必須 — 検査できないなら宣言も書かない
-- pdf-reader 未接続 → 読み戻しを「未実施（ツール未接続）」と明記して縮退
+- pdf-reader 未接続 → 読み戻しを「未実施（ツール未接続）」と明記し、できる範囲で続行
 - 日本語を含むのに埋め込みフォントが無い → `FONT_REQUIRED`（構造化エラー）。`fontPath` か環境変数 `PDF_WRITER_FONT` で解決する

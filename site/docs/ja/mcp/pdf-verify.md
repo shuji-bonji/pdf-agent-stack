@@ -99,11 +99,11 @@ xref チェーンを歩けなかった場合は空配列ではなく `null` を�
 
 ### validate_clauses
 
-**ISO 32000-1/-2 本体の条文**から写像された制約を検査する。veraPDF が見ない領域である ──
+**ISO 32000-1/-2 本体の条文**から書き起こした制約を検査する。veraPDF が見ない領域である ──
 PDF/A や PDF/UA に通っても ISO 32000 に違反しうるため（例: CFF フォントプログラムを `/FontFile2` に
 埋め込む。Table 124 が禁じている）。
 
-写像と評価は [pdf-constraints](/ja/reference/pdf-constraints) にあり、どの版が判定したかを出力に含める。
+制約テーブルとその評価器は [pdf-constraints](/ja/reference/pdf-constraints) にあり、どの版が判定したかを出力に含める。
 **同じファイルと同じ与件からは常に同じ結果**である。収録済みのドメインと制約数はそちらを参照。
 
 | 引数 | 型 | 説明 |
@@ -128,7 +128,16 @@ PDF/A や PDF/UA に通っても ISO 32000 に違反しうるため（例: CFF �
 
 ### detect_pades_level
 
-各署名の構造がどの PAdES baseline レベル（ETSI EN 319 142）に一致するかを**観測**する。構造検出: B-B（CAdES 署名）→ B-T（+ RFC 3161 署名タイムスタンプ）→ B-LT(+ 検証データ入り DSS) → B-LTA（+ 文書タイムスタンプ）。旧式の adbe.pkcs7.detached は非 PAdES として報告。
+各署名の構造がどの PAdES baseline レベル（ETSI EN 319 142）に一致するかを**観測**する。レベルは次の積み上げで決まる:
+
+| レベル | 構造（上の行に追加で） | 意味 |
+|---|---|---|
+| B-B | CAdES 署名 | 署名のみ |
+| B-T | + 署名タイムスタンプ（RFC 3161） | 署名時刻を第三者が証明 |
+| B-LT | + 検証データ入り DSS（証明書・OCSP/CRL） | 失効確認の材料が文書内で完結 |
+| B-LTA | + 文書タイムスタンプ | 検証材料ごと封印し、長期保存に耐える |
+
+旧式の adbe.pkcs7.detached は非 PAdES として報告。
 
 ::: warning これは観測であり準拠判定ではない
 ETSI EN 319 142 は family のコーパスに無く、第三者検証器も存在しない。結果は「構造が B-LT に一致する」であって「PAdES B-LT に準拠」ではない — 全レポートに `normativeBasis: "T3"` が付く。

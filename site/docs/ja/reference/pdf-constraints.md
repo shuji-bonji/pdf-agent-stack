@@ -1,5 +1,5 @@
 ---
-description: pdf-constraints — ISO 32000 の条文を機械検査可能な制約テーブルへ写像した共有ライブラリ。4 状態・given・違反の痕跡・veraPDF が見ない領域
+description: pdf-constraints — ISO 32000 の条文を機械検査できる制約テーブルに書き起こした共有ライブラリ。4 状態・given・違反の痕跡・veraPDF が見ない領域
 ---
 
 # 制約テーブル (pdf-constraints)
@@ -8,7 +8,7 @@ description: pdf-constraints — ISO 32000 の条文を機械検査可能な制�
 - GitHub: [shuji-bonji/pdf-constraints](https://github.com/shuji-bonji/pdf-constraints)
 - 形態: **ライブラリ**（MCP サーバーではない）
 
-ISO 32000 の条文を「**ファイルが構造上どういう状態か**」へ写像した制約テーブルと、その決定論的評価器である。
+ISO 32000 の条文を「**ファイルが構造上どういう状態か**」という検査項目に書き起こした制約テーブルと、その決定論的（同じ入力なら常に同じ結果になる）評価器である。
 MCP としての露出は pdf-verify の [`validate_clauses`](/ja/reference/mcp/pdf-verify#validate-clauses) が担う。
 エージェントから使う分にはこのライブラリを直接意識する必要はないが、**何がどこまで検査されているか**を確かめたいときはここを見る。
 
@@ -73,7 +73,7 @@ family 全体を貫く [宣言・準拠・検証の三区別](/ja/guide/architec
 「**サブセットフォントの**名前は 6 大文字タグで始まる shall」の「サブセットか否か」は、
 PDF の中に書かれていない（作った側だけが知っている）。
 
-こうした事実は `given` で供給する。渡さなければその制約は `needs_external_fact` に縮退する ——
+こうした事実は `given` で供給する。渡さなければその制約は `needs_external_fact`（外部の事実待ち）に留まる ——
 **既定値で埋めて沈黙合格や冤罪を作らない**ためである。
 
 ### 「違反」と「違反の痕跡」

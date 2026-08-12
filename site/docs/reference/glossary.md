@@ -75,3 +75,22 @@ When the reader returns a rectangle, `basis` says **where the coordinates came f
 
 - [Architecture & Responsibilities](/guide/architecture) — the four-layer model and assertion strength
 - [How to Read ISO Specs](/reference/iso-reading-primer) — telling NOTE, shall and definitions apart
+
+## Base vocabulary of this site (AI / engineering)
+
+Not PDF-standard terms, but words this site uses without in-line explanation.
+
+| Term | Definition |
+|---|---|
+| MCP (Model Context Protocol) | A standard for connecting external tools to AI applications. An **MCP server** is a program providing capabilities through it |
+| Skill | A procedure document an AI agent reads — standardizes tool order, result reading and reporting (also the name of the Claude feature) |
+| Deterministic | Same input, same result — always. The counterpart of LLM generation, which is probabilistic and can vary |
+| Rule engine | A mechanism that feeds facts through a fixed rule table to produce a verdict automatically. What `evaluate_policy` is |
+| Refutation | Showing one error rather than proving correctness. Conformance cannot be proved — only refuted |
+| Corpus | The collection of specification originals kept at hand; the ground pdf-spec searches and quotes from |
+| Narrative | The explanatory prose. "The judge is code, the narrative is the LLM" = code decides, the LLM only explains |
+| Fallback | Switching to an alternative when the primary means is unavailable (e.g. built-in rules when veraPDF is absent) |
+| Degraded operation | Continuing with reduced scope when some tools are missing — always labelling the missing items "not performed" |
+| Token | The unit in which an LLM processes text (roughly a few characters); the unit of volume and cost |
+| Context | The working memory an LLM can read at once. "Wasting context" on this site means this |
+| Structured error | A machine-readable error carrying `code` (kind), `next_actions` (what to do next) and `retryable`. Lets an AI recover without guessing at message text |

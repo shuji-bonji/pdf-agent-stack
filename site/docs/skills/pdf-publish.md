@@ -20,6 +20,16 @@ graph LR
 - Making forms PDF/UA-conformant (`tag_form_fields`)
 - General quality-assured delivery
 
+## Quality gate levels
+
+Choose how far to check before delivering — the central setting of this Skill.
+
+| Level | Meaning | Required MCPs |
+|---|---|---|
+| `none` | Write only, no gate (drafts, throwaways) | writer |
+| `readback` | Read the output back with reader and observe that it matches the intent | writer + reader |
+| `conformance(flavour)` | Until veraPDF scores it COMPLIANT. The flavour names the standard to measure (`pdfa-3b` / `pdfa-4f` / `pdfua-1`, …) | writer + verify (veraPDF recommended) |
+
 ## Key rules
 
 - After writing a declaration (`ensure_pdfa` / `ensure_tagged`), always run `validate_conformance` with the matching flavour — **if you cannot measure it, do not write the declaration**
