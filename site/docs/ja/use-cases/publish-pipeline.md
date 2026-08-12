@@ -6,11 +6,11 @@ description: 品質ゲート付き納品パイプライン — write → read-ba
 
 ## シナリオ
 
-「PDF を作って納品する」を、**作りっぱなしにしない**。pdf-writer で書き、pdf-reader で読み戻して
-意図どおりかを観測し、pdf-verify（veraPDF）で機械採点してから納品する。合否は verify のみが下し、
-writer の正常終了は「要求どおり出力された」の証拠にしない。
+「PDF を作って納品する」を、**作りっぱなしにしません**。pdf-writer で書き、pdf-reader で読み戻して
+意図どおりかを観測し、pdf-verify（veraPDF）で機械採点してから納品します。合否は verify のみが下し、
+writer の正常終了は「要求どおり出力された」の証拠にしません。
 
-以下は **2026-08-11 の実走**（日本語・タグ付き請求書 + CSV 添付を水準 `conformance(pdfa-3b + pdfua-1)` で納品）である。
+以下は **2026-08-11 の実走**（日本語・タグ付き請求書 + CSV 添付を水準 `conformance(pdfa-3b + pdfua-1)` で納品）です。
 
 ## 登場 MCP / Skill
 
@@ -60,15 +60,15 @@ sequenceDiagram
 | 品質ゲート | **veraPDF が PDF/A-3b COMPLIANT（146/146）・PDF/UA-1 COMPLIANT（106/106）と判定** |
 | 修正ループ | 0 回 |
 
-`ensure_pdfa` は成功時にも必ず warning を返す（「CLAIMS … NOT checked」）。これは設計であり、
-**宣言を書いた瞬間に検証が省略不能になる**ことを機械側が言い続けている。
+`ensure_pdfa` は成功時にも必ず warning を返します（「CLAIMS … NOT checked」）。これは設計であり、
+**宣言を書いた瞬間に検証が省略不能になる**ことを機械側が言い続けています。
 
 ## 結果の読み方
 
-- 合否の言い方は規範の層で変わる: PDF/A は「**veraPDF が COMPLIANT と判定**」（T2 — ISO 19005 準拠とは書かない）、
-  PDF/UA-1 は ISO 14289-1 の条文を引ける（T1）
-- `engine: native` の `compliant: null` は「検査サブセットで違反なし」であって適合ではない —
-  conformance 水準の判定は保留し veraPDF を入れる
-- 機械検証は alt テキストや読み順の**意味的**な適切さまでは判定できない。人手レビューの残る範囲を
-  Report に明記する
+- 合否の言い方は規範の層で変わります: PDF/A は「**veraPDF が COMPLIANT と判定**」（T2 — ISO 19005 準拠とは書きません）、
+  PDF/UA-1 は ISO 14289-1 の条文を引けます（T1）
+- `engine: native` の `compliant: null` は「検査サブセットで違反なし」であって適合ではありません —
+  conformance 水準の判定は保留し veraPDF を入れてください
+- 機械検証は alt テキストや読み順の**意味的**な適切さまでは判定できません。人手レビューの残る範囲を
+  Report に明記してください
 - 修正ループは上限 3 回・同じ違反が 2 回続いたら即人手へ（[打ち切り条件](/ja/skills/pdf-publish#ループ打ち切り条件)）

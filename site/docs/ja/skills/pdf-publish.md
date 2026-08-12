@@ -4,7 +4,7 @@ description: write → read-back → verify の品質ゲートを回し Publish 
 
 # pdf-publish — 納品パイプライン
 
-PDF の生成・編集から納品までを品質ゲート付きで編成する Skill。pdf-writer で書き、pdf-reader で読み戻し、pdf-verify（veraPDF）で機械採点する **write → read-back → verify ループ**を回し、**Publish Report** 付きで納品する。
+PDF の生成・編集から納品までを品質ゲート付きで編成する Skill です。pdf-writer で書き、pdf-reader で読み戻し、pdf-verify（veraPDF）で機械採点する **write → read-back → verify ループ**を回し、**Publish Report** 付きで納品します。
 
 ```mermaid
 graph LR
@@ -16,13 +16,13 @@ graph LR
 ## 対応シナリオ
 
 - PDF/UA 準拠（タグ付き）PDF の生成
-- 電帳法対応: PDF/A-3b + 添付ファイル（`attach_file`）。PDF/A-4 を求められた場合は **`pdfa-4f`**（素の `pdfa-4` は添付自身が PDF/A であることを要求するため、CSV/XML の同梱と両立しない）
+- 電帳法対応: PDF/A-3b + 添付ファイル（`attach_file`）。PDF/A-4 を求められた場合は **`pdfa-4f`**（素の `pdfa-4` は添付自身が PDF/A であることを要求するため、CSV/XML の同梱と両立しません）
 - フォームの PDF/UA 化（`tag_form_fields`）
 - 品質保証付き一般納品
 
 ## 品質ゲート水準
 
-どこまで確認してから納品するかを 3 水準から選ぶ。この Skill の中心的な設定である。
+どこまで確認してから納品するかを 3 水準から選びます。この Skill の中心的な設定です。
 
 | 水準 | 内容 | 必須 MCP |
 |---|---|---|
@@ -32,8 +32,8 @@ graph LR
 
 ## 要点
 
-- 宣言（`ensure_pdfa` / `ensure_tagged`）を書いたら必ず対応する flavour で `validate_conformance` を実行 — **測れないなら宣言を書かない**
-- 判定は veraPDF のもの。「veraPDF が COMPLIANT と判定」と報告し「ISO 19005 準拠」とは書かない
+- 宣言（`ensure_pdfa` / `ensure_tagged`）を書いたら必ず対応する flavour で `validate_conformance` を実行します — **測れないなら宣言を書きません**
+- 判定は veraPDF のものです。「veraPDF が COMPLIANT と判定」と報告し「ISO 19005 準拠」とは書きません
 
 ## 実測例 — Publish Report 要旨（2026-08-11）
 
@@ -46,20 +46,20 @@ graph LR
 | 3 品質ゲート | identify_conformance + validate_conformance ×2 | **veraPDF が PDF/A-3b COMPLIANT（146/146）・PDF/UA-1 COMPLIANT（106/106）と判定** |
 | 4 修正ループ | — | **0 回**（初回通過） |
 
-`ensure_pdfa` は成功時にも必ず warning を返す:
+`ensure_pdfa` は成功時にも必ず warning を返します:
 
 > This file now **CLAIMS** PDF/A-3b …, but conformance was **NOT checked** here. … Verify before
 > relying on it: pdf-verify-mcp validate_conformance(flavour: "pdfa-3b")
 
-これは異常ではなく設計である。宣言を書いた瞬間に検証が省略不能になる —
-この warning を Report に転記し、対応する flavour を測ってから納品する。
+これは異常ではなく設計です。宣言を書いた瞬間に検証が省略不能になります —
+この warning を Report に転記し、対応する flavour を測ってから納品します。
 
 ## ループ打ち切り条件
 
-- 修正ループは**上限 3 回**。超えたら停止し、残違反リスト + 条文根拠（pdf-spec があれば）を添えて人手レビューへ引き渡す
-- **同じ違反が 2 回続いたら即座に人手へ** — その修正は効いていない
-- 前段が失敗したら後段は「失敗」ではなく「**スキップ**」と記録する（原因の誤読を防ぐ）
-- native エンジンでの `compliant: null` は「検査サブセットで違反なし」であって適合ではない — conformance 水準の判定は保留し、veraPDF の導入を提案する
+- 修正ループは**上限 3 回**です。超えたら停止し、残違反リスト + 条文根拠（pdf-spec があれば）を添えて人手レビューへ引き渡します
+- **同じ違反が 2 回続いたら即座に人手へ** — その修正は効いていません
+- 前段が失敗したら後段は「失敗」ではなく「**スキップ**」と記録します（原因の誤読を防ぐためです）
+- native エンジンでの `compliant: null` は「検査サブセットで違反なし」であって適合ではありません — conformance 水準の判定は保留し、veraPDF の導入を提案します
 
 ## インストール
 
@@ -75,7 +75,7 @@ graph LR
 
 ## ツールが足りないときの動き（縮退動作）
 
-- pdf-writer 未接続 → 成立しない。接続を案内して停止する
-- pdf-verify 未接続 → `conformance` 水準は**中止**（`readback` に下げる合意が取れれば続行）。`ensure_pdfa` / `ensure_tagged` を使う案件は水準にかかわらず verify 必須 — 検査できないなら宣言も書かない
-- pdf-reader 未接続 → 読み戻しを「未実施（ツール未接続）」と明記し、できる範囲で続行
-- 日本語を含むのに埋め込みフォントが無い → `FONT_REQUIRED`（構造化エラー）。`fontPath` か環境変数 `PDF_WRITER_FONT` で解決する
+- pdf-writer 未接続 → 成立しません。接続を案内して停止します
+- pdf-verify 未接続 → `conformance` 水準は**中止**します（`readback` に下げる合意が取れれば続行）。`ensure_pdfa` / `ensure_tagged` を使う案件は水準にかかわらず verify 必須です — 検査できないなら宣言も書きません
+- pdf-reader 未接続 → 読み戻しを「未実施（ツール未接続）」と明記し、できる範囲で続行します
+- 日本語を含むのに埋め込みフォントが無い → `FONT_REQUIRED`（構造化エラー）。`fontPath` か環境変数 `PDF_WRITER_FONT` で解決します

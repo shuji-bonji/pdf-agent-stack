@@ -4,7 +4,7 @@ description: npx での導入手順 — 各 MCP サーバーの設定例、必�
 
 # 導入手順
 
-前提: Node.js 20+。全サーバー `npx` で起動できるためグローバルインストールは不要である。
+前提: Node.js 20+。全サーバー `npx` で起動できるためグローバルインストールは不要です。
 
 ## Step 1 — 最小構成（pdf-reader）
 
@@ -19,13 +19,13 @@ description: npx での導入手順 — 各 MCP サーバーの設定例、必�
 }
 ```
 
-環境変数なしで動く。まず PDF を 1 つ読んで動作確認してください。
+環境変数なしで動きます。まず PDF を 1 つ読んで動作確認してください。
 
 ## Step 2 — pdf-spec
 
 ### 仕様コーパスの配置
 
-**このステップを飛ばすと pdf-spec は 1 問も答えられない。** pdf-spec-mcp は仕様 PDF 本体を同梱しない（ISO 文書のため再配布できない）。仕様の原文は利用者が入手して配置する — 幸い、**中核文書はすべて正規ルートで無償入手できます。**
+**このステップを飛ばすと pdf-spec は 1 問も答えられません。** pdf-spec-mcp は仕様 PDF 本体を同梱しません（ISO 文書のため再配布できません）。仕様の原文は利用者が入手して配置します — 幸い、**中核文書はすべて正規ルートで無償入手できます。**
 
 | 入手先                                                                                                            | 含まれる文書                                                                       |
 | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
@@ -33,7 +33,7 @@ description: npx での導入手順 — 各 MCP サーバーの設定例、必�
 | 同ページ → **PDF/UA バンドル**                                                                                    | ISO 14289-1:2014（PDF/UA-1）+ ISO 14289-2:2024（PDF/UA-2）+ ISO TS 32005           |
 | [Adobe 公開版 PDF32000_2008.pdf](https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf) | ISO 32000-1:2008（PDF 1.7）                                                        |
 
-sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出により PDF Association が**無償公開している正規の ISO 文書**である（無償だが海賊版の類ではない）。
+sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出により PDF Association が**無償公開している正規の ISO 文書**です（無償ですが海賊版の類ではありません）。
 ダウンロードした PDF を 1 つのディレクトリに置き、pdf-spec-mcp の設定に`PDF_SPEC_DIR` としてそのディレクトリを指定すれば、ファイル名パターンで自動判別されます。
 （例: `PDF32000_2008.pdf`, `ISO_32000-2_2020...pdf`, `ISO-14289-1-2014-sponsored.pdf` など 17 文書）。
 
@@ -52,12 +52,12 @@ sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出�
 ```
 
 ::: warning
-`PDF_SPEC_DIR` は必須である。このコーパスは PDF Agent Stack の**規範知識の根拠そのもの** — 条文を引用して言い切れる（T1）のは、手元に原文があるからである。ISO 19005 (PDF/A) と ETSI PAdES はコーパス外である — 何が引けないかは `list_specs` の `coverage.gaps` を確認してください。
+`PDF_SPEC_DIR` は必須です。このコーパスは PDF Agent Stack の**規範知識の根拠そのもの** — 条文を引用して言い切れる（T1）のは、手元に原文があるからです。ISO 19005 (PDF/A) と ETSI PAdES はコーパス外です — 何が引けないかは `list_specs` の `coverage.gaps` を確認してください。
 :::
 
 ## Step 3 — pdf-verify（veraPDF と信頼アンカー）
 
-そのままでも動く（内蔵 ~15 ルールの PDF/A サブセット + PDF/UA 12 ルール）。本格運用では veraPDF を導入してください。
+そのままでも動きます（内蔵 ~15 ルールの PDF/A サブセット + PDF/UA 12 ルール）。本格運用では veraPDF を導入してください。
 
 1. [veraPDF](https://verapdf.org/) をインストール
 2. PATH に通すか、`PDF_VERIFY_VERAPDF` に実行パスを指定
@@ -77,11 +77,11 @@ sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出�
 }
 ```
 
-`PDF_VERIFY_TRUST_ANCHORS`（PEM/DER 証明書のディレクトリ）を設定すると署名者の証明書チェーンを評価できる。未設定の場合、署名の「valid」は**暗号計算が合っている**ことだけを意味し、署名者が本人であることは意味しない（`trust: not_evaluated`）。
+`PDF_VERIFY_TRUST_ANCHORS`（PEM/DER 証明書のディレクトリ）を設定すると署名者の証明書チェーンを評価できます。未設定の場合、署名の「valid」は**暗号計算が合っている**ことだけを意味し、署名者が本人であることは意味しません（`trust: not_evaluated`）。
 
 ## Step 4 — pdf-writer（日本語フォント）
 
-標準フォント（Helvetica）は **ASCII のみ**である。日本語を出すには埋め込み可能な単一フェイスフォント（`.ttf` / `.otf`、Variable font 不可）が必要である。[Noto Sans JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP) の static 版を推奨する。
+標準フォント（Helvetica）は **ASCII のみ**です。日本語を出すには埋め込み可能な単一フェイスフォント（`.ttf` / `.otf`、Variable font 不可）が必要です。[Noto Sans JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP) の static 版を推奨します。
 
 ```jsonc
 {
@@ -95,11 +95,11 @@ sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出�
 }
 ```
 
-`PDF_WRITER_FONT` を設定すると各ツールの `fontPath` を省略できる。出力は必ず `outputPath`（絶対パス）を指定してください — 省略すると PDF 全体が base64 で返り、応答が溢れる。
+`PDF_WRITER_FONT` を設定すると各ツールの `fontPath` を省略できます。出力は必ず `outputPath`（絶対パス）を指定してください — 省略すると PDF 全体が base64 で返り、応答が溢れます。
 
 ## Step 5 — スモークテスト
 
-各サーバー 1 ツールずつ叩いて確認する。
+各サーバー 1 ツールずつ叩いて確認します。
 
 | サーバー   | 確認プロンプト例                                           |
 | ---------- | ---------------------------------------------------------- |
@@ -110,7 +110,7 @@ sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出�
 
 ## Step 6 — Skill の導入
 
-[pdf-trust](/ja/skills/pdf-trust)（受入監査）と [pdf-publish](/ja/skills/pdf-publish)（納品）を Skill として追加すると、複数 MCP の編成が定型化される。pdf-trust は pdf-verify **v0.7.0+ が必須**（`evaluate_policy` を使うため）である。
+[pdf-trust](/ja/skills/pdf-trust)（受入監査）と [pdf-publish](/ja/skills/pdf-publish)（納品）を Skill として追加すると、複数 MCP の編成が定型化されます。pdf-trust は pdf-verify **v0.7.0+ が必須**（`evaluate_policy` を使うため）です。
 
 ## 環境変数一覧
 

@@ -25,6 +25,6 @@ description: 4 つの MCP サーバーの一覧と層構成 — pdf-spec（正�
 | **変わったオブジェクトを指したい**（座標が要る） | verify → reader → writer | verify_integrity → locate_objects → add_annotation |
 | 信用してよいか総合判定 | verify + Skill | evaluate_policy + [pdf-trust](/ja/skills/pdf-trust) |
 
-::: tip 各ページの構成は共通である
+::: tip 各ページの構成は共通です
 責務 → インストール → 環境変数 → ツール一覧表 → ツール別マニュアル → エラーコード → 制約
 :::

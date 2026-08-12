@@ -4,7 +4,7 @@ description: PDF Agent Stack の全体構成と各 MCP の責務境界 — 独�
 
 # 全体構成と責務
 
-PDF Agent Stack は「独立 MCP × Skill 連携」で構成される。各 MCP は相互非依存で単独完結し、複数サーバーの編成（手順・知識）は Skill が担う。
+PDF Agent Stack は「独立 MCP × Skill 連携」で構成されます。各 MCP は相互非依存で単独完結し、複数サーバーの編成（手順・知識）は Skill が担います。
 
 ## 全体構成
 
@@ -36,11 +36,11 @@ graph LR
   VERA[("veraPDF")] -.-> VERIFY
 ```
 
-図中の形は要素の種別を表す（→ [図の読み方](/ja/reference/glossary#図の読み方-形の凡例)）。
+図中の形は要素の種別を表します（→ [図の読み方](/ja/reference/glossary#図の読み方-形の凡例)）。
 
-エージェントは MCP を直接呼んでもよいし、Skill に編成を任せてもよい。Skill を入れると、複数 MCP の**呼び出し順序・判定の読み方・レポート形式**が定型化される。
+エージェントは MCP を直接呼んでもよいですし、Skill に編成を任せてもかまいません。Skill を入れると、複数 MCP の**呼び出し順序・判定の読み方・レポート形式**が定型化されます。
 
-外部依存は 2 つだけである。pdf-spec は仕様 PDF のコーパス（手元に集めた仕様原文の束。再配布不可のため同梱しない）を、pdf-verify は PDF/A・PDF/UA の判定を委ねる veraPDF を必要とする。reader と writer は外部に依存しない。
+外部依存は 2 つだけです。pdf-spec は仕様 PDF のコーパス（手元に集めた仕様原文の束。再配布不可のため同梱しない）を、pdf-verify は PDF/A・PDF/UA の判定を委ねる veraPDF を必要とします。reader と writer は外部に依存しません。
 
 ## 4 層モデル — 誰が何を編成するか
 
@@ -73,28 +73,28 @@ graph TB
 
 ## 宣言・準拠・検証の三区別
 
-PDF Agent Stack 全体を貫く思想である。
+PDF Agent Stack 全体を貫く思想です。
 
 - **宣言 (declaration)** — XMP の pdfaid / pdfuaid。文書の自己申告であり、何も証明しない
 - **準拠 (conformance)** — 誰にも証明できない。反証だけができる
 - **検証 (validation)** — 検証器が実装するルールの範囲内でのみ有効
 
-だから writer の `ensure_pdfa` は「宣言を書く」ツールであり、書いたら必ず verify の `validate_conformance` で測る、が PDF Agent Stack の作法である。
+だから writer の `ensure_pdfa` は「宣言を書く」ツールであり、書いたら必ず verify の `validate_conformance` で測る、が PDF Agent Stack の作法です。
 
 ## 入口と出口の 2 ゲート
 
-全体構成図の 2 本の入力（受け取った PDF / 作りたい PDF）は、それぞれ別のゲートを通る。
+全体構成図の 2 本の入力（受け取った PDF / 作りたい PDF）は、それぞれ別のゲートを通ります。
 
 | ゲート       | Skill                                 | 流れ                                         |
 | ------------ | ------------------------------------- | -------------------------------------------- |
 | 入口（受入） | [pdf-trust](/ja/skills/pdf-trust)     | 受け取った PDF → 監査 → 利用・保存           |
 | 出口（納品） | [pdf-publish](/ja/skills/pdf-publish) | 作る PDF → write → read-back → verify → 納品 |
 
-verify は入口（受入）と出口（納品）の両方に立つゲートキーパーである。4 値判定（trust_and_use / use_with_caution / human_review_required / reject）は `evaluate_policy` の決定論的（同じ入力なら常に同じ結果を返す）ルールエンジンが下し、LLM は解説と推奨アクションだけを担う — **ジャッジはコード、ナラティブは LLM**（判定はコードが下し、LLM が書くのは説明の文章だけ）。
+verify は入口（受入）と出口（納品）の両方に立つゲートキーパーです。4 値判定（trust_and_use / use_with_caution / human_review_required / reject）は `evaluate_policy` の決定論的（同じ入力なら常に同じ結果を返す）ルールエンジンが下し、LLM は解説と推奨アクションだけを担います — **ジャッジはコード、ナラティブは LLM**（判定はコードが下し、LLM が書くのは説明の文章だけ）。
 
 ## 言い切り強度（T1/T2/T3）
 
-検証結果をどこまで強く言えるかは、規範文書が手元にあるかで変わる。
+検証結果をどこまで強く言えるかは、規範文書が手元にあるかで変わります。
 
 | Tier | 規格                               | 言える強さ                                                  |
 | ---- | ---------------------------------- | ----------------------------------------------------------- |
@@ -102,4 +102,4 @@ verify は入口（受入）と出口（納品）の両方に立つゲートキ�
 | T2   | ISO 19005 (PDF/A)                  | 「veraPDF が COMPLIANT と判定した」とだけ言う               |
 | T3   | ETSI PAdES                         | 構造の観測として「B-LT 相当の構造」と言う。準拠とは言わない |
 
-本サイトの文章もこのルールに従って書かれている。
+本サイトの文章もこのルールに従って書かれています。

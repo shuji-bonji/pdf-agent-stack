@@ -4,7 +4,7 @@ description: PDF Agent Stack の全体像 — 4 つの MCP サーバーと 2 つ
 
 # PDF Agent Stack とは
 
-PDF Agent Stack は、AI エージェントに PDF の「読む・検証する・書く・仕様で裏付ける」能力を与える、4 つの独立した [MCP](/ja/reference/glossary#本サイトの基本用語-ai-開発) サーバーと 2 つの [Skill](/ja/reference/glossary#本サイトの基本用語-ai-開発) の総称である。
+PDF Agent Stack は、AI エージェントに PDF の「読む・検証する・書く・仕様で裏付ける」能力を与える、4 つの独立した [MCP](/ja/reference/glossary#本サイトの基本用語-ai-開発) サーバーと 2 つの [Skill](/ja/reference/glossary#本サイトの基本用語-ai-開発) の総称です。
 
 ## 構成要素
 
@@ -17,13 +17,13 @@ PDF Agent Stack は、AI エージェントに PDF の「読む・検証する�
 | Skill | [pdf-trust](/ja/skills/pdf-trust)     | 受領した PDF を精査し、信頼性を確認する（Trust Report）                  | [GitHub](https://github.com/shuji-bonji/pdf-trust-skill)                                                                   |
 | Skill | [pdf-publish](/ja/skills/pdf-publish) | 品質管理（ゲート）を組み込んだパイプラインで生成する（Publish Report） | [GitHub](https://github.com/shuji-bonji/pdf-publish-skill)                                                                 |
 
-pdf-verify の条文検査は、別パッケージの [pdf-constraints](/ja/reference/pdf-constraints) を使う。ISO 32000 の条文を機械検査できる制約テーブルの形に書き起こしたデータライブラリで、単体でも利用できる。
+pdf-verify の条文検査は、別パッケージの [pdf-constraints](/ja/reference/pdf-constraints) を使います。ISO 32000 の条文を機械検査できる制約テーブルの形に書き起こしたデータライブラリで、単体でも利用できます。
 
 ::: info 構成と責務について
 これらがどう繋がって動くか。詳しくは [全体構成と責務](/ja/guide/architecture) を参照してください。
 :::
 
-エージェントは MCP を直接呼んでもよいし、Skill に編成を任せてもよい。Skill を入れると、複数 MCP の**呼び出し順序・判定の読み方・レポート形式**が定型化される。
+エージェントは MCP を直接呼んでもよいですし、Skill に編成を任せてもかまいません。Skill を入れると、複数 MCP の**呼び出し順序・判定の読み方・レポート形式**が定型化されます。
 
 ## 5 分で試す
 

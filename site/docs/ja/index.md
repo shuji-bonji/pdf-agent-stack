@@ -52,5 +52,5 @@ features:
 }
 ```
 
-まずは pdf-reader だけで PDF を読んでみて、必要に応じて他のサーバーを足していける。
+まずは pdf-reader だけで PDF を読んでみて、必要に応じて他のサーバーを足していけます。
 → [導入手順（env / veraPDF / フォント）](/ja/guide/getting-started)
