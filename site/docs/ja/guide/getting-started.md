@@ -13,25 +13,31 @@ description: npx での導入手順 — 各 MCP サーバーの設定例、必�
   "mcpServers": {
     "pdf-reader": {
       "command": "npx",
-      "args": ["-y", "@shuji-bonji/pdf-reader-mcp@latest"]
-    }
-  }
+      "args": ["-y", "@shuji-bonji/pdf-reader-mcp@latest"],
+    },
+  },
 }
 ```
 
 環境変数なしで動く。まず PDF を 1 つ読んで動作確認してください。
 
-## Step 2 — pdf-spec（仕様コーパスの配置）
+## Step 2 — pdf-spec
 
-**このステップを飛ばすと pdf-spec は 1 問も答えられない。** pdf-spec-mcp は仕様 PDF 本体を同梱しない（ISO 文書のため再配布できない）。仕様の原文は利用者が入手して配置する — 幸い、**中核文書はすべて正規ルートで無償入手できる**:
+### 仕様コーパスの配置
 
-| 入手先 | 含まれる文書 |
-|---|---|
-| [PDF Association: Sponsored ISO standards](https://pdfa.org/sponsored-standards/) → **ISO 32000-2 バンドル** | ISO 32000-2:2020（Errata Collection 3 収録）+ ISO TS 32001 / 32002 / 32003 / 32004 |
-| 同ページ → **PDF/UA バンドル** | ISO 14289-1:2014（PDF/UA-1）+ ISO 14289-2:2024（PDF/UA-2）+ ISO TS 32005 |
-| [Adobe 公開版 PDF32000_2008.pdf](https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf) | ISO 32000-1:2008（PDF 1.7） |
+**このステップを飛ばすと pdf-spec は 1 問も答えられない。** pdf-spec-mcp は仕様 PDF 本体を同梱しない（ISO 文書のため再配布できない）。仕様の原文は利用者が入手して配置する — 幸い、**中核文書はすべて正規ルートで無償入手できます。**
 
-sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出により PDF Association が**無償公開している正規の ISO 文書**である（無償だが海賊版の類ではない）。ダウンロードした PDF を 1 つのディレクトリに置けば、ファイル名パターンで自動判別される（例: `PDF32000_2008.pdf`, `ISO_32000-2_2020...pdf`, `ISO-14289-1-2014-sponsored.pdf` など 17 文書）。
+| 入手先                                                                                                            | 含まれる文書                                                                       |
+| ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| [PDF Association: Sponsored ISO standards](https://pdfa.org/sponsored-standards/) → **ISO 32000-2 バンドル**      | ISO 32000-2:2020（Errata Collection 3 収録）+ ISO TS 32001 / 32002 / 32003 / 32004 |
+| 同ページ → **PDF/UA バンドル**                                                                                    | ISO 14289-1:2014（PDF/UA-1）+ ISO 14289-2:2024（PDF/UA-2）+ ISO TS 32005           |
+| [Adobe 公開版 PDF32000_2008.pdf](https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf) | ISO 32000-1:2008（PDF 1.7）                                                        |
+
+sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出により PDF Association が**無償公開している正規の ISO 文書**である（無償だが海賊版の類ではない）。
+ダウンロードした PDF を 1 つのディレクトリに置き、pdf-spec-mcp の設定に`PDF_SPEC_DIR` としてそのディレクトリを指定すれば、ファイル名パターンで自動判別されます。
+（例: `PDF32000_2008.pdf`, `ISO_32000-2_2020...pdf`, `ISO-14289-1-2014-sponsored.pdf` など 17 文書）。
+
+### `PDF_SPEC_DIR` の設定
 
 ```jsonc
 {
@@ -39,9 +45,9 @@ sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出�
     "pdf-spec": {
       "command": "npx",
       "args": ["-y", "@shuji-bonji/pdf-spec-mcp@latest"],
-      "env": { "PDF_SPEC_DIR": "/path/to/pdf-specs" }
-    }
-  }
+      "env": { "PDF_SPEC_DIR": "/path/to/pdf-specs" },
+    },
+  },
 }
 ```
 
@@ -64,10 +70,10 @@ sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出�
       "args": ["-y", "@shuji-bonji/pdf-verify-mcp@latest"],
       "env": {
         "PDF_VERIFY_VERAPDF": "/usr/local/bin/verapdf",
-        "PDF_VERIFY_TRUST_ANCHORS": "/path/to/trust-anchors"
-      }
-    }
-  }
+        "PDF_VERIFY_TRUST_ANCHORS": "/path/to/trust-anchors",
+      },
+    },
+  },
 }
 ```
 
@@ -83,9 +89,9 @@ sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出�
     "pdf-writer": {
       "command": "npx",
       "args": ["-y", "@shuji-bonji/pdf-writer-mcp@latest"],
-      "env": { "PDF_WRITER_FONT": "/path/to/NotoSansJP-Regular.otf" }
-    }
-  }
+      "env": { "PDF_WRITER_FONT": "/path/to/NotoSansJP-Regular.otf" },
+    },
+  },
 }
 ```
 
@@ -95,11 +101,11 @@ sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出�
 
 各サーバー 1 ツールずつ叩いて確認する。
 
-| サーバー | 確認プロンプト例 |
-|---|---|
-| pdf-reader | 「この PDF のページ数とメタデータを見せて」 |
-| pdf-spec | 「ISO 32000-2 で注釈の /Contents は何を要求されている？」 |
-| pdf-verify | 「この PDF の完全性を検証して」 |
+| サーバー   | 確認プロンプト例                                           |
+| ---------- | ---------------------------------------------------------- |
+| pdf-reader | 「この PDF のページ数とメタデータを見せて」                |
+| pdf-spec   | 「ISO 32000-2 で注釈の /Contents は何を要求されている？」  |
+| pdf-verify | 「この PDF の完全性を検証して」                            |
 | pdf-writer | 「"Hello 日本語" と書いた PDF を ~/tmp/test.pdf に作って」 |
 
 ## Step 6 — Skill の導入
@@ -108,9 +114,9 @@ sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出�
 
 ## 環境変数一覧
 
-| 変数 | サーバー | 必須 | 用途 |
-|---|---|---|---|
-| `PDF_SPEC_DIR` | pdf-spec | **必須** | 仕様 PDF コーパスのディレクトリ |
-| `PDF_VERIFY_VERAPDF` | pdf-verify | 任意 | veraPDF 実行パス（無ければ PATH 探索 → 内蔵ルール） |
-| `PDF_VERIFY_TRUST_ANCHORS` | pdf-verify | 任意 | 信頼アンカー証明書のディレクトリ |
-| `PDF_WRITER_FONT` | pdf-writer | CJK 出力に実質必須 | 既定フォント（単一フェイス .ttf/.otf） |
+| 変数                       | サーバー   | 必須               | 用途                                                |
+| -------------------------- | ---------- | ------------------ | --------------------------------------------------- |
+| `PDF_SPEC_DIR`             | pdf-spec   | **必須**           | 仕様 PDF コーパスのディレクトリ                     |
+| `PDF_VERIFY_VERAPDF`       | pdf-verify | 任意               | veraPDF 実行パス（無ければ PATH 探索 → 内蔵ルール） |
+| `PDF_VERIFY_TRUST_ANCHORS` | pdf-verify | 任意               | 信頼アンカー証明書のディレクトリ                    |
+| `PDF_WRITER_FONT`          | pdf-writer | CJK 出力に実質必須 | 既定フォント（単一フェイス .ttf/.otf）              |

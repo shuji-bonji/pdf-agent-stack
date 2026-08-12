@@ -21,7 +21,9 @@ Prerequisite: Node.js 20+. Every server starts via `npx`, so no global install i
 
 Works with no environment variables. Read one PDF first to confirm it is alive.
 
-## Step 2 — pdf-spec (placing the spec corpus)
+## Step 2 — pdf-spec
+
+### Placing the spec corpus
 
 **Skip this step and pdf-spec cannot answer a single question.** pdf-spec-mcp does not bundle the specification PDFs themselves (ISO documents may not be redistributed). You supply the original texts — fortunately, **every core document is available at no cost through legitimate channels**:
 
@@ -31,7 +33,11 @@ Works with no environment variables. Read one PDF first to confirm it is alive.
 | Same page → the **PDF/UA bundle** | ISO 14289-1:2014 (PDF/UA-1) + ISO 14289-2:2024 (PDF/UA-2) + ISO TS 32005 |
 | [Adobe's public copy, PDF32000_2008.pdf](https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf) | ISO 32000-1:2008 (PDF 1.7) |
 
-The sponsored editions are **genuine ISO documents published at no cost by the PDF Association**, funded by sponsors including Adobe, Apryse and Foxit — free, but in no way bootleg. Put the downloaded PDFs in one directory; files are recognized by name pattern (e.g. `PDF32000_2008.pdf`, `ISO_32000-2_2020...pdf`, `ISO-14289-1-2014-sponsored.pdf` — 17 documents).
+The sponsored editions are **genuine ISO documents published at no cost by the PDF Association**, funded by sponsors including Adobe, Apryse and Foxit — free, but in no way bootleg.
+Put the downloaded PDFs in one directory and point `PDF_SPEC_DIR` at it in the pdf-spec-mcp configuration; files are then recognized by name pattern
+(e.g. `PDF32000_2008.pdf`, `ISO_32000-2_2020...pdf`, `ISO-14289-1-2014-sponsored.pdf` — 17 documents).
+
+### Setting `PDF_SPEC_DIR`
 
 ```jsonc
 {
