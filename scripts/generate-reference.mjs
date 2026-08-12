@@ -390,14 +390,26 @@ function syncVersions(server, info, toolCount) {
   const edits = [];
 
   for (const locale of LOCALES) {
-    // 1) page header: "- npm: `@scope/name` / current v0.0.0"
+    // 1) page header: "- npm: `@scope/name` / current v0.0.0", where the name
+    //    is usually a markdown link — "[`@scope/name`](https://npmjs…) / current v0.0.0".
+    //    The link tail was not in the pattern until 2026-08-12, so this branch
+    //    had never once fired: every page happened to be written at the version
+    //    it still carried, and the first release that actually needed the sync
+    //    (verify 0.15.0) left "current v0.14.2" on the site. A silent no-match
+    //    is reported below for exactly that reason.
     const pagePath = join(ROOT, locale.dir, `mcp/${server}.md`);
     if (existsSync(pagePath)) {
       const before = readFileSync(pagePath, 'utf8');
-      const after = before.replace(
-        new RegExp(`(\`${npmName.replace(/[/@]/g, '\\$&')}\`\\s*/\\s*(?:現行|current)\\s+v)[0-9][^\\s]*`),
-        `$1${info.version}`
+      const pattern = new RegExp(
+        `(\`${npmName.replace(/[/@]/g, '\\$&')}\`(?:\\]\\([^)]*\\))?\\s*/\\s*(?:現行|current)\\s+v)[0-9][^\\s]*`
       );
+      if (!pattern.test(before)) {
+        console.warn(
+          `  ⚠ ${locale.lang} mcp/${server}.md: バージョン表記が見つからない — ` +
+            `"\`${npmName}\` / current vX.Y.Z" の形を崩していないか確認（古い版数が site に残る）`
+        );
+      }
+      const after = before.replace(pattern, `$1${info.version}`);
       if (after !== before) {
         writeFileSync(pagePath, after);
         edits.push(`${locale.lang} mcp/${server}.md`);

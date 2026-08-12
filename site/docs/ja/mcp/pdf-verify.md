@@ -6,7 +6,7 @@ description: 真正性・準拠性を判定する MCP（7 ツール） — 署�
 
 **PDF が本物か・規格に適っているかを判定するサーバーです。** 電子署名を暗号学的に検証し、署名後の改ざんを検知し、PDF/A（長期保存）や PDF/UA（アクセシビリティ）への適合を採点します。
 
-- npm: [`@shuji-bonji/pdf-verify-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) / 現行 v0.14.2 / [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp)
+- npm: [`@shuji-bonji/pdf-verify-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) / 現行 v0.15.0 / [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp)
 - このページは責務と使いどころの解説です。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-verify)（`tools/list` から自動生成）へ
 
 ### これ 1 台でできること
