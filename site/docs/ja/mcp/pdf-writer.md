@@ -4,11 +4,19 @@ description: PDF を生成・編集する MCP（20 ツール） — text / Markd
 
 # pdf-writer-mcp
 
-> **生成の層 (production)** — このサーバーは PDF を**書きます**。準拠の「宣言」は書けますが、準拠そのものを作ることはできません。宣言を書いたら必ず pdf-verify で測ってください。
+**PDF を作る・編集するサーバーです。** テキスト・Markdown・表から PDF を生成し、ページ操作（結合・分割・並べ替え）、しおり・注釈・透かし・ページ番号の付与、フォーム記入、ファイル添付ができます。日本語フォントの埋め込み（サブセット化）に対応しています。
 
 - npm: [`@shuji-bonji/pdf-writer-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-writer-mcp) / 現行 v0.18.0 / [GitHub](https://github.com/shuji-bonji/pdf-writer-mcp)
-- このページは責務と使いどころの**解説**。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-writer)（`tools/list` から自動生成）へ
-- pdf-lib + fontkit。日本語フォント埋め込み（サブセット化）対応
+- このページは責務と使いどころの解説です。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-writer)（`tools/list` から自動生成）へ
+- 内部実装は pdf-lib + fontkit
+
+### これ 1 台でできること
+
+「この内容で請求書 PDF を作って」「この 3 つの PDF をまとめて」「全ページに社外秘の透かしを入れて」といった作成・編集はここで完結します。スクリーンリーダーで読めるタグ付き PDF（PDF/UA-1）の生成にも対応しており、AI に文書を作らせてそのまま納品する用途に向きます。
+
+### 注意 — 「宣言」は書けますが「適合」は作れません
+
+`ensure_pdfa` / `ensure_tagged` は「この文書は PDF/A です」という**名乗り**をメタデータに書くツールです。フォント未埋め込みなどの違反は直らないため、非適合の文書に使うと「自分について嘘をつくファイル」ができてしまいます。宣言を書いたら必ず pdf-verify で測ってください。
 
 ## しないこと
 

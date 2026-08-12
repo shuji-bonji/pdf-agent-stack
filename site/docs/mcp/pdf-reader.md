@@ -4,11 +4,15 @@ description: The MCP that observes what is inside a PDF and where it is (18 tool
 
 # pdf-reader-mcp
 
-> **The substance layer (fact)** — this server **observes** what is inside a PDF. It never judges whether it is correct. Its output is always *evidence*, never a *verdict*.
+**The server that shows an AI what is inside a PDF.** It extracts text, tables, the structure tree, fonts, annotations and signature fields — and reports where each of them is drawn on the page (coordinates). Everything it returns is an observed fact; it never judges whether that fact is correct.
 
 - npm: [`@shuji-bonji/pdf-reader-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-reader-mcp) / current v0.11.1 / [GitHub](https://github.com/shuji-bonji/pdf-reader-mcp)
-- This page is the **guide** — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-reader) (generated from `tools/list`)
+- This page is the guide — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-reader) (generated from `tools/list`)
 - Works with no environment variables
+
+### What this one server gives you
+
+**If all you need is to read PDFs, this server alone is enough.** "Summarize this PDF", "turn this table into CSV", "which fonts are embedded?" — all of it finishes here. Unlike plain text extraction, a tagged PDF can be read in **logical reading order**, so multi-column layouts and tables do not come out scrambled.
 
 ## What it does not do
 

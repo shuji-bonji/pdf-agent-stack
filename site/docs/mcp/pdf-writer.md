@@ -4,11 +4,19 @@ description: The MCP that creates and edits PDFs (20 tools) — creation from te
 
 # pdf-writer-mcp
 
-> **The creation layer (production)** — this server **writes** PDFs. It can write a *declaration* of conformance, but it cannot produce conformance itself. Whatever you declare, measure it with pdf-verify.
+**The server that creates and edits PDFs.** It generates PDFs from text, Markdown or tables, and handles page operations (merge, split, reorder), bookmarks, annotations, watermarks, page numbers, form filling and file attachments. CJK font embedding (with subsetting) is supported.
 
 - npm: [`@shuji-bonji/pdf-writer-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-writer-mcp) / current v0.18.0 / [GitHub](https://github.com/shuji-bonji/pdf-writer-mcp)
-- This page is the **guide** — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-writer) (generated from `tools/list`)
-- pdf-lib + fontkit. CJK font embedding (with subsetting)
+- This page is the guide — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-writer) (generated from `tools/list`)
+- Built on pdf-lib + fontkit
+
+### What this one server gives you
+
+"Make an invoice PDF with this content", "merge these three PDFs", "stamp CONFIDENTIAL across every page" — creation and editing finish here. It can also produce tagged PDFs (PDF/UA-1) that screen readers can follow, which suits having an AI author a document and deliver it directly.
+
+### A caution — it writes declarations, it cannot create conformance
+
+`ensure_pdfa` and `ensure_tagged` write a **claim** into the metadata: "this document is PDF/A". Existing violations such as unembedded fonts are not repaired, so applying them to a non-conforming file produces a PDF that lies about itself. Whatever you declare, measure it with pdf-verify.
 
 ## What it does not do
 

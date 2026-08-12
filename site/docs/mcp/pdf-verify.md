@@ -4,11 +4,18 @@ description: The MCP that judges authenticity and conformance (7 tools) — sign
 
 # pdf-verify-mcp
 
-> **The authenticity & conformance layer (judgment)** — this server **disproves**. It can never **prove** that a document conforms or that a signature is trustworthy. Read every result as "what could be shown to be wrong, was looked for".
+**The server that decides whether a PDF is genuine and up to standard.** It verifies digital signatures cryptographically, detects changes made after signing, and scores conformance to PDF/A (long-term preservation) and PDF/UA (accessibility).
 
 - npm: [`@shuji-bonji/pdf-verify-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) / current v0.14.2 / [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp)
-- This page is the **guide** — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-verify) (generated from `tools/list`)
-- Cryptographic signature verification, tamper detection, PAdES level observation, PDF/A / PDF/UA validation, deterministic policy verdicts
+- This page is the guide — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-verify) (generated from `tools/list`)
+
+### What this one server gives you
+
+Answers to "is the signature on this contract valid?", "was anything rewritten after signing?", "will this PDF survive as PDF/A?" The verdicts come from cryptography and a fixed rule table, so **the same file yields the same result every time**. Deciding whether an incoming PDF may enter your workflow (intake audit) centres on this server.
+
+### What it cannot do — disproof, not proof
+
+What this server does is look for errors it can demonstrate. If one is found, "this does not meet the standard" can be stated flatly; if none is found, that is *not* proof of full conformance. Read every result in that light.
 
 ## What it does not do
 

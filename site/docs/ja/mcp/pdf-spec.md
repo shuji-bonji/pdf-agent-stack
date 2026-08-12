@@ -4,11 +4,16 @@ description: ISO 32000 系仕様書の構造化参照 MCP — 条文・要件（
 
 # pdf-spec-mcp
 
-> **正典の層 (norm)** — 仕様の「条文」を引く参照サーバーです。ルールエンジンではありません。**PDF ファイルを開くことはなく、準拠判定もしません**（判定は pdf-verify）。
+**PDF の仕様書を AI が引けるようにするサーバーです。** ISO 32000-1/-2、ISO TS 32001〜32005、PDF/UA-1/-2、Tagged PDF ガイドなど 17 文書を横断検索し、条文・要求事項（shall/should/may）・定義・表を構造化して返します。
 
 - npm: [`@shuji-bonji/pdf-spec-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-spec-mcp) / 現行 v0.4.5 / [GitHub](https://github.com/shuji-bonji/pdf-spec-mcp)
-- このページは責務と使いどころの**解説**。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-spec)（`tools/list` から自動生成）へ
-- ISO 32000-1/-2、ISO TS 32001〜32005、PDF/UA-1/-2、Tagged PDF ガイド等 **17 文書**を横断検索・構造化取得
+- このページは責務と使いどころの解説です。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-spec)（`tools/list` から自動生成）へ
+
+### これ 1 台でできること
+
+「PDF 2.0 で増分更新は何を要求している？」「タグ付き PDF の読み順はどの条文？」といった**仕様の疑問に、原文を引いて答えられる**ようになります。1,000 ページ近い ISO 規格を人が探す代わりに、AI が条文 ID 付きで示します。実装や監査の判断を、記憶や検索エンジンではなく規格原文に着地させたいときに使います。
+
+※ 仕様 PDF は同梱していません。無償入手できる原文を配置してください（→ [導入手順 Step 2](/ja/guide/getting-started)）。
 
 ## しないこと
 
