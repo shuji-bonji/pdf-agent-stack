@@ -6,7 +6,7 @@ description: ISO 32000 系仕様書の構造化参照 MCP — 条文・要件（
 
 > **正典の層 (norm)** — 仕様の「条文」を引く参照サーバー。ルールエンジンではない。**PDF ファイルを開くことはなく、準拠判定もしない**（判定は pdf-verify）。
 
-- npm: `@shuji-bonji/pdf-spec-mcp` / 現行 v0.4.5
+- npm: [`@shuji-bonji/pdf-spec-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-spec-mcp) / 現行 v0.4.5 / [GitHub](https://github.com/shuji-bonji/pdf-spec-mcp)
 - このページは責務と使いどころの**解説**。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-spec)（`tools/list` から自動生成）へ
 - ISO 32000-1/-2、ISO TS 32001〜32005、PDF/UA-1/-2、Tagged PDF ガイド等 **17 文書**を横断検索・構造化取得
 

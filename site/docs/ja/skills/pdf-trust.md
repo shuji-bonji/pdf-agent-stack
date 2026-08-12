@@ -82,6 +82,8 @@ evaluate_policy の判定に加え、Phase 2.5（verify_integrity + locate_objec
 # 任意: pdf-reader-mcp（位置特定）・pdf-spec-mcp（条文引用）・houki 系（法令根拠）
 ```
 
+リポジトリ: [shuji-bonji/pdf-trust-skill](https://github.com/shuji-bonji/pdf-trust-skill)（SKILL.md 本体・プロファイル定義）
+
 ## 縮退動作
 
 - pdf-verify 未接続 → 監査は成立しない。接続を案内して停止する

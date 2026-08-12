@@ -6,7 +6,7 @@ description: PDF の中身と位置を観測する MCP（18 ツール） — テ
 
 > **実体の層 (fact)** — このサーバーは PDF の中身を**観測する**。正しいかどうかは判定しない。出力は常に「証拠」であり「判定」ではない。
 
-- npm: `@shuji-bonji/pdf-reader-mcp` / 現行 v0.11.1
+- npm: [`@shuji-bonji/pdf-reader-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-reader-mcp) / 現行 v0.11.1 / [GitHub](https://github.com/shuji-bonji/pdf-reader-mcp)
 - このページは責務と使いどころの**解説**。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-reader)（`tools/list` から自動生成）へ
 - 環境変数なしで動作
 

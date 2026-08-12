@@ -84,6 +84,8 @@ encrypted document — an unmeasured check is never reported as passed.
 # optional: pdf-reader-mcp (locations), pdf-spec-mcp (clause citations), houki family (statutory grounds)
 ```
 
+Repository: [shuji-bonji/pdf-trust-skill](https://github.com/shuji-bonji/pdf-trust-skill) (SKILL.md itself and the profile definitions)
+
 ## Degraded operation
 
 - pdf-verify not connected → the audit cannot proceed; the Skill says so and stops

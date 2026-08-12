@@ -6,7 +6,7 @@ description: 真正性・準拠性を判定する MCP（7 ツール） — 署�
 
 > **真正性・準拠性の層 (judgment)** — このサーバーは**反証する**。文書が準拠している・署名が信頼できると**証明することはできない**。すべての結果は「示せる誤りを探した結果」として読む。
 
-- npm: `@shuji-bonji/pdf-verify-mcp` / 現行 v0.14.2
+- npm: [`@shuji-bonji/pdf-verify-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) / 現行 v0.14.2 / [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp)
 - このページは責務と使いどころの**解説**。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-verify)（`tools/list` から自動生成）へ
 - 署名の暗号学的検証・改ざん検知・PAdES レベル観測・PDF/A / PDF/UA 検証・決定論的ポリシー判定
 

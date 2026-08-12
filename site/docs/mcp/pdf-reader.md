@@ -6,7 +6,7 @@ description: The MCP that observes what is inside a PDF and where it is (18 tool
 
 > **The substance layer (fact)** — this server **observes** what is inside a PDF. It never judges whether it is correct. Its output is always *evidence*, never a *verdict*.
 
-- npm: `@shuji-bonji/pdf-reader-mcp` / current v0.11.1
+- npm: [`@shuji-bonji/pdf-reader-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-reader-mcp) / current v0.11.1 / [GitHub](https://github.com/shuji-bonji/pdf-reader-mcp)
 - This page is the **guide** — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-reader) (generated from `tools/list`)
 - Works with no environment variables
 

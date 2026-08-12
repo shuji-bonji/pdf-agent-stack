@@ -61,6 +61,8 @@ graph LR
 # 推奨: pdf-reader-mcp（読み戻し）
 ```
 
+リポジトリ: [shuji-bonji/pdf-publish-skill](https://github.com/shuji-bonji/pdf-publish-skill)（SKILL.md 本体・エラーコード対応表）
+
 ## 縮退動作
 
 - pdf-writer 未接続 → 成立しない。接続を案内して停止する

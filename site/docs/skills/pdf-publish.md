@@ -63,6 +63,8 @@ before delivery.
 # recommended: pdf-reader-mcp (read-back)
 ```
 
+Repository: [shuji-bonji/pdf-publish-skill](https://github.com/shuji-bonji/pdf-publish-skill) (SKILL.md itself and the error-code mapping)
+
 ## Degraded operation
 
 - pdf-writer not connected → cannot proceed; the Skill says so and stops

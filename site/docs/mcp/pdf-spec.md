@@ -6,7 +6,7 @@ description: The structured reference MCP for the ISO 32000 family — clauses, 
 
 > **The canon layer (norm)** — a reference server that looks up the *text* of the specification. Not a rule engine. **The only PDFs it reads are its own spec corpus — it never opens the PDF under examination, and never judges conformance** (verdicts belong to pdf-verify).
 
-- npm: `@shuji-bonji/pdf-spec-mcp` / current v0.4.5
+- npm: [`@shuji-bonji/pdf-spec-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-spec-mcp) / current v0.4.5 / [GitHub](https://github.com/shuji-bonji/pdf-spec-mcp)
 - This page is the **guide** — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-spec) (generated from `tools/list`)
 - Cross-searches and structurally retrieves **17 documents**: ISO 32000-1/-2, ISO TS 32001–32005, PDF/UA-1/-2, the Tagged PDF guide, and more
 
