@@ -1,10 +1,10 @@
 ---
-description: The structured reference MCP for the ISO 32000 family — clauses, requirements (shall/should/may), definitions, tables, version comparison. Never opens a file, never judges
+description: The structured reference MCP for the ISO 32000 family — clauses, requirements (shall/should/may), definitions, tables, version comparison. Never opens the PDF under examination, never judges
 ---
 
 # pdf-spec-mcp
 
-> **The canon layer (norm)** — a reference server that looks up the *text* of the specification. Not a rule engine. **It never opens a PDF file and never judges conformance** (verdicts belong to pdf-verify).
+> **The canon layer (norm)** — a reference server that looks up the *text* of the specification. Not a rule engine. **The only PDFs it reads are its own spec corpus — it never opens the PDF under examination, and never judges conformance** (verdicts belong to pdf-verify).
 
 - npm: `@shuji-bonji/pdf-spec-mcp` / current v0.4.5
 - This page is the **guide** — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-spec) (generated from `tools/list`)
@@ -29,7 +29,7 @@ description: The structured reference MCP for the ISO 32000 family — clauses, 
 }
 ```
 
-Place the PDF Association's sponsored-edition specification PDFs in `PDF_SPEC_DIR` (required). Files are recognized by name pattern.
+Place the PDF Association's sponsored-edition specification PDFs in `PDF_SPEC_DIR` (required). Files are recognized by name pattern. **Every core document is available at no cost through legitimate channels** — see [Getting started, Step 2](/guide/getting-started) for the sources. Without the corpus this server cannot answer a single question.
 
 ## Common parameter
 

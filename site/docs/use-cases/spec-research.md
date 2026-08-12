@@ -8,7 +8,7 @@ description: Spec research — quoting ISO 32000 clauses and shall/may requireme
 
 "What does the specification require of incremental updates?" "Where is the document timestamp
 defined?" — ground implementation and audit decisions in the **original text of ISO 32000**,
-not in memory or a search engine. pdf-spec never opens a file: it answers what the specification
+not in memory or a search engine. The only PDFs pdf-spec opens are its own spec corpus — never the PDF under examination: it answers what the specification
 **requires**; whether a file **satisfies** it is pdf-verify's question.
 
 Below are the **measured queries from 2026-08-11** (lowering the incoming audit's

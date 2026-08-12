@@ -23,7 +23,15 @@ Works with no environment variables. Read one PDF first to confirm it is alive.
 
 ## Step 2 — pdf-spec (placing the spec corpus)
 
-pdf-spec-mcp does not bundle the specification PDFs themselves (they may not be redistributed). Get the free sponsored editions from the PDF Association and put them in one directory. Files are recognized by name pattern (e.g. `PDF32000_2008.pdf`, `ISO_32000-2_2020...pdf`, `ISO-14289-1-2014-sponsored.pdf` — 17 documents).
+**Skip this step and pdf-spec cannot answer a single question.** pdf-spec-mcp does not bundle the specification PDFs themselves (ISO documents may not be redistributed). You supply the original texts — fortunately, **every core document is available at no cost through legitimate channels**:
+
+| Source | Documents |
+|---|---|
+| [PDF Association: Sponsored ISO standards](https://pdfa.org/sponsored-standards/) → the **ISO 32000-2 bundle** | ISO 32000-2:2020 (with Errata Collection 3) + ISO TS 32001 / 32002 / 32003 / 32004 |
+| Same page → the **PDF/UA bundle** | ISO 14289-1:2014 (PDF/UA-1) + ISO 14289-2:2024 (PDF/UA-2) + ISO TS 32005 |
+| [Adobe's public copy, PDF32000_2008.pdf](https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf) | ISO 32000-1:2008 (PDF 1.7) |
+
+The sponsored editions are **genuine ISO documents published at no cost by the PDF Association**, funded by sponsors including Adobe, Apryse and Foxit — free, but in no way bootleg. Put the downloaded PDFs in one directory; files are recognized by name pattern (e.g. `PDF32000_2008.pdf`, `ISO_32000-2_2020...pdf`, `ISO-14289-1-2014-sponsored.pdf` — 17 documents).
 
 ```jsonc
 {
@@ -38,7 +46,7 @@ pdf-spec-mcp does not bundle the specification PDFs themselves (they may not be 
 ```
 
 ::: warning
-`PDF_SPEC_DIR` is required. ISO 19005 (PDF/A) and ETSI PAdES are outside the corpus — check `coverage.gaps` in `list_specs` to see what cannot be looked up.
+`PDF_SPEC_DIR` is required. This corpus is the very ground of the family's **normative knowledge** — clauses can be quoted with full force (T1) precisely because the original text is at hand. ISO 19005 (PDF/A) and ETSI PAdES are outside the corpus — check `coverage.gaps` in `list_specs` to see what cannot be looked up.
 :::
 
 ## Step 3 — pdf-verify (veraPDF and trust anchors)

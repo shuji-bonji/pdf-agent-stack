@@ -23,7 +23,15 @@ description: npx での導入手順 — 各 MCP サーバーの設定例、必�
 
 ## Step 2 — pdf-spec（仕様コーパスの配置）
 
-pdf-spec-mcp は仕様 PDF 本体を同梱しない（再配布不可のため）。PDF Association の無償 sponsored 版を入手し、1 つのディレクトリに置く。ファイル名パターンで自動判別される（例: `PDF32000_2008.pdf`, `ISO_32000-2_2020...pdf`, `ISO-14289-1-2014-sponsored.pdf` など 17 文書）。
+**このステップを飛ばすと pdf-spec は 1 問も答えられない。** pdf-spec-mcp は仕様 PDF 本体を同梱しない（ISO 文書のため再配布できない）。仕様の原文は利用者が入手して配置する — 幸い、**中核文書はすべて正規ルートで無償入手できる**:
+
+| 入手先 | 含まれる文書 |
+|---|---|
+| [PDF Association: Sponsored ISO standards](https://pdfa.org/sponsored-standards/) → **ISO 32000-2 バンドル** | ISO 32000-2:2020（Errata Collection 3 収録）+ ISO TS 32001 / 32002 / 32003 / 32004 |
+| 同ページ → **PDF/UA バンドル** | ISO 14289-1:2014（PDF/UA-1）+ ISO 14289-2:2024（PDF/UA-2）+ ISO TS 32005 |
+| [Adobe 公開版 PDF32000_2008.pdf](https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf) | ISO 32000-1:2008（PDF 1.7） |
+
+sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出により PDF Association が**無償公開している正規の ISO 文書**である（無償だが海賊版の類ではない）。ダウンロードした PDF を 1 つのディレクトリに置けば、ファイル名パターンで自動判別される（例: `PDF32000_2008.pdf`, `ISO_32000-2_2020...pdf`, `ISO-14289-1-2014-sponsored.pdf` など 17 文書）。
 
 ```jsonc
 {
@@ -38,7 +46,7 @@ pdf-spec-mcp は仕様 PDF 本体を同梱しない（再配布不可のため�
 ```
 
 ::: warning
-`PDF_SPEC_DIR` は必須である。ISO 19005 (PDF/A) と ETSI PAdES はコーパス外である — 何が引けないかは `list_specs` の `coverage.gaps` を確認してください。
+`PDF_SPEC_DIR` は必須である。このコーパスは family の**規範知識の根拠そのもの** — 条文を引用して言い切れる（T1）のは、手元に原文があるからである。ISO 19005 (PDF/A) と ETSI PAdES はコーパス外である — 何が引けないかは `list_specs` の `coverage.gaps` を確認してください。
 :::
 
 ## Step 3 — pdf-verify（veraPDF と信頼アンカー）

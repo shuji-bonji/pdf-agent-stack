@@ -29,7 +29,7 @@ description: ISO 32000 系仕様書の構造化参照 MCP — 条文・要件（
 }
 ```
 
-`PDF_SPEC_DIR`（必須）に PDF Association の sponsored 版仕様 PDF を配置。ファイル名パターンで自動判別される。
+`PDF_SPEC_DIR`（必須）に PDF Association の sponsored 版仕様 PDF を配置。ファイル名パターンで自動判別される。**中核文書はすべて正規ルートで無償入手できる** — 入手先と手順は[導入手順 Step 2](/ja/guide/getting-started) を参照。コーパスが無いと本サーバーは 1 問も答えられない。
 
 ## 共通引数
 

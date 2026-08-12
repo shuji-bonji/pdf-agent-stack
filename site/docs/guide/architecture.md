@@ -60,7 +60,7 @@ graph TB
 
 | Layer | Server | Returns | Never does |
 |---|---|---|---|
-| Canon | pdf-spec | Clauses and requirements (shall/should/may) | Never opens a file. Never judges conformance |
+| Canon | pdf-spec | Clauses and requirements (shall/should/may) | Never opens the PDF under examination (it reads only its own spec corpus). Never judges conformance |
 | Substance | pdf-reader | Observations (text, structure, signature fields) | **Never says pass/fail**. No cryptographic verification |
 | Authenticity & conformance | pdf-verify | Verdicts (signatures, tampering, PDF/A, PDF/UA, 4-value policy) | **Never proves — it can only disprove** |
 | Creation | pdf-writer | New and edited PDFs | Never signs. Can write a declaration but **cannot make a file conform** |

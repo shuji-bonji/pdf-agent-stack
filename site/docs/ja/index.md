@@ -19,7 +19,7 @@ hero:
 
 features:
   - title: pdf-spec-mcp（正典）
-    details: ISO 32000 ほか 17 文書の仕様リファレンス。仕様は何を要求するかに答える。ファイルは開かない。
+    details: ISO 32000 ほか 17 文書の仕様リファレンス。仕様は何を要求するかに答える。検証対象の PDF は開かない。
     link: /ja/mcp/pdf-spec
   - title: pdf-reader-mcp（実体）
     details: PDF の中身を観測する 18 ツール。テキスト・表・構造ツリー・署名フィールド、そして「それはどこに描かれているか」。合否は言わない。

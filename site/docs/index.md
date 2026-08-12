@@ -19,7 +19,7 @@ hero:
 
 features:
   - title: pdf-spec-mcp (norm)
-    details: Specification reference over ISO 32000 and 16 more documents. Answers what the spec requires. Never opens a file.
+    details: Specification reference over ISO 32000 and 16 more documents. Answers what the spec requires. Never opens the PDF under examination.
     link: /mcp/pdf-spec
   - title: pdf-reader-mcp (fact)
     details: 17 tools that observe what is inside a PDF — text, tables, structure tree, signature fields. Never passes judgment.
