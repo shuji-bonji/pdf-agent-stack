@@ -6,7 +6,7 @@ description: The structured reference MCP for the ISO 32000 family — clauses, 
 
 **The server that lets an AI look things up in the PDF specification.** It cross-searches 17 documents — ISO 32000-1/-2, ISO TS 32001–32005, PDF/UA-1/-2, the Tagged PDF guide and more — and returns clauses, requirements (shall/should/may), definitions and tables in structured form.
 
-- npm: [`@shuji-bonji/pdf-spec-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-spec-mcp) / current v0.4.5 / [GitHub](https://github.com/shuji-bonji/pdf-spec-mcp)
+- npm: [`@shuji-bonji/pdf-spec-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-spec-mcp) / current v0.4.6 / [GitHub](https://github.com/shuji-bonji/pdf-spec-mcp)
 - This page is the guide — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-spec) (generated from `tools/list`)
 
 ### What this one server gives you

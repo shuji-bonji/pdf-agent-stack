@@ -6,10 +6,10 @@ description: The four MCP servers and their layers — pdf-spec (canon) / pdf-re
 
 | Server | Layer | ver | Tools | One-line definition |
 |---|---|---|---|---|
-| [pdf-spec-mcp](/mcp/pdf-spec) | Canon | 0.4.5 | 8 | What the specification requires |
-| [pdf-reader-mcp](/mcp/pdf-reader) | Substance | 0.11.1 | 18 | What is inside — **and where it is** |
+| [pdf-spec-mcp](/mcp/pdf-spec) | Canon | 0.4.6 | 8 | What the specification requires |
+| [pdf-reader-mcp](/mcp/pdf-reader) | Substance | 0.11.2 | 18 | What is inside — **and where it is** |
 | [pdf-verify-mcp](/mcp/pdf-verify) | Authenticity & conformance | 0.15.0 | 7 | Is it genuine, and does it meet the standard |
-| [pdf-writer-mcp](/mcp/pdf-writer) | Creation | 0.18.0 | 20 | Written the way the spec says |
+| [pdf-writer-mcp](/mcp/pdf-writer) | Creation | 0.19.0 | 20 | Written the way the spec says |
 
 ## Which one do I use? (reverse lookup)
 
