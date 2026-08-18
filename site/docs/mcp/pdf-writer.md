@@ -6,7 +6,7 @@ description: The MCP that creates and edits PDFs (20 tools) — creation from te
 
 **The server that creates and edits PDFs.** It generates PDFs from text, Markdown or tables, and handles page operations (merge, split, reorder), bookmarks, annotations, watermarks, page numbers, form filling and file attachments. CJK font embedding (with subsetting) is supported.
 
-- npm: [`@shuji-bonji/pdf-writer-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-writer-mcp) / current v0.19.0 / [GitHub](https://github.com/shuji-bonji/pdf-writer-mcp)
+- npm: [`@shuji-bonji/pdf-writer-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-writer-mcp) / current v0.20.1 / [GitHub](https://github.com/shuji-bonji/pdf-writer-mcp)
 - This page is the guide — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-writer) (generated from `tools/list`)
 - Built on pdf-lib + fontkit
 

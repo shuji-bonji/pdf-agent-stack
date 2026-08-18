@@ -1,5 +1,5 @@
 ---
-description: "pdf-writer-mcp v0.19.0 の全 20 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-writer-mcp v0.20.1 の全 20 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-writer-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-writer-mcp v0.19.0 の全 20 ツールの引数・型・既定
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-**v0.19.0** の `tools/list` ハンドシェイクから自動生成（20 ツール・2026-08-13）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.20.1** の `tools/list` ハンドシェイクから自動生成（20 ツール・2026-08-18）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-writer)へ。

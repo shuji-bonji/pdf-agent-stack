@@ -6,7 +6,7 @@ description: PDF を生成・編集する MCP（20 ツール） — text / Markd
 
 **PDF を作る・編集するサーバーです。** テキスト・Markdown・表から PDF を生成し、ページ操作（結合・分割・並べ替え）、しおり・注釈・透かし・ページ番号の付与、フォーム記入、ファイル添付ができます。日本語フォントの埋め込み（サブセット化）に対応しています。
 
-- npm: [`@shuji-bonji/pdf-writer-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-writer-mcp) / 現行 v0.19.0 / [GitHub](https://github.com/shuji-bonji/pdf-writer-mcp)
+- npm: [`@shuji-bonji/pdf-writer-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-writer-mcp) / 現行 v0.20.1 / [GitHub](https://github.com/shuji-bonji/pdf-writer-mcp)
 - このページは責務と使いどころの解説です。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-writer)（`tools/list` から自動生成）へ
 - 内部実装は pdf-lib + fontkit
 

@@ -56,8 +56,8 @@ graph LR
 | --- | --- | --- | --- | --- |
 | [pdf-spec-mcp](https://github.com/shuji-bonji/pdf-spec-mcp) | canon | mcp-server | 0.4.6 | `@shuji-bonji/pdf-spec-mcp` |
 | [pdf-reader-mcp](https://github.com/shuji-bonji/pdf-reader-mcp) | structure | mcp-server | 0.11.2 | `@shuji-bonji/pdf-reader-mcp` |
-| [pdf-verify-mcp](https://github.com/shuji-bonji/pdf-verify-mcp) | judgment | mcp-server | 0.15.0 | `@shuji-bonji/pdf-verify-mcp` |
-| [pdf-writer-mcp](https://github.com/shuji-bonji/pdf-writer-mcp) | action | mcp-server | 0.19.0 | `@shuji-bonji/pdf-writer-mcp` |
+| [pdf-verify-mcp](https://github.com/shuji-bonji/pdf-verify-mcp) | judgment | mcp-server | 0.15.1 | `@shuji-bonji/pdf-verify-mcp` |
+| [pdf-writer-mcp](https://github.com/shuji-bonji/pdf-writer-mcp) | action | mcp-server | 0.20.1 | `@shuji-bonji/pdf-writer-mcp` |
 | [pdf-constraints](https://github.com/shuji-bonji/pdf-constraints) | judgment | library | 0.3.0 | `@shuji-bonji/pdf-constraints` |
 | [normativepdf](https://github.com/shuji-bonji/normativepdf) | action | library | 0.6.1 | `normativepdf` |
 | [pdf-trust-skill](https://github.com/shuji-bonji/pdf-trust-skill) | procedure | skill | 0.5.1 | — |
