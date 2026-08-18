@@ -50,7 +50,7 @@ graph LR
 
 <!-- stack:begin — scripts/generate-stack.mjs が生成。手で編集しない -->
 
-> 版は実測（2026-08-13 時点の `npm view`）。
+> 版は実測（2026-08-18 時点の `npm view`）。
 
 | リポジトリ | 役割 | 配布形態 | 版 | npm |
 | --- | --- | --- | --- | --- |
@@ -59,7 +59,7 @@ graph LR
 | [pdf-verify-mcp](https://github.com/shuji-bonji/pdf-verify-mcp) | judgment | mcp-server | 0.15.0 | `@shuji-bonji/pdf-verify-mcp` |
 | [pdf-writer-mcp](https://github.com/shuji-bonji/pdf-writer-mcp) | action | mcp-server | 0.19.0 | `@shuji-bonji/pdf-writer-mcp` |
 | [pdf-constraints](https://github.com/shuji-bonji/pdf-constraints) | judgment | library | 0.3.0 | `@shuji-bonji/pdf-constraints` |
-| [normativepdf](https://github.com/shuji-bonji/normativepdf) | action | library | 0.3.1 | `normativepdf` |
+| [normativepdf](https://github.com/shuji-bonji/normativepdf) | action | library | 0.6.1 | `normativepdf` |
 | [pdf-trust-skill](https://github.com/shuji-bonji/pdf-trust-skill) | procedure | skill | 0.5.1 | — |
 | [pdf-publish-skill](https://github.com/shuji-bonji/pdf-publish-skill) | procedure | skill | 0.5.0 | — |
 | [pdf-specialist-plugin](https://github.com/shuji-bonji/pdf-specialist-plugin) | orchestration | plugin | 0.6.0 | — |
