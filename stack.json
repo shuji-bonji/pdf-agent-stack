@@ -6,7 +6,7 @@
     "layer = 役割 / form = 配布形態（誰が起動するか）。2 軸で見ると、同じ役割を違う形態で",
     "実装したもの（pdf-specialist = plugin / pdf-agent-pipeline = app）が並べて見える。"
   ],
-  "generatedAt": "2026-08-18T01:28:42.224Z",
+  "generatedAt": "2026-08-18T13:21:11.904Z",
   "generatedBy": "scripts/generate-stack.mjs",
   "npmScope": "@shuji-bonji",
   "repos": [
@@ -55,16 +55,16 @@
       "layer": "judgment",
       "form": "mcp-server",
       "public": true,
-      "published": "0.15.0",
+      "published": "0.15.1",
       "local": {
-        "version": "0.15.0",
-        "tag": "v0.15.0",
-        "dirty": true,
+        "version": "0.15.1",
+        "tag": "v0.15.1",
+        "dirty": false,
         "unpushedCommits": 0
       },
       "consistency": {
         "status": "match",
-        "detail": "0.15.0"
+        "detail": "0.15.1"
       }
     },
     {
@@ -74,16 +74,16 @@
       "layer": "action",
       "form": "mcp-server",
       "public": true,
-      "published": "0.19.0",
+      "published": "0.20.1",
       "local": {
-        "version": "0.19.0",
-        "tag": "v0.19.0",
-        "dirty": true,
-        "unpushedCommits": 44
+        "version": "0.20.1",
+        "tag": "v0.20.1",
+        "dirty": false,
+        "unpushedCommits": 0
       },
       "consistency": {
         "status": "match",
-        "detail": "0.19.0"
+        "detail": "0.20.1"
       }
     },
     {
@@ -118,7 +118,7 @@
         "version": "0.6.1",
         "tag": null,
         "dirty": false,
-        "unpushedCommits": 6
+        "unpushedCommits": 0
       },
       "consistency": {
         "status": "match",
@@ -215,7 +215,7 @@
         "version": null,
         "tag": null,
         "dirty": true,
-        "unpushedCommits": 0
+        "unpushedCommits": 1
       },
       "consistency": {
         "status": "not_published",
