@@ -1,5 +1,5 @@
 ---
-description: "pdf-verify-mcp v0.15.1 の全 7 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-verify-mcp v0.17.0 の全 7 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-verify-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-verify-mcp v0.15.1 の全 7 ツールの引数・型・既定�
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-**v0.15.1** の `tools/list` ハンドシェイクから自動生成（7 ツール・2026-08-18）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.17.0** の `tools/list` ハンドシェイクから自動生成（7 ツール・2026-08-22）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-verify)へ。
@@ -80,9 +80,12 @@ violationAssessment は "permitted" / "violated" / "indeterminate" の 3 値で�
 差分は観測であり、判定ではない:
 
 - 増分更新は PDF として正当な操作である（ISO 32000-2 §7.5.6）。書き換えられたオブジェクトは「レビューすべき点」を示すだけで、改ざんを意味しない。差分によって判定は動かない
-- revisions: null は相互参照チェーンを歩けなかったことを意味する。「判定不能」であって「変更なし」では**ない**
+- revisions: null は相互参照チェーンを歩けなかったことを意味する（revisionChain.status: 'unwalkable'）。「判定不能」であって「変更なし」では**ない**
+- revisions のリストが返ってきても、それが全履歴とは限らない。どちらなのかは revisionChain.status が言う: 'complete'（最新の相互参照節から元のリビジョンまで歩き切った）/ 'partial'（リストは返ったが、欠けている端を revisionChain.missing が名指す）/ 'unwalkable'（上記のケース）。revisionChain.missing には、チェーンが元のリビジョンに届く前に終わったとき 'oldest' が入り、最後の startxref が解析できる相互参照節を指しておらず古い入口から入った（= 最後に追記されたものはリストに載っていない）とき 'newest' が入る。両端が同時に欠けることもある
+- **「一覧に出てこない = その変更は行われていない」と読めるのは 'complete' のときだけ。** チェーンが途中で切れた場合、生き残ったリビジョンは元版として報告される —— changeCount: 0・changes: null・objectChangesAfterLastSignature は空 —— ため、他の機械が読めるフィールドは全部「何も追記されていない」と言う。revisions は古い順に並ぶ。チェーンが切れた原因（壊れた / 巡回する /Prev・リビジョン上限・解析できない節）は notes に残る
 - オブジェクトストリーム内のオブジェクトは inObjectStream: true・型なしで列挙される
-- 線形化ファイル（ISO 32000-1 Annex F）は 1 回の保存で 2 つの相互参照節を持つため、更新として報告せず 1 リビジョンに畳む
+- revisionCount は "startxref" キーワードの個数を数え、revisions はチェーンが到達した相互参照節を列挙する。2 つは合法に食い違うため、食い違いに説明が付いているかを revisionCountAgreement が言う: 'agree' / 'accounted'（causes が 'linearised' と 'chain-incomplete' のどちらか、または両方を名指す）/ 'unaccounted' —— 歩いたチェーンが到達しない startxref がファイルにある、つまり実際に開いて見るべきケース
+- 線形化ファイル（ISO 32000-2 Annex F）は 1 回の保存で 2 つの相互参照節を持つため、更新として報告せず 1 リビジョンに畳む。したがって revisionCount は保存回数より 1 大きくなる
 
 ### 引数
 
@@ -93,7 +96,7 @@ violationAssessment は "permitted" / "violated" / "indeterminate" の 3 値で�
 
 ### 戻り値
 
-完全性レポート。署名後の増分更新は PDF として正当である点に注意（署名の追加・DSS/LTV データ）—— 検出結果は「レビューすべき点」を示すのであって、自動的に改ざんを意味しない。
+完全性レポート。revisionChain: { status, missing } を含む —— リビジョン一覧をファイルの全履歴として扱う前に読むこと。revisionCountAgreement: { status, causes } も含む —— revisionCount を「保存された回数」として引用する前に読むこと。署名後の増分更新は PDF として正当である点に注意（署名の追加・DSS/LTV データ）—— 検出結果は「レビューすべき点」を示すのであって、自動的に改ざんを意味しない。
 
 例:
 - 署名済み文書が署名後に変更されたか確認

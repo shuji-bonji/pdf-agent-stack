@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-verify-mcp v0.15.1 — parameters, types, defaults and returns of all 7 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-verify-mcp v0.17.0 — parameters, types, defaults and returns of all 7 tools, generated from the server's tools/list."
 ---
 
 # pdf-verify-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-verify-mcp v0.15.1 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.15.1** (7 tools, 2026-08-18). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.17.0** (7 tools, 2026-08-22). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-verify).
@@ -71,9 +71,12 @@ Also reports an object-level diff of the incremental-update chain: for each revi
 
 Limits of the diff — it is an observation, never a verdict:
   - Incremental updates are legal in PDF (ISO 32000-2 §7.5.6). A rewritten object says what to review, not that the file was tampered with. No verdict moves because of it.
-  - revisions: null means the cross-reference chain could not be walked — "not determined", NOT "nothing changed".
+  - revisions: null means the cross-reference chain could not be walked (revisionChain.status: 'unwalkable') — "not determined", NOT "nothing changed".
+  - A non-null revisions list is not necessarily the whole history. revisionChain.status says which it is: 'complete' (walked from the newest cross-reference section back to the original revision), 'partial' (a list came back but revisionChain.missing names the end that is absent), or 'unwalkable' (the case above). revisionChain.missing holds 'oldest' when the chain ended before the original revision, and 'newest' when the last startxref did not point at a parseable section so an older entry point was used and the last append is not listed; both can be absent at once.
+  - **Only 'complete' makes "no such change appears in the list" mean "that change was not made."** With a cut chain the surviving revision is reported as the original one — changeCount: 0, changes: null, objectChangesAfterLastSignature empty — so every other field reads as "nothing was appended". revisions are listed oldest first. Why the chain was cut (a damaged or cyclic /Prev, the revision cap, an unparseable section) stays in notes.
   - Objects stored inside an object stream are listed with inObjectStream: true and no type.
-  - Linearised files (ISO 32000-1 Annex F) carry two cross-reference sections for one save; they are merged back into one revision rather than reported as an update.
+  - revisionCount counts "startxref" keywords; revisions lists the cross-reference sections the chain reached. The two differ lawfully, so revisionCountAgreement says whether the difference is explained: 'agree', 'accounted' (causes names 'linearised' and/or 'chain-incomplete'), or 'unaccounted' — the file holds a startxref the walked chain does not reach, which is the case worth looking at.
+  - Linearised files (ISO 32000-2 Annex F) carry two cross-reference sections for one save; they are merged back into one revision rather than reported as an update, so revisionCount is one higher than the number of saves.
 
 ### Parameters
 
@@ -84,7 +87,7 @@ Limits of the diff — it is an observation, never a verdict:
 
 ### Returns
 
-Integrity report. Note that incremental updates after signing are legal in PDF (adding signatures, DSS/LTV data) — findings indicate what to review, not automatically tampering.
+Integrity report, including revisionChain: { status, missing } — read it before treating the revision list as the file's whole history — and revisionCountAgreement: { status, causes } — read it before quoting revisionCount as the number of times the file was saved. Note that incremental updates after signing are legal in PDF (adding signatures, DSS/LTV data) — findings indicate what to review, not automatically tampering.
 
 Examples:
 - Check whether a signed document was modified after signing
