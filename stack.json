@@ -6,7 +6,7 @@
     "layer = 役割 / form = 配布形態（誰が起動するか）。2 軸で見ると、同じ役割を違う形態で",
     "実装したもの（pdf-specialist = plugin / pdf-agent-pipeline = app）が並べて見える。"
   ],
-  "generatedAt": "2026-08-23T14:50:25.709Z",
+  "generatedAt": "2026-08-23T15:30:34.744Z",
   "generatedBy": "scripts/generate-stack.mjs",
   "npmScope": "@shuji-bonji",
   "repos": [
@@ -234,8 +234,8 @@
       "local": {
         "version": null,
         "tag": null,
-        "dirty": false,
-        "unpushedCommits": 3
+        "dirty": true,
+        "unpushedCommits": 1
       },
       "consistency": {
         "status": "not_published",
