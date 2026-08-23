@@ -20,9 +20,9 @@ description: "pdf-reader-mcp v0.12.0 の全 19 ツールの引数・型・既定
 | [`get_metadata`](#get-metadata) | タイトル・作成者・作成日・ページ数・PDF バージョン・構造情報など、PDF 文書のメタデータを抽出する。 |
 | [`read_text`](#read-text) | Y 座標に基づく読み順を保って PDF 文書からテキストを抽出する。 |
 | [`search_text`](#search-text) | PDF 文書内のテキストを検索する。 |
-| [`read_images`](#read-images) | Extract embedded images from a PDF document as PNG or JPEG files. |
-| [`read_url`](#read-url) | Fetch a PDF from a URL and extract its text content. |
-| [`render_page`](#render-page) | Rasterise pages of a PDF to PNG or JPEG images, returned as MCP image content blocks. |
+| [`read_images`](#read-images) | PDF 文書から埋め込み画像を PNG または JPEG ファイルとして抽出する。 |
+| [`read_url`](#read-url) | URL から PDF を取得してテキストを抽出する。 |
+| [`render_page`](#render-page) | PDF のページを PNG または JPEG 画像にラスタライズし、MCP の image コンテンツブロックで返す。 |
 | [`summarize`](#summarize) | PDF 文書の概観レポートを手早く生成する。 |
 | [`inspect_structure`](#inspect-structure) | カタログのエントリ・ページツリー・オブジェクト統計など、PDF の内部オブジェクト構造を調べる。 |
 | [`inspect_tags`](#inspect-tags) | アクセシビリティ評価のために、タグ付き PDF の構造ツリーを分析する。 |
@@ -108,12 +108,12 @@ U+3000 全角空白を視覚的な字下げに使う日本語の帳票・様式 
 
 ### 戻り値
 
-Extracted text organized by page number, preceded by the extractability tally. With `split_columns >= 2`, columns are separated by a blank line so a downstream LLM can tell them apart.
+ページ番号ごとに整理された抽出テキスト。冒頭に抽出可能性の集計が付く。`split_columns >= 2` では列の間が空行で区切られ、下流の LLM が列を見分けられる。
 
-Examples:
-- Extract all text: { file_path: "/path/to/doc.pdf" }
-- Untagged 新旧対照表: { file_path: "/path/to/older-shinkyu.pdf", split_columns: 2 }
-- Japanese form template: { file_path: "/path/to/form.pdf", compact_whitespace: true }
+例:
+- 全テキスト抽出: { file_path: "/path/to/doc.pdf" }
+- タグなしの新旧対照表: { file_path: "/path/to/older-shinkyu.pdf", split_columns: 2 }
+- 日本語の帳票・様式: { file_path: "/path/to/form.pdf", compact_whitespace: true }
 
 ## search_text
 
@@ -148,13 +148,13 @@ PDF 文書内のテキストを検索する。一致位置を前後の文脈付�
 
 **Read PDF Images**
 
-Extract embedded images from a PDF document as PNG or JPEG files.
+PDF 文書から埋め込み画像を PNG または JPEG ファイルとして抽出する。
 
-Each image is returned as an MCP image content block, so a vision-capable model can look at it directly. A text block lists the metadata for all of them (page, index, size in the file, size returned, colour space, encoded bytes).
+各画像は MCP の image コンテンツブロックで返るため、視覚対応モデルがそのまま見られる。text ブロックには全画像のメタ情報（ページ・インデックス・ファイル内の寸法・返した寸法・色空間・エンコード後バイト数）を一覧する。
 
-These are the image XObjects the page draws, not a picture of the page. A page whose content is vector drawing, or whose text is what you want to see, is not covered by this tool.
+返すのはページが描く画像 XObject であって、ページの絵ではない。内容がベクタ描画のページや、見たいものがテキストであるページは、このツールの対象外。
 
-Response size is bounded: at most 4 MB of encoded image data per call. Images beyond the budget are named in the text block with the reason and are not returned — nothing is dropped silently. A 200 dpi A4 scan is ~11.6 MB of pixels on its own, so pass `pages`, `max_width` or `max_height` when working with scans.
+応答サイズには上限がある: 1 回の呼び出しにつきエンコード済み画像データで最大 4 MB。予算を超えた画像は text ブロックに理由付きで名指しされ、返されない — 黙って落とされることはない。200 dpi の A4 スキャンはそれだけで約 11.6 MB のピクセルになるため、スキャンを扱うときは `pages`・`max_width`・`max_height` を渡すこと。
 
 ### 引数
 
@@ -162,30 +162,30 @@ Response size is bounded: at most 4 MB of encoded image data per call. Images be
 |---|---|---|---|---|
 | `file_path` | string (minLength 1) | **必須** |  | ローカル PDF ファイルへの絶対パス（例: "/path/to/document.pdf"） |
 | `pages` | string | 任意 |  | 処理するページ範囲。形式: "1-5"・"3"・"1,3,5-7"。省略時は全ページ。 |
-| `format` | `"png"` \| `"jpeg"` | 任意 |  | Encoding of the returned images. png (default) is lossless; jpeg is smaller and drops alpha (composited over white). |
-| `quality` | integer (1–100) | 任意 |  | JPEG quality 1-100 (default 80). Ignored when format is png. |
-| `max_width` | integer (1–10000) | 任意 |  | Downscale images wider than this, averaging over the source pixels. Images are never enlarged. Omit to return each image at its own size. |
-| `max_height` | integer (1–10000) | 任意 |  | Downscale images taller than this. Never enlarges. |
+| `format` | `"png"` \| `"jpeg"` | 任意 |  | 返す画像のエンコード形式。png（既定）は可逆。jpeg は小さく、アルファは白に合成して落とす。 |
+| `quality` | integer (1–100) | 任意 |  | JPEG 品質 1-100（既定 80）。format が png のときは無視される。 |
+| `max_width` | integer (1–10000) | 任意 |  | この幅を超える画像を縮小する（元ピクセルの面積平均）。拡大は決してしない。省略時は各画像を元の寸法のまま返す。 |
+| `max_height` | integer (1–10000) | 任意 |  | この高さを超える画像を縮小する。拡大は決してしない。 |
 
 ### 戻り値
 
-A text block with the metadata table and any omissions, then one image content block per returned image.
+メタ情報の表と省略の一覧を載せた text ブロック、続いて返す画像 1 つにつき 1 つの image コンテンツブロック。
 
-Examples:
-- Extract all images: { file_path: "/path/to/doc.pdf" }
-- A scanned page, small enough to look at: { file_path: "/path/to/scan.pdf", pages: "1", max_width: 1200, format: "jpeg" }
+例:
+- 全画像抽出: { file_path: "/path/to/doc.pdf" }
+- スキャンページを見られる大きさで: { file_path: "/path/to/scan.pdf", pages: "1", max_width: 1200, format: "jpeg" }
 
 ## read_url
 
 **Read PDF from URL**
 
-Fetch a PDF from a URL and extract its text content. Text is ALL this tool returns — see the scope note below.
+URL から PDF を取得してテキストを抽出する。このツールが返すのは**テキストだけ**である — 下記の射程の注記を参照。
 
-Downloads the PDF from the specified URL, then extracts text with Y-coordinate-based reading order. Supports HTTP and HTTPS. Maximum file size: 50MB. Timeout: 30 seconds.
+指定 URL から PDF をダウンロードし、Y 座標に基づく読み順でテキストを抽出する。HTTP / HTTPS に対応。最大ファイルサイズ 50MB、タイムアウト 30 秒。
 
-**Scope (#25):** the fetched bytes are discarded after extraction; this tool deliberately does not save them. Every other tool of this server takes a `file_path`, so to use search_text, inspect_structure, extract_tables, render_page or anything else on a URL's PDF, download the file to local disk FIRST (with whatever fetch capability the calling environment has) and pass its path. This keeps every tool of this server read-only with respect to the file system — writing files is not a reader's job. read_url exists for the one-shot case: "what does the document at this URL say?"
+**射程 (#25):** 取得したバイト列は抽出後に破棄される — このツールは意図的に保存しない。本サーバの他のツールはすべて `file_path` を取るため、URL 上の PDF に search_text・inspect_structure・extract_tables・render_page などを使うには、**先に**ファイルをローカルディスクへダウンロードし（呼び出し側環境が持つ取得手段で）、そのパスを渡すこと。これにより本サーバの全ツールはファイルシステムに対して read-only のままでいられる — ファイルを書くのは reader の仕事ではない。read_url は 1 回きりの問い「この URL の文書には何が書いてあるか」のためにある。
 
-Like `read_text`, accepts `split_columns: 2 | 3` for **untagged** multi-column PDFs and `compact_whitespace: true` to collapse U+3000 / ASCII whitespace runs. Tagged PDFs should use `extract_tables` instead.
+`read_text` と同様に、**タグなし**の多段組 PDF 向けの `split_columns: 2 | 3` と、U+3000 / ASCII の連続空白を畳む `compact_whitespace: true` を受け付ける。タグ付き PDF は代わりに `extract_tables` を使うこと。
 
 ### 引数
 
@@ -210,32 +210,32 @@ Like `read_text`, accepts `split_columns: 2 | 3` for **untagged** multi-column P
 
 **Render PDF Page**
 
-Rasterise pages of a PDF to PNG or JPEG images, returned as MCP image content blocks.
+PDF のページを PNG または JPEG 画像にラスタライズし、MCP の image コンテンツブロックで返す。
 
-This is the tool for documents whose text cannot be read as text: pages `read_text` reports as `no_text_layer` or `not_extractable`, vector drawings, forms, handwriting, stamps. It draws the PAGE — everything on it — where `read_images` only extracts the image XObjects a page happens to embed.
+テキストとして読めない文書のためのツールである: `read_text` が `no_text_layer` や `not_extractable` と報告するページ、ベクタ図形、フォーム、手書き、印影。`read_images` がページの埋め込む画像 XObject を取り出すだけなのに対し、こちらは**ページそのもの** — その上のすべて — を描く。
 
-Rendering uses PDFium compiled to WebAssembly (optional dependency `@hyzyla/pdfium`). Note this is a different engine from the pdf.js this server reads text with; where their behaviour on a damaged file differs, neither output is evidence about the other. If the dependency is not installed, this tool says so and every other tool works normally.
+描画には WebAssembly にコンパイルされた PDFium（optionalDependencies の `@hyzyla/pdfium`）を使う。これは本サーバがテキストを読むのに使う pdf.js とは**別のエンジン**である点に注意 — 壊れたファイルに対する両者の挙動が異なる場合、一方の出力はもう一方の証拠にならない。依存が未インストールなら、このツールはその旨を返し、他のツールはすべて通常どおり動く。
 
-`pages` is required — rendering is the most expensive operation here, and "all pages" of a large scan should be a decision, not a default. The response carries at most 4 MB of encoded images; pages past the budget are named with the reason, not dropped.
+`pages` は必須 — 描画はこのサーバで最も高価な操作であり、大きなスキャンの「全ページ」は既定値ではなく判断であるべきだから。応答が運ぶエンコード済み画像は最大 4 MB。予算を超えたページは理由付きで名指しされ、黙って落とされることはない。
 
 ### 引数
 
 | 引数 | 型 | 必須 | 既定値 | 説明 |
 |---|---|---|---|---|
-| `file_path` | string (minLength 1) | **必須** |  | Absolute path to a local PDF file (e.g., "/path/to/document.pdf") |
-| `pages` | string (minLength 1) | **必須** |  | Page range to render. Required: rendering all pages is never implicit. |
-| `dpi` | integer (36–600) | 任意 |  | Rasterisation density (default 150). PDF points are 1/72 inch. |
-| `max_width` | integer (1–10000) | 任意 |  | Cap on the rendered width in pixels; wins over dpi when smaller. |
-| `format` | `"png"` \| `"jpeg"` | 任意 |  | png (default, lossless) or jpeg (smaller — usually right for scans). |
-| `quality` | integer (1–100) | 任意 |  | JPEG quality 1-100 (default 80). Ignored for png. |
+| `file_path` | string (minLength 1) | **必須** |  | ローカル PDF ファイルへの絶対パス（例: "/path/to/document.pdf"） |
+| `pages` | string (minLength 1) | **必須** |  | 描画するページ範囲。必須: 全ページの描画が暗黙に起きることはない。 |
+| `dpi` | integer (36–600) | 任意 |  | ラスタライズ密度（既定 150）。PDF のポイントは 1/72 インチ。 |
+| `max_width` | integer (1–10000) | 任意 |  | 描画幅のピクセル上限。dpi より小さくなる場合はこちらが優先。 |
+| `format` | `"png"` \| `"jpeg"` | 任意 |  | png（既定・可逆）または jpeg（小さい — スキャンには通常こちら）。 |
+| `quality` | integer (1–100) | 任意 |  | JPEG 品質 1-100（既定 80）。png では無視される。 |
 
 ### 戻り値
 
-A text block with per-page metadata (point size, pixel size, effective dpi, bytes) and any omissions, then one image content block per rendered page.
+ページごとのメタ情報（pt 寸法・ピクセル寸法・実効 dpi・バイト数）と省略の一覧を載せた text ブロック、続いて描画したページ 1 つにつき 1 つの image コンテンツブロック。
 
-Examples:
-- A scanned page: { file_path: "/path/to/scan.pdf", pages: "1", format: "jpeg" }
-- A diagram at high detail: { file_path: "/path/to/doc.pdf", pages: "3", dpi: 300 }
+例:
+- スキャンページ: { file_path: "/path/to/scan.pdf", pages: "1", format: "jpeg" }
+- 図面を高精細で: { file_path: "/path/to/doc.pdf", pages: "3", dpi: 300 }
 
 ## summarize
 
@@ -254,11 +254,11 @@ PDF 文書の概観レポートを手早く生成する。
 
 ### 戻り値
 
-Summary including: page count, PDF version, file size, tagged/encrypted/signature flags, text presence, per-document text extractability, the pages that are not fully extractable, image count, a text preview from page 1, and the `next` suggestions.
+要約の内容: ページ数・PDF バージョン・ファイルサイズ・タグ付き/暗号化/署名フラグ・テキスト有無・文書全体のテキスト抽出可能性・完全には抽出できないページ一覧・画像数・1 ページ目のテキストプレビュー・`next` の提案。
 
-Examples:
-- Quick overview: { file_path: "/path/to/doc.pdf" }
-- Machine-readable: { file_path: "/path/to/doc.pdf", response_format: "json" }
+例:
+- 概観を手早く: { file_path: "/path/to/doc.pdf" }
+- 機械可読で: { file_path: "/path/to/doc.pdf", response_format: "json" }
 
 ## inspect_structure
 

@@ -16,12 +16,12 @@
   "text": "PDF 文書内のテキストを検索する。一致位置を前後の文脈付きで返す。\n\n全ページまたは指定ページを対象に、大文字小文字を区別せず検索する。各一致にはページ番号・一致テキスト・設定可能な前後文脈が含まれる。\n\n検索は `read_text` が返すのと同じテキストに対して走るため、`/ActualText` 置換（ISO 32000-2 §14.9.4）後の綴りでヒットする。ActualText として運ばれる語（合字の置換・ハイフネーション処理）は、グリフの形ではなくビューアが表示する綴りで見つかる。まれにページのマーク付きコンテンツを抽出テキストと突き合わせられず、置換が未解決のまま残ることがある。ヒット 0 件の検索でそれが起きた場合、結果に該当ページを名指しする `note` が付く。"
  },
  "read_images|prose": {
-  "src": "40590c218339b4d879368414f356631a",
-  "text": "PDF 文書から画像を base64 エンコードで抽出する。\n\n指定ページまたは全ページから埋め込み画像を抽出し、画像のメタ情報（寸法・色空間）と base64 の生ピクセルデータを返す。"
+  "src": "223dfc9599293f8d0ba1a41d7949a03d",
+  "text": "PDF 文書から埋め込み画像を PNG または JPEG ファイルとして抽出する。\n\n各画像は MCP の image コンテンツブロックで返るため、視覚対応モデルがそのまま見られる。text ブロックには全画像のメタ情報（ページ・インデックス・ファイル内の寸法・返した寸法・色空間・エンコード後バイト数）を一覧する。\n\n返すのはページが描く画像 XObject であって、ページの絵ではない。内容がベクタ描画のページや、見たいものがテキストであるページは、このツールの対象外。\n\n応答サイズには上限がある: 1 回の呼び出しにつきエンコード済み画像データで最大 4 MB。予算を超えた画像は text ブロックに理由付きで名指しされ、返されない — 黙って落とされることはない。200 dpi の A4 スキャンはそれだけで約 11.6 MB のピクセルになるため、スキャンを扱うときは `pages`・`max_width`・`max_height` を渡すこと。"
  },
  "read_url|prose": {
-  "src": "4e1c41770a2a7d3496f271cbf597da32",
-  "text": "URL から PDF を取得してテキストを抽出する。\n\n指定 URL から PDF をダウンロードし、Y 座標に基づく読み順でテキストを抽出する。HTTP / HTTPS に対応。最大ファイルサイズ 50MB、タイムアウト 30 秒。\n\n`read_text` と同様に、**タグなし**の多段組 PDF 向けの `split_columns: 2 | 3` と、U+3000 / ASCII の連続空白を畳む `compact_whitespace: true` を受け付ける。タグ付き PDF は代わりに `extract_tables` を使うこと。"
+  "src": "972b75f26bad389dce606281e6ac0680",
+  "text": "URL から PDF を取得してテキストを抽出する。このツールが返すのは**テキストだけ**である — 下記の射程の注記を参照。\n\n指定 URL から PDF をダウンロードし、Y 座標に基づく読み順でテキストを抽出する。HTTP / HTTPS に対応。最大ファイルサイズ 50MB、タイムアウト 30 秒。\n\n**射程 (#25):** 取得したバイト列は抽出後に破棄される — このツールは意図的に保存しない。本サーバの他のツールはすべて `file_path` を取るため、URL 上の PDF に search_text・inspect_structure・extract_tables・render_page などを使うには、**先に**ファイルをローカルディスクへダウンロードし（呼び出し側環境が持つ取得手段で）、そのパスを渡すこと。これにより本サーバの全ツールはファイルシステムに対して read-only のままでいられる — ファイルを書くのは reader の仕事ではない。read_url は 1 回きりの問い「この URL の文書には何が書いてあるか」のためにある。\n\n`read_text` と同様に、**タグなし**の多段組 PDF 向けの `split_columns: 2 | 3` と、U+3000 / ASCII の連続空白を畳む `compact_whitespace: true` を受け付ける。タグ付き PDF は代わりに `extract_tables` を使うこと。"
  },
  "summarize|prose": {
   "src": "8b6ec6d90ab534724e22ba573f2893c4",
@@ -92,8 +92,8 @@
   "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
  },
  "read_text|returns": {
-  "src": "bed2b9ac8382fb05fa3da1e50b699172",
-  "text": "ページ番号ごとに整理された抽出テキスト。`split_columns >= 2` の場合、後段の LLM が区別できるよう段組は空行で区切られる。\n\n例:\n- 全文抽出: { file_path: \"/path/to/doc.pdf\" }\n- タグなしの新旧対照表: { file_path: \"/path/to/older-shinkyu.pdf\", split_columns: 2 }\n- 日本語の帳票: { file_path: \"/path/to/form.pdf\", compact_whitespace: true }"
+  "src": "867611dd0fc7cbe6c39485ba45b055f9",
+  "text": "ページ番号ごとに整理された抽出テキスト。冒頭に抽出可能性の集計が付く。`split_columns >= 2` では列の間が空行で区切られ、下流の LLM が列を見分けられる。\n\n例:\n- 全テキスト抽出: { file_path: \"/path/to/doc.pdf\" }\n- タグなしの新旧対照表: { file_path: \"/path/to/older-shinkyu.pdf\", split_columns: 2 }\n- 日本語の帳票・様式: { file_path: \"/path/to/form.pdf\", compact_whitespace: true }"
  },
  "read_text|param:file_path": {
   "src": "1c06f136e55f5c125a42c9f2a76f12f6",
@@ -144,8 +144,8 @@
   "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
  },
  "read_images|returns": {
-  "src": "94035d636b7840d67fb7eb7be1a42405",
-  "text": "抽出画像の配列: ページ番号・インデックス・幅・高さ・色空間（RGB/RGBA/Grayscale）・成分あたりビット数・base64 データ。\n\n注意: 大きな画像は応答が非常に大きくなる。pages で範囲を絞ること。\n\n例:\n- 全画像を抽出: { file_path: \"/path/to/doc.pdf\" }\n- 1 ページ目から抽出: { file_path: \"/path/to/doc.pdf\", pages: \"1\" }"
+  "src": "f1f106a03371bbabc4bc19d919636f9b",
+  "text": "メタ情報の表と省略の一覧を載せた text ブロック、続いて返す画像 1 つにつき 1 つの image コンテンツブロック。\n\n例:\n- 全画像抽出: { file_path: \"/path/to/doc.pdf\" }\n- スキャンページを見られる大きさで: { file_path: \"/path/to/scan.pdf\", pages: \"1\", max_width: 1200, format: \"jpeg\" }"
  },
  "read_images|param:file_path": {
   "src": "1c06f136e55f5c125a42c9f2a76f12f6",
@@ -180,8 +180,8 @@
   "text": "true にすると連続空白（全角空白 U+3000 含む）を 1 つの ASCII 空白に畳み、各行をトリムする。日本語の帳票様式 PDF でトークン消費を削減する。既定: false（空白の正規化なし）。"
  },
  "summarize|returns": {
-  "src": "b77e0bcceb64caa41300668c4bf0dfd1",
-  "text": "概要: ページ数・PDF バージョン・ファイルサイズ・タグ付き/暗号化/署名フラグ・テキスト有無・画像数・1 ページ目のプレビュー。\n\n例:\n- 手早く概観: { file_path: \"/path/to/doc.pdf\" }\n- 機械可読で: { file_path: \"/path/to/doc.pdf\", response_format: \"json\" }"
+  "src": "2a03fe4b390558dda316eb19c079eb7d",
+  "text": "要約の内容: ページ数・PDF バージョン・ファイルサイズ・タグ付き/暗号化/署名フラグ・テキスト有無・文書全体のテキスト抽出可能性・完全には抽出できないページ一覧・画像数・1 ページ目のテキストプレビュー・`next` の提案。\n\n例:\n- 概観を手早く: { file_path: \"/path/to/doc.pdf\" }\n- 機械可読で: { file_path: \"/path/to/doc.pdf\", response_format: \"json\" }"
  },
  "summarize|param:file_path": {
   "src": "1c06f136e55f5c125a42c9f2a76f12f6",
@@ -350,5 +350,53 @@
  "compare_structure|param:response_format": {
   "src": "c7a8f32a1936716e2c56515f7cab88d9",
   "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+ },
+ "render_page|prose": {
+  "src": "a72bee734fd1c5cc0c339ec91cb4e74f",
+  "text": "PDF のページを PNG または JPEG 画像にラスタライズし、MCP の image コンテンツブロックで返す。\n\nテキストとして読めない文書のためのツールである: `read_text` が `no_text_layer` や `not_extractable` と報告するページ、ベクタ図形、フォーム、手書き、印影。`read_images` がページの埋め込む画像 XObject を取り出すだけなのに対し、こちらは**ページそのもの** — その上のすべて — を描く。\n\n描画には WebAssembly にコンパイルされた PDFium（optionalDependencies の `@hyzyla/pdfium`）を使う。これは本サーバがテキストを読むのに使う pdf.js とは**別のエンジン**である点に注意 — 壊れたファイルに対する両者の挙動が異なる場合、一方の出力はもう一方の証拠にならない。依存が未インストールなら、このツールはその旨を返し、他のツールはすべて通常どおり動く。\n\n`pages` は必須 — 描画はこのサーバで最も高価な操作であり、大きなスキャンの「全ページ」は既定値ではなく判断であるべきだから。応答が運ぶエンコード済み画像は最大 4 MB。予算を超えたページは理由付きで名指しされ、黙って落とされることはない。"
+ },
+ "read_images|param:format": {
+  "src": "bdbed0396615b2900d5e8bfa9cb899b6",
+  "text": "返す画像のエンコード形式。png（既定）は可逆。jpeg は小さく、アルファは白に合成して落とす。"
+ },
+ "read_images|param:quality": {
+  "src": "e23c3e08b65b4b2792a29f5bea469dd9",
+  "text": "JPEG 品質 1-100（既定 80）。format が png のときは無視される。"
+ },
+ "read_images|param:max_width": {
+  "src": "b604fb0c476222574ed525d507be93a8",
+  "text": "この幅を超える画像を縮小する（元ピクセルの面積平均）。拡大は決してしない。省略時は各画像を元の寸法のまま返す。"
+ },
+ "read_images|param:max_height": {
+  "src": "5f0990f0a8e9a285bc22d034b3bc65ca",
+  "text": "この高さを超える画像を縮小する。拡大は決してしない。"
+ },
+ "render_page|returns": {
+  "src": "ee09dd72b7c5a2cc2cc180dffd36089a",
+  "text": "ページごとのメタ情報（pt 寸法・ピクセル寸法・実効 dpi・バイト数）と省略の一覧を載せた text ブロック、続いて描画したページ 1 つにつき 1 つの image コンテンツブロック。\n\n例:\n- スキャンページ: { file_path: \"/path/to/scan.pdf\", pages: \"1\", format: \"jpeg\" }\n- 図面を高精細で: { file_path: \"/path/to/doc.pdf\", pages: \"3\", dpi: 300 }"
+ },
+ "render_page|param:file_path": {
+  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+ },
+ "render_page|param:pages": {
+  "src": "250f2122c273f37f680c9a4b4ece69b0",
+  "text": "描画するページ範囲。必須: 全ページの描画が暗黙に起きることはない。"
+ },
+ "render_page|param:dpi": {
+  "src": "8330354437a21c6eac0330b9890e205a",
+  "text": "ラスタライズ密度（既定 150）。PDF のポイントは 1/72 インチ。"
+ },
+ "render_page|param:max_width": {
+  "src": "8aa7e8311f3a110766043578f6b0b6ea",
+  "text": "描画幅のピクセル上限。dpi より小さくなる場合はこちらが優先。"
+ },
+ "render_page|param:format": {
+  "src": "72202d067e35cdc154e514d438415c81",
+  "text": "png（既定・可逆）または jpeg（小さい — スキャンには通常こちら）。"
+ },
+ "render_page|param:quality": {
+  "src": "907c96f7b85112051c76dcbfc848a114",
+  "text": "JPEG 品質 1-100（既定 80）。png では無視される。"
  }
 }
