@@ -38,7 +38,8 @@ const sidebar = (prefix: string, l: Record<string, string>) => ({
       items: [
         { text: l.skillsIndex, link: `${prefix}/skills/` },
         { text: 'pdf-trust', link: `${prefix}/skills/pdf-trust` },
-        { text: 'pdf-publish', link: `${prefix}/skills/pdf-publish` }
+        { text: 'pdf-publish', link: `${prefix}/skills/pdf-publish` },
+        { text: 'pdf-read', link: `${prefix}/skills/pdf-read` }
       ]
     }
   ],
@@ -160,7 +161,7 @@ export default withMermaid(
       const description =
         pageData.frontmatter.description ??
         (isJa
-          ? 'AI エージェントのための PDF ツール群 — 4 つの MCP サーバーと 2 つの Skill'
+          ? 'AI エージェントのための PDF ツール群 — 4 つの MCP サーバーと 3 つの Skill'
           : 'PDF tooling for AI agents — four MCP servers and two Skills');
       const image = `${SITE}${isJa ? 'images/og-image-ja.png' : 'images/og-image.png'}`;
 
@@ -183,7 +184,7 @@ export default withMermaid(
         lang: 'en',
         title: 'PDF Agent Stack',
         description:
-          'Read, verify, write — grounded in the spec. PDF tooling for AI agents: four MCP servers and two skills.',
+          'Read, verify, write — grounded in the spec. PDF tooling for AI agents: four MCP servers and three skills.',
         themeConfig: { siteTitle: 'PDF Agent Stack', nav: nav('', en), sidebar: sidebar('', en) }
       },
       ja: {
@@ -192,7 +193,7 @@ export default withMermaid(
         link: '/ja/',
         title: 'PDF Agent Stack',
         description:
-          '読む・検証する・書く・仕様で裏付ける — AI エージェントのための PDF ツール群。4 つの MCP サーバーと 2 つの Skill。',
+          '読む・検証する・書く・仕様で裏付ける — AI エージェントのための PDF ツール群。4 つの MCP サーバーと 3 つの Skill。',
         themeConfig: { siteTitle: 'PDF Agent Stack', nav: nav('/ja', ja), sidebar: sidebar('/ja', ja) }
       }
     },

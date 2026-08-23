@@ -16,6 +16,7 @@ PDF Agent Stack is the collective name for four independent [MCP](/reference/glo
 | MCP | [pdf-writer-mcp](/mcp/pdf-writer) | Generate PDFs following the spec (20 creation/editing tools) | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-writer-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-writer-mcp) |
 | Skill | [pdf-trust](/skills/pdf-trust) | Vet incoming PDFs and confirm trust (Trust Report) | [GitHub](https://github.com/shuji-bonji/pdf-trust-skill) |
 | Skill | [pdf-publish](/skills/pdf-publish) | Generate through a quality-gated pipeline (Publish Report) | [GitHub](https://github.com/shuji-bonji/pdf-publish-skill) |
+| Skill | [pdf-read](/skills/pdf-read) | Pull what you need out of large or unreadable PDFs (Read Report) | [GitHub](https://github.com/shuji-bonji/pdf-read-skill) |
 
 pdf-verify's clause checking uses a separate package, [pdf-constraints](/reference/pdf-constraints) — a data library that transcribes ISO 32000 clauses into machine-checkable constraint tables. It can also be used on its own.
 

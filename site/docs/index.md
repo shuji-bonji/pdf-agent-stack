@@ -1,11 +1,11 @@
 ---
 layout: home
-description: PDF tooling for AI agents — four MCP servers and two skills to read, verify, and write PDFs, grounded in the ISO 32000 spec.
+description: PDF tooling for AI agents — four MCP servers and three skills to read, verify, and write PDFs, grounded in the ISO 32000 spec.
 
 hero:
   name: PDF Agent Stack
   text: Building a PDF-expert AI agent
-  tagline: Read, verify, write — grounded in the spec. Four MCP servers and two skills for AI agents.
+  tagline: Read, verify, write — grounded in the spec. Four MCP servers and three skills for AI agents.
   image:
     src: /images/logo.svg
     alt: PDF Agent Stack
