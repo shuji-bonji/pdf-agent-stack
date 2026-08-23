@@ -32,7 +32,7 @@ graph LR
 
 ## 要点
 
-- 宣言（`ensure_pdfa` / `ensure_tagged`）を書いたら必ず対応する flavour で `validate_conformance` を実行します — **測れないなら宣言を書きません**
+- ラベル（`ensure_pdfa` / `ensure_tagged`）を書いたら必ず対応する flavour で `validate_conformance` を実行します — **測れないならラベルを書きません**
 - 判定は veraPDF のものです。「veraPDF が COMPLIANT と判定」と報告し「ISO 19005 準拠」とは書きません
 
 ## 実測例 — Publish Report 要旨（2026-08-11）
@@ -51,7 +51,7 @@ graph LR
 > This file now **CLAIMS** PDF/A-3b …, but conformance was **NOT checked** here. … Verify before
 > relying on it: pdf-verify-mcp validate_conformance(flavour: "pdfa-3b")
 
-これは異常ではなく設計です。宣言を書いた瞬間に検証が省略不能になります —
+これは異常ではなく設計です。ラベルを書いた瞬間に検証が省略不能になります —
 この warning を Report に転記し、対応する flavour を測ってから納品します。
 
 ## ループ打ち切り条件
@@ -76,6 +76,6 @@ graph LR
 ## ツールが足りないときの動き（縮退動作）
 
 - pdf-writer 未接続 → 成立しません。接続を案内して停止します
-- pdf-verify 未接続 → `conformance` 水準は**中止**します（`readback` に下げる合意が取れれば続行）。`ensure_pdfa` / `ensure_tagged` を使う案件は水準にかかわらず verify 必須です — 検査できないなら宣言も書きません
+- pdf-verify 未接続 → `conformance` 水準は**中止**します（`readback` に下げる合意が取れれば続行）。`ensure_pdfa` / `ensure_tagged` を使う案件は水準にかかわらず verify 必須です — 検査できないならラベルも書きません
 - pdf-reader 未接続 → 読み戻しを「未実施（ツール未接続）」と明記し、できる範囲で続行します
 - 日本語を含むのに埋め込みフォントが無い → `FONT_REQUIRED`（構造化エラー）。`fontPath` か環境変数 `PDF_WRITER_FONT` で解決します

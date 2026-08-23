@@ -89,8 +89,8 @@ Hero: 「PDF を 読む・検証する・書く・仕様で裏付ける — AI �
 |---|---|---|---|
 | 正典 (norm) | pdf-spec | 仕様は何を要求するか | 規格条文・要求事項。**ファイルを開かない** |
 | 実体 (fact) | pdf-reader | 中身に何があるか | 観測結果。**合否を言わない** |
-| 真正性・準拠性 (judgment) | pdf-verify | 本物で、規格に適っているか | 判定。**反証はできても証明はしない** |
-| 生成 (production) | pdf-writer | 仕様通りに書けるか | PDF。**宣言は書けるが準拠は作れない** |
+| 真正性・準拠性 (judgment) | pdf-verify | 本物で、規格に適っているか | 判定。**規格破りは見つけられるが、規格どおりであることは証明しない** |
+| 生成 (production) | pdf-writer | 仕様通りに書けるか | PDF。**ラベルは書けるが、規格どおりにはできない** |
 
 2. **境界ルール**: 「ISO 規格に照らした pass/fail を返すなら verify、観測を返すだけなら reader」
 3. **独立 MCP × Skill 連携**: 各 MCP は相互非依存・単独完結。編成（手順・知識）は Skill が担う。判断基準 = 決定論・暗号→MCP / 手順・編成→Skill
@@ -143,7 +143,7 @@ PDF Family を「PDF 専門エージェント」に組み上げる方法。3 レ
 
 1. **Lv1 — MCP を繋ぐだけ**: Claude Desktop / Claude Code に 4 サーバを登録。MCP instructions（各サーバが自己申告する責務境界）が自然に効く仕組みの解説
 2. **Lv2 — Skill で編成**: pdf-trust / pdf-publish の導入。Skill の発火条件の書き方、プロファイル指定
-3. **Lv3 — 専門サブエージェント**: `.claude/agents/pdf-auditor.md` の実例（frontmatter: tools 制限で verify+reader のみ許可、system prompt に 4 層責務と T1/T2/T3 の言い切り強度ルールを埋め込む）。プラグイン化（marketplace 配布）の手順。「緑のテストは空振りしうる」「宣言≠準拠」等の運用知見も注意事項として掲載
+3. **Lv3 — 専門サブエージェント**: `.claude/agents/pdf-auditor.md` の実例（frontmatter: tools 制限で verify+reader のみ許可、system prompt に 4 層責務と T1/T2/T3 の言い切り強度ルールを埋め込む）。プラグイン化（marketplace 配布）の手順。「緑のテストは空振りしうる」「ラベル≠規格どおり」等の運用知見も注意事項として掲載
 
 ### 5.7 /guide/getting-started（導入手順）
 

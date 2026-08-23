@@ -64,4 +64,4 @@ timestamp application).
   implementation decisions start from not dropping a shall
 - Reading a clause tells you what the specification demands. Whether the file in front of you
   meets it is measured with `validate_clauses` / `validate_conformance` (pdf-verify)
-- Declaration, conformance and validation stay distinct — quoting a "shall" never proves a file conforms
+- Declaration, conformance and validation stay distinct — quoting a "shall" never proves the file in front of you meets the standard

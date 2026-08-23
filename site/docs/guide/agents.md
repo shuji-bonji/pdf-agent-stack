@@ -8,7 +8,7 @@ Three levels of assembling PDF Agent Stack into a "PDF-specialist agent".
 
 ## Lv1 — Just connect the MCPs
 
-Registering the four servers is enough for each server's self-declared **MCP instructions** (its statement of responsibility boundaries) to take effect. The reader says "I observe, I do not judge"; verify says "I can disprove but never prove"; the writer says "I can write a declaration but cannot make a file conform" — the servers are designed so that an agent naturally stays inside these boundaries.
+Registering the four servers is enough for each server's self-declared **MCP instructions** (its statement of responsibility boundaries) to take effect. The reader says "I observe, I do not judge"; verify says "I can find broken rules, never prove the file meets the standard"; the writer says "I can write a label, cannot make the file meet the standard" — the servers are designed so that an agent naturally stays inside these boundaries.
 
 ## Lv2 — Orchestrate with Skills
 
@@ -56,7 +56,7 @@ In practice, a local setup starts not from Lv1 but from a Lv3-like construction:
 
 ## Operational lessons
 
-- **Declaration ≠ conformance**: after writing a declaration with `ensure_pdfa`, always measure with `validate_conformance`
+- **A label ≠ meeting the standard**: after writing a label with `ensure_pdfa`, always measure with `validate_conformance`
 - **Green tests can be vacuous**: always check *what range* a passing verification actually covered (missing fixtures, guard clauses that skip the judgment)
 - **Check signatures before editing**: editing a signed PDF breaks its signature. The writer refuses unless `preserveSignatures` / `allowBreakingSignatures` is explicit
 

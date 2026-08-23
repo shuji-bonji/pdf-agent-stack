@@ -1,5 +1,5 @@
 ---
-description: The whole picture of PDF Agent Stack and each MCP's responsibility boundary — independent MCPs orchestrated by Skills, the four-layer model, declaration ≠ conformance, assertion strength T1/T2/T3, the judge is code and the narrative is the LLM
+description: The whole picture of PDF Agent Stack and each MCP's responsibility boundary — independent MCPs orchestrated by Skills, the four-layer model, a label ≠ meeting the standard, assertion strength T1/T2/T3, the judge is code and the narrative is the LLM
 ---
 
 # Architecture & Responsibilities
@@ -64,8 +64,8 @@ graph TB
 |---|---|---|---|
 | Canon | pdf-spec | Clauses and requirements (shall/should/may) | Never opens the PDF under examination (it reads only its own spec corpus). Never judges conformance |
 | Substance | pdf-reader | Observations (text, structure, signature fields) | **Never says pass/fail**. No cryptographic verification |
-| Authenticity & conformance | pdf-verify | Verdicts (signatures, tampering, PDF/A, PDF/UA, 4-value policy) | **Never proves — it can only disprove** |
-| Creation | pdf-writer | New and edited PDFs | Never signs. Can write a declaration but **cannot make a file conform** |
+| Authenticity & conformance | pdf-verify | Verdicts (signatures, tampering, PDF/A, PDF/UA, 4-value policy) | **Never proves the file meets the standard — it can only find where it breaks the rules** |
+| Creation | pdf-writer | New and edited PDFs | Never signs. Can write a label but **cannot make the file meet the standard** |
 
 ## The boundary rule (one line)
 
@@ -75,11 +75,11 @@ graph TB
 
 This distinction runs through the whole of PDF Agent Stack.
 
-- **Declaration** — pdfaid / pdfuaid in XMP. The document's claim about itself; proves nothing
-- **Conformance** — nobody can prove it; it can only be disproved
-- **Validation** — valid only within the rules a validator actually implements
+- **Declaration** — A label the file wrote about itself. "I am PDF/A" in the metadata. Writing it is not evidence
+- **Conformance** — Whether the file actually meets the standard. There is no way to prove it in full; you can only find where it breaks the rules
+- **Validation** — What a validator (veraPDF and the like) reports against the checks it implements. A pass means "this inspection did not fail", not "the file conforms to the standard"
 
-That is why the writer's `ensure_pdfa` is a tool that *writes a declaration*, and the rule across PDF Agent Stack is: whatever you declare, you measure with verify's `validate_conformance`.
+That is why the writer's `ensure_pdfa` is a tool that *writes a label*, and the rule across PDF Agent Stack is: whatever you label, you measure with verify's `validate_conformance`.
 
 ## Two gates: intake and exit
 

@@ -1,5 +1,5 @@
 ---
-description: The MCP that judges authenticity and conformance (7 tools) — signature verification, tamper detection, PAdES observation, PDF/A / PDF/UA validation, clause checks, deterministic 4-value verdicts. It can disprove but never prove
+description: The MCP that judges authenticity and conformance (7 tools) — signature verification, tamper detection, PAdES observation, PDF/A / PDF/UA validation, clause checks, deterministic 4-value verdicts. It can find broken rules, never prove the file meets the standard
 ---
 
 # pdf-verify-mcp
@@ -13,7 +13,7 @@ description: The MCP that judges authenticity and conformance (7 tools) — sign
 
 Answers to "is the signature on this contract valid?", "was anything rewritten after signing?", "will this PDF survive as PDF/A?" The verdicts come from cryptography and a fixed rule table, so **the same file yields the same result every time**. Deciding whether an incoming PDF may enter your workflow (intake audit) centres on this server.
 
-### What it cannot do — disproof, not proof
+### What it cannot do — it never proves the file meets the standard
 
 What this server does is look for errors it can demonstrate. If one is found, "this does not meet the standard" can be stated flatly; if none is found, that is *not* proof of full conformance. Read every result in that light.
 
@@ -157,8 +157,8 @@ B-LT / B-LTA additionally require that the DSS revocation data actually covers t
 
 Reads the PDF/A (pdfaid) and PDF/UA (pdfuaid) **declarations** in the XMP metadata. Returns the declared part / conformance level and the PDF version.
 
-::: warning A declaration guarantees nothing
-This tool only **identifies** the declaration. For the actual rule checking, use `validate_conformance`.
+::: warning A label is not evidence
+This tool only **reads** whether the file wrote "I am PDF/A". For the actual rule checking, use `validate_conformance`.
 :::
 
 ### validate_conformance

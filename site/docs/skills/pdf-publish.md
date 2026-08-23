@@ -32,7 +32,7 @@ Choose how far to check before delivering — the central setting of this Skill.
 
 ## Key rules
 
-- After writing a declaration (`ensure_pdfa` / `ensure_tagged`), always run `validate_conformance` with the matching flavour — **if you cannot measure it, do not write the declaration**
+- After writing a label (`ensure_pdfa` / `ensure_tagged`), always run `validate_conformance` with the matching flavour — **if you cannot measure it, do not write the label**
 - The verdict belongs to veraPDF. Report "veraPDF judged it COMPLIANT", never "conforms to ISO 19005"
 
 ## Measured example — Publish Report summary (2026-08-11)
@@ -52,7 +52,7 @@ gate level `conformance(pdfa-3b + pdfua-1)`:
 > This file now **CLAIMS** PDF/A-3b …, but conformance was **NOT checked** here. … Verify before
 > relying on it: pdf-verify-mcp validate_conformance(flavour: "pdfa-3b")
 
-This is design, not a defect. The moment a declaration is written, verification stops being
+This is design, not a defect. The moment a label is written, verification stops being
 optional — the warning is transcribed into the Report, and the matching flavour is measured
 before delivery.
 
@@ -78,6 +78,6 @@ Repository: [shuji-bonji/pdf-publish-skill](https://github.com/shuji-bonji/pdf-p
 ## Degraded operation
 
 - pdf-writer not connected → cannot proceed; the Skill says so and stops
-- pdf-verify not connected → `conformance`-level jobs are **aborted** (continuing requires agreeing to downgrade to `readback`). Any job that uses `ensure_pdfa` / `ensure_tagged` requires verify regardless of level — if it cannot be measured, the declaration is not written
+- pdf-verify not connected → `conformance`-level jobs are **aborted** (continuing requires agreeing to downgrade to `readback`). Any job that uses `ensure_pdfa` / `ensure_tagged` requires verify regardless of level — if it cannot be measured, the label is not written
 - pdf-reader not connected → read-back recorded as "not performed (tool not connected)"
 - Non-Latin text without an embeddable font → `FONT_REQUIRED` (structured error); resolved via `fontPath` or the `PDF_WRITER_FONT` environment variable

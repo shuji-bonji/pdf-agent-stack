@@ -68,4 +68,4 @@ For a real untagged document, "what cannot be read" can be enumerated this concr
   (the standard 14 fonts always violate 7.21.4.1)
 - Machines validate structure only. **Whether alt text is meaningful and the reading order is
   natural remains human review**
-- `ensure_tagged` writes a claim — once used, `pdfua-1` must be measured
+- `ensure_tagged` writes a label — once used, `pdfua-1` must be measured

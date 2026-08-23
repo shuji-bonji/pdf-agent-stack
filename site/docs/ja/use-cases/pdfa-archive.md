@@ -16,7 +16,7 @@ description: 長期保存 (PDF/A) — 作る側は attach_file → ensure_pdfa �
 
 | 役者 | 役割 |
 |---|---|
-| [pdf-writer](/ja/mcp/pdf-writer) | `attach_file`（機械可読データ同梱）→ `ensure_pdfa`（器付け・**宣言を書くだけ**） |
+| [pdf-writer](/ja/mcp/pdf-writer) | `attach_file`（機械可読データ同梱）→ `ensure_pdfa`（器付け・**ラベルを書くだけ**） |
 | [pdf-verify](/ja/mcp/pdf-verify) | `validate_conformance`（veraPDF 委譲）・`detect_pades_level`（LTV 構造の観測） |
 | [pdf-trust](/ja/skills/pdf-trust) / [pdf-publish](/ja/skills/pdf-publish) | 受入側 / 送り出し側の編成 |
 
@@ -47,7 +47,7 @@ sequenceDiagram
 ## 実測例
 
 **作る側**（請求書デモ）: CSV 添付 → `ensure_pdfa(pdfa-3b)` → **veraPDF が COMPLIANT（146/146）と判定**しました。
-`ensure_pdfa` は「宣言を書いただけで適合は未検査」という warning を必ず返します — 測らずに納品しません。
+`ensure_pdfa` は「ラベルを書いただけで、規格どおりかは未検査」という warning を必ず返します — 測らずに納品しません。
 
 **受け取る側**（署名済み文書の保存性・3 検体の対比）:
 
@@ -65,7 +65,7 @@ sequenceDiagram
 - **PDF/A の判定者は veraPDF**です（T2）。「veraPDF が COMPLIANT と判定（146/146）」と書き、
   「ISO 19005 準拠」とは書きません
 - **PAdES レベルは構造の観測**です（T3）。「構造が B-LTA に一致する」と書き、「B-LTA 準拠」とは書きません
-- `ensure_pdfa` は**宣言を書く道具**であって適合させる道具ではありません。フォント未埋め込み・暗号化・
+- `ensure_pdfa` は**ラベルを書く道具**であって、規格どおりにさせる道具ではありません。フォント未埋め込み・暗号化・
   JavaScript は直りません — 非適合の文書に掛ければ「自分について嘘をつくファイル」ができてしまいます
 - 暗号化 PDF は veraPDF が PDF/A を採点できないことがあります（官報で実測）。その検査は「未実施」と
   記録されます — passed ではありません

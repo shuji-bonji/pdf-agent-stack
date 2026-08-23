@@ -1,5 +1,5 @@
 ---
-description: The MCP that creates and edits PDFs (20 tools) — creation from text / Markdown / tables, CJK font embedding. It can write a declaration but cannot make a file conform
+description: The MCP that creates and edits PDFs (20 tools) — creation from text / Markdown / tables, CJK font embedding. It can write a label, cannot make the file meet the standard
 ---
 
 # pdf-writer-mcp
@@ -14,9 +14,9 @@ description: The MCP that creates and edits PDFs (20 tools) — creation from te
 
 "Make an invoice PDF with this content", "merge these three PDFs", "stamp CONFIDENTIAL across every page" — creation and editing finish here. It can also produce tagged PDFs (PDF/UA-1) that screen readers can follow, which suits having an AI author a document and deliver it directly.
 
-### A caution — it writes declarations, it cannot create conformance
+### A caution — it writes a label, it cannot make the file meet the standard
 
-`ensure_pdfa` and `ensure_tagged` write a **claim** into the metadata: "this document is PDF/A". Existing violations such as unembedded fonts are not repaired, so applying them to a non-conforming file produces a PDF that lies about itself. Whatever you declare, measure it with pdf-verify.
+`ensure_pdfa` and `ensure_tagged` write a **label** into the metadata: "this document is PDF/A". Existing violations such as unembedded fonts are not repaired, so applying them to a non-conforming file produces a PDF that lies about itself. Whatever you label, measure it with pdf-verify.
 
 ## What it does not do
 
@@ -263,8 +263,8 @@ Flattens the AcroForm, keeping the filled appearance but removing interactivity.
 
 ## Per-tool manual — Declarations
 
-::: danger Whatever you declare, measure
-`ensure_tagged` / `ensure_pdfa` write pdfuaid / pdfaid into the XMP — a **declaration**, not conformance. Applied to a non-conforming document they produce **a PDF that lies about itself** (a warning is always returned). After writing, always measure with pdf-verify's `validate_conformance` (flavour = the same string you passed — `pdfua-1` / `pdfa-3b` / `pdfa-4` / `pdfa-4f`). **If you cannot measure it, do not write the declaration.**
+::: danger Whatever you label, measure
+`ensure_tagged` / `ensure_pdfa` write pdfuaid / pdfaid into the XMP — a label the file wrote about itself, not proof it meets the standard. Applied to a non-conforming document they produce **a PDF that lies about itself** (a warning is always returned). After writing, always measure with pdf-verify's `validate_conformance` (flavour = the same string you passed — `pdfua-1` / `pdfa-3b` / `pdfa-4` / `pdfa-4f`). **If you cannot measure it, do not write the label.**
 :::
 
 ### ensure_tagged

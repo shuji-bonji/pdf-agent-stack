@@ -63,7 +63,7 @@ import table from '@shuji-bonji/pdf-constraints/tables/font-embedding.json' with
 | `needs_external_fact` | ファイル外の事実が供給されず、**判定に到達しなかった** |
 
 ::: warning fail が無いことは適合の証明ではない
-「収録した制約の範囲で反証できなかった」以上を意味しません。適合は証明できず、反証だけができます —— これは
+「収録した制約の範囲で、規格破りは見つからなかった」以上を意味しません。規格どおりであることは証明できず、破っている箇所を見つけることしかできません —— これは
 PDF Agent Stack 全体を貫く [宣言・準拠・検証の三区別](/ja/guide/architecture#宣言・準拠・検証の三区別) の帰結です。
 :::
 
@@ -115,7 +115,7 @@ report.packageVersion; // どの版のテーブルで判定したか（決定論
 ## やらないこと
 
 - **条文原文の提供** — [pdf-spec](/ja/mcp/pdf-spec) の役割です。テーブルは clause ID で参照するだけで原文を複製しません
-- **適合の証明** — 反証だけができます
+- **適合の証明** — 規格どおりであることは証明できず、規格破りを見つけることしかできません
 - **verdict・推奨判定** — [`evaluate_policy`](/ja/reference/mcp/pdf-verify#evaluate-policy) の役割です
 - **veraPDF の代替** — PDF/A の判定主体は veraPDF です。収録は ISO 32000-1/-2 本体条文のみです
 - **内容の真偽判定** — 条文に適合したファイルが嘘を述べることはあります

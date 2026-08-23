@@ -19,7 +19,7 @@ description: "pdf-verify-mcp v0.17.0 の全 7 ツールの引数・型・既定�
 | [`verify_signatures`](#verify-signatures) | PDF 文書の電子署名を暗号学的に検証する。 |
 | [`verify_integrity`](#verify-integrity) | 署名後に文書が変更されていないかを分析する。 |
 | [`detect_pades_level`](#detect-pades-level) | 各署名の構造がどの PAdES baseline レベル（ETSI EN 319 142）に一致するかを**観測**する。 |
-| [`identify_conformance`](#identify-conformance) | PDF の XMP メタデータに宣言された PDF/A（pdfaid）・PDF/UA（pdfuaid）準拠を特定する。 |
+| [`identify_conformance`](#identify-conformance) | PDF の XMP メタデータに書いてある PDF/A（pdfaid）・PDF/UA（pdfuaid）のラベルを読む。 |
 | [`validate_conformance`](#validate-conformance) | PDF/A フレーバー（ISO 19005・長期保存）または PDF/UA フレーバー（ISO 14289・アクセシビリティ）に対して PDF を検証する。 |
 | [`validate_clauses`](#validate-clauses) | ISO 32000-1/-2 の条文から写像された制約に照らして PDF を検査する。 |
 | [`evaluate_policy`](#evaluate-policy) | PDF に対する決定論的な 4 値信頼判定（trust_and_use / use_with_caution / human_review_required / reject）を下す。 |
@@ -73,7 +73,7 @@ PDF 文書の電子署名を暗号学的に検証する。各署名について�
 
 DocMDP は、P 値が実際に許可する範囲（ISO 32000-2 Table 257）に照らして評価する。P=1 は何も許可しない。P=2 はフォーム記入と署名まで。P=3 はさらに注釈の作成・削除・変更まで。後続の変更はオブジェクトレベル差分（changeClass）から分類するので、P=2 文書への注釈追加は違反と報告し、P=3 文書への同じ変更は違反にしない。許可された変更に伴って必ず書き換わるオブジェクト（/Annots が増えたページ・カタログ・/Info・XMP ストリーム）は housekeeping に分類し、それ自体は違反にしない。なお ISO 32000-2 §12.8.2.2 により、P=1 認証後の DSS / 文書タイムスタンプの増分更新は違反では**ない**（laterChangesAppearLtvOnly の印が付く）。
 
-violationAssessment は "permitted" / "violated" / "indeterminate" の 3 値である。**"indeterminate" は合格ではない**。チェーンを歩けなかった、または変更されたオブジェクトの種類を読めなかった、つまり何も反証できていないことを意味する。boolean の violatedByLaterChanges は後方互換のため indeterminate を false に潰しているので、「判定できなかった」と「問題なし」を区別すべき場面では violationAssessment の方を読むこと。
+violationAssessment は "permitted" / "violated" / "indeterminate" の 3 値である。**"indeterminate" は合格ではない**。チェーンを歩けなかった、または変更されたオブジェクトの種類を読めなかった、つまり規格破りを見つけられていない（＝問題なし、ではない）ことを意味する。boolean の violatedByLaterChanges は後方互換のため indeterminate を false に潰しているので、「判定できなかった」と「問題なし」を区別すべき場面では violationAssessment の方を読むこと。
 
 増分更新チェーンのオブジェクトレベル差分も報告する。リビジョンごとに、追加・書き換え・解放されたオブジェクトを /Type と平易な役割名（注釈・フォームフィールド Widget・ページオブジェクト・コンテンツストリーム等）付きで列挙し、最後の署名済み範囲の後に書かれたオブジェクトの短いリスト（objectChangesAfterLastSignature）も返す。相互参照・オブジェクトストリームには bookkeeping の印が付く。オブジェクトがページ上のどこにあるかは pdf-reader-mcp の担当である。
 
@@ -134,7 +134,7 @@ violationAssessment は "permitted" / "violated" / "indeterminate" の 3 値で�
 
 **Identify PDF/A / PDF/UA Declarations**
 
-PDF の XMP メタデータに宣言された PDF/A（pdfaid）・PDF/UA（pdfuaid）準拠を特定する。
+PDF の XMP メタデータに書いてある PDF/A（pdfaid）・PDF/UA（pdfuaid）のラベルを読む。
 
 ### 引数
 
@@ -145,13 +145,13 @@ PDF の XMP メタデータに宣言された PDF/A（pdfaid）・PDF/UA（pdfua
 
 ### 戻り値
 
-宣言された PDF/A の part / conformance level と PDF/UA の part、および PDF バージョン。
+書いてある PDF/A の part / conformance level と PDF/UA の part、および PDF バージョン。
 
-重要: 本ツールは宣言を**特定するだけ**である —— 宣言は実際の準拠を保証しない。実際の PDF/A ルール検査は validate_conformance ツールを使うこと（ネイティブのルールサブセット、または veraPDF がインストールされていればそちら）。
+重要: 本ツールはラベルを**読むだけ**である —— 書いてあることは証拠にならない。規格どおりかどうかの検査は validate_conformance ツールを使うこと（ネイティブのルールサブセット、または veraPDF がインストールされていればそちら）。
 
 例:
 - 保管前に文書が PDF/A-2b を名乗っているか確認
-- アクセシビリティワークフロー向けに PDF/UA 宣言を検出
+- アクセシビリティワークフロー向けに PDF/UA のラベルを検出
 
 ## validate_conformance
 
@@ -208,8 +208,8 @@ veraPDF が見ない領域を覆う。veraPDF は PDF/A・PDF/UA プロファイ
 ### 戻り値
 
 制約ごとの結果と、その出どころの条文 ID。4 状態:
-- pass —— この制約について何も反証できなかった
-- fail —— 反証された。根拠として事実と実測値が付く
+- pass —— この制約について、規格破りは見つからなかった
+- fail —— 規格破りが見つかった。根拠として事実と実測値が付く
 - not_applicable —— 条文がこの文書に適用されない
 - needs_external_fact —— ファイル外の事実が与えられず、制約を決定しなかった（合格に既定されることは決してない）
 
@@ -217,7 +217,7 @@ veraPDF が見ない領域を覆う。veraPDF は PDF/A・PDF/UA プロファイ
 
 一部の失敗には Context 注記が付く。条文は実在し失敗も実在するが、業界が意図的に逸脱している —— テキストマークアップの QuadPoints はほぼ全ての生成系が Z 順で書く。条文どおりに書くと主要ビューアで描画が壊れるからである。Context は必ず一緒に伝えること。Context を落として報告すると、正しい記述が欠陥として読まれる。
 
-**失敗ゼロの結果は準拠の証明ではない** —— 同梱制約の範囲で何も反証できなかった、というだけである。
+**失敗ゼロは規格どおりであることの証明ではない** —— 同梱した検査の範囲で、規格破りは見つからなかった、というだけである。
 
 例:
 - veraPDF は問題なしとするフォントにビューアが警告を出す理由を特定

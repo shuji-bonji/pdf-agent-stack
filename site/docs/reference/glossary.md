@@ -12,9 +12,9 @@ Keeping these three apart is the design philosophy of the whole of PDF Agent Sta
 
 | Term | Definition |
 |---|---|
-| Declaration | pdfaid / pdfuaid in XMP. The document's claim about itself. Proves nothing. This is what the writer's `ensure_pdfa` / `ensure_tagged` write |
-| Conformance | Cannot be proved — only disproved. Nobody is in a position to state "this conforms" |
-| Validation | Valid only within the rules a validator actually implements. "No violations" means "nothing could be disproved by that rule set" |
+| Declaration | A label the file wrote about itself (pdfaid / pdfuaid in XMP: "I am PDF/A"). Writing it is not evidence. This is what the writer's `ensure_pdfa` / `ensure_tagged` write |
+| Conformance | Whether the file actually meets the standard. There is no way to prove it in full; you can only find where it breaks the rules. Nobody is in a position to state "this conforms" |
+| Validation | What a validator (veraPDF and the like) reports against the checks it implements. A pass means "this inspection did not fail", not "the file conforms to the standard" |
 | Observation | A fact about what the file contains. Carries no pass/fail (everything the reader returns) |
 | Verdict | Pass/fail against a standard or policy (what verify returns). **It does not follow automatically from observations** |
 
@@ -81,7 +81,7 @@ Not PDF-standard terms, but words this site uses without in-line explanation.
 | Skill | A procedure document an AI agent reads — standardizes tool order, result reading and reporting (also the name of the Claude feature) |
 | Deterministic | Same input, same result — always. The counterpart of LLM generation, which is probabilistic and can vary |
 | Rule engine | A mechanism that feeds facts through a fixed rule table to produce a verdict automatically. What `evaluate_policy` is |
-| Refutation | Showing one error rather than proving correctness. Conformance cannot be proved — only refuted |
+| Refutation | Showing one error rather than proving correctness. You cannot prove the file meets the standard; you can only find where it breaks the rules |
 | Corpus | The collection of specification originals kept at hand; the ground pdf-spec searches and quotes from |
 | Narrative | The explanatory prose. "The judge is code, the narrative is the LLM" = code decides, the LLM only explains |
 | Fallback | Switching to an alternative when the primary means is unavailable (e.g. built-in rules when veraPDF is absent) |

@@ -18,7 +18,7 @@ gazette, and self-made known-good specimens).
 
 | Actor | Role |
 |---|---|
-| [pdf-writer](/mcp/pdf-writer) | `attach_file` (bundle machine-readable data) → `ensure_pdfa` (the vessel — **writes a claim only**) |
+| [pdf-writer](/mcp/pdf-writer) | `attach_file` (bundle machine-readable data) → `ensure_pdfa` (the vessel — **writes a label only**) |
 | [pdf-verify](/mcp/pdf-verify) | `validate_conformance` (veraPDF) / `detect_pades_level` (LTV structure observation) |
 | [pdf-trust](/skills/pdf-trust) / [pdf-publish](/skills/pdf-publish) | Intake / outbound orchestration |
 
@@ -69,7 +69,7 @@ a "declared-only B-LT" is capped down to B-T.
   never "conforms to ISO 19005"
 - **A PAdES level is a structural observation** (T3): "the structure matches B-LTA",
   never "B-LTA-conformant"
-- `ensure_pdfa` **writes a claim**; it does not create conformance. Unembedded fonts, encryption
+- `ensure_pdfa` **writes a label**; it does not make the file meet the standard. Unembedded fonts, encryption
   and JavaScript are not repaired — applied to a non-conforming file it produces a PDF that lies
   about itself
 - veraPDF may return no PDF/A result for an encrypted PDF (measured with the gazette). That check

@@ -62,8 +62,9 @@ Every constraint resolves to one of these. **No verdict is issued** — that is 
 | `needs_external_fact` | A fact outside the file was not supplied, so the constraint **was not decided** |
 
 ::: warning No failures is not proof of conformance
-It means nothing in the constraints that shipped could be disproved. Conformance cannot be proven, only
-disproven — which is where [declaration, conformance, validation](/guide/architecture#declaration-conformance-validation)
+It means only that none of the shipped constraints found a broken rule. That is not proof the file meets the
+standard — you can only find where it breaks the rules. This is where
+[declaration, conformance, validation](/guide/architecture#declaration-conformance-validation)
 lands for the whole of PDF Agent Stack.
 :::
 
@@ -115,7 +116,7 @@ same result** can be checked after the fact. Tables and evaluation semantics shi
 ## What it does not do
 
 - **Quote the specification** — that is [pdf-spec](/mcp/pdf-spec). Tables reference clause IDs and never copy the text
-- **Prove conformance** — it can only disprove
+- **Prove conformance** — it cannot prove the file meets the standard; it can only find where it breaks the rules
 - **Issue verdicts** — that is [`evaluate_policy`](/reference/mcp/pdf-verify#evaluate-policy)
 - **Replace veraPDF** — PDF/A verdicts are veraPDF's; only ISO 32000-1/-2 body clauses ship here
 - **Judge whether the content is true** — a file that satisfies every clause can still lie

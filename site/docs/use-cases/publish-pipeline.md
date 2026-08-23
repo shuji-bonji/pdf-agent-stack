@@ -63,7 +63,7 @@ sequenceDiagram
 | Fix loop | 0 iterations |
 
 `ensure_pdfa` always returns a warning even on success ("CLAIMS … NOT checked"). That is design:
-the machine keeps saying that **writing a declaration makes verification non-optional**.
+the machine keeps saying that **writing a label makes verification non-optional**.
 
 ## How to read the results
 
