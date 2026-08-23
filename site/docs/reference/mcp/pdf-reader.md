@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-reader-mcp v0.11.2 — parameters, types, defaults and returns of all 18 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-reader-mcp v0.12.0 — parameters, types, defaults and returns of all 19 tools, generated from the server's tools/list."
 ---
 
 # pdf-reader-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-reader-mcp v0.11.2 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.11.2** (18 tools, 2026-08-22). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.12.0** (19 tools, 2026-08-23). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-reader).
@@ -20,8 +20,9 @@ Auto-generated from the `tools/list` handshake of **v0.11.2** (18 tools, 2026-08
 | [`get_metadata`](#get-metadata) | Extract metadata from a PDF document including title, author, creation date, page count, PDF version, and structural information. |
 | [`read_text`](#read-text) | Extract text content from a PDF document with Y-coordinate-based reading order preservation. |
 | [`search_text`](#search-text) | Search for text within a PDF document. |
-| [`read_images`](#read-images) | Extract images from a PDF document as base64-encoded data. |
+| [`read_images`](#read-images) | Extract embedded images from a PDF document as PNG or JPEG files. |
 | [`read_url`](#read-url) | Fetch a PDF from a URL and extract its text content. |
+| [`render_page`](#render-page) | Rasterise pages of a PDF to PNG or JPEG images, returned as MCP image content blocks. |
 | [`summarize`](#summarize) | Generate a quick overview report of a PDF document. |
 | [`inspect_structure`](#inspect-structure) | Examine PDF internal object structure including catalog entries, page tree, and object statistics. |
 | [`inspect_tags`](#inspect-tags) | Analyze the Tagged PDF structure tree for accessibility assessment. |
@@ -107,7 +108,7 @@ For Japanese form-style PDFs (帳票・様式) where U+3000 fullwidth spaces are
 
 ### Returns
 
-Extracted text organized by page number. With `split_columns >= 2`, columns are separated by a blank line so a downstream LLM can tell them apart.
+Extracted text organized by page number, preceded by the extractability tally. With `split_columns >= 2`, columns are separated by a blank line so a downstream LLM can tell them apart.
 
 Examples:
 - Extract all text: { file_path: "/path/to/doc.pdf" }
@@ -147,9 +148,13 @@ Examples:
 
 **Read PDF Images**
 
-Extract images from a PDF document as base64-encoded data.
+Extract embedded images from a PDF document as PNG or JPEG files.
 
-Extracts embedded images from specified or all pages. Returns image metadata (dimensions, color space) along with raw pixel data in base64.
+Each image is returned as an MCP image content block, so a vision-capable model can look at it directly. A text block lists the metadata for all of them (page, index, size in the file, size returned, colour space, encoded bytes).
+
+These are the image XObjects the page draws, not a picture of the page. A page whose content is vector drawing, or whose text is what you want to see, is not covered by this tool.
+
+Response size is bounded: at most 4 MB of encoded image data per call. Images beyond the budget are named in the text block with the reason and are not returned — nothing is dropped silently. A 200 dpi A4 scan is ~11.6 MB of pixels on its own, so pass `pages`, `max_width` or `max_height` when working with scans.
 
 ### Parameters
 
@@ -157,24 +162,28 @@ Extracts embedded images from specified or all pages. Returns image metadata (di
 |---|---|---|---|---|
 | `file_path` | string (minLength 1) | **yes** |  | Absolute path to a local PDF file (e.g., "/path/to/document.pdf") |
 | `pages` | string | no |  | Page range to process. Format: "1-5", "3", or "1,3,5-7". Omit for all pages. |
+| `format` | `"png"` \| `"jpeg"` | no |  | Encoding of the returned images. png (default) is lossless; jpeg is smaller and drops alpha (composited over white). |
+| `quality` | integer (1–100) | no |  | JPEG quality 1-100 (default 80). Ignored when format is png. |
+| `max_width` | integer (1–10000) | no |  | Downscale images wider than this, averaging over the source pixels. Images are never enlarged. Omit to return each image at its own size. |
+| `max_height` | integer (1–10000) | no |  | Downscale images taller than this. Never enlarges. |
 
 ### Returns
 
-Array of extracted images with: page number, index, width, height, color space (RGB/RGBA/Grayscale), bits per component, and base64-encoded data.
-
-Note: Large images may produce very large responses. Use the pages parameter to limit scope.
+A text block with the metadata table and any omissions, then one image content block per returned image.
 
 Examples:
 - Extract all images: { file_path: "/path/to/doc.pdf" }
-- Extract from page 1: { file_path: "/path/to/doc.pdf", pages: "1" }
+- A scanned page, small enough to look at: { file_path: "/path/to/scan.pdf", pages: "1", max_width: 1200, format: "jpeg" }
 
 ## read_url
 
 **Read PDF from URL**
 
-Fetch a PDF from a URL and extract its text content.
+Fetch a PDF from a URL and extract its text content. Text is ALL this tool returns — see the scope note below.
 
 Downloads the PDF from the specified URL, then extracts text with Y-coordinate-based reading order. Supports HTTP and HTTPS. Maximum file size: 50MB. Timeout: 30 seconds.
+
+**Scope (#25):** the fetched bytes are discarded after extraction; this tool deliberately does not save them. Every other tool of this server takes a `file_path`, so to use search_text, inspect_structure, extract_tables, render_page or anything else on a URL's PDF, download the file to local disk FIRST (with whatever fetch capability the calling environment has) and pass its path. This keeps every tool of this server read-only with respect to the file system — writing files is not a reader's job. read_url exists for the one-shot case: "what does the document at this URL say?"
 
 Like `read_text`, accepts `split_columns: 2 | 3` for **untagged** multi-column PDFs and `compact_whitespace: true` to collapse U+3000 / ASCII whitespace runs. Tagged PDFs should use `extract_tables` instead.
 
@@ -197,6 +206,37 @@ Examples:
 - Untagged 2-column PDF: { url: "https://...", split_columns: 2 }
 - Japanese form: { url: "https://...", compact_whitespace: true }
 
+## render_page
+
+**Render PDF Page**
+
+Rasterise pages of a PDF to PNG or JPEG images, returned as MCP image content blocks.
+
+This is the tool for documents whose text cannot be read as text: pages `read_text` reports as `no_text_layer` or `not_extractable`, vector drawings, forms, handwriting, stamps. It draws the PAGE — everything on it — where `read_images` only extracts the image XObjects a page happens to embed.
+
+Rendering uses PDFium compiled to WebAssembly (optional dependency `@hyzyla/pdfium`). Note this is a different engine from the pdf.js this server reads text with; where their behaviour on a damaged file differs, neither output is evidence about the other. If the dependency is not installed, this tool says so and every other tool works normally.
+
+`pages` is required — rendering is the most expensive operation here, and "all pages" of a large scan should be a decision, not a default. The response carries at most 4 MB of encoded images; pages past the budget are named with the reason, not dropped.
+
+### Parameters
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `file_path` | string (minLength 1) | **yes** |  | Absolute path to a local PDF file (e.g., "/path/to/document.pdf") |
+| `pages` | string (minLength 1) | **yes** |  | Page range to render. Required: rendering all pages is never implicit. |
+| `dpi` | integer (36–600) | no |  | Rasterisation density (default 150). PDF points are 1/72 inch. |
+| `max_width` | integer (1–10000) | no |  | Cap on the rendered width in pixels; wins over dpi when smaller. |
+| `format` | `"png"` \| `"jpeg"` | no |  | png (default, lossless) or jpeg (smaller — usually right for scans). |
+| `quality` | integer (1–100) | no |  | JPEG quality 1-100 (default 80). Ignored for png. |
+
+### Returns
+
+A text block with per-page metadata (point size, pixel size, effective dpi, bytes) and any omissions, then one image content block per rendered page.
+
+Examples:
+- A scanned page: { file_path: "/path/to/scan.pdf", pages: "1", format: "jpeg" }
+- A diagram at high detail: { file_path: "/path/to/doc.pdf", pages: "3", dpi: 300 }
+
 ## summarize
 
 **Summarize PDF**
@@ -214,7 +254,7 @@ Combines metadata, text presence check, image count, and a text preview from the
 
 ### Returns
 
-Summary including: page count, PDF version, file size, tagged/encrypted/signature flags, text presence, image count, and a text preview from page 1.
+Summary including: page count, PDF version, file size, tagged/encrypted/signature flags, text presence, per-document text extractability, the pages that are not fully extractable, image count, a text preview from page 1, and the `next` suggestions.
 
 Examples:
 - Quick overview: { file_path: "/path/to/doc.pdf" }
