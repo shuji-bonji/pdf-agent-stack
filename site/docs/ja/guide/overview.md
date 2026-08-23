@@ -1,10 +1,10 @@
 ---
-description: PDF Agent Stack の全体像 — 4 つの MCP サーバーと 2 つの Skill の構成要素、観測・判定・生成・規範を分離する理由
+description: PDF Agent Stack の全体像 — 4 つの MCP サーバーと 3 つの Skill の構成要素、観測・判定・生成・規範を分離する理由
 ---
 
 # PDF Agent Stack とは
 
-PDF Agent Stack は、AI エージェントに PDF の「読む・検証する・書く・仕様で裏付ける」能力を与える、4 つの独立した [MCP](/ja/reference/glossary#本サイトの基本用語-ai-開発) サーバーと 2 つの [Skill](/ja/reference/glossary#本サイトの基本用語-ai-開発) の総称です。
+PDF Agent Stack は、AI エージェントに PDF の「読む・検証する・書く・仕様で裏付ける」能力を与える、4 つの独立した [MCP](/ja/reference/glossary#本サイトの基本用語-ai-開発) サーバーと 3 つの [Skill](/ja/reference/glossary#本サイトの基本用語-ai-開発) の総称です。
 
 ## 構成要素
 
@@ -16,6 +16,7 @@ PDF Agent Stack は、AI エージェントに PDF の「読む・検証する�
 | MCP   | [pdf-writer-mcp](/ja/mcp/pdf-writer)  | 仕様に沿って PDF を生成する（生成・編集 20 ツール）                    | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-writer-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-writer-mcp) |
 | Skill | [pdf-trust](/ja/skills/pdf-trust)     | 受領した PDF を精査し、信頼性を確認する（Trust Report）                  | [GitHub](https://github.com/shuji-bonji/pdf-trust-skill)                                                                   |
 | Skill | [pdf-publish](/ja/skills/pdf-publish) | 品質管理（ゲート）を組み込んだパイプラインで生成する（Publish Report） | [GitHub](https://github.com/shuji-bonji/pdf-publish-skill)                                                                 |
+| Skill | [pdf-read](/ja/skills/pdf-read)       | 大きな PDF・読めない PDF から必要な箇所を取り出す（Read Report）        | [GitHub](https://github.com/shuji-bonji/pdf-read-skill)                                                                    |
 
 pdf-verify の条文検査は、別パッケージの [pdf-constraints](/ja/reference/pdf-constraints) を使います。ISO 32000 の条文を機械検査できる制約テーブルの形に書き起こしたデータライブラリで、単体でも利用できます。
 

@@ -1,11 +1,11 @@
 ---
 layout: home
-description: AI エージェントのための PDF ツール群 — 読む・検証する・書く・仕様で裏付ける 4 つの MCP サーバーと 2 つの Skill
+description: AI エージェントのための PDF ツール群 — 読む・検証する・書く・仕様で裏付ける 4 つの MCP サーバーと 3 つの Skill
 
 hero:
   name: PDF Agent Stack
   text: PDF 専門家 AI エージェントの構築
-  tagline: 読む・検証する・書く・仕様で裏付ける — AI エージェントのための PDF ツール群（4 つの MCP サーバーと 2 つの Skill）
+  tagline: 読む・検証する・書く・仕様で裏付ける — AI エージェントのための PDF ツール群（4 つの MCP サーバーと 3 つの Skill）
   image:
     src: /images/logo.svg
     alt: PDF Agent Stack
