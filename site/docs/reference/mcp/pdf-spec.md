@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-spec-mcp v0.4.6 — parameters, types, defaults and returns of all 8 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-spec-mcp v0.5.0 — parameters, types, defaults and returns of all 8 tools, generated from the server's tools/list."
 ---
 
 # pdf-spec-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-spec-mcp v0.4.6 — parameters, types, def
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.4.6** (8 tools, 2026-08-23). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.5.0** (8 tools, 2026-08-25). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-spec).
@@ -67,7 +67,7 @@ Get the content of a specific section from the PDF specification (ISO 32000-2). 
 
 **Search the specification**
 
-Search the PDF specification (ISO 32000-2) for a keyword or phrase. Returns matching sections with context snippets. The first call may take a few seconds to build the search index. No hits means "this corpus cannot answer", NOT "no such requirement exists" — ISO 19005 (PDF/A) and ETSI PAdES are outside it (see list_specs -> coverage.gaps).
+Search the PDF specification (ISO 32000-2) for a keyword or phrase. Returns matching sections with context snippets. The first call may take a few seconds to build the search index; it is then cached on disk, so later processes start warm. No hits means "this corpus cannot answer", NOT "no such requirement exists" — ISO 19005 (PDF/A) and ETSI PAdES are outside it (see list_specs -> coverage.gaps).
 
 ### Parameters
 

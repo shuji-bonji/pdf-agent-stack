@@ -117,6 +117,7 @@ Adding [pdf-trust](/skills/pdf-trust) (incoming audit) and [pdf-publish](/skills
 | Variable | Server | Required | Purpose |
 |---|---|---|---|
 | `PDF_SPEC_DIR` | pdf-spec | **Required** | Directory of the specification PDF corpus |
+| `PDF_SPEC_CACHE_DIR` | pdf-spec | Optional | On-disk index cache (v0.5.0+; default `${XDG_CACHE_HOME:-~/.cache}/pdf-spec-mcp`). `PDF_SPEC_CACHE=off` disables it |
 | `PDF_VERIFY_VERAPDF` | pdf-verify | Optional | veraPDF executable path (falls back to PATH lookup → built-in rules) |
 | `PDF_VERIFY_TRUST_ANCHORS` | pdf-verify | Optional | Directory of trust anchor certificates |
 | `PDF_WRITER_FONT` | pdf-writer | Effectively required for CJK output | Default font (single-face .ttf/.otf) |

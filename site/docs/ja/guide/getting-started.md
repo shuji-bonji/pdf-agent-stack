@@ -117,6 +117,7 @@ sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出�
 | 変数                       | サーバー   | 必須               | 用途                                                |
 | -------------------------- | ---------- | ------------------ | --------------------------------------------------- |
 | `PDF_SPEC_DIR`             | pdf-spec   | **必須**           | 仕様 PDF コーパスのディレクトリ                     |
+| `PDF_SPEC_CACHE_DIR`       | pdf-spec   | 任意               | 索引のディスクキャッシュ（v0.5.0+。既定 `${XDG_CACHE_HOME:-~/.cache}/pdf-spec-mcp`）。`PDF_SPEC_CACHE=off` で無効 |
 | `PDF_VERIFY_VERAPDF`       | pdf-verify | 任意               | veraPDF 実行パス（無ければ PATH 探索 → 内蔵ルール） |
 | `PDF_VERIFY_TRUST_ANCHORS` | pdf-verify | 任意               | 信頼アンカー証明書のディレクトリ                    |
 | `PDF_WRITER_FONT`          | pdf-writer | CJK 出力に実質必須 | 既定フォント（単一フェイス .ttf/.otf）              |

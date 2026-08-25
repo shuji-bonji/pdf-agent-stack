@@ -50,16 +50,16 @@ graph LR
 
 <!-- stack:begin — scripts/generate-stack.mjs が生成。手で編集しない -->
 
-> 版は実測（2026-08-23 時点の `npm view`）。
+> 版は実測（2026-08-25 時点の `npm view`）。
 
 | リポジトリ | 役割 | 配布形態 | 版 | npm |
 | --- | --- | --- | --- | --- |
-| [pdf-spec-mcp](https://github.com/shuji-bonji/pdf-spec-mcp) | canon | mcp-server | 0.4.6 | `@shuji-bonji/pdf-spec-mcp` |
+| [pdf-spec-mcp](https://github.com/shuji-bonji/pdf-spec-mcp) | canon | mcp-server | 0.5.0 | `@shuji-bonji/pdf-spec-mcp` |
 | [pdf-reader-mcp](https://github.com/shuji-bonji/pdf-reader-mcp) | structure | mcp-server | 0.12.0 | `@shuji-bonji/pdf-reader-mcp` |
 | [pdf-verify-mcp](https://github.com/shuji-bonji/pdf-verify-mcp) | judgment | mcp-server | 0.17.0 | `@shuji-bonji/pdf-verify-mcp` |
 | [pdf-writer-mcp](https://github.com/shuji-bonji/pdf-writer-mcp) | action | mcp-server | 0.20.1 | `@shuji-bonji/pdf-writer-mcp` |
 | [pdf-constraints](https://github.com/shuji-bonji/pdf-constraints) | judgment | library | 0.3.0 | `@shuji-bonji/pdf-constraints` |
-| [normativepdf](https://github.com/shuji-bonji/normativepdf) | action | library | 0.7.0 | `normativepdf` |
+| [normativepdf](https://github.com/shuji-bonji/normativepdf) | action | library | 0.8.0 | `normativepdf` |
 | [pdf-trust-skill](https://github.com/shuji-bonji/pdf-trust-skill) | procedure | skill | 0.7.0 | — |
 | [pdf-publish-skill](https://github.com/shuji-bonji/pdf-publish-skill) | procedure | skill | 0.5.0 | — |
 | [pdf-read-skill](https://github.com/shuji-bonji/pdf-read-skill) | procedure | skill | 0.1.0 | — |

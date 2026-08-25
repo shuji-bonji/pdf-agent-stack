@@ -1,5 +1,5 @@
 ---
-description: "pdf-spec-mcp v0.4.6 の全 8 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-spec-mcp v0.5.0 の全 8 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-spec-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-spec-mcp v0.4.6 の全 8 ツールの引数・型・既定値�
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-**v0.4.6** の `tools/list` ハンドシェイクから自動生成（8 ツール・2026-08-23）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.5.0** の `tools/list` ハンドシェイクから自動生成（8 ツール・2026-08-25）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-spec)へ。
@@ -67,7 +67,7 @@ PDF 仕様（ISO 32000-2）の指定節の本文を取得する。見出し・�
 
 **Search the specification**
 
-PDF 仕様（ISO 32000-2）をキーワード・フレーズで検索する。該当節を文脈スニペット付きで返す。初回は検索インデックス構築のため数秒かかることがある。ヒット 0 件は「このコーパスでは答えられない」であって「そのような要求は存在しない」では**ない** — ISO 19005（PDF/A）と ETSI PAdES はコーパス外である（list_specs → coverage.gaps を参照）。
+PDF 仕様（ISO 32000-2）をキーワード・フレーズで検索する。該当節を文脈スニペット付きで返す。初回は検索インデックス構築のため数秒かかることがあるが、構築した索引はディスクにキャッシュされ、以後のプロセスは温まった状態で始まる。ヒット 0 件は「このコーパスでは答えられない」であって「そのような要求は存在しない」では**ない** — ISO 19005（PDF/A）と ETSI PAdES はコーパス外である（list_specs → coverage.gaps を参照）。
 
 ### 引数
 

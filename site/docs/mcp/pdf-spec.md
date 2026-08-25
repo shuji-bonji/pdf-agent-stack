@@ -6,7 +6,7 @@ description: The structured reference MCP for the ISO 32000 family — clauses, 
 
 **The server that lets an AI look things up in the PDF specification.** It cross-searches 17 documents — ISO 32000-1/-2, ISO TS 32001–32005, PDF/UA-1/-2, the Tagged PDF guide and more — and returns clauses, requirements (shall/should/may), definitions and tables in structured form.
 
-- npm: [`@shuji-bonji/pdf-spec-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-spec-mcp) / current v0.4.6 / [GitHub](https://github.com/shuji-bonji/pdf-spec-mcp)
+- npm: [`@shuji-bonji/pdf-spec-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-spec-mcp) / current v0.5.0 / [GitHub](https://github.com/shuji-bonji/pdf-spec-mcp)
 - This page is the guide — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-spec) (generated from `tools/list`)
 
 ### What this one server gives you
@@ -35,6 +35,8 @@ Note: the specification PDFs are not bundled — place the freely available orig
 ```
 
 Place the PDF Association's sponsored-edition specification PDFs in `PDF_SPEC_DIR` (required). Files are recognized by name pattern. **Every core document is available at no cost through legitimate channels** — see [Getting started, Step 2](/guide/getting-started) for the sources. Without the corpus this server cannot answer a single question.
+
+Since v0.5.0 the two whole-document operations — the search index behind `search_spec` and the full scan behind `get_requirements` without a `section` — are cached on disk after their first build (`${XDG_CACHE_HOME:-~/.cache}/pdf-spec-mcp`, about 18 MB for the whole corpus), so every later process answers them in well under a second instead of 6–14 s. The key includes the server version, the pdfjs version and the PDF's SHA-256, so an upgrade or a replaced file rebuilds. `PDF_SPEC_CACHE_DIR` moves it; `PDF_SPEC_CACHE=off` disables it; `npx -y @shuji-bonji/pdf-spec-mcp@latest --build-cache` warms every spec up front (about a minute). The cache is derived from your own copy of the PDFs and stays on your machine.
 
 ## Common parameter
 
@@ -165,7 +167,7 @@ Returns a section's body structured (headings, paragraphs, lists, tables, notes)
 
 ### search_spec
 
-Searches the spec for a keyword or phrase and returns matching sections with snippets. The first call may take a few seconds to build the index. Matches as an exact phrase first, then as AND over the words.
+Searches the spec for a keyword or phrase and returns matching sections with snippets. The first call on a spec may take a few seconds to build the index; the index is then cached on disk (v0.5.0+), so later processes start warm. Matches as an exact phrase first, then as AND over the words.
 
 ::: warning What zero hits mean
 "This corpus cannot answer" — **not** "no such requirement exists". PDF/A and PAdES are outside the corpus.

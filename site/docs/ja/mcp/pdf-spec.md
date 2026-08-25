@@ -6,7 +6,7 @@ description: ISO 32000 系仕様書の構造化参照 MCP — 条文・要件（
 
 **PDF の仕様書を AI が引けるようにするサーバーです。** ISO 32000-1/-2、ISO TS 32001〜32005、PDF/UA-1/-2、Tagged PDF ガイドなど 17 文書を横断検索し、条文・要求事項（shall/should/may）・定義・表を構造化して返します。
 
-- npm: [`@shuji-bonji/pdf-spec-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-spec-mcp) / 現行 v0.4.6 / [GitHub](https://github.com/shuji-bonji/pdf-spec-mcp)
+- npm: [`@shuji-bonji/pdf-spec-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-spec-mcp) / 現行 v0.5.0 / [GitHub](https://github.com/shuji-bonji/pdf-spec-mcp)
 - このページは責務と使いどころの解説です。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-spec)（`tools/list` から自動生成）へ
 
 ### これ 1 台でできること
@@ -35,6 +35,8 @@ description: ISO 32000 系仕様書の構造化参照 MCP — 条文・要件（
 ```
 
 `PDF_SPEC_DIR`（必須）に PDF Association の sponsored 版仕様 PDF を配置してください。ファイル名パターンで自動判別されます。**中核文書はすべて正規ルートで無償入手できます** — 入手先と手順は[導入手順 Step 2](/ja/guide/getting-started) を参照してください。コーパスが無いと本サーバーは 1 問も答えられません。
+
+v0.5.0 から、文書全体を走査する 2 つの操作 — `search_spec` の検索索引と、`section` を指定しない `get_requirements` の全走査 — は初回構築のあとディスクにキャッシュされます（`${XDG_CACHE_HOME:-~/.cache}/pdf-spec-mcp`、コーパス全体で約 18 MB）。以後のプロセスはこの 2 つに 6〜14 秒ではなく 1 秒未満で答えます。キーにサーバーの版・pdfjs の版・PDF の SHA-256 が入るので、更新やファイルの差し替えでは作り直します。`PDF_SPEC_CACHE_DIR` で置き場所を変え、`PDF_SPEC_CACHE=off` で無効にできます。`npx -y @shuji-bonji/pdf-spec-mcp@latest --build-cache` で全仕様を先に構築できます（1 分程度）。キャッシュは利用者の PDF から利用者の機械上に作る派生物で、配布はしません。
 
 ## 共通引数
 
@@ -165,7 +167,7 @@ NOTE は規範ではない・shall だけが適合の必要条件・定義は日
 
 ### search_spec
 
-キーワード・フレーズで仕様を検索し、該当節とスニペットを返します。初回は検索インデックス構築のため数秒かかることがあります。まず完全フレーズ、次に単語 AND でマッチします。
+キーワード・フレーズで仕様を検索し、該当節とスニペットを返します。仕様ごとの初回は検索インデックス構築のため数秒かかることがありますが、索引はディスクにキャッシュされ（v0.5.0 以降）、以後のプロセスは温まった状態で始まります。まず完全フレーズ、次に単語 AND でマッチします。
 
 ::: warning ヒット 0 件の意味
 「このコーパスでは答えられない」であって「そのような要求は存在しない」では**ありません**。PDF/A・PAdES はコーパス外です。
