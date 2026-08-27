@@ -305,13 +305,83 @@ pdf-agent-pipeline が `callToolJson` で渡す引数、pdf-trust / pdf-publish 
 - [x] 切り出しが外部に出る仕様を動かしていないことの実測: 5 項目とも差 0 件、
       `instructions` のハッシュも `serverInfo` も同一
 
-- [ ] `npx @modelcontextprotocol/codemod@2 v1-to-v2 .` を各リポジトリで回す
-- [ ] `grep -rn '@mcp-codemod-error' .` を潰す
-- [ ] import パス（35 ファイル）と stdio subpath を確認
-- [ ] **verify の 7 ツールの raw shape（`{ ...PdfToolInputSchema, ... }`）を
-      `z.object({...}).strict()` へ**。spec / writer の `tool.shape` も同様に見直す
-- [ ] `InMemoryTransport` の混在禁止に対応（spec の `src/registry.test.ts`・writer の `tests`）
-- [ ] `tsc --noEmit` → biome → `npm test`
+- [x] `npx @modelcontextprotocol/codemod@2 v1-to-v2 .` を各リポジトリで回す
+- [x] `grep -rn '@mcp-codemod-error' .` を解消する
+- [x] import パスと stdio subpath を確認
+- [x] **verify の 7 ツールの raw shape** → A2 で済ませた。**spec 8 / writer 20 も
+      `z.object({...}).strict()` へ**（v2 は raw shape を型として受け付けない）
+- [x] `InMemoryTransport` の混在禁止に対応 → **codemod が自動で解決した**
+      （`Client` と `InMemoryTransport` を同じ `@modelcontextprotocol/client` から取る形になる）
+- [x] `tsc --noEmit` → biome → `npm test`
+
+#### ✅ A3 実施済み（2026-08-27・4 リポジトリともコミット）
+
+| | codemod | @mcp-codemod-error | `.strict()` 化 | テスト |
+|---|---|---|---|---|
+| pdf-spec-mcp | 4 変更 / 3 ファイル | 1 件（本物） | **8 ツール** | 339 passed |
+| pdf-reader-mcp | 23 変更 / 22 ファイル・**index.ts で失敗** | 19 件（すべて偽陽性） | 済み（A2 以前） | 438 passed |
+| pdf-verify-mcp | 12 変更 / 11 ファイル | 7 件（すべて偽陽性） | 済み（A2） | 175 passed |
+| pdf-writer-mcp | 4 変更 / 3 ファイル | 1 件（本物） | **20 ツール** | 408 passed |
+
+`@modelcontextprotocol/client` は 4 リポジトリとも **devDependencies** に置いた
+（使うのはテストだけで、`dist` には出ない）。
+
+**偽陽性の見分け方**: codemod は「`inputSchema` が schema object か確認できない」としか
+言えない。値が別ファイルの const だと静的に追えないためで、reader / verify のように
+既に `.strict()` した ZodObject を渡している場合も同じ警告が出る。
+`tsc --noEmit` が 0 件なら本物ではない。
+
+🔴 **reader の `src/index.ts` だけ codemod が失敗した**
+（`Transform failed: Manipulation error: A syntax error was inserted`）。
+このファイルは shebang の下に stdout ガードの代入文が並び、その後に import が来る並びで、
+codemod が import を shebang より前に挿した。2 行を手で書き換えた。
+ほかの 3 サーバはガードを副作用モジュール（`utils/stdout-guard.ts`）に切り出しており、
+この並びになっていない。**reader も同じ形に揃えるかは A3 の範囲外として据え置く**
+（ESM は import を巻き上げるので、いまの並びではガードが依存モジュールの評価後に入る）。
+
+#### A3 の受入 — `tools/list` の 5 項目突き合わせ（54 ツール）
+
+基準線は A2 完了後（SDK v1）。
+
+| | ツール数 | description | required | additionalProperties | inputSchema |
+|---|---|---|---|---|---|
+| pdf-spec-mcp | 差 0 | 差 0 | 差 0 | **8 件**（無し → `false`） | 8 件 |
+| pdf-reader-mcp | 差 0 | 差 0 | 差 0 | 差 0（19/19 とも `false` のまま） | 19 件 |
+| pdf-verify-mcp | 差 0 | 差 0 | 差 0 | 差 0（7/7 とも `false` のまま） | 7 件 |
+| pdf-writer-mcp | 差 0 | 差 0 | 差 0 | **20 件**（無し → `false`） | 20 件 |
+
+`inputSchema` の差は 2 種類しかない。
+
+1. **`$schema` が draft-07 から 2020-12 になった**（54 ツール全部）
+
+   ```
+   - "$schema": "http://json-schema.org/draft-07/schema#"
+   + "$schema": "https://json-schema.org/draft/2020-12/schema"
+   ```
+
+   あわせて、内部参照が `#/definitions/...` から `#/$defs/...` に変わった。
+   2020-12 の書き方である。該当するのは `add_bookmarks`（`bookmarks` が `children` で
+   再帰する唯一のツール）だけ。
+
+2. **`additionalProperties` が「無い」から `false` になった**（spec 8 / writer 20）
+
+   `.strict()` によるもの。stack 内の呼び出し側が渡す引数を数えたが、
+   spec / writer とも宣言に無いものは 0 件だった。
+
+#### 🔴 実測でぶつかった例外 — 知らないツール名の失敗の届け先が変わる
+
+Issue に書いていなかった破壊的変更。生の JSON-RPC で実測した。
+
+| | 知らないツール名 | 入力検証の失敗 |
+|---|---|---|
+| SDK v1 | ツール結果 `isError: true`（本文は `MCP error -32602: Tool ... not found`） | ツール結果 `isError: true` |
+| SDK v2 | **JSON-RPC の `error`（code -32602）**。ツール結果は返らない | ツール結果 `isError: true`（変わらず） |
+
+移ったのは「ツール名が無い」場合だけである。§A4 の決裁 2「入力検証の失敗は v2 の
+`isError: true` を前提とする」は、実測でそのとおりだった。
+
+spec と verify の `registry.test.ts` がこれで落ちて見つかった（writer / reader は
+このケースを見ていなかった）。2 本ともこの形に書き直した。
 
 🔴 **A3 の途中で入力検証の形を変えない。** raw shape → `z.object({...}).strict()` に
 揃えるところまでが A3 で、**失敗形の §2.3 化は A3 完了後に別途決める**（§A4）。
@@ -326,11 +396,14 @@ pdf-agent-pipeline が `callToolJson` で渡す引数、pdf-trust / pdf-publish 
 - [ ] **版**: `engines.node` が上がる（reader `>=18` → `>=20`）のは**利用者に届く破壊的変更**。
       4 サーバとも 0.x なので minor を上げる（例 reader 0.12.0 → 0.13.0）。
       1.0.0 に上げるかは別途
-- [ ] **peerDependencies**: **現状は不要**（実測 = 4 サーバの `src/index.ts` は
-      `export` を 1 つも持たず、`dist/index.d.ts` は 6〜10 行で SDK / zod の型が 0 件）。
-      `main` / `exports: ["."]` は宣言されているが実質 bin 専用である
-- [ ] **回帰検査を足す**: ビルド後の `dist/index.d.ts` に `@modelcontextprotocol` / `zod` の型が
-      現れたら落ちる検査。**現れたらその時点で peerDependencies の宣言が要る**
+- [x] **peerDependencies**: **不要のまま**（v2 移行後に再実測 = `dist/index.d.ts` は
+      6〜11 行で SDK / zod の型が 0 件）。`main` / `exports: ["."]` は宣言されているが
+      実質 bin 専用である。writer は `main` も `exports` も持たない
+- [x] **回帰検査を足した**: `scripts/check-public-types.mjs` +
+      `npm run check:public-types`（CI の build 直後）。`main` / `exports` が指す JS に
+      対応する `.d.ts` に `@modelcontextprotocol` / `zod` への参照があれば 1 を返す。
+      空振りでないことの実測: 4 リポジトリとも `src/index.ts` に
+      `export type { McpServer } from '@modelcontextprotocol/server'` を足すと落ち、戻すと通る
 - [ ] reader の `optionalDependencies`（`@hyzyla/pdfium ^2.1.13`）は据え置き
 - [ ] `stack.json` / README の構成表を再生成（`stack-check.yml` が落ちるので必須）
 
