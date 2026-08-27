@@ -234,44 +234,47 @@ zod 4 の `z.record` は key 型が必須:
 
 これで verify は 0 エラー。**reader は無修正で 0 エラー**（19 ツールすべてが
 `.strict()` した ZodObject を `registerTool` に直接渡しているため、
-`additionalProperties: false` の広告も保たれる）。
+`tools/list` が返すスキーマにも `additionalProperties: false` が残る）。
 
 #### ✅ A2 実施済み（2026-08-27・4 リポジトリともコミット）
 
 宣言は 4 サーバとも `^4.2.0`（解決は 4.4.3）。型検査の実費は上の 1 行だけだった。
 テストは reader 438 / verify 153 / spec 339 / writer 408 passed。
 
-#### 🔴 実測でぶつかった例外 — verify は `.strict()` 無しで `false` を広告していた
+#### 🔴 実測でぶつかった例外 — verify は `.strict()` 無しで `false` を返していた
 
 上の「現状の生 shape は zod 4 で『無い』」は spec / writer（既に zod 4）を見た記述である。
-**verify は zod 3 だったので、`.strict()` を 1 つも書いていないのに 7 ツールとも
-`additionalProperties: false` を広告していた**（zod 3 の JSON Schema 変換は素の ZodObject にも
-`false` を付ける）。zod 4 は付けない。
+**verify は zod 3 だったので、`.strict()` を 1 つも書いていないのに、7 ツールとも
+`tools/list` の `inputSchema` に `additionalProperties: false` が入っていた**
+（zod 3 の JSON Schema 変換は素の ZodObject にも `false` を付ける）。zod 4 は付けない。
 
 | | zod 3（A2 前） | zod 4 に上げた直後 |
 |---|---|---|
 | pdf-verify-mcp | `false` × 7 | **無し × 7** |
 | pdf-reader-mcp | `false` × 19 | `false` × 19（`.strict()` 済み） |
 
-**zod を上げるだけで、verify の広告が利用者から見て緩む。** そこで `.strict()` 化のうち
+**zod を上げるだけで、`tools/list` から `additionalProperties: false` が消える。**
+クライアントは「宣言に無いキーも渡してよい」と読む。そこで `.strict()` 化のうち
 verify の分を A2 に前倒しし、`z.object({...}).strict()` にした（決裁 §6 の既定と同じ形）。
 
-さらに、**広告と実際の動作はこれまで食い違っていた**。zod 3 の `z.object()` の既定は strip
-なので、宣言に無い引数は黙って捨てられていた。実走した差:
+さらに、**`tools/list` に書いてある内容と、実際に引数を受け取ったときの動作は、
+これまで一致していなかった**。`tools/list` は「宣言に無いキーは受け付けない」と書いて
+いたが、zod 3 の `z.object()` の既定は strip なので、実際は受け取って黙って捨てていた。
+実走した差:
 
 ```
 before: {file_path, response_format, no_such_arg} -> isError=false（結果を返す）
 after : 同じ引数                                  -> isError=true / -32602 Unrecognized key
 ```
 
-**§8 の「`.strict()` で落ちる既存の呼び出しがあるか」はこれで潰れた**（verify について）:
+**§8 の「`.strict()` で落ちる既存の呼び出しがあるか」はこれで解消した**（verify について）:
 pdf-agent-pipeline が `callToolJson` で渡す引数、pdf-trust / pdf-publish / pdf-specialist が
 記述している引数は、すべて宣言済みのものだけである。
 
 #### A2 の受入 — `tools/list` の 5 項目突き合わせ（54 ツール）
 
 計器は `scripts/tools-list-snapshot.mjs`（この Issue で追加）。**SDK のクライアントを使わず
-生の JSON-RPC over stdio で話す** ので、v1 のサーバと v2 のサーバを同じ物差しで測れる。
+生の JSON-RPC over stdio で話す** ので、測る側を動かさずに v1 と v2 のサーバを比べられる。
 
 | | ツール数 | description | additionalProperties | required | inputSchema |
 |---|---|---|---|---|---|
@@ -299,7 +302,7 @@ pdf-agent-pipeline が `callToolJson` で渡す引数、pdf-trust / pdf-publish 
 - [x] **verify に `tests/unit/registry.test.ts` を足した**（22 件）。
       5 項目を InMemoryTransport 越しに固定する。
       **空振りでないことを実測**: 共通入力の `.strict()` を 1 箇所外すと落ち、戻すと通る
-- [x] 切り出しがサーバの面を動かしていないことの実測: 5 項目とも差 0 件、
+- [x] 切り出しが外部に出る仕様を動かしていないことの実測: 5 項目とも差 0 件、
       `instructions` のハッシュも `serverInfo` も同一
 
 - [ ] `npx @modelcontextprotocol/codemod@2 v1-to-v2 .` を各リポジトリで回す
@@ -355,9 +358,10 @@ class FamilyMcpServer extends McpServer {
 ⚠️ **`validateToolInput` は文書化された公開 API ではない。** SDK を上げると黙って
 生メッセージに戻るので、**包みが外れたことを検出する検査を必ず対にする**。
 
-代案（公開 API のみ）は、広告を `passthrough()` にしてハンドラ側で検証する形だが、
-**広告が `additionalProperties: {}`（zod4）/ `true`（zod3）になる**（実測）。
-現状の生 shape は zod 4 で「無い」なので、**現状より緩く広告する**方向になる。
+代案（公開 API のみ）は、スキーマを `passthrough()` にしてハンドラ側で検証する形だが、
+**`tools/list` の `additionalProperties` が `{}`（zod4）/ `true`（zod3）になる**（実測）。
+現状の生 shape は zod 4 でそもそも出ないので、**いまより緩い制約をクライアントに伝える**
+方向になる。
 
 ### 決裁（2026-08-27・shuji）
 
@@ -368,7 +372,7 @@ class FamilyMcpServer extends McpServer {
 
 この 3 点から、**既定**はこうなる:
 
-| 失敗の出どころ | 形 | 広告 |
+| 失敗の出どころ | 形 | `tools/list` の `additionalProperties` |
 |---|---|---|
 | ハンドラが返す失敗（業務のエラー） | **§2.3 必須**（`code` / `retryable` / `hint` / `next_actions`） | — |
 | SDK 前段の入力検証 | SDK の生メッセージ（`isError: true`） | **`additionalProperties: false`** |
@@ -382,18 +386,18 @@ class FamilyMcpServer extends McpServer {
 - **§2.3 化を行うかどうかは A3 完了後に決める。** 同じリリースに混ぜると、`tools/list` の差が
   「移行によるもの」か「検証の作り変えによるもの」か帰属できなくなる
 - 行うと決めた場合の手段は **公開 API のみ**（passthrough + ハンドラ検証）。
-  代償は広告が `additionalProperties: {}`（zod4）/ `true`（zod3）に緩むこと（実測）
+  代償は `tools/list` の `additionalProperties` が `{}`（zod4）/ `true`（zod3）に緩むこと（実測）
 
 ### subclass / 内部 API は既定にしない
 
 `validateToolInput` / `createToolError` の override は v1 / v2 とも**技術的には可能**
-（prototype 上のメソッド・実走で確認済み）。広告を `false` に保ったまま §2.3 を載せられる
+（prototype 上のメソッド・実走で確認済み）。`additionalProperties: false` を保ったまま §2.3 を載せられる
 唯一の手段でもある。**それでも既定にはしない** — 文書化された公開 API ではなく、
 SDK を上げると黙って生メッセージに戻るため。
 
 採用を検討できるのは、次の 2 つが揃ったときだけとする:
 
-1. §2.3 化を行うと決め、かつ広告を `false` に保つ必要があると判断した
+1. §2.3 化を行うと決め、かつ `additionalProperties: false` を保つ必要があると判断した
 2. **包みが外れたことを検出する検査**（T-3 で落ちることを実測したもの）を同じ変更に含める
 
 - [ ] 規約 `06-family-implementation-standards.md` に §2.x として書き起こす
@@ -478,7 +482,7 @@ SDK を上げると黙って生メッセージに戻るため。
 - **v2 の実サーバを stdio で起動した挙動。** 測ったのは `InMemoryTransport` 越しの
   `tools/list` / `tools/call` のみ
 - ~~**`.strict()` を有効にしたときに落ちる既存の呼び出しがあるか。**~~
-  → **verify については潰れた**（A2 の実測）。stack 内の呼び出し側が渡す引数は
+  → **verify については解消した**（A2 の実測）。stack 内の呼び出し側が渡す引数は
   すべて宣言済み。spec / writer に `.strict()` を入れるときは同じ確認を改めて行う
 - 各リポジトリを Node 24 / 26 で回したときの挙動
 
@@ -546,7 +550,7 @@ node scripts/tools-list-snapshot.mjs take <server-dir> before.json --label befor
 node scripts/tools-list-snapshot.mjs take <server-dir> after.json  --label after
 node scripts/tools-list-snapshot.mjs diff before.json after.json --detail
 #   SDK のクライアントを使わず生 JSON-RPC over stdio で話すので、
-#   v1 のサーバと v2 のサーバを同じ物差しで測れる
+#   測る側を動かさずに v1 と v2 のサーバを比べられる
 
 # v2 の挙動確認
 npm i @modelcontextprotocol/server@2 @modelcontextprotocol/client@2 zod@4
