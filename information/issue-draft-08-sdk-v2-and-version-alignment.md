@@ -158,15 +158,15 @@ writer だけ影響が出ていなかったのは `"types": ["node"]` を持っ�
 
 作業:
 
-- [ ] TypeScript を `7.0.2` に統一。spec / reader / verify の tsconfig に `"types": ["node"]` を 1 行
-- [ ] **writer の `@types/node` を `^26.1.1` → `^22` に復元する**（`engines.node: >=20` と揃える。
+- [x] TypeScript を `7.0.2` に統一。spec / reader / verify の tsconfig に `"types": ["node"]` を 1 行
+- [x] **writer の `@types/node` を `^26.1.1` → `^22` に復元する**（`engines.node: >=20` と揃える。
       26 のままだと pkijs の型で 1 件出る repo が生まれる = A1 の実測）
-- [ ] `@types/node` を 4 サーバ + lib で `^22` に統一
-- [ ] `engines.node`: reader を `>=18` → `>=20`。spec は `>=20` 据え置き + 例外記録（§4.1）
-- [ ] **CI マトリクスに Node 20 を残したまま `[20, 22]` に統一**（reader から `18` を外す。
+- [x] `@types/node` を 4 サーバ + lib で `^22` に統一
+- [x] `engines.node`: reader を `>=18` → `>=20`。spec は `>=20` 据え置き + 例外記録（§4.1）
+- [x] **CI マトリクスに Node 20 を残したまま `[20, 22]` に統一**（reader から `18` を外す。
       20 を落とさないのは `engines.node: >=20` を実際に測る唯一のジョブだから）、publish を `22` に統一
-- [ ] Biome を `2.5.4` 完全固定（normativepdf のキャレットを外す・規約 §2.7）
-- [ ] `scripts/check-engines.mjs` を 7 リポジトリに置き、CI の `npm ci` 直後で回す
+- [x] Biome を `2.5.4` 完全固定（normativepdf のキャレットを外す・規約 §2.7）
+- [x] `scripts/check-engines.mjs` を 7 リポジトリに置き、CI の `npm ci` 直後で回す
 
 #### 🔴 実測でぶつかった例外 — normativepdf は TypeScript 5.9 のまま据え置く（2026-08-27）
 
@@ -409,11 +409,91 @@ spec と verify の `registry.test.ts` がこれで落ちて見つかった（wr
 
 ### A4. 入力検証の失敗形を §2.3 の語彙に載せる
 
-**v2 でも公式フックは無い**（実測）。v2 の `ServerOptions.jsonSchemaValidator`
-（`getValidator(schema) => (input) => {valid, data, errorMessage}`）は公式の拡張点だが、
-**Zod スキーマを渡す経路では呼ばれない（実測 0 回）**。Standard Schema の
-`~standard.validate` が使われるため。v2 の `registerTool` は raw JSON Schema を
-受け付けない（"must be a Standard Schema or a raw Zod shape"）。
+## ✅ 決定（2026-08-27・A3 完了後）— **採らない。既定のまま**
+
+SDK 前段の入力検証の失敗は、**SDK の生メッセージのまま**（`isError: true`）とする。
+§2.3 の語彙はハンドラが返せる失敗にだけ必須。規約 §2.x にはこの線引きを書く。
+
+**採らない理由**（実費ではなく、得るものの小ささ）:
+
+1. **いまこの失敗で分岐しているコードが 1 つも無い。** `pdf-agent-pipeline` は固定の引数を
+   渡すコードで、宣言に無いキーを送る経路が無い。3 つの Skill は LLM 向けの文であって、
+   エラーの `code` を読んで分岐する実装ではない
+2. **接頭辞が消せないので、結局 JSON にはならない**（下記の実測）。消費側は
+   最初の `{` までを捨てる文字列処理が要る。`structuredContent` も付かない
+3. **失敗の文言が SDK からこちら側に移る。** zod / SDK 側のメッセージ改善を受け取れなくなる
+4. 包みが外れたことを検出する検査を 4 サーバ分ずっと持ち続けることになる
+
+**それでも経路は実在する**ので、必要になったときのために下に実測を残す。
+
+### 🔴 前提の訂正（2026-08-27 実測・SDK v2.0.0）
+
+この節にはもともと 2 つ誤りがあった。
+
+**誤り 1: 「v2 の `registerTool` は raw JSON Schema を受け付けない」→ 受け付ける。**
+`fromJsonSchema()` が `@modelcontextprotocol/server` の公開 export として存在する。
+v2 自身が拒否メッセージでこう案内する:
+
+```
+Schema library "..." does not implement StandardJSONSchemaV1 (`~standard.jsonSchema`).
+Upgrade to a version that does, or wrap your JSON Schema with fromJsonSchema().
+```
+
+**誤り 2: 「`jsonSchemaValidator` は Zod 経路で呼ばれない（実測 0 回）」→ 渡す場所が違う。**
+`ServerOptions` に渡しても呼ばれない（0 回を再現した）。正しくは
+**`fromJsonSchema(schema, validator)` の第 2 引数**。そこに渡すと呼ばれる
+（実測 1 回・スキーマごとに 1 回だけ）。型定義には「カスタム検証器の主要な拡張点」とあり、
+`./validators/ajv` と `./validators/cf-worker` という公開 subpath も用意されている。
+
+### 実測した経路（採らないが、動くことは確かめた）
+
+verify の 7 ツールで試作した。
+
+```ts
+import { fromJsonSchema } from '@modelcontextprotocol/server';
+import { z } from 'zod';
+
+function familyInput<T extends ZodType>(schema: T) {
+  // `io: 'input'` が要る。既定（output）だと `.default()` を持つキーが required に入る
+  const json = z.toJSONSchema(schema, { io: 'input' }) as unknown as JsonSchemaType;
+  return fromJsonSchema<z.output<T>>(json, {
+    getValidator: () => (input) => {
+      const r = schema.safeParse(input);
+      return r.success
+        ? { valid: true, data: r.data, errorMessage: undefined }
+        : { valid: false, data: undefined, errorMessage: JSON.stringify({ code: 'VALIDATION_ERROR', ... }) };
+    },
+  });
+}
+```
+
+| | 結果 |
+|---|---|
+| `tools/list` の 5 項目 | **差 0 件**（`additionalProperties: false` も `required` も 1 バイト変わらず） |
+| 失敗の本文 | §2.3 の 5 項目が載る |
+| テスト | 175 passed |
+| 実費 | 新規 57 行 + 各ツール 2 行 |
+| 内部 API の override | **無し**（決裁 3 に反しない） |
+
+実走した本文:
+
+```
+Input validation error: Invalid arguments for tool verify_integrity: {"code":"VALIDATION_ERROR","message":"(root): Unrecognized key: \"no_such_arg\"","retryable":true,"hint":"...","next_actions":["..."]}
+```
+
+残るコスト 3 つ:
+
+1. **接頭辞 `Input validation error: Invalid arguments for tool <name>: ` が消せない。**
+   `structuredContent` も付かない
+2. **型の付け替えが 1 箇所要る。** zod の `JSONSchema` は `$vocabulary` の値を boolean と
+   宣言し、SDK の `JsonSchemaType` は string と宣言している。JSON Schema 2020-12 では
+   boolean が正しく、SDK 側の型が合っていない
+3. **`io: 'input'` を忘れると `required` が変わる**（`.default()` を持つキーが入る）。
+   受入項目 5 が捕まえる
+
+---
+
+以下は A3 完了前に書いた検討である（決定は上のとおり）。
 
 `validateToolInput` と `createToolError` は **v2 でも prototype 上にある**ので、
 サブクラスで包める（v1 / v2 とも実走で確認済み）:
@@ -473,7 +553,10 @@ SDK を上げると黙って生メッセージに戻るため。
 1. §2.3 化を行うと決め、かつ `additionalProperties: false` を保つ必要があると判断した
 2. **包みが外れたことを検出する検査**（T-3 で落ちることを実測したもの）を同じ変更に含める
 
-- [ ] 規約 `06-family-implementation-standards.md` に §2.x として書き起こす
+- [ ] 規約 `06-family-implementation-standards.md` に §2.x として書き起こす。
+      書く内容は「失敗の届け先は 2 つに分かれる」:
+      **ハンドラが返す失敗 = §2.3 の 4 項目が必須 / SDK 前段の入力検証 = SDK の生メッセージのまま**。
+      あわせて「知らないツール名は v2 では JSON-RPC エラーになる」も書く
 
 ---
 
@@ -490,7 +573,7 @@ SDK を上げると黙って生メッセージに戻るため。
 | Biome | `2.5.4` 完全固定 | 規約 §2.7 |
 | vitest | 各リポジトリの自由（誰にも届かない層）。揃えるなら別 Issue | §4.4 |
 | ツールスキーマ | **`.strict()` した ZodObject を `registerTool` に直接渡す** | A4 の決裁 |
-| 入力検証の失敗形 | **A3 中は生メッセージのまま。§2.3 化の可否は A3 完了後に決める** | A4 の決裁 |
+| 入力検証の失敗形 | **生メッセージのまま。§2.3 化は採らない（2026-08-27 決定）** | A4 |
 | §2.3 の語彙 | **ハンドラが返せる失敗には必須** | A4 の決裁 |
 | 内部 API の override | **既定にしない**（条件つきでのみ検討・A4） | A4 の決裁 |
 | zod の下限 | **`^4.2.0`。4.0 / 4.1 も受入しない** | A2 |
@@ -537,14 +620,45 @@ SDK を上げると黙って生メッセージに戻るため。
 - ⚠️ **verify には `tools/list` の実応答を取る検査が無い。** A3 の前に足す
 - リリース後は `npx` で公開版を叩いて同じ突き合わせをする（[[verify-published-package-by-npx]]）
 
-### A4
+### A4（§2.3 化は採らないと決めたので、受入は次の 3 つ）
 
-- 4 サーバのすべてのツールが `.strict()` した ZodObject を渡している
-  （`tools/list` の全ツールで `additionalProperties: false` と `required` を実測）
-- **A3 の時点では失敗形が SDK の生メッセージのままであること**（§2.3 化を混ぜていない）
-- ハンドラが返す失敗が、4 サーバとも §2.3 の 4 項目を持っている
-- **`.strict()` によって落ちる既存の呼び出しが無いこと** — pdf-trust / pdf-publish /
-  pdf-specialist が投げる引数を実際に通して確かめる（§8 の未測定項目を潰す）
+- [x] 4 サーバのすべてのツールが `.strict()` した ZodObject を渡している
+      （`tools/list` の 54 ツールで `additionalProperties: false` と `required` を実測）
+- [x] **失敗形が SDK の生メッセージのままであること**（§2.3 化を混ぜていない）
+- [x] **`.strict()` によって落ちる既存の呼び出しが無いこと** — stack 内の呼び出し側
+      （pdf-agent-pipeline / pdf-trust / pdf-publish / pdf-specialist）が渡す引数を数え、
+      宣言に無いものが 0 件であることを 4 サーバとも確かめた
+#### 🔴 ハンドラが返す失敗は 4 サーバとも §2.3 の形になっていない（2026-08-27 実測）
+
+**§2.3 の書き方（`error` が 5 項目を含むオブジェクト）を実装しているサーバは 1 つも無い。**
+4 サーバとも `code` を最上位に置き、`error` は別の用途に使っている。
+
+そして **Skill が文書化している契約は、§2.3 ではなく平らな形のほう**である
+（`skill/pdf-publish-skill/skills/pdf-publish/references/error-codes.md`）:
+
+```jsonc
+{ "error": "1文の人間可読メッセージ", "code": "SIGNED_PDF", "hint": "...",
+  "next_actions": [{ "action": "...", "reason": "...", "example": {...} }], "retryable": true }
+```
+
+実測（各サーバの失敗を 1〜2 件ずつ実走して項目の有無を数えた）:
+
+| | `error` | `code` | `hint` | `next_actions` | `retryable` |
+|---|---|---|---|---|---|
+| pdf-writer-mcp（Skill の文書はこれを写したもの） | 文字列 | ✅ | — | ✅ オブジェクト配列 | ✅ |
+| pdf-reader-mcp | 文字列 | ✅ | ✅ | ✅ オブジェクト配列 | ❌ |
+| pdf-spec-mcp | 文字列 | ✅ | ❌ | ❌ | ✅ |
+| **pdf-verify-mcp** | **`true`**（真偽値） | ✅ | ❌ **`suggestion`** | ❌ | ❌ |
+
+- **§2.3 の `next_actions` は文字列の配列**（`["..."]`）だが、reader / writer は
+  `{action, reason, example}` のオブジェクト配列を返している。Skill が期待しているのは
+  オブジェクトのほうで、`example` まで読んで再試行の形を組み立てる
+- **verify が最も離れている。** `error` に人間可読メッセージを入れず `true` を入れ、
+  `hint` の代わりに `suggestion` を使う。Skill の分岐表がそのままでは当たらない
+
+→ **A4 の受入としては満たしていない。** ただし直す先は §2.3 の書き方ではなく、
+Skill が実際に読んでいる平らな形である可能性が高い。**別 Issue として分ける**
+（この Issue は SDK v2 移行を目的にしており、エラー契約の統一は射程が違う）
 
 ## 8. 測っていないこと（受入に入れない）
 
