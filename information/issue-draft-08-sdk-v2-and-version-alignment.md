@@ -38,7 +38,7 @@ monolithic な `sdk` は廃止方向。**v1.x はバグ修正とセキュリテ�
 v2 の性質: `type: module`（ESM 専用）/ `engines.node: >=20` /
 `dependencies` に **`zod: ^4.2.0`** / ツールスキーマは Standard Schema（Zod v4 / ArkType / Valibot）。
 
-## 3. 移行の面（実測）
+## 3. 変更が当たる範囲（実測）
 
 | | ESM | SDK に触る `src` | transport | 削除された API |
 |---|---|---|---|---|
@@ -181,7 +181,7 @@ peer typescript@"5.0.x || … || 5.9.x || 6.0.x" from typedoc@0.28.20
 
 **typedoc は最新（0.28.20）でも peer の上限が `6.0.x`** で、TypeScript 7 を受けない。
 typedoc を持つのは 7 リポジトリ中 normativepdf だけである（2026-08-26 に
-リファレンス生成のために入れた。`treatWarningsAsErrors` で「公開面から参照されるのに
+リファレンス生成のために入れた。`treatWarningsAsErrors` で「公開する型から参照されるのに
 未エクスポートの型」を機械検出している）。
 
 **据え置く判断の根拠**: TypeScript の版は §4.4 の表でいう「誰にも届かない層」であり、
@@ -214,7 +214,7 @@ normativepdf の `.d.ts` は TS 5.7 でも 7.0 でも同じに読める（実測
 **下限は `^4.2.0`。それ未満は受入しない。** 移行ガイドの記述:
 
 > v1 サポート: `^3.25 || ^4.0` ／ **v2 要件: `^4.2.0`**
-> Zod 3.x は実行時に失敗（**登録時の無音失敗**）／Zod 4.0–4.1 はフォールバック動作（**記述が削除される**）
+> Zod 3.x は実行時に失敗（**登録時に失敗するが、型検査もテストも通る**）／Zod 4.0–4.1 はフォールバック動作（**記述が削除される**）
 
 つまり **4.0 / 4.1 も不可**。「zod 4 系」ではなく `^4.2.0` と書く。
 いま解決されているのは spec / writer が 4.4.3、reader / verify が **3.25.76**。
@@ -393,8 +393,10 @@ spec と verify の `registry.test.ts` がこれで落ちて見つかった（wr
 4 サーバはすべて npm 公開物（`bin` 付き・0.x）である。A3 は利用者に届く変更を含むので、
 版の上げ方と依存の宣言をここで決める。
 
-- [ ] **版**: `engines.node` が上がる（reader `>=18` → `>=20`）のは**利用者に届く破壊的変更**。
-      4 サーバとも 0.x なので minor を上げる（例 reader 0.12.0 → 0.13.0）。
+- [x] **版**: `engines.node` が上がる（reader `>=18` → `>=20`）のは**利用者に届く破壊的変更**。
+      4 サーバとも 0.x なので minor を上げる。**2026-08-27 に上げた**:
+      spec 0.5.0 → **0.6.0** / reader 0.12.0 → **0.13.0** / verify 0.17.0 → **0.18.0** /
+      writer 0.20.1 → **0.21.0**（`chore(release):` の 4 コミット。tag と push は未了）。
       1.0.0 に上げるかは別途
 - [x] **peerDependencies**: **不要のまま**（v2 移行後に再実測 = `dist/index.d.ts` は
       6〜11 行で SDK / zod の型が 0 件）。`main` / `exports: ["."]` は宣言されているが
@@ -405,13 +407,16 @@ spec と verify の `registry.test.ts` がこれで落ちて見つかった（wr
       空振りでないことの実測: 4 リポジトリとも `src/index.ts` に
       `export type { McpServer } from '@modelcontextprotocol/server'` を足すと落ち、戻すと通る
 - [ ] reader の `optionalDependencies`（`@hyzyla/pdfium ^2.1.13`）は据え置き
-- [ ] `stack.json` / README の構成表を再生成（`stack-check.yml` が落ちるので必須）
+- [x] `stack.json` / README の構成表を再生成（2026-08-27）。落ちていた原因は
+      normativepdf の npm 0.9.0 と stack.json 0.8.0 のずれ 1 件で、
+      `node scripts/generate-stack.mjs --check` は「すべて一致」に戻った。
+      **4 サーバを publish したあと、もう一度回す**（stack.json の `published` は npm が正典）
 
 ### A4. 入力検証の失敗形を §2.3 の語彙に載せる
 
 ## ✅ 決定（2026-08-27・A3 完了後）— **採らない。既定のまま**
 
-SDK 前段の入力検証の失敗は、**SDK の生メッセージのまま**（`isError: true`）とする。
+SDK 前段の入力検証の失敗は、**SDK が出す検証メッセージそのまま**（`isError: true`）とする。
 §2.3 の語彙はハンドラが返せる失敗にだけ必須。規約 §2.x にはこの線引きを書く。
 
 **採らない理由**（実費ではなく、得るものの小ささ）:
@@ -422,7 +427,7 @@ SDK 前段の入力検証の失敗は、**SDK の生メッセージのまま**�
 2. **接頭辞が消せないので、結局 JSON にはならない**（下記の実測）。消費側は
    最初の `{` までを捨てる文字列処理が要る。`structuredContent` も付かない
 3. **失敗の文言が SDK からこちら側に移る。** zod / SDK 側のメッセージ改善を受け取れなくなる
-4. 包みが外れたことを検出する検査を 4 サーバ分ずっと持ち続けることになる
+4. 載せ替えが外れたことを検出する検査を 4 サーバ分ずっと持ち続けることになる
 
 **それでも経路は実在する**ので、必要になったときのために下に実測を残す。
 
@@ -508,8 +513,8 @@ class FamilyMcpServer extends McpServer {
 }
 ```
 
-⚠️ **`validateToolInput` は文書化された公開 API ではない。** SDK を上げると黙って
-生メッセージに戻るので、**包みが外れたことを検出する検査を必ず対にする**。
+⚠️ **`validateToolInput` は文書化された公開 API ではない。** SDK を上げると、型検査もテストも通ったまま
+SDK の検証メッセージに戻る。**載せ替えが外れたことを検出する検査を必ず対にする。**
 
 代案（公開 API のみ）は、スキーマを `passthrough()` にしてハンドラ側で検証する形だが、
 **`tools/list` の `additionalProperties` が `{}`（zod4）/ `true`（zod3）になる**（実測）。
@@ -519,7 +524,7 @@ class FamilyMcpServer extends McpServer {
 ### 決裁（2026-08-27・shuji）
 
 1. **契約 Zod は `.strict()`**
-2. **入力検証の失敗チャネルは v2 の `isError: true` を前提とする**
+2. **入力検証の失敗の届け先は v2 の `isError: true` を前提とする**
 3. **§2.3 の語彙はハンドラが返せる失敗に必須。** SDK 前段の失敗へ載せる場合は
    **公開 API のみ**（passthrough + ハンドラ検証）。**内部 API の override はしない**
 
@@ -528,14 +533,14 @@ class FamilyMcpServer extends McpServer {
 | 失敗の出どころ | 形 | `tools/list` の `additionalProperties` |
 |---|---|---|
 | ハンドラが返す失敗（業務のエラー） | **§2.3 必須**（`code` / `retryable` / `hint` / `next_actions`） | — |
-| SDK 前段の入力検証 | SDK の生メッセージ（`isError: true`） | **`additionalProperties: false`** |
+| SDK 前段の入力検証 | SDK が出す検証メッセージ（`isError: true`） | **`additionalProperties: false`** |
 
 **既定 = `.strict()` した ZodObject を `registerTool` に直接渡す**（reader が既にこの形）。
 
 ### 時期 — A3 中は `.strict()` のまま上げる
 
 - **A3 では入力検証の形を変えない。** raw shape → `z.object({...}).strict()` に揃えるところまで。
-  SDK v2 へ上げるあいだ、失敗形は SDK の生メッセージのままにする
+  SDK v2 へ上げるあいだ、失敗の形は SDK が出す検証メッセージのままにする
 - **§2.3 化を行うかどうかは A3 完了後に決める。** 同じリリースに混ぜると、`tools/list` の差が
   「移行によるもの」か「検証の作り変えによるもの」か帰属できなくなる
 - 行うと決めた場合の手段は **公開 API のみ**（passthrough + ハンドラ検証）。
@@ -546,16 +551,16 @@ class FamilyMcpServer extends McpServer {
 `validateToolInput` / `createToolError` の override は v1 / v2 とも**技術的には可能**
 （prototype 上のメソッド・実走で確認済み）。`additionalProperties: false` を保ったまま §2.3 を載せられる
 唯一の手段でもある。**それでも既定にはしない** — 文書化された公開 API ではなく、
-SDK を上げると黙って生メッセージに戻るため。
+SDK を上げると、型検査もテストも通ったまま SDK の検証メッセージに戻るため。
 
 採用を検討できるのは、次の 2 つが揃ったときだけとする:
 
 1. §2.3 化を行うと決め、かつ `additionalProperties: false` を保つ必要があると判断した
-2. **包みが外れたことを検出する検査**（T-3 で落ちることを実測したもの）を同じ変更に含める
+2. **載せ替えが外れたことを検出する検査**（T-3 で落ちることを実測したもの）を同じ変更に含める
 
-- [ ] 規約 `06-family-implementation-standards.md` に §2.x として書き起こす。
-      書く内容は「失敗の届け先は 2 つに分かれる」:
-      **ハンドラが返す失敗 = §2.3 の 4 項目が必須 / SDK 前段の入力検証 = SDK の生メッセージのまま**。
+- [x] 規約 `06-family-implementation-standards.md` に **§2.11** として書き起こした（2026-08-27）。
+      書いた内容は「失敗の届け先は 2 つに分かれる」:
+      **ハンドラが返す失敗 = §2.3 の 4 項目が必須 / SDK 前段の入力検証 = SDK が出す検証メッセージのまま**。
       あわせて「知らないツール名は v2 では JSON-RPC エラーになる」も書く
 
 ---
@@ -573,7 +578,7 @@ SDK を上げると黙って生メッセージに戻るため。
 | Biome | `2.5.4` 完全固定 | 規約 §2.7 |
 | vitest | 各リポジトリの自由（誰にも届かない層）。揃えるなら別 Issue | §4.4 |
 | ツールスキーマ | **`.strict()` した ZodObject を `registerTool` に直接渡す** | A4 の決裁 |
-| 入力検証の失敗形 | **生メッセージのまま。§2.3 化は採らない（2026-08-27 決定）** | A4 |
+| 入力検証の失敗の形 | **SDK が出す検証メッセージのまま。§2.3 化は採らない（2026-08-27 決定）** | A4 |
 | §2.3 の語彙 | **ハンドラが返せる失敗には必須** | A4 の決裁 |
 | 内部 API の override | **既定にしない**（条件つきでのみ検討・A4） | A4 の決裁 |
 | zod の下限 | **`^4.2.0`。4.0 / 4.1 も受入しない** | A2 |
@@ -591,17 +596,17 @@ SDK を上げると黙って生メッセージに戻るため。
      （`@napi-rs/lzma-linux-x64-gnu`：`optional: true` / `os: [linux]` / `cpu: [x64]` /
      `^22.20 || ^24.12 || >=25`・spec の lock で実測。そのまま検体になる）
    - spec の `src/` から modern ビルドを import すると例外が無効になり落ちる
-3. **spec の CI の Node 20 ジョブで、実際の規格 PDF を 1 本読む**（§9 の第 1 項を潰す）
+3. **spec の CI の Node 20 ジョブで、実際の規格 PDF を 1 本読む**（§9 の第 1 項を片づける）
 4. TypeScript 7.0.2 で 4 リポジトリとも型検査 0 件・`npm test` が移行前と同じ結果
 
 ### A2 / A3 — 🔴 `tools/list` の実応答を突き合わせる
 
 移行ガイドにこうある:
 
-> Zod 3.x は実行時に失敗（**登録時の無音失敗**）
+> Zod 3.x は実行時に失敗（**登録時に失敗するが、型検査もテストも通る**）
 > Zod 4.0–4.1 はフォールバック動作（**記述が削除される**）
 
-**無音**なので、型検査もテストも通ったまま、ツールが登録されない、あるいは description が
+エラーが出ないので、型検査もテストも通ったまま、ツールが登録されない、あるいは description が
 消えた状態になりうる（[[green-tests-can-be-vacuous]] と同じ型）。
 
 - **移行の前後で `tools/list` の実応答を突き合わせ、次の 5 項目が一致すること**
@@ -624,7 +629,7 @@ SDK を上げると黙って生メッセージに戻るため。
 
 - [x] 4 サーバのすべてのツールが `.strict()` した ZodObject を渡している
       （`tools/list` の 54 ツールで `additionalProperties: false` と `required` を実測）
-- [x] **失敗形が SDK の生メッセージのままであること**（§2.3 化を混ぜていない）
+- [x] **失敗の形が SDK が出す検証メッセージのままであること**（§2.3 化を混ぜていない）
 - [x] **`.strict()` によって落ちる既存の呼び出しが無いこと** — stack 内の呼び出し側
       （pdf-agent-pipeline / pdf-trust / pdf-publish / pdf-specialist）が渡す引数を数え、
       宣言に無いものが 0 件であることを 4 サーバとも確かめた
@@ -663,8 +668,8 @@ Skill が実際に読んでいる平らな形である可能性が高い。**別
 ## 8. 測っていないこと（受入に入れない）
 
 - **ISO 32000-2（1,000 ページ超）を Node 20 で読み切れるか。** §4.1 で測ったのは
-  799 バイトの手製 PDF（1 ページ・テキスト・アウトライン 1 件）に対する API 表面である
-  → 受入基準 A1-3 で潰す
+  799 バイトの手製 PDF（1 ページ・テキスト・アウトライン 1 件）に対して API を一通り呼んだだけである
+  → 受入基準 A1-3 で片づける
 - **`npm test` を TypeScript 7 で回した結果。** 測ったのは型検査と emit だけ
 - **v2 の実サーバを stdio で起動した挙動。** 測ったのは `InMemoryTransport` 越しの
   `tools/list` / `tools/call` のみ
