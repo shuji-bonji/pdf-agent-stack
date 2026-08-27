@@ -236,7 +236,71 @@ zod 4 の `z.record` は key 型が必須:
 `.strict()` した ZodObject を `registerTool` に直接渡しているため、
 `additionalProperties: false` の広告も保たれる）。
 
+#### ✅ A2 実施済み（2026-08-27・4 リポジトリともコミット）
+
+宣言は 4 サーバとも `^4.2.0`（解決は 4.4.3）。型検査の実費は上の 1 行だけだった。
+テストは reader 438 / verify 153 / spec 339 / writer 408 passed。
+
+#### 🔴 実測でぶつかった例外 — verify は `.strict()` 無しで `false` を広告していた
+
+上の「現状の生 shape は zod 4 で『無い』」は spec / writer（既に zod 4）を見た記述である。
+**verify は zod 3 だったので、`.strict()` を 1 つも書いていないのに 7 ツールとも
+`additionalProperties: false` を広告していた**（zod 3 の JSON Schema 変換は素の ZodObject にも
+`false` を付ける）。zod 4 は付けない。
+
+| | zod 3（A2 前） | zod 4 に上げた直後 |
+|---|---|---|
+| pdf-verify-mcp | `false` × 7 | **無し × 7** |
+| pdf-reader-mcp | `false` × 19 | `false` × 19（`.strict()` 済み） |
+
+**zod を上げるだけで、verify の広告が利用者から見て緩む。** そこで `.strict()` 化のうち
+verify の分を A2 に前倒しし、`z.object({...}).strict()` にした（決裁 §6 の既定と同じ形）。
+
+さらに、**広告と実際の動作はこれまで食い違っていた**。zod 3 の `z.object()` の既定は strip
+なので、宣言に無い引数は黙って捨てられていた。実走した差:
+
+```
+before: {file_path, response_format, no_such_arg} -> isError=false（結果を返す）
+after : 同じ引数                                  -> isError=true / -32602 Unrecognized key
+```
+
+**§8 の「`.strict()` で落ちる既存の呼び出しがあるか」はこれで潰れた**（verify について）:
+pdf-agent-pipeline が `callToolJson` で渡す引数、pdf-trust / pdf-publish / pdf-specialist が
+記述している引数は、すべて宣言済みのものだけである。
+
+#### A2 の受入 — `tools/list` の 5 項目突き合わせ（54 ツール）
+
+計器は `scripts/tools-list-snapshot.mjs`（この Issue で追加）。**SDK のクライアントを使わず
+生の JSON-RPC over stdio で話す** ので、v1 のサーバと v2 のサーバを同じ物差しで測れる。
+
+| | ツール数 | description | additionalProperties | required | inputSchema |
+|---|---|---|---|---|---|
+| pdf-spec-mcp | 8 / 差 0 | 差 0 | 差 0 | 差 0 | 差 0 |
+| pdf-reader-mcp | 19 / 差 0 | 差 0 | 差 0 | 差 0 | **1 件** |
+| pdf-verify-mcp | 7 / 差 0 | 差 0 | 差 0 | 差 0 | **1 件** |
+| pdf-writer-mcp | 20 / 差 0 | 差 0 | 差 0 | 差 0 | 差 0 |
+
+差 2 件はどちらも帰属済みで、受け付ける値は変わらない:
+
+1. reader `locate_objects.object_numbers` の要素に `maximum: 9007199254740991` が付いた。
+   zod 4 が `.int()` に安全整数の上限を書くようになったため。`.max()` を明示していない
+   `.int()` はこの 1 箇所だけだった
+2. verify `validate_clauses.given` の値が `type: [boolean, string, number]` から
+   `anyOf: [...]` になり、key 型を明示したぶん `propertyNames` が増えた
+
 ### A3. SDK v2 移行
+
+#### ✅ 前提整備は済み（2026-08-27）
+
+- [x] **verify に `buildServer()` を切り出した**。`src/index.ts` がトップレベルで
+      `McpServer` を作りそのまま stdio に繋いでいたので、import しただけで
+      トランスポートが立ち、`tools/list` を取る検査が書けなかった。
+      `src/server.ts` に分離（spec / writer と同じ形）。INSTRUCTIONS の本文は変えていない
+- [x] **verify に `tests/unit/registry.test.ts` を足した**（22 件）。
+      5 項目を InMemoryTransport 越しに固定する。
+      **空振りでないことを実測**: 共通入力の `.strict()` を 1 箇所外すと落ち、戻すと通る
+- [x] 切り出しがサーバの面を動かしていないことの実測: 5 項目とも差 0 件、
+      `instructions` のハッシュも `serverInfo` も同一
 
 - [ ] `npx @modelcontextprotocol/codemod@2 v1-to-v2 .` を各リポジトリで回す
 - [ ] `grep -rn '@mcp-codemod-error' .` を潰す
@@ -413,8 +477,9 @@ SDK を上げると黙って生メッセージに戻るため。
 - **`npm test` を TypeScript 7 で回した結果。** 測ったのは型検査と emit だけ
 - **v2 の実サーバを stdio で起動した挙動。** 測ったのは `InMemoryTransport` 越しの
   `tools/list` / `tools/call` のみ
-- **`.strict()` を有効にしたときに落ちる既存の呼び出しがあるか。** pdf-trust /
-  pdf-publish / pdf-specialist が投げる引数を実際に通していない
+- ~~**`.strict()` を有効にしたときに落ちる既存の呼び出しがあるか。**~~
+  → **verify については潰れた**（A2 の実測）。stack 内の呼び出し側が渡す引数は
+  すべて宣言済み。spec / writer に `.strict()` を入れるときは同じ確認を改めて行う
 - 各リポジトリを Node 24 / 26 で回したときの挙動
 
 ## 9. 順序
@@ -476,8 +541,12 @@ npx tsc -p tsconfig.json --outDir dist-70   # typescript@7.0.2
 diff -rq dist-59 dist-70
 
 # tools/list の突き合わせ（A2 / A3 の受入）
-#   InMemoryTransport でサーバを立て listTools() を呼び、
-#   ツール数 / description / inputSchema を移行前後で比較する
+node scripts/tools-list-snapshot.mjs take <server-dir> before.json --label before
+#   ...変更を入れて npm run build...
+node scripts/tools-list-snapshot.mjs take <server-dir> after.json  --label after
+node scripts/tools-list-snapshot.mjs diff before.json after.json --detail
+#   SDK のクライアントを使わず生 JSON-RPC over stdio で話すので、
+#   v1 のサーバと v2 のサーバを同じ物差しで測れる
 
 # v2 の挙動確認
 npm i @modelcontextprotocol/server@2 @modelcontextprotocol/client@2 zod@4
