@@ -6,7 +6,7 @@
     "layer = 役割 / form = 配布形態（誰が起動するか）。2 軸で見ると、同じ役割を違う形態で",
     "実装したもの（pdf-specialist = plugin / pdf-agent-pipeline = app）が並べて見える。"
   ],
-  "generatedAt": "2026-08-27T23:44:24.618Z",
+  "generatedAt": "2026-08-28T00:18:23.512Z",
   "generatedBy": "scripts/generate-stack.mjs",
   "npmScope": "@shuji-bonji",
   "repos": [
@@ -17,16 +17,16 @@
       "layer": "canon",
       "form": "mcp-server",
       "public": true,
-      "published": "0.5.0",
+      "published": "0.6.0",
       "local": {
         "version": "0.6.0",
-        "tag": "v0.5.0",
+        "tag": "v0.6.0",
         "dirty": false,
         "unpushedCommits": 5
       },
       "consistency": {
-        "status": "drift",
-        "detail": "npm 0.5.0 ≠ local 0.6.0"
+        "status": "match",
+        "detail": "0.6.0"
       }
     },
     {
@@ -36,16 +36,16 @@
       "layer": "structure",
       "form": "mcp-server",
       "public": true,
-      "published": "0.12.0",
+      "published": "0.13.0",
       "local": {
         "version": "0.13.0",
-        "tag": "v0.12.0",
+        "tag": "v0.13.0",
         "dirty": false,
         "unpushedCommits": 5
       },
       "consistency": {
-        "status": "drift",
-        "detail": "npm 0.12.0 ≠ local 0.13.0"
+        "status": "match",
+        "detail": "0.13.0"
       }
     },
     {
@@ -55,16 +55,16 @@
       "layer": "judgment",
       "form": "mcp-server",
       "public": true,
-      "published": "0.17.0",
+      "published": "0.18.0",
       "local": {
         "version": "0.18.0",
-        "tag": "v0.17.0",
+        "tag": "v0.18.0",
         "dirty": true,
         "unpushedCommits": 6
       },
       "consistency": {
-        "status": "drift",
-        "detail": "npm 0.17.0 ≠ local 0.18.0"
+        "status": "match",
+        "detail": "0.18.0"
       }
     },
     {
@@ -74,16 +74,16 @@
       "layer": "action",
       "form": "mcp-server",
       "public": true,
-      "published": "0.20.1",
+      "published": "0.21.0",
       "local": {
         "version": "0.21.0",
-        "tag": "v0.20.1",
+        "tag": "v0.21.0",
         "dirty": false,
         "unpushedCommits": 5
       },
       "consistency": {
-        "status": "drift",
-        "detail": "npm 0.20.1 ≠ local 0.21.0"
+        "status": "match",
+        "detail": "0.21.0"
       }
     },
     {
@@ -235,7 +235,7 @@
         "version": null,
         "tag": null,
         "dirty": false,
-        "unpushedCommits": 5
+        "unpushedCommits": 7
       },
       "consistency": {
         "status": "not_published",

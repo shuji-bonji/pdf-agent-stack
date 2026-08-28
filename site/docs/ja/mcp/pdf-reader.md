@@ -6,7 +6,7 @@ description: PDF の中身と位置を観測する MCP（18 ツール） — テ
 
 **PDF の中身を AI に見せるサーバーです。** テキスト・表・構造ツリー・フォント・注釈・署名フィールドを取り出し、「それがページのどこに描かれているか」（座標）も返します。返すのはあくまで観測した事実で、正しいかどうかの判定はしません。
 
-- npm: [`@shuji-bonji/pdf-reader-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-reader-mcp) / 現行 v0.12.0 / [GitHub](https://github.com/shuji-bonji/pdf-reader-mcp)
+- npm: [`@shuji-bonji/pdf-reader-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-reader-mcp) / 現行 v0.13.0 / [GitHub](https://github.com/shuji-bonji/pdf-reader-mcp)
 - このページは責務と使いどころの解説です。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-reader)（`tools/list` から自動生成）へ
 - 環境変数なしで動作します
 
