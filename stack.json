@@ -6,7 +6,7 @@
     "layer = 役割 / form = 配布形態（誰が起動するか）。2 軸で見ると、同じ役割を違う形態で",
     "実装したもの（pdf-specialist = plugin / pdf-agent-pipeline = app）が並べて見える。"
   ],
-  "generatedAt": "2026-08-28T00:18:23.512Z",
+  "generatedAt": "2026-08-28T03:24:03.703Z",
   "generatedBy": "scripts/generate-stack.mjs",
   "npmScope": "@shuji-bonji",
   "repos": [
@@ -22,7 +22,7 @@
         "version": "0.6.0",
         "tag": "v0.6.0",
         "dirty": false,
-        "unpushedCommits": 5
+        "unpushedCommits": 0
       },
       "consistency": {
         "status": "match",
@@ -41,7 +41,7 @@
         "version": "0.13.0",
         "tag": "v0.13.0",
         "dirty": false,
-        "unpushedCommits": 5
+        "unpushedCommits": 0
       },
       "consistency": {
         "status": "match",
@@ -59,8 +59,8 @@
       "local": {
         "version": "0.18.0",
         "tag": "v0.18.0",
-        "dirty": true,
-        "unpushedCommits": 6
+        "dirty": false,
+        "unpushedCommits": 0
       },
       "consistency": {
         "status": "match",
@@ -79,7 +79,7 @@
         "version": "0.21.0",
         "tag": "v0.21.0",
         "dirty": false,
-        "unpushedCommits": 5
+        "unpushedCommits": 0
       },
       "consistency": {
         "status": "match",
@@ -93,16 +93,16 @@
       "layer": "judgment",
       "form": "library",
       "public": true,
-      "published": "0.3.0",
+      "published": "0.4.0",
       "local": {
-        "version": "0.3.0",
-        "tag": "v0.3.0",
+        "version": "0.4.0",
+        "tag": "v0.4.0",
         "dirty": false,
-        "unpushedCommits": 1
+        "unpushedCommits": 0
       },
       "consistency": {
         "status": "match",
-        "detail": "0.3.0"
+        "detail": "0.4.0"
       }
     },
     {
@@ -195,7 +195,7 @@
         "version": "0.7.0",
         "tag": null,
         "dirty": false,
-        "unpushedCommits": 0
+        "unpushedCommits": 1
       },
       "consistency": {
         "status": "not_published",
@@ -234,8 +234,8 @@
       "local": {
         "version": null,
         "tag": null,
-        "dirty": false,
-        "unpushedCommits": 7
+        "dirty": true,
+        "unpushedCommits": 0
       },
       "consistency": {
         "status": "not_published",

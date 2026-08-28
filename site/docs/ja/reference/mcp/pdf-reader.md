@@ -1,5 +1,5 @@
 ---
-description: "pdf-reader-mcp v0.12.0 の全 19 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-reader-mcp v0.13.0 の全 19 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-reader-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-reader-mcp v0.12.0 の全 19 ツールの引数・型・既定
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-**v0.12.0** の `tools/list` ハンドシェイクから自動生成（19 ツール・2026-08-25）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.13.0** の `tools/list` ハンドシェイクから自動生成（19 ツール・2026-08-28）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-reader)へ。
@@ -471,7 +471,7 @@ basis は主張の強さを示し、両者は同じ種類の主張ではない:
 | 引数 | 型 | 必須 | 既定値 | 説明 |
 |---|---|---|---|---|
 | `file_path` | string (minLength 1) | **必須** |  | ローカル PDF ファイルへの絶対パス（例: "/path/to/document.pdf"） |
-| `object_numbers` | integer (≥ 1)[] | **必須** |  | 位置を特定するオブジェクト番号。例: [25, 27]。通常は pdf-verify-mcp の verify_integrity が「変更された」と報告したオブジェクト。 |
+| `object_numbers` | integer (1–9007199254740991)[] | **必須** |  | 位置を特定するオブジェクト番号。例: [25, 27]。通常は pdf-verify-mcp の verify_integrity が「変更された」と報告したオブジェクト。 |
 | `response_format` | `"markdown"` \| `"json"` | 任意 | `"markdown"` | 出力形式: "markdown" は人が読む用、"json" は構造化データ |
 
 ### 戻り値

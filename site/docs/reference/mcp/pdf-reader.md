@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-reader-mcp v0.12.0 — parameters, types, defaults and returns of all 19 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-reader-mcp v0.13.0 — parameters, types, defaults and returns of all 19 tools, generated from the server's tools/list."
 ---
 
 # pdf-reader-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-reader-mcp v0.12.0 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.12.0** (19 tools, 2026-08-25). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.13.0** (19 tools, 2026-08-28). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-reader).
@@ -506,7 +506,7 @@ Bridges "which object" to "which coordinates": pdf-verify-mcp's verify_integrity
 | Parameter | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `file_path` | string (minLength 1) | **yes** |  | Absolute path to a local PDF file (e.g., "/path/to/document.pdf") |
-| `object_numbers` | integer (≥ 1)[] | **yes** |  | Object numbers to locate, e.g. [25, 27]. Typically the objects pdf-verify-mcp's verify_integrity reported as changed. |
+| `object_numbers` | integer (1–9007199254740991)[] | **yes** |  | Object numbers to locate, e.g. [25, 27]. Typically the objects pdf-verify-mcp's verify_integrity reported as changed. |
 | `response_format` | `"markdown"` \| `"json"` | no | `"markdown"` | Output format: "markdown" for human-readable, "json" for structured data |
 
 ### Returns
