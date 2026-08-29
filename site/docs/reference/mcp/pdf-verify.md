@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-verify-mcp v0.21.0 — parameters, types, defaults and returns of all 7 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-verify-mcp v0.21.1 — parameters, types, defaults and returns of all 7 tools, generated from the server's tools/list."
 ---
 
 # pdf-verify-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-verify-mcp v0.21.0 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.21.0** (7 tools, 2026-08-29). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.21.1** (7 tools, 2026-08-29). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-verify).
@@ -43,6 +43,10 @@ For each signature this tool: recomputes the ByteRange digest and compares it wi
 | `password` | string | no |  | Password for an encrypted PDF. Omit for permission-encrypted PDFs (an empty user password is tried automatically). |
 
 ### Returns
+
+An object of the form { scope, signatures: [...] }. The top level changed from an array to an object in v0.21.0 - read .signatures for the list.
+
+Every report begins with a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table. For this tool it matters most: when scope.reconstructed is true, a signature the rebuild did not reach is absent from the list, so a short or empty list is not proof that the file carries no other signatures.
 
 Per-signature verdict ('valid' / 'invalid' / 'indeterminate'), trust status ('trusted' / 'untrusted' / 'not_evaluated' with certificate path), revocation status ('good' / 'revoked' / 'unknown' / 'not_checked'), and signature timestamp verification.
 
@@ -87,6 +91,8 @@ Limits of the diff — it is an observation, never a verdict:
 
 ### Returns
 
+Every report begins with a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
+
 Integrity report, including revisionChain: { status, missing } — read it before treating the revision list as the file's whole history — and revisionCountAgreement: { status, causes } — read it before quoting revisionCount as the number of times the file was saved. Note that incremental updates after signing are legal in PDF (adding signatures, DSS/LTV data) — findings indicate what to review, not automatically tampering.
 
 Examples:
@@ -113,6 +119,10 @@ Detection is structural: B-B (CAdES signature), B-T (+ RFC 3161 signature timest
 
 ### Returns
 
+An object of the form { scope, levels: [...] }. The top level changed from an array to an object in v0.21.0 - read .levels for the list.
+
+Every report begins with a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
+
 Per-signature level with evidence (signature timestamp, DSS, VRI, document timestamp presence).
 
 Note: B-LT / B-LTA additionally require that the DSS revocation data actually covers the signer certificate (content-level LTV validation); otherwise the level is capped at B-T.
@@ -135,6 +145,8 @@ Identify declared PDF/A (pdfaid) and PDF/UA (pdfuaid) conformance in a PDF's XMP
 | `response_format` | `"markdown"` \| `"json"` | no | `"markdown"` | Output format: "markdown" for human-readable, "json" for structured data |
 
 ### Returns
+
+Every report begins with a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
 
 Declared PDF/A part/conformance level and PDF/UA part, plus the PDF version.
 
@@ -165,6 +177,8 @@ Hybrid engine: when veraPDF is installed (PDF_VERIFY_VERAPDF env var or on PATH)
 | `password` | string | no |  | Password for an encrypted PDF (PDF/UA validation only — the document is decrypted before checking structure-dependent rules). Omit for permission-encrypted PDFs (an empty user password is tried automatically). |
 
 ### Returns
+
+Every report begins with a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
 
 Per-rule results with ISO clause references. compliant is true/false for veraPDF; for the native engine, false means definitive violations were found and null means "no violations in the checked subset" (NOT certification). PDF/UA native violations carry a severity: only 'error' rules can prove non-conformance, 'warning' rules need human review. For an encrypted PDF that cannot be decrypted, structure-dependent PDF/UA rules are reported in skippedRules (not checked) rather than as violations.
 
@@ -197,6 +211,8 @@ Bundled domains: font-embedding, document-metadata, annotation
 | `given` | object | no |  | Facts that are NOT in the file but are needed to decide some clauses, e.g. { "isSubset": true }. A clause whose applicability depends on a missing fact is reported as needs_external_fact — it is never defaulted into a pass. |
 
 ### Returns
+
+Every report begins with a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
 
 Per-constraint results with the clause IDs they come from. Four states:
 - pass — nothing in this constraint could be disproved
@@ -237,6 +253,8 @@ Runs verify_signatures, verify_integrity and detect_pades_level internally (plus
 | `password` | string | no |  | Password for an encrypted PDF. Omit for permission-encrypted PDFs (an empty user password is tried automatically). |
 
 ### Returns
+
+Every report begins with a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
 
 verdict, firedRules (rule IDs with per-rule verdict and reason), advisories (recommendations that do not affect the verdict), and the underlying facts summary.
 

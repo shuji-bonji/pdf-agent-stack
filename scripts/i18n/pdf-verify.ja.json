@@ -1,162 +1,162 @@
 {
- "verify_signatures|prose": {
-  "src": "68f2e0ff7e4d7058f33fc5c8f43ea02c",
-  "text": "PDF 文書の電子署名を暗号学的に検証する。各署名について行うこと:\n\n- ByteRange ダイジェストを再計算し、CMS の messageDigest 属性と照合する\n- 署名者証明書に対して CMS/PKCS#7 署名値を検証する\n- RFC 3161 署名タイムスタンプを検証する\n- 信頼アンカーに対して証明書チェーンを評価する\n- 失効状態を確認する"
- },
- "verify_integrity|prose": {
-  "src": "d49df7065b6d81edf6af11f7a04f3fa4",
-  "text": "署名後に文書が変更されていないかを分析する。報告するのは:\n\n- リビジョン数（増分更新の回数）\n- 各署名の署名済み範囲の後にバイトが追加されたか\n- 最後の署名がファイル全体を覆っているか\n- DocMDP 認証の許可と違反\n- DSS の有無\n\nDocMDP は、P 値が実際に許可する範囲（ISO 32000-2 Table 257）に照らして評価する。P=1 は何も許可しない。P=2 はフォーム記入と署名まで。P=3 はさらに注釈の作成・削除・変更まで。後続の変更はオブジェクトレベル差分（changeClass）から分類するので、P=2 文書への注釈追加は違反と報告し、P=3 文書への同じ変更は違反にしない。許可された変更に伴って必ず書き換わるオブジェクト（/Annots が増えたページ・カタログ・/Info・XMP ストリーム）は housekeeping に分類し、それ自体は違反にしない。なお ISO 32000-2 §12.8.2.2 により、P=1 認証後の DSS / 文書タイムスタンプの増分更新は違反では**ない**（laterChangesAppearLtvOnly の印が付く）。\n\nviolationAssessment は \"permitted\" / \"violated\" / \"indeterminate\" の 3 値である。**\"indeterminate\" は合格ではない**。チェーンを歩けなかった、または変更されたオブジェクトの種類を読めなかった、つまり規格破りを見つけられていない（＝問題なし、ではない）ことを意味する。boolean の violatedByLaterChanges は後方互換のため indeterminate を false に潰しているので、「判定できなかった」と「問題なし」を区別すべき場面では violationAssessment の方を読むこと。\n\n増分更新チェーンのオブジェクトレベル差分も報告する。リビジョンごとに、追加・書き換え・解放されたオブジェクトを /Type と平易な役割名（注釈・フォームフィールド Widget・ページオブジェクト・コンテンツストリーム等）付きで列挙し、最後の署名済み範囲の後に書かれたオブジェクトの短いリスト（objectChangesAfterLastSignature）も返す。相互参照・オブジェクトストリームには bookkeeping の印が付く。オブジェクトがページ上のどこにあるかは pdf-reader-mcp の担当である。\n\n差分は観測であり、判定ではない:\n\n- 増分更新は PDF として正当な操作である（ISO 32000-2 §7.5.6）。書き換えられたオブジェクトは「レビューすべき点」を示すだけで、改ざんを意味しない。差分によって判定は動かない\n- revisions: null は相互参照チェーンを歩けなかったことを意味する（revisionChain.status: 'unwalkable'）。「判定不能」であって「変更なし」では**ない**\n- revisions のリストが返ってきても、それが全履歴とは限らない。どちらなのかは revisionChain.status が言う: 'complete'（最新の相互参照節から元のリビジョンまで歩き切った）/ 'partial'（リストは返ったが、欠けている端を revisionChain.missing が名指す）/ 'unwalkable'（上記のケース）。revisionChain.missing には、チェーンが元のリビジョンに届く前に終わったとき 'oldest' が入り、最後の startxref が解析できる相互参照節を指しておらず古い入口から入った（= 最後に追記されたものはリストに載っていない）とき 'newest' が入る。両端が同時に欠けることもある\n- **「一覧に出てこない = その変更は行われていない」と読めるのは 'complete' のときだけ。** チェーンが途中で切れた場合、生き残ったリビジョンは元版として報告される —— changeCount: 0・changes: null・objectChangesAfterLastSignature は空 —— ため、他の機械が読めるフィールドは全部「何も追記されていない」と言う。revisions は古い順に並ぶ。チェーンが切れた原因（壊れた / 巡回する /Prev・リビジョン上限・解析できない節）は notes に残る\n- オブジェクトストリーム内のオブジェクトは inObjectStream: true・型なしで列挙される\n- revisionCount は \"startxref\" キーワードの個数を数え、revisions はチェーンが到達した相互参照節を列挙する。2 つは合法に食い違うため、食い違いに説明が付いているかを revisionCountAgreement が言う: 'agree' / 'accounted'（causes が 'linearised' と 'chain-incomplete' のどちらか、または両方を名指す）/ 'unaccounted' —— 歩いたチェーンが到達しない startxref がファイルにある、つまり実際に開いて見るべきケース\n- 線形化ファイル（ISO 32000-2 Annex F）は 1 回の保存で 2 つの相互参照節を持つため、更新として報告せず 1 リビジョンに畳む。したがって revisionCount は保存回数より 1 大きくなる"
- },
- "detect_pades_level|prose": {
-  "src": "72c8e8c13dd2e3b07ce245946cb0c726",
-  "text": "各署名の構造がどの PAdES baseline レベル（ETSI EN 319 142）に一致するかを**観測**する。\n\n**これは観測であり、準拠判定ではない。** ETSI EN 319 142 は family の仕様コーパスに無く、PDF/A と違って委譲できる第三者検証器も存在しない。したがって結果は「構造が B-LT に一致する」であって「PAdES B-LT に準拠」ではない。これを明示するため、全レポートに normativeBasis: \"T3\" が付く。\n\n構造から検出するレベル: B-B（CAdES 署名）→ B-T（+ RFC 3161 署名タイムスタンプ）→ B-LT（+ 検証データ入り DSS）→ B-LTA（+ 文書タイムスタンプ）。旧式の adbe.pkcs7.detached 署名は非 PAdES として報告する。"
- },
- "identify_conformance|prose": {
-  "src": "3f2d6028a912c422debf94ddd4570576",
-  "text": "PDF の XMP メタデータに書いてある PDF/A（pdfaid）・PDF/UA（pdfuaid）のラベルを読む。"
- },
- "validate_conformance|prose": {
-  "src": "53308273f5b17b85e7f2cf24e05349cd",
-  "text": "PDF/A フレーバー（ISO 19005・長期保存）または PDF/UA フレーバー（ISO 14289・アクセシビリティ）に対して PDF を検証する。\n\nハイブリッドエンジン: veraPDF がインストールされていれば（PDF_VERIFY_VERAPDF 環境変数または PATH）検証を委譲し、権威ある結果を得る。無ければ内蔵ルールのサブセットをネイティブ検査する:\n  - PDF/A（15 ルール）: 暗号化・ファイル ID・LZW・フォント埋め込み・JavaScript/禁止アクション・OutputIntent・A-1 の透明性・XFA など\n  - PDF/UA（12 ルール）: MarkInfo/Marked・StructTreeRoot・pdfuaid 宣言・/Lang・DisplayDocTitle・文書タイトル・Figure /Alt・画像のタグ付け・見出し階層・表の TH/TR・Link /Contents"
- },
- "validate_clauses|prose": {
-  "src": "ace4d120d4752a3a0c7ce9cbe22d9983",
-  "text": "ISO 32000-1/-2 の条文から写像された制約に照らして PDF を検査する。対象は PDF/A や PDF/UA のプロファイルではなく、PDF 仕様の本体である。\n\nveraPDF が見ない領域を覆う。veraPDF は PDF/A・PDF/UA プロファイルを判定するが、それに合格しながら ISO 32000 に違反する文書は作れる（例: CFF フォントプログラムを /FontFile2 に埋め込む。Table 124 が禁じている）。\n\n写像とその評価は @shuji-bonji/pdf-constraints にあり、本ツールはどの版が判定したかを報告する。同じファイルと同じ与件からは常に同じ結果が出る。\n\n同梱ドメイン: font-embedding, document-metadata, annotation"
- },
- "evaluate_policy|prose": {
-  "src": "c233b8b9100a9ec080d5e3ba24cfeba7",
-  "text": "PDF に対する決定論的な 4 値信頼判定（trust_and_use / use_with_caution / human_review_required / reject）を下す。\n\n内部で verify_signatures・verify_integrity・detect_pades_level を実行し（長期保存プロファイルでは validate_conformance も）、得られた事実を固定のルール表に通す。同じ事実と同じプロファイルからは常に同じ判定が出る。判定は完全にコードが下す。返される firedRules / advisories は結果の説明に使い、判定の上書きには使わないこと。判定の対象は真正性と完全性のみで、文書の内容の真偽は判定しない。"
- },
- "verify_signatures|returns": {
-  "src": "aeb099d2bbc72d83fc833115438a655f",
-  "text": "署名ごとの判定（'valid' / 'invalid' / 'indeterminate'）、信頼状態（'trusted' / 'untrusted' / 'not_evaluated'・証明書パス付き）、失効状態（'good' / 'revoked' / 'unknown' / 'not_checked'）、署名タイムスタンプの検証結果。\n\n注意: trust_anchors（または環境変数）なしでは trust は not_evaluated と報告される —— そのときの 'valid' は暗号学的完全性を意味し、署名者の本人性を保証しない。\n\n構造だけを調べる pdf-reader-mcp の inspect_signatures を補完する。\n\n例:\n- 署名済み契約書が署名後に変更されていないか検証\n- 自組織の CA に対して署名を検証（trust_anchors）\n- 署名者証明書が失効していないか確認（check_revocation: \"online\"）"
- },
- "verify_signatures|param:file_path": {
-  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
-  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
- },
- "verify_signatures|param:response_format": {
-  "src": "c7a8f32a1936716e2c56515f7cab88d9",
-  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
- },
- "verify_signatures|param:trust_anchors": {
-  "src": "82be1c8720bc4d32850f47857c636057",
-  "text": "信頼アンカー証明書（PEM または DER）への絶対パス。PDF_VERIFY_TRUST_ANCHORS 環境変数（*.pem/*.crt/*.cer/*.der のディレクトリ）とマージされる。両方とも無い場合、trust は not_evaluated と報告される。"
- },
- "verify_signatures|param:check_revocation": {
-  "src": "e84c1defe9be06805afa9389963610f4",
-  "text": "失効確認: \"none\"、\"embedded\"（PDF/CMS 内の OCSP/CRL データ。既定）、\"online\"（さらに OCSP レスポンダと CRL 配布点へ HTTP で問い合わせる）。"
- },
- "verify_signatures|param:password": {
-  "src": "b1f7953ab7b8fdc2ac225322b0d2262a",
-  "text": "暗号化 PDF のパスワード。権限のみの暗号化 PDF では省略可（空のユーザーパスワードを自動で試す）。"
- },
- "verify_integrity|returns": {
-  "src": "bdcbe9c382c0f693298b9b7dbd2f9d05",
-  "text": "完全性レポート。revisionChain: { status, missing } を含む —— リビジョン一覧をファイルの全履歴として扱う前に読むこと。revisionCountAgreement: { status, causes } も含む —— revisionCount を「保存された回数」として引用する前に読むこと。署名後の増分更新は PDF として正当である点に注意（署名の追加・DSS/LTV データ）—— 検出結果は「レビューすべき点」を示すのであって、自動的に改ざんを意味しない。\n\n例:\n- 署名済み文書が署名後に変更されたか確認\n- 認証（DocMDP）文書が宣言した許可を守っているか検証\n- 署名後の増分更新がどのオブジェクトに触れたかを特定"
- },
- "verify_integrity|param:file_path": {
-  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
-  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
- },
- "verify_integrity|param:response_format": {
-  "src": "c7a8f32a1936716e2c56515f7cab88d9",
-  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
- },
- "detect_pades_level|returns": {
-  "src": "72f97169cd57982b4f88357f39025303",
-  "text": "署名ごとのレベルと根拠（署名タイムスタンプ・DSS・VRI・文書タイムスタンプの有無）。\n\n注意: B-LT / B-LTA はさらに、DSS の失効データが署名者証明書を実際に覆っていること（内容レベルの LTV 検証）を要求する。満たさない場合レベルは B-T に頭打ちされる。\n\n例:\n- 署名が長期検証（LTV）可能か確認\n- 保管中の契約書が B-LTA 要件を満たすか監査"
- },
- "detect_pades_level|param:file_path": {
-  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
-  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
- },
- "detect_pades_level|param:response_format": {
-  "src": "c7a8f32a1936716e2c56515f7cab88d9",
-  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
- },
- "identify_conformance|returns": {
-  "src": "91507adb485eaae7f043d0706b2a8ce2",
-  "text": "書いてある PDF/A の part / conformance level と PDF/UA の part、および PDF バージョン。\n\n重要: 本ツールはラベルを**読むだけ**である —— 書いてあることは証拠にならない。規格どおりかどうかの検査は validate_conformance ツールを使うこと（ネイティブのルールサブセット、または veraPDF がインストールされていればそちら）。\n\n例:\n- 保管前に文書が PDF/A-2b を名乗っているか確認\n- アクセシビリティワークフロー向けに PDF/UA のラベルを検出"
- },
- "identify_conformance|param:file_path": {
-  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
-  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
- },
- "identify_conformance|param:response_format": {
-  "src": "c7a8f32a1936716e2c56515f7cab88d9",
-  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
- },
- "validate_conformance|returns": {
-  "src": "bc62643cc14e40ffc5e8822f2da21528",
-  "text": "ISO 条文参照付きのルール別結果。compliant は veraPDF なら true/false。ネイティブエンジンでは false = 決定的な違反あり、null = 「検査したサブセット内で違反なし」（認証では**ない**）。PDF/UA のネイティブ違反は severity 付きで、'error' ルールだけが非準拠を証明でき、'warning' ルールは人のレビューが要る。復号できない暗号化 PDF では、構造依存の PDF/UA ルールは違反ではなく skippedRules（未検査）として報告される。\n\n注意: PDF/UA は機械だけでは決定できない —— 代替テキストが「存在するか」は検査できるが、「意味があるか」はできない。構造ツリー自体の観測は pdf-reader-mcp の inspect_tags へ。\n\n例:\n- スキャンした保管 PDF が宣言どおり PDF/A-2b を満たすか確認\n- 公開前に生成文書がタグ付きでアクセシブルか検証（pdfua-1）\n- アーカイブシステムへ提出する前に PDF/A に落ちる理由を特定"
- },
- "validate_conformance|param:file_path": {
-  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
-  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
- },
- "validate_conformance|param:response_format": {
-  "src": "c7a8f32a1936716e2c56515f7cab88d9",
-  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
- },
- "validate_conformance|param:flavour": {
-  "src": "5c63fe6275ee45ebe3e0678cba7ef52c",
-  "text": "検証するフレーバー。PDF/A: \"pdfa-1b\", \"pdfa-1a\", \"pdfa-2b\", \"pdfa-2u\", \"pdfa-3b\" など。PDF/A-4 は conformance level を取らない —— \"pdfa-4\"、または変種の \"pdfa-4e\" / \"pdfa-4f\" を使う（\"pdfa-4b\" は存在しない）。PDF/UA: \"pdfua-1\", \"pdfua-2\"。省略時は文書の XMP 宣言を使う（両方宣言されていれば PDF/A 優先。無ければ pdfa-2b にフォールバック）。"
- },
- "validate_conformance|param:engine": {
-  "src": "01e7d8ae94d229b6d6dd7b3a3f80e8b2",
-  "text": "検証エンジン: \"auto\"（veraPDF があればそちら、無ければネイティブサブセット）、\"verapdf\"（veraPDF 必須）、\"native\"（内蔵ルールサブセット）。"
- },
- "validate_conformance|param:password": {
-  "src": "4b2672d4edd2e4bd7d6088b77f8a5401",
-  "text": "暗号化 PDF のパスワード（PDF/UA 検証のみ —— 構造依存ルールの検査前に文書を復号する）。権限のみの暗号化 PDF では省略可（空のユーザーパスワードを自動で試す）。"
- },
- "validate_clauses|returns": {
-  "src": "06f99e47e532c114a226fc534787e267",
-  "text": "制約ごとの結果と、その出どころの条文 ID。4 状態:\n- pass —— この制約について、規格破りは見つからなかった\n- fail —— 規格破りが見つかった。根拠として事実と実測値が付く\n- not_applicable —— 条文がこの文書に適用されない\n- needs_external_fact —— ファイル外の事実が与えられず、制約を決定しなかった（合格に既定されることは決してない）\n\nこれらは T1 条文なので、失敗は条文 ID を引用して言い切れる —— 文言は pdf-spec-mcp の get_requirements で取得すること。trace 印の失敗は別物である: その条文は PDF **処理系**への要求であり、ファイルは誰かが破ったことを示すだけで、最後に書いた者が破ったとは限らない。\n\n一部の失敗には Context 注記が付く。条文は実在し失敗も実在するが、業界が意図的に逸脱している —— テキストマークアップの QuadPoints はほぼ全ての生成系が Z 順で書く。条文どおりに書くと主要ビューアで描画が壊れるからである。Context は必ず一緒に伝えること。Context を落として報告すると、正しい記述が欠陥として読まれる。\n\n**失敗ゼロは規格どおりであることの証明ではない** —— 同梱した検査の範囲で、規格破りは見つからなかった、というだけである。\n\n例:\n- veraPDF は問題なしとするフォントにビューアが警告を出す理由を特定\n- Info と XMP の文書日付が一致しているか確認（§14.3.4)\n- PDF/A プロファイルの先まで、出荷前の生成 PDF を検証"
- },
- "validate_clauses|param:file_path": {
-  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
-  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
- },
- "validate_clauses|param:response_format": {
-  "src": "c7a8f32a1936716e2c56515f7cab88d9",
-  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
- },
- "validate_clauses|param:domains": {
-  "src": "521d5dd3bc4ec7f7431adefc1a34c70c",
-  "text": "適用する制約ドメイン。省略時は同梱の全ドメイン（font-embedding, document-metadata, annotation）を適用。"
- },
- "validate_clauses|param:given": {
-  "src": "e2c8849ec21934d53ecb49209fd63b29",
-  "text": "ファイル内に無いが一部の条文の決定に必要な事実。例: { \"isSubset\": true }。欠けた事実に適用可否が依存する条文は needs_external_fact として報告される —— 合格に既定されることは決してない。"
- },
- "evaluate_policy|returns": {
-  "src": "ca1995a4b66c112b1e250f8a6c987ef0",
-  "text": "verdict、firedRules（ルール ID とルール別の判定・理由）、advisories（判定に影響しない推奨）、根拠となった事実の要約。\n\n例:\n- 受領した請求書をファイリング前にゲートする（profile: financial）\n- 相互署名された契約書に依拠できるか判断（profile: contract・相手方 CA を信頼アンカーに）\n- 受領 PDF のフォルダを、再現可能でモデル非依存の判定で一括監査"
- },
- "evaluate_policy|param:file_path": {
-  "src": "1c06f136e55f5c125a42c9f2a76f12f6",
-  "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
- },
- "evaluate_policy|param:response_format": {
-  "src": "c7a8f32a1936716e2c56515f7cab88d9",
-  "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
- },
- "evaluate_policy|param:profile": {
-  "src": "151eea0cf3288c702ff17656cf0a953c",
-  "text": "判定プロファイル: \"general\"（既定の閾値）、\"contract\"（署名必須・本人性重視）、\"financial\"（長期保存の検査）、\"legal\"、\"medical\"（最も保守的。caution は review に格上げ）、\"government\"（長期保存の検査・無署名は許容）。"
- },
- "evaluate_policy|param:trust_anchors": {
-  "src": "6a27325319b0bf3030b08a987c1bf999",
-  "text": "信頼アンカー証明書（PEM または DER）への絶対パス。PDF_VERIFY_TRUST_ANCHORS 環境変数とマージされる。アンカーなしでは、有効な署名でも use_with_caution に頭打ちされる（本人性が未評価のため）。"
- },
- "evaluate_policy|param:check_revocation": {
-  "src": "b203a43a964903c6a0ae1152f9275f97",
-  "text": "失効確認: \"none\"、\"embedded\"（既定）、\"online\"（OCSP/CRL エンドポイントへ HTTP で問い合わせる）。"
- },
- "evaluate_policy|param:password": {
-  "src": "b1f7953ab7b8fdc2ac225322b0d2262a",
-  "text": "暗号化 PDF のパスワード。権限のみの暗号化 PDF では省略可（空のユーザーパスワードを自動で試す）。"
- }
+  "verify_signatures|prose": {
+    "src": "68f2e0ff7e4d7058f33fc5c8f43ea02c",
+    "text": "PDF 文書の電子署名を暗号学的に検証する。各署名について行うこと:\n\n- ByteRange ダイジェストを再計算し、CMS の messageDigest 属性と照合する\n- 署名者証明書に対して CMS/PKCS#7 署名値を検証する\n- RFC 3161 署名タイムスタンプを検証する\n- 信頼アンカーに対して証明書チェーンを評価する\n- 失効状態を確認する"
+  },
+  "verify_integrity|prose": {
+    "src": "d49df7065b6d81edf6af11f7a04f3fa4",
+    "text": "署名後に文書が変更されていないかを分析する。報告するのは:\n\n- リビジョン数（増分更新の回数）\n- 各署名の署名済み範囲の後にバイトが追加されたか\n- 最後の署名がファイル全体を覆っているか\n- DocMDP 認証の許可と違反\n- DSS の有無\n\nDocMDP は、P 値が実際に許可する範囲（ISO 32000-2 Table 257）に照らして評価する。P=1 は何も許可しない。P=2 はフォーム記入と署名まで。P=3 はさらに注釈の作成・削除・変更まで。後続の変更はオブジェクトレベル差分（changeClass）から分類するので、P=2 文書への注釈追加は違反と報告し、P=3 文書への同じ変更は違反にしない。許可された変更に伴って必ず書き換わるオブジェクト（/Annots が増えたページ・カタログ・/Info・XMP ストリーム）は housekeeping に分類し、それ自体は違反にしない。なお ISO 32000-2 §12.8.2.2 により、P=1 認証後の DSS / 文書タイムスタンプの増分更新は違反では**ない**（laterChangesAppearLtvOnly の印が付く）。\n\nviolationAssessment は \"permitted\" / \"violated\" / \"indeterminate\" の 3 値である。**\"indeterminate\" は合格ではない**。チェーンを歩けなかった、または変更されたオブジェクトの種類を読めなかった、つまり規格破りを見つけられていない（＝問題なし、ではない）ことを意味する。boolean の violatedByLaterChanges は後方互換のため indeterminate を false に潰しているので、「判定できなかった」と「問題なし」を区別すべき場面では violationAssessment の方を読むこと。\n\n増分更新チェーンのオブジェクトレベル差分も報告する。リビジョンごとに、追加・書き換え・解放されたオブジェクトを /Type と平易な役割名（注釈・フォームフィールド Widget・ページオブジェクト・コンテンツストリーム等）付きで列挙し、最後の署名済み範囲の後に書かれたオブジェクトの短いリスト（objectChangesAfterLastSignature）も返す。相互参照・オブジェクトストリームには bookkeeping の印が付く。オブジェクトがページ上のどこにあるかは pdf-reader-mcp の担当である。\n\n差分は観測であり、判定ではない:\n\n- 増分更新は PDF として正当な操作である（ISO 32000-2 §7.5.6）。書き換えられたオブジェクトは「レビューすべき点」を示すだけで、改ざんを意味しない。差分によって判定は動かない\n- revisions: null は相互参照チェーンを歩けなかったことを意味する（revisionChain.status: 'unwalkable'）。「判定不能」であって「変更なし」では**ない**\n- revisions のリストが返ってきても、それが全履歴とは限らない。どちらなのかは revisionChain.status が言う: 'complete'（最新の相互参照節から元のリビジョンまで歩き切った）/ 'partial'（リストは返ったが、欠けている端を revisionChain.missing が名指す）/ 'unwalkable'（上記のケース）。revisionChain.missing には、チェーンが元のリビジョンに届く前に終わったとき 'oldest' が入り、最後の startxref が解析できる相互参照節を指しておらず古い入口から入った（= 最後に追記されたものはリストに載っていない）とき 'newest' が入る。両端が同時に欠けることもある\n- **「一覧に出てこない = その変更は行われていない」と読めるのは 'complete' のときだけ。** チェーンが途中で切れた場合、生き残ったリビジョンは元版として報告される —— changeCount: 0・changes: null・objectChangesAfterLastSignature は空 —— ため、他の機械が読めるフィールドは全部「何も追記されていない」と言う。revisions は古い順に並ぶ。チェーンが切れた原因（壊れた / 巡回する /Prev・リビジョン上限・解析できない節）は notes に残る\n- オブジェクトストリーム内のオブジェクトは inObjectStream: true・型なしで列挙される\n- revisionCount は \"startxref\" キーワードの個数を数え、revisions はチェーンが到達した相互参照節を列挙する。2 つは合法に食い違うため、食い違いに説明が付いているかを revisionCountAgreement が言う: 'agree' / 'accounted'（causes が 'linearised' と 'chain-incomplete' のどちらか、または両方を名指す）/ 'unaccounted' —— 歩いたチェーンが到達しない startxref がファイルにある、つまり実際に開いて見るべきケース\n- 線形化ファイル（ISO 32000-2 Annex F）は 1 回の保存で 2 つの相互参照節を持つため、更新として報告せず 1 リビジョンに畳む。したがって revisionCount は保存回数より 1 大きくなる"
+  },
+  "detect_pades_level|prose": {
+    "src": "72c8e8c13dd2e3b07ce245946cb0c726",
+    "text": "各署名の構造がどの PAdES baseline レベル（ETSI EN 319 142）に一致するかを**観測**する。\n\n**これは観測であり、準拠判定ではない。** ETSI EN 319 142 は family の仕様コーパスに無く、PDF/A と違って委譲できる第三者検証器も存在しない。したがって結果は「構造が B-LT に一致する」であって「PAdES B-LT に準拠」ではない。これを明示するため、全レポートに normativeBasis: \"T3\" が付く。\n\n構造から検出するレベル: B-B（CAdES 署名）→ B-T（+ RFC 3161 署名タイムスタンプ）→ B-LT（+ 検証データ入り DSS）→ B-LTA（+ 文書タイムスタンプ）。旧式の adbe.pkcs7.detached 署名は非 PAdES として報告する。"
+  },
+  "identify_conformance|prose": {
+    "src": "3f2d6028a912c422debf94ddd4570576",
+    "text": "PDF の XMP メタデータに書いてある PDF/A（pdfaid）・PDF/UA（pdfuaid）のラベルを読む。"
+  },
+  "validate_conformance|prose": {
+    "src": "53308273f5b17b85e7f2cf24e05349cd",
+    "text": "PDF/A フレーバー（ISO 19005・長期保存）または PDF/UA フレーバー（ISO 14289・アクセシビリティ）に対して PDF を検証する。\n\nハイブリッドエンジン: veraPDF がインストールされていれば（PDF_VERIFY_VERAPDF 環境変数または PATH）検証を委譲し、権威ある結果を得る。無ければ内蔵ルールのサブセットをネイティブ検査する:\n  - PDF/A（15 ルール）: 暗号化・ファイル ID・LZW・フォント埋め込み・JavaScript/禁止アクション・OutputIntent・A-1 の透明性・XFA など\n  - PDF/UA（12 ルール）: MarkInfo/Marked・StructTreeRoot・pdfuaid 宣言・/Lang・DisplayDocTitle・文書タイトル・Figure /Alt・画像のタグ付け・見出し階層・表の TH/TR・Link /Contents"
+  },
+  "validate_clauses|prose": {
+    "src": "ace4d120d4752a3a0c7ce9cbe22d9983",
+    "text": "ISO 32000-1/-2 の条文から写像された制約に照らして PDF を検査する。対象は PDF/A や PDF/UA のプロファイルではなく、PDF 仕様の本体である。\n\nveraPDF が見ない領域を覆う。veraPDF は PDF/A・PDF/UA プロファイルを判定するが、それに合格しながら ISO 32000 に違反する文書は作れる（例: CFF フォントプログラムを /FontFile2 に埋め込む。Table 124 が禁じている）。\n\n写像とその評価は @shuji-bonji/pdf-constraints にあり、本ツールはどの版が判定したかを報告する。同じファイルと同じ与件からは常に同じ結果が出る。\n\n同梱ドメイン: font-embedding, document-metadata, annotation"
+  },
+  "evaluate_policy|prose": {
+    "src": "c233b8b9100a9ec080d5e3ba24cfeba7",
+    "text": "PDF に対する決定論的な 4 値信頼判定（trust_and_use / use_with_caution / human_review_required / reject）を下す。\n\n内部で verify_signatures・verify_integrity・detect_pades_level を実行し（長期保存プロファイルでは validate_conformance も）、得られた事実を固定のルール表に通す。同じ事実と同じプロファイルからは常に同じ判定が出る。判定は完全にコードが下す。返される firedRules / advisories は結果の説明に使い、判定の上書きには使わないこと。判定の対象は真正性と完全性のみで、文書の内容の真偽は判定しない。"
+  },
+  "verify_signatures|returns": {
+    "src": "a1ebdf82f0f8ab5d8fecc5eaae4b6320",
+    "text": "返るのは `{ scope, signatures: [...] }` の形の辞書である。**v0.21.0 で最上位が配列から辞書に変わった** —— 一覧は `.signatures` にある。\n\nどの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。 このツールでは、これがいちばん問題になる: scope.reconstructed が true のとき、組み直しが届かなかった署名は一覧に出ない。短い一覧や空の一覧は「ファイルにほかの署名が無い」ことの証明にならない。\n\n署名ごとの判定（'valid' / 'invalid' / 'indeterminate'）、信頼状態（'trusted' / 'untrusted' / 'not_evaluated'・証明書パス付き）、失効状態（'good' / 'revoked' / 'unknown' / 'not_checked'）、署名タイムスタンプの検証結果。\n\n注意: trust_anchors（または環境変数）なしでは trust は not_evaluated と報告される —— そのときの 'valid' は暗号学的完全性を意味し、署名者の本人性を保証しない。\n\n構造だけを調べる pdf-reader-mcp の inspect_signatures を補完する。\n\n例:\n- 署名済み契約書が署名後に変更されていないか検証\n- 自組織の CA に対して署名を検証（trust_anchors）\n- 署名者証明書が失効していないか確認（check_revocation: \"online\"）"
+  },
+  "verify_signatures|param:file_path": {
+    "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+    "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+  },
+  "verify_signatures|param:response_format": {
+    "src": "c7a8f32a1936716e2c56515f7cab88d9",
+    "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+  },
+  "verify_signatures|param:trust_anchors": {
+    "src": "82be1c8720bc4d32850f47857c636057",
+    "text": "信頼アンカー証明書（PEM または DER）への絶対パス。PDF_VERIFY_TRUST_ANCHORS 環境変数（*.pem/*.crt/*.cer/*.der のディレクトリ）とマージされる。両方とも無い場合、trust は not_evaluated と報告される。"
+  },
+  "verify_signatures|param:check_revocation": {
+    "src": "e84c1defe9be06805afa9389963610f4",
+    "text": "失効確認: \"none\"、\"embedded\"（PDF/CMS 内の OCSP/CRL データ。既定）、\"online\"（さらに OCSP レスポンダと CRL 配布点へ HTTP で問い合わせる）。"
+  },
+  "verify_signatures|param:password": {
+    "src": "b1f7953ab7b8fdc2ac225322b0d2262a",
+    "text": "暗号化 PDF のパスワード。権限のみの暗号化 PDF では省略可（空のユーザーパスワードを自動で試す）。"
+  },
+  "verify_integrity|returns": {
+    "src": "7665584e34f5c5e8c71dae8c57c58d04",
+    "text": "どの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。\n\n完全性レポート。revisionChain: { status, missing } を含む —— リビジョン一覧をファイルの全履歴として扱う前に読むこと。revisionCountAgreement: { status, causes } も含む —— revisionCount を「保存された回数」として引用する前に読むこと。署名後の増分更新は PDF として正当である点に注意（署名の追加・DSS/LTV データ）—— 検出結果は「レビューすべき点」を示すのであって、自動的に改ざんを意味しない。\n\n例:\n- 署名済み文書が署名後に変更されたか確認\n- 認証（DocMDP）文書が宣言した許可を守っているか検証\n- 署名後の増分更新がどのオブジェクトに触れたかを特定"
+  },
+  "verify_integrity|param:file_path": {
+    "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+    "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+  },
+  "verify_integrity|param:response_format": {
+    "src": "c7a8f32a1936716e2c56515f7cab88d9",
+    "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+  },
+  "detect_pades_level|returns": {
+    "src": "7f87f498d7cbea817d4fe933177c6468",
+    "text": "返るのは `{ scope, levels: [...] }` の形の辞書である。**v0.21.0 で最上位が配列から辞書に変わった** —— 一覧は `.levels` にある。\n\nどの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。\n\n署名ごとのレベルと根拠（署名タイムスタンプ・DSS・VRI・文書タイムスタンプの有無）。\n\n注意: B-LT / B-LTA はさらに、DSS の失効データが署名者証明書を実際に覆っていること（内容レベルの LTV 検証）を要求する。満たさない場合レベルは B-T に頭打ちされる。\n\n例:\n- 署名が長期検証（LTV）可能か確認\n- 保管中の契約書が B-LTA 要件を満たすか監査"
+  },
+  "detect_pades_level|param:file_path": {
+    "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+    "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+  },
+  "detect_pades_level|param:response_format": {
+    "src": "c7a8f32a1936716e2c56515f7cab88d9",
+    "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+  },
+  "identify_conformance|returns": {
+    "src": "cc6d2b42652eb05ce5d512e83998e44d",
+    "text": "どの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。\n\n書いてある PDF/A の part / conformance level と PDF/UA の part、および PDF バージョン。\n\n重要: 本ツールはラベルを**読むだけ**である —— 書いてあることは証拠にならない。規格どおりかどうかの検査は validate_conformance ツールを使うこと（ネイティブのルールサブセット、または veraPDF がインストールされていればそちら）。\n\n例:\n- 保管前に文書が PDF/A-2b を名乗っているか確認\n- アクセシビリティワークフロー向けに PDF/UA のラベルを検出"
+  },
+  "identify_conformance|param:file_path": {
+    "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+    "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+  },
+  "identify_conformance|param:response_format": {
+    "src": "c7a8f32a1936716e2c56515f7cab88d9",
+    "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+  },
+  "validate_conformance|returns": {
+    "src": "8d6aad7cde9562780a2a0554e547a3ba",
+    "text": "どの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。\n\nISO 条文参照付きのルール別結果。compliant は veraPDF なら true/false。ネイティブエンジンでは false = 決定的な違反あり、null = 「検査したサブセット内で違反なし」（認証では**ない**）。PDF/UA のネイティブ違反は severity 付きで、'error' ルールだけが非準拠を証明でき、'warning' ルールは人のレビューが要る。復号できない暗号化 PDF では、構造依存の PDF/UA ルールは違反ではなく skippedRules（未検査）として報告される。\n\n注意: PDF/UA は機械だけでは決定できない —— 代替テキストが「存在するか」は検査できるが、「意味があるか」はできない。構造ツリー自体の観測は pdf-reader-mcp の inspect_tags へ。\n\n例:\n- スキャンした保管 PDF が宣言どおり PDF/A-2b を満たすか確認\n- 公開前に生成文書がタグ付きでアクセシブルか検証（pdfua-1）\n- アーカイブシステムへ提出する前に PDF/A に落ちる理由を特定"
+  },
+  "validate_conformance|param:file_path": {
+    "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+    "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+  },
+  "validate_conformance|param:response_format": {
+    "src": "c7a8f32a1936716e2c56515f7cab88d9",
+    "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+  },
+  "validate_conformance|param:flavour": {
+    "src": "5c63fe6275ee45ebe3e0678cba7ef52c",
+    "text": "検証するフレーバー。PDF/A: \"pdfa-1b\", \"pdfa-1a\", \"pdfa-2b\", \"pdfa-2u\", \"pdfa-3b\" など。PDF/A-4 は conformance level を取らない —— \"pdfa-4\"、または変種の \"pdfa-4e\" / \"pdfa-4f\" を使う（\"pdfa-4b\" は存在しない）。PDF/UA: \"pdfua-1\", \"pdfua-2\"。省略時は文書の XMP 宣言を使う（両方宣言されていれば PDF/A 優先。無ければ pdfa-2b にフォールバック）。"
+  },
+  "validate_conformance|param:engine": {
+    "src": "01e7d8ae94d229b6d6dd7b3a3f80e8b2",
+    "text": "検証エンジン: \"auto\"（veraPDF があればそちら、無ければネイティブサブセット）、\"verapdf\"（veraPDF 必須）、\"native\"（内蔵ルールサブセット）。"
+  },
+  "validate_conformance|param:password": {
+    "src": "4b2672d4edd2e4bd7d6088b77f8a5401",
+    "text": "暗号化 PDF のパスワード（PDF/UA 検証のみ —— 構造依存ルールの検査前に文書を復号する）。権限のみの暗号化 PDF では省略可（空のユーザーパスワードを自動で試す）。"
+  },
+  "validate_clauses|returns": {
+    "src": "cf9b5e2935c5554c5a0498970b110242",
+    "text": "どの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。\n\n制約ごとの結果と、その出どころの条文 ID。4 状態:\n- pass —— この制約について、規格破りは見つからなかった\n- fail —— 規格破りが見つかった。根拠として事実と実測値が付く\n- not_applicable —— 条文がこの文書に適用されない\n- needs_external_fact —— ファイル外の事実が与えられず、制約を決定しなかった（合格に既定されることは決してない）\n\nこれらは T1 条文なので、失敗は条文 ID を引用して言い切れる —— 文言は pdf-spec-mcp の get_requirements で取得すること。trace 印の失敗は別物である: その条文は PDF **処理系**への要求であり、ファイルは誰かが破ったことを示すだけで、最後に書いた者が破ったとは限らない。\n\n一部の失敗には Context 注記が付く。条文は実在し失敗も実在するが、業界が意図的に逸脱している —— テキストマークアップの QuadPoints はほぼ全ての生成系が Z 順で書く。条文どおりに書くと主要ビューアで描画が壊れるからである。Context は必ず一緒に伝えること。Context を落として報告すると、正しい記述が欠陥として読まれる。\n\n**失敗ゼロは規格どおりであることの証明ではない** —— 同梱した検査の範囲で、規格破りは見つからなかった、というだけである。\n\n例:\n- veraPDF は問題なしとするフォントにビューアが警告を出す理由を特定\n- Info と XMP の文書日付が一致しているか確認（§14.3.4)\n- PDF/A プロファイルの先まで、出荷前の生成 PDF を検証"
+  },
+  "validate_clauses|param:file_path": {
+    "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+    "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+  },
+  "validate_clauses|param:response_format": {
+    "src": "c7a8f32a1936716e2c56515f7cab88d9",
+    "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+  },
+  "validate_clauses|param:domains": {
+    "src": "521d5dd3bc4ec7f7431adefc1a34c70c",
+    "text": "適用する制約ドメイン。省略時は同梱の全ドメイン（font-embedding, document-metadata, annotation）を適用。"
+  },
+  "validate_clauses|param:given": {
+    "src": "e2c8849ec21934d53ecb49209fd63b29",
+    "text": "ファイル内に無いが一部の条文の決定に必要な事実。例: { \"isSubset\": true }。欠けた事実に適用可否が依存する条文は needs_external_fact として報告される —— 合格に既定されることは決してない。"
+  },
+  "evaluate_policy|returns": {
+    "src": "5a856c108878651057a061f22f5309a2",
+    "text": "どの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。\n\nverdict、firedRules（ルール ID とルール別の判定・理由）、advisories（判定に影響しない推奨）、根拠となった事実の要約。\n\n例:\n- 受領した請求書をファイリング前にゲートする（profile: financial）\n- 相互署名された契約書に依拠できるか判断（profile: contract・相手方 CA を信頼アンカーに）\n- 受領 PDF のフォルダを、再現可能でモデル非依存の判定で一括監査"
+  },
+  "evaluate_policy|param:file_path": {
+    "src": "1c06f136e55f5c125a42c9f2a76f12f6",
+    "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
+  },
+  "evaluate_policy|param:response_format": {
+    "src": "c7a8f32a1936716e2c56515f7cab88d9",
+    "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+  },
+  "evaluate_policy|param:profile": {
+    "src": "151eea0cf3288c702ff17656cf0a953c",
+    "text": "判定プロファイル: \"general\"（既定の閾値）、\"contract\"（署名必須・本人性重視）、\"financial\"（長期保存の検査）、\"legal\"、\"medical\"（最も保守的。caution は review に格上げ）、\"government\"（長期保存の検査・無署名は許容）。"
+  },
+  "evaluate_policy|param:trust_anchors": {
+    "src": "6a27325319b0bf3030b08a987c1bf999",
+    "text": "信頼アンカー証明書（PEM または DER）への絶対パス。PDF_VERIFY_TRUST_ANCHORS 環境変数とマージされる。アンカーなしでは、有効な署名でも use_with_caution に頭打ちされる（本人性が未評価のため）。"
+  },
+  "evaluate_policy|param:check_revocation": {
+    "src": "b203a43a964903c6a0ae1152f9275f97",
+    "text": "失効確認: \"none\"、\"embedded\"（既定）、\"online\"（OCSP/CRL エンドポイントへ HTTP で問い合わせる）。"
+  },
+  "evaluate_policy|param:password": {
+    "src": "b1f7953ab7b8fdc2ac225322b0d2262a",
+    "text": "暗号化 PDF のパスワード。権限のみの暗号化 PDF では省略可（空のユーザーパスワードを自動で試す）。"
+  }
 }

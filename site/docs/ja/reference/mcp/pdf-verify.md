@@ -1,5 +1,5 @@
 ---
-description: "pdf-verify-mcp v0.21.0 の全 7 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-verify-mcp v0.21.1 の全 7 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-verify-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-verify-mcp v0.21.0 の全 7 ツールの引数・型・既定�
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-**v0.21.0** の `tools/list` ハンドシェイクから自動生成（7 ツール・2026-08-29）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.21.1** の `tools/list` ハンドシェイクから自動生成（7 ツール・2026-08-29）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-verify)へ。
@@ -47,6 +47,10 @@ PDF 文書の電子署名を暗号学的に検証する。各署名について�
 | `password` | string | 任意 |  | 暗号化 PDF のパスワード。権限のみの暗号化 PDF では省略可（空のユーザーパスワードを自動で試す）。 |
 
 ### 戻り値
+
+返るのは `{ scope, signatures: [...] }` の形の辞書である。**v0.21.0 で最上位が配列から辞書に変わった** —— 一覧は `.signatures` にある。
+
+どの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。 このツールでは、これがいちばん問題になる: scope.reconstructed が true のとき、組み直しが届かなかった署名は一覧に出ない。短い一覧や空の一覧は「ファイルにほかの署名が無い」ことの証明にならない。
 
 署名ごとの判定（'valid' / 'invalid' / 'indeterminate'）、信頼状態（'trusted' / 'untrusted' / 'not_evaluated'・証明書パス付き）、失効状態（'good' / 'revoked' / 'unknown' / 'not_checked'）、署名タイムスタンプの検証結果。
 
@@ -96,6 +100,8 @@ violationAssessment は "permitted" / "violated" / "indeterminate" の 3 値で�
 
 ### 戻り値
 
+どの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。
+
 完全性レポート。revisionChain: { status, missing } を含む —— リビジョン一覧をファイルの全履歴として扱う前に読むこと。revisionCountAgreement: { status, causes } も含む —— revisionCount を「保存された回数」として引用する前に読むこと。署名後の増分更新は PDF として正当である点に注意（署名の追加・DSS/LTV データ）—— 検出結果は「レビューすべき点」を示すのであって、自動的に改ざんを意味しない。
 
 例:
@@ -122,6 +128,10 @@ violationAssessment は "permitted" / "violated" / "indeterminate" の 3 値で�
 
 ### 戻り値
 
+返るのは `{ scope, levels: [...] }` の形の辞書である。**v0.21.0 で最上位が配列から辞書に変わった** —— 一覧は `.levels` にある。
+
+どの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。
+
 署名ごとのレベルと根拠（署名タイムスタンプ・DSS・VRI・文書タイムスタンプの有無）。
 
 注意: B-LT / B-LTA はさらに、DSS の失効データが署名者証明書を実際に覆っていること（内容レベルの LTV 検証）を要求する。満たさない場合レベルは B-T に頭打ちされる。
@@ -144,6 +154,8 @@ PDF の XMP メタデータに書いてある PDF/A（pdfaid）・PDF/UA（pdfua
 | `response_format` | `"markdown"` \| `"json"` | 任意 | `"markdown"` | 出力形式: "markdown" は人が読む用、"json" は構造化データ |
 
 ### 戻り値
+
+どの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。
 
 書いてある PDF/A の part / conformance level と PDF/UA の part、および PDF バージョン。
 
@@ -174,6 +186,8 @@ PDF/A フレーバー（ISO 19005・長期保存）または PDF/UA フレーバ
 | `password` | string | 任意 |  | 暗号化 PDF のパスワード（PDF/UA 検証のみ —— 構造依存ルールの検査前に文書を復号する）。権限のみの暗号化 PDF では省略可（空のユーザーパスワードを自動で試す）。 |
 
 ### 戻り値
+
+どの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。
 
 ISO 条文参照付きのルール別結果。compliant は veraPDF なら true/false。ネイティブエンジンでは false = 決定的な違反あり、null = 「検査したサブセット内で違反なし」（認証では**ない**）。PDF/UA のネイティブ違反は severity 付きで、'error' ルールだけが非準拠を証明でき、'warning' ルールは人のレビューが要る。復号できない暗号化 PDF では、構造依存の PDF/UA ルールは違反ではなく skippedRules（未検査）として報告される。
 
@@ -207,24 +221,24 @@ veraPDF が見ない領域を覆う。veraPDF は PDF/A・PDF/UA プロファイ
 
 ### 戻り値
 
-Per-constraint results with the clause IDs they come from. Four states:
-- pass — nothing in this constraint could be disproved
-- fail — disproved, with the fact and its measured value as evidence
-- not_applicable — the clause does not apply to this document
-- needs_external_fact — a fact outside the file was not supplied, so the constraint was not decided (never defaulted into a pass)
+どの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。
 
-Because these are T1 clauses, a failure can be stated plainly and the clause ID quoted — retrieve the wording with pdf-spec-mcp's get_requirements. Failures marked as traces are different: the clause addresses the PDF *processor*, so the file only shows that someone broke it, not that the last writer did.
+制約ごとの結果と、その出どころの条文 ID。4 状態:
+- pass —— この制約について、規格破りは見つからなかった
+- fail —— 規格破りが見つかった。根拠として事実と実測値が付く
+- not_applicable —— 条文がこの文書に適用されない
+- needs_external_fact —— ファイル外の事実が与えられず、制約を決定しなかった（合格に既定されることは決してない）
 
-Some failures carry a Context note. Those clauses are real and the failure is real, but the industry deviates from them deliberately — text markup QuadPoints are written in Z order by nearly every writer because following the clause literally breaks rendering in major viewers. Pass the context on; a failure reported without it reads as a defect.
+これらは T1 条文なので、失敗は条文 ID を引用して言い切れる —— 文言は pdf-spec-mcp の get_requirements で取得すること。trace 印の失敗は別物である: その条文は PDF **処理系**への要求であり、ファイルは誰かが破ったことを示すだけで、最後に書いた者が破ったとは限らない。
 
-Every result also carries `observation` — how far the reading got: whether the revision chain could be walked to the end, how many objects the cross-reference tables list, and whether the page tree was reached. **This is the scope of the verdict, not a verdict.** A subject count of zero means "not looked at" when the page tree was not reached; a chain that stopped early means the constraints were applied to part of the file. Read it before the numbers.
+一部の失敗には Context 注記が付く。条文は実在し失敗も実在するが、業界が意図的に逸脱している —— テキストマークアップの QuadPoints はほぼ全ての生成系が Z 順で書く。条文どおりに書くと主要ビューアで描画が壊れるからである。Context は必ず一緒に伝えること。Context を落として報告すると、正しい記述が欠陥として読まれる。
 
-**A result with no failures is not proof of conformance** — only that nothing in the bundled constraints could be disproved.
+**失敗ゼロは規格どおりであることの証明ではない** —— 同梱した検査の範囲で、規格破りは見つからなかった、というだけである。
 
-Examples:
-- Find out why a viewer warns about a font that veraPDF considers fine
-- Check whether Info and XMP agree on the document dates (§14.3.4)
-- Verify a generated PDF before shipping it, beyond the PDF/A profile
+例:
+- veraPDF は問題なしとするフォントにビューアが警告を出す理由を特定
+- Info と XMP の文書日付が一致しているか確認（§14.3.4)
+- PDF/A プロファイルの先まで、出荷前の生成 PDF を検証
 
 ## evaluate_policy
 
@@ -246,6 +260,8 @@ PDF に対する決定論的な 4 値信頼判定（trust_and_use / use_with_cau
 | `password` | string | 任意 |  | 暗号化 PDF のパスワード。権限のみの暗号化 PDF では省略可（空のユーザーパスワードを自動で試す）。 |
 
 ### 戻り値
+
+どの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。
 
 verdict、firedRules（ルール ID とルール別の判定・理由）、advisories（判定に影響しない推奨）、根拠となった事実の要約。
 

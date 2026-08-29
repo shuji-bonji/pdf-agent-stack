@@ -8,7 +8,7 @@ description: 4 つの MCP サーバーの一覧と層構成 — pdf-spec（正�
 |---|---|---|---|---|
 | [pdf-spec-mcp](/ja/mcp/pdf-spec) | 正典 | 0.6.0 | 8 | 仕様は何を要求するか |
 | [pdf-reader-mcp](/ja/mcp/pdf-reader) | 実体 | 0.13.0 | 19 | 中身に何があるか・**それはどこか** |
-| [pdf-verify-mcp](/ja/mcp/pdf-verify) | 真正性・準拠性 | 0.21.0 | 7 | 本物で規格に適っているか |
+| [pdf-verify-mcp](/ja/mcp/pdf-verify) | 真正性・準拠性 | 0.21.1 | 7 | 本物で規格に適っているか |
 | [pdf-writer-mcp](/ja/mcp/pdf-writer) | 生成 | 0.21.0 | 20 | 仕様通りに書けるか |
 
 ## どれを使うか（逆引き）
