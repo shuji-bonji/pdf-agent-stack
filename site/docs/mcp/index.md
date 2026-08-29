@@ -8,7 +8,7 @@ description: The four MCP servers and their layers — pdf-spec (canon) / pdf-re
 |---|---|---|---|---|
 | [pdf-spec-mcp](/mcp/pdf-spec) | Canon | 0.6.0 | 8 | What the specification requires |
 | [pdf-reader-mcp](/mcp/pdf-reader) | Substance | 0.13.0 | 19 | What is inside — **and where it is** |
-| [pdf-verify-mcp](/mcp/pdf-verify) | Authenticity & conformance | 0.18.0 | 7 | Is it genuine, and does it meet the standard |
+| [pdf-verify-mcp](/mcp/pdf-verify) | Authenticity & conformance | 0.19.0 | 7 | Is it genuine, and does it meet the standard |
 | [pdf-writer-mcp](/mcp/pdf-writer) | Creation | 0.21.0 | 20 | Written the way the spec says |
 
 ## Which one do I use? (reverse lookup)

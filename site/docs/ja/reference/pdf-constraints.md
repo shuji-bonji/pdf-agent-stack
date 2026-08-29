@@ -4,7 +4,7 @@ description: pdf-constraints — ISO 32000 の条文を機械検査できる制�
 
 # 制約テーブル (pdf-constraints)
 
-- npm: `@shuji-bonji/pdf-constraints` / 現行 v0.3.0
+- npm: `@shuji-bonji/pdf-constraints` / 現行 v0.4.0
 - GitHub: [shuji-bonji/pdf-constraints](https://github.com/shuji-bonji/pdf-constraints)
 - 形態: **ライブラリ**（MCP サーバーではない）
 

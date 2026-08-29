@@ -4,7 +4,7 @@ description: pdf-constraints — the shared library that maps ISO 32000 clauses 
 
 # Constraint Tables (pdf-constraints)
 
-- npm: `@shuji-bonji/pdf-constraints` / current v0.3.0
+- npm: `@shuji-bonji/pdf-constraints` / current v0.4.0
 - GitHub: [shuji-bonji/pdf-constraints](https://github.com/shuji-bonji/pdf-constraints)
 - Form: **library** (not an MCP server)
 

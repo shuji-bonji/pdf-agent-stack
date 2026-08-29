@@ -1,5 +1,5 @@
 ---
-description: "pdf-verify-mcp v0.18.0 の全 7 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-verify-mcp v0.19.0 の全 7 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-verify-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-verify-mcp v0.18.0 の全 7 ツールの引数・型・既定�
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-**v0.18.0** の `tools/list` ハンドシェイクから自動生成（7 ツール・2026-08-28）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.19.0** の `tools/list` ハンドシェイクから自動生成（7 ツール・2026-08-29）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-verify)へ。
@@ -207,22 +207,24 @@ veraPDF が見ない領域を覆う。veraPDF は PDF/A・PDF/UA プロファイ
 
 ### 戻り値
 
-制約ごとの結果と、その出どころの条文 ID。4 状態:
-- pass —— この制約について、規格破りは見つからなかった
-- fail —— 規格破りが見つかった。根拠として事実と実測値が付く
-- not_applicable —— 条文がこの文書に適用されない
-- needs_external_fact —— ファイル外の事実が与えられず、制約を決定しなかった（合格に既定されることは決してない）
+Per-constraint results with the clause IDs they come from. Four states:
+- pass — nothing in this constraint could be disproved
+- fail — disproved, with the fact and its measured value as evidence
+- not_applicable — the clause does not apply to this document
+- needs_external_fact — a fact outside the file was not supplied, so the constraint was not decided (never defaulted into a pass)
 
-これらは T1 条文なので、失敗は条文 ID を引用して言い切れる —— 文言は pdf-spec-mcp の get_requirements で取得すること。trace 印の失敗は別物である: その条文は PDF **処理系**への要求であり、ファイルは誰かが破ったことを示すだけで、最後に書いた者が破ったとは限らない。
+Because these are T1 clauses, a failure can be stated plainly and the clause ID quoted — retrieve the wording with pdf-spec-mcp's get_requirements. Failures marked as traces are different: the clause addresses the PDF *processor*, so the file only shows that someone broke it, not that the last writer did.
 
-一部の失敗には Context 注記が付く。条文は実在し失敗も実在するが、業界が意図的に逸脱している —— テキストマークアップの QuadPoints はほぼ全ての生成系が Z 順で書く。条文どおりに書くと主要ビューアで描画が壊れるからである。Context は必ず一緒に伝えること。Context を落として報告すると、正しい記述が欠陥として読まれる。
+Some failures carry a Context note. Those clauses are real and the failure is real, but the industry deviates from them deliberately — text markup QuadPoints are written in Z order by nearly every writer because following the clause literally breaks rendering in major viewers. Pass the context on; a failure reported without it reads as a defect.
 
-**失敗ゼロは規格どおりであることの証明ではない** —— 同梱した検査の範囲で、規格破りは見つからなかった、というだけである。
+Every result also carries `observation` — how far the reading got: whether the revision chain could be walked to the end, how many objects the cross-reference tables list, and whether the page tree was reached. **This is the scope of the verdict, not a verdict.** A subject count of zero means "not looked at" when the page tree was not reached; a chain that stopped early means the constraints were applied to part of the file. Read it before the numbers.
 
-例:
-- veraPDF は問題なしとするフォントにビューアが警告を出す理由を特定
-- Info と XMP の文書日付が一致しているか確認（§14.3.4)
-- PDF/A プロファイルの先まで、出荷前の生成 PDF を検証
+**A result with no failures is not proof of conformance** — only that nothing in the bundled constraints could be disproved.
+
+Examples:
+- Find out why a viewer warns about a font that veraPDF considers fine
+- Check whether Info and XMP agree on the document dates (§14.3.4)
+- Verify a generated PDF before shipping it, beyond the PDF/A profile
 
 ## evaluate_policy
 

@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-verify-mcp v0.18.0 — parameters, types, defaults and returns of all 7 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-verify-mcp v0.19.0 — parameters, types, defaults and returns of all 7 tools, generated from the server's tools/list."
 ---
 
 # pdf-verify-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-verify-mcp v0.18.0 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.18.0** (7 tools, 2026-08-28). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.19.0** (7 tools, 2026-08-29). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-verify).
@@ -207,6 +207,8 @@ Per-constraint results with the clause IDs they come from. Four states:
 Because these are T1 clauses, a failure can be stated plainly and the clause ID quoted — retrieve the wording with pdf-spec-mcp's get_requirements. Failures marked as traces are different: the clause addresses the PDF *processor*, so the file only shows that someone broke it, not that the last writer did.
 
 Some failures carry a Context note. Those clauses are real and the failure is real, but the industry deviates from them deliberately — text markup QuadPoints are written in Z order by nearly every writer because following the clause literally breaks rendering in major viewers. Pass the context on; a failure reported without it reads as a defect.
+
+Every result also carries `observation` — how far the reading got: whether the revision chain could be walked to the end, how many objects the cross-reference tables list, and whether the page tree was reached. **This is the scope of the verdict, not a verdict.** A subject count of zero means "not looked at" when the page tree was not reached; a chain that stopped early means the constraints were applied to part of the file. Read it before the numbers.
 
 **A result with no failures is not proof of conformance** — only that nothing in the bundled constraints could be disproved.
 
