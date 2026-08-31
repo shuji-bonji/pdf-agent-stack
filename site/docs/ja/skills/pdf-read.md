@@ -19,7 +19,7 @@ graph LR
 
 ## 中核原則
 
-**空の抽出結果は「テキストが無い」の証拠ではありません。** ISO 32000-2 §9.10.1 は「表示はできるが Unicode に変換できない」状態を定義しており、pdf-reader-mcp v0.12.0 はそれをページごとに申告します: `extracted` / `no_text_layer`（スキャン — テキストは画素）/ `not_extractable`（Unicode への経路を持たないフォントがある。原因フォント名付き）/ `not_observed`（暗号化・読めない）。この Skill は本文より先にこの状態を読み、読めていないページの上で「文書に無い」とは結論しません。
+**空の抽出結果は「テキストが無い」の証拠ではありません。** ISO 32000-2 §9.10.1 は「表示はできるが Unicode に変換できない」状態を定義しており、pdf-reader-mcp v0.12.0 はそれをページごとに申告します: `extracted` / `no_text_layer`（スキャン — テキストは画素）/ `not_extractable`（Unicode への経路を持たないフォントがある。原因フォント名付き）/ `not_observed`（暗号化・読めない）。この Skill は本文より先にこの状態を読み、読めていないページの上で「文書に無い」とは結論しません。v0.14.0 では `scope`（その答えの背後にある 2 つの読みのどちらが行われたか）が付き、行われなかった読みの項目は `0` でも `false` でも空文字でもなく `null` になります。この Skill はそこで分岐するので、reader が `isEncrypted` を言えるところまで開けなかった文書でも、パスワード付きなら停止します。
 
 ## Phase 構成
 
@@ -49,7 +49,7 @@ graph LR
 
 ```sh
 /plugin marketplace add shuji-bonji/claude-plugins
-/plugin install pdf-reader-mcp@shuji-bonji   # 必須基盤 (v0.12.0+)
+/plugin install pdf-reader-mcp@shuji-bonji   # 必須基盤 (v0.14.0+ 推奨)
 /plugin install pdf-read@shuji-bonji
 ```
 

@@ -17,4 +17,4 @@ graph LR
 |---|---|---|
 | [pdf-trust](/skills/pdf-trust) | Orchestrates the incoming audit and returns a Trust Report | pdf-verify **required** (v0.7.0+) / reader, spec and houki-* optional |
 | [pdf-publish](/skills/pdf-publish) | The write → read-back → verify delivery pipeline | pdf-writer / pdf-reader / pdf-verify |
-| [pdf-read](/skills/pdf-read) | Pulls what you need out of large or unreadable PDFs, and reports what could not be read | pdf-reader **required** (v0.12.0+) / spec optional |
+| [pdf-read](/skills/pdf-read) | Pulls what you need out of large or unreadable PDFs, and reports what could not be read | pdf-reader **required** (v0.14.0+ recommended) / spec optional |

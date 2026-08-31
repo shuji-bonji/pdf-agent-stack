@@ -61,8 +61,8 @@ graph LR
 | [pdf-constraints](https://github.com/shuji-bonji/pdf-constraints) | judgment | library | 0.6.1 | `@shuji-bonji/pdf-constraints` |
 | [normativepdf](https://github.com/shuji-bonji/normativepdf) | action | library | 0.9.0 | `normativepdf` |
 | [pdf-trust-skill](https://github.com/shuji-bonji/pdf-trust-skill) | procedure | skill | 0.8.0 | — |
-| [pdf-publish-skill](https://github.com/shuji-bonji/pdf-publish-skill) | procedure | skill | 0.6.0 | — |
-| [pdf-read-skill](https://github.com/shuji-bonji/pdf-read-skill) | procedure | skill | 0.1.0 | — |
+| [pdf-publish-skill](https://github.com/shuji-bonji/pdf-publish-skill) | procedure | skill | 0.7.0 | — |
+| [pdf-read-skill](https://github.com/shuji-bonji/pdf-read-skill) | procedure | skill | 0.2.0 | — |
 | [pdf-specialist-plugin](https://github.com/shuji-bonji/pdf-specialist-plugin) | orchestration | plugin | 0.7.0 | — |
 | [pdf-agent-pipeline](https://github.com/shuji-bonji/pdf-agent-pipeline) | orchestration | app | 0.1.0 | — |
 

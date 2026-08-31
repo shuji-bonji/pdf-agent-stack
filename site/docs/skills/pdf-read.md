@@ -19,7 +19,7 @@ graph LR
 
 ## The core rule
 
-**An empty extraction result is not evidence that a page has no text.** ISO 32000-2 §9.10.1 defines the state where glyphs can be shown but cannot be converted to Unicode, and pdf-reader-mcp v0.12.0 reports it per page: `extracted` / `no_text_layer` (a scan — the text is pixels) / `not_extractable` (a font offers no route to Unicode, with the fonts named) / `not_observed` (encrypted or unreadable). This Skill reads that state before the text, and never concludes "not in the document" over pages it could not read.
+**An empty extraction result is not evidence that a page has no text.** ISO 32000-2 §9.10.1 defines the state where glyphs can be shown but cannot be converted to Unicode, and pdf-reader-mcp v0.12.0 reports it per page: `extracted` / `no_text_layer` (a scan — the text is pixels) / `not_extractable` (a font offers no route to Unicode, with the fonts named) / `not_observed` (encrypted or unreadable). This Skill reads that state before the text, and never concludes "not in the document" over pages it could not read. v0.14.0 adds `scope` — which of the two readings behind an answer were done — and makes a field whose reading did not happen `null` rather than `0`, `false` or `""`; the Skill branches on that, so a password-protected document is stopped even when the reader could not open it far enough to say `isEncrypted`.
 
 ## Phases
 
@@ -49,7 +49,7 @@ The "could not read" line is never left blank by default — it says "none" only
 
 ```sh
 /plugin marketplace add shuji-bonji/claude-plugins
-/plugin install pdf-reader-mcp@shuji-bonji   # required foundation (v0.12.0+)
+/plugin install pdf-reader-mcp@shuji-bonji   # required foundation (v0.14.0+ recommended)
 /plugin install pdf-read@shuji-bonji
 ```
 
