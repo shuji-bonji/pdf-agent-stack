@@ -1,0 +1,35 @@
+name: Skill contract probe
+
+# Skill が分岐に使うフィールドが、**いま npm にある** MCP サーバの応答に実在するかを実測する。
+#
+# なぜ要るか: サーバの版が上がって応答の形が変わっても、Skill の分岐は例外を出さない。
+# 条件が false になるだけで、手順は素通りする。落ちる先が無いので誰も気づかない。
+#   実例（2026-08-31）: pdf-read Phase 1 の `metadata.isEncrypted` 分岐は、
+#   reader 0.14.0 が metadata を丸ごと null にしたことで一度も発火しなくなっていた。
+#
+# stack-check.yml が見ているのは版番号のずれ、ここが見ているのは応答の形。
+# 落ちたら scripts/skill-contract-probe.mjs の出力にある「where」を開いて SKILL.md を直す。
+
+on:
+  schedule:
+    - cron: '0 21 * * 1' # 毎週月曜 06:00 JST（stack-check と同じ時刻）
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/skill-contract-probe.mjs'
+      - '.github/workflows/skill-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # mcp/ はこのリポジトリでは追跡していない。公開版を npm から入れて実際に呼ぶ。
+      - run: node scripts/skill-contract-probe.mjs --published
