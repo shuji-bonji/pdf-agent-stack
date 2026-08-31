@@ -6,7 +6,7 @@
     "layer = 役割 / form = 配布形態（誰が起動するか）。2 軸で見ると、同じ役割を違う形態で",
     "実装したもの（pdf-specialist = plugin / pdf-agent-pipeline = app）が並べて見える。"
   ],
-  "generatedAt": "2026-08-31T02:56:37.394Z",
+  "generatedAt": "2026-08-31T02:57:33.541Z",
   "generatedBy": "scripts/generate-stack.mjs",
   "npmScope": "@shuji-bonji",
   "repos": [
@@ -170,7 +170,7 @@
       "layer": "procedure",
       "form": "skill",
       "public": true,
-      "note": "読み取り。前提 = pdf-reader-mcp v0.12.0+",
+      "note": "読み取り。前提 = pdf-reader-mcp（v0.14.0+ 推奨。scope で「行われなかった読み」を読み分ける）",
       "published": null,
       "local": {
         "version": "0.2.0",
@@ -235,7 +235,7 @@
         "version": null,
         "tag": null,
         "dirty": true,
-        "unpushedCommits": 0
+        "unpushedCommits": 1
       },
       "consistency": {
         "status": "not_published",

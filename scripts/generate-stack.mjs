@@ -52,7 +52,7 @@ const REGISTRY = [
   { name: 'normativepdf',          dir: 'lib/normativepdf',            npm: 'normativepdf',                 layer: 'action',        form: 'library',     public: true,  note: '段階 0（COS + パーサ）。verify 0.15.0 が第 1 消費者 = revision-diff の歩行層' },
   { name: 'pdf-trust-skill',       dir: 'skill/pdf-trust-skill',       npm: null,                           layer: 'procedure',     form: 'skill',       public: true },
   { name: 'pdf-publish-skill',     dir: 'skill/pdf-publish-skill',     npm: null,                           layer: 'procedure',     form: 'skill',       public: true },
-  { name: 'pdf-read-skill',        dir: 'skill/pdf-read-skill',        npm: null,                           layer: 'procedure',     form: 'skill',       public: true,  note: '読み取り。前提 = pdf-reader-mcp v0.12.0+' },
+  { name: 'pdf-read-skill',        dir: 'skill/pdf-read-skill',        npm: null,                           layer: 'procedure',     form: 'skill',       public: true,  note: '読み取り。前提 = pdf-reader-mcp（v0.14.0+ 推奨。scope で「行われなかった読み」を読み分ける）' },
   { name: 'pdf-specialist-plugin', dir: 'agent/pdf-specialist-plugin', npm: null,                           layer: 'orchestration', form: 'plugin',      public: true },
   { name: 'pdf-agent-pipeline',    dir: 'agent/pdf-agent-pipeline',    npm: null,                           layer: 'orchestration', form: 'app',         public: false, note: 'private: true。runAudit() 切り出しでライブラリ化予定' },
   { name: 'pdf-agent-stack',       dir: '.',                           npm: null,                           layer: 'hub',           form: 'site',        public: false, note: '本リポジトリ。site/ に VitePress' },
