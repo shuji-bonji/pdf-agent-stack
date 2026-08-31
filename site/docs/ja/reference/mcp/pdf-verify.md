@@ -187,16 +187,16 @@ PDF/A フレーバー（ISO 19005・長期保存）または PDF/UA フレーバ
 
 ### 戻り値
 
-Every report begins with a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
+どの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。
 
-Per-rule results with ISO clause references. compliant is true/false for veraPDF; for the native engine, false means definitive violations were found and null means "no violations in the checked subset" (NOT certification). PDF/UA native violations carry a severity: only 'error' rules can prove non-conformance, 'warning' rules need human review. For an encrypted PDF that cannot be decrypted, structure-dependent PDF/UA rules are reported in skippedRules (not checked) rather than as violations. The PDF/A font-embedding rule looks at fonts that are actually rendered (text rendering mode 3 is invisible and needs no embedded program, ISO 32000-2 9.3.6); when the content streams cannot be read far enough to tell, that rule is reported in skippedRules instead of guessing.
+ISO 条文参照付きのルール別結果。compliant は veraPDF なら true/false。ネイティブエンジンでは false = 決定的な違反あり、null = 「検査したサブセット内で違反なし」（認証では**ない**）。PDF/UA のネイティブ違反は severity 付きで、'error' ルールだけが非準拠を証明でき、'warning' ルールは人のレビューが要る。復号できない暗号化 PDF では、構造依存の PDF/UA ルールは違反ではなく skippedRules（未検査）として報告される。PDF/A のフォント埋め込みルールは、実際に描画されたフォントを見る（テキスト描画モード 3 は不可視で、埋め込まれたプログラムを必要としない。ISO 32000-2 9.3.6）。内容ストリームをそこまで読めず判断できないときは、推測せずそのルールを skippedRules に報告する。
 
-Note: PDF/UA cannot be fully decided by machine — whether alt text is *present* is checkable, whether it is *meaningful* is not. Use pdf-reader-mcp's inspect_tags to examine the structure tree itself.
+注意: PDF/UA は機械だけでは決定できない —— 代替テキストが「存在するか」は検査できるが、「意味があるか」はできない。構造ツリー自体の観測は pdf-reader-mcp の inspect_tags へ。
 
-Examples:
-- Check whether a scanned archive PDF actually meets its declared PDF/A-2b
-- Verify a generated document is tagged and accessible before publishing (pdfua-1)
-- Find why a document fails PDF/A before submitting it to an archive system
+例:
+- スキャンした保管 PDF が宣言どおり PDF/A-2b を満たすか確認
+- 公開前に生成文書がタグ付きでアクセシブルか検証（pdfua-1）
+- アーカイブシステムへ提出する前に PDF/A に落ちる理由を特定
 
 ## validate_clauses
 

@@ -6,7 +6,7 @@
     "layer = 役割 / form = 配布形態（誰が起動するか）。2 軸で見ると、同じ役割を違う形態で",
     "実装したもの（pdf-specialist = plugin / pdf-agent-pipeline = app）が並べて見える。"
   ],
-  "generatedAt": "2026-08-29T06:44:45.877Z",
+  "generatedAt": "2026-08-31T02:41:16.034Z",
   "generatedBy": "scripts/generate-stack.mjs",
   "npmScope": "@shuji-bonji",
   "repos": [
@@ -36,16 +36,16 @@
       "layer": "structure",
       "form": "mcp-server",
       "public": true,
-      "published": "0.13.0",
+      "published": "0.14.0",
       "local": {
-        "version": "0.13.0",
-        "tag": "v0.13.0",
+        "version": "0.14.0",
+        "tag": "v0.14.0",
         "dirty": false,
         "unpushedCommits": 0
       },
       "consistency": {
         "status": "match",
-        "detail": "0.13.0"
+        "detail": "0.14.0"
       }
     },
     {
@@ -55,16 +55,16 @@
       "layer": "judgment",
       "form": "mcp-server",
       "public": true,
-      "published": "0.21.1",
+      "published": "0.26.0",
       "local": {
-        "version": "0.21.1",
-        "tag": "v0.21.1",
-        "dirty": false,
+        "version": "0.26.0",
+        "tag": "v0.26.0",
+        "dirty": true,
         "unpushedCommits": 0
       },
       "consistency": {
         "status": "match",
-        "detail": "0.21.1"
+        "detail": "0.26.0"
       }
     },
     {
@@ -93,16 +93,16 @@
       "layer": "judgment",
       "form": "library",
       "public": true,
-      "published": "0.4.0",
+      "published": "0.6.1",
       "local": {
-        "version": "0.4.0",
-        "tag": "v0.4.0",
+        "version": "0.6.1",
+        "tag": "v0.6.1",
         "dirty": false,
         "unpushedCommits": 0
       },
       "consistency": {
         "status": "match",
-        "detail": "0.4.0"
+        "detail": "0.6.1"
       }
     },
     {
@@ -235,7 +235,7 @@
         "version": null,
         "tag": null,
         "dirty": true,
-        "unpushedCommits": 1
+        "unpushedCommits": 2
       },
       "consistency": {
         "status": "not_published",

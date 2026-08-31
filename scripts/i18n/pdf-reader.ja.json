@@ -92,8 +92,8 @@
   "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
  },
  "read_text|returns": {
-  "src": "867611dd0fc7cbe6c39485ba45b055f9",
-  "text": "ページ番号ごとに整理された抽出テキスト。冒頭に抽出可能性の集計が付く。`split_columns >= 2` では列の間が空行で区切られ、下流の LLM が列を見分けられる。\n\n例:\n- 全テキスト抽出: { file_path: \"/path/to/doc.pdf\" }\n- タグなしの新旧対照表: { file_path: \"/path/to/older-shinkyu.pdf\", split_columns: 2 }\n- 日本語の帳票・様式: { file_path: \"/path/to/form.pdf\", compact_whitespace: true }"
+  "src": "e471447b0e60c2c2ada92afa8cee1d6a",
+  "text": "`{ scope, pages }`。`pages` はページ番号ごとに整理された抽出テキストで、冒頭に抽出可能性の集計が付く。`split_columns >= 2` では列の間が空行で区切られ、下流の LLM が列を見分けられる。\n\n例:\n- 全テキスト抽出: { file_path: \"/path/to/doc.pdf\" }\n- タグなしの新旧対照表: { file_path: \"/path/to/older-shinkyu.pdf\", split_columns: 2 }\n- 日本語の帳票・様式: { file_path: \"/path/to/form.pdf\", compact_whitespace: true }"
  },
  "read_text|param:file_path": {
   "src": "1c06f136e55f5c125a42c9f2a76f12f6",
@@ -116,8 +116,8 @@
   "text": "true にすると連続空白（全角空白 U+3000 含む）を 1 つの ASCII 空白に畳み、各行をトリムする。日本語の帳票様式 PDF でトークン消費を削減する。既定: false（空白の正規化なし）。"
  },
  "search_text|returns": {
-  "src": "a877db47197cdb3c4974ad13cd3e4a30",
-  "text": "ページ番号・一致テキスト・前後文脈付きの検索結果。\n\n例:\n- PDF 全体を検索: { file_path: \"/path/to/doc.pdf\", query: \"digital signature\" }\n- ページを絞って検索: { file_path: \"/path/to/doc.pdf\", query: \"error\", pages: \"1-10\" }"
+  "src": "76dd7c9eb795248b164221b17940bed7",
+  "text": "ページ番号・一致テキスト・前後文脈付きの検索結果と、`scope`。`scope` はこの答えの背後にある 2 つの読みのどちらが行われたかを言う —— ページの文字を探すことと、その文字が Unicode に変換できるかを観測すること（ISO 32000-2 §9.10.1）である。検索そのものが行えなかったときは、`totalMatches` と `matches` が `0` と `[]` ではなく `null` になる。「探せなかった」と「探して見つからなかった」は別の答えである。\n\n例:\n- PDF 全体を検索: { file_path: \"/path/to/doc.pdf\", query: \"digital signature\" }\n- ページを絞って検索: { file_path: \"/path/to/doc.pdf\", query: \"error\", pages: \"1-10\" }"
  },
  "search_text|param:file_path": {
   "src": "1c06f136e55f5c125a42c9f2a76f12f6",
@@ -156,8 +156,8 @@
   "text": "処理するページ範囲。形式: \"1-5\"・\"3\"・\"1,3,5-7\"。省略時は全ページ。"
  },
  "read_url|returns": {
-  "src": "e967c8c356969727586a63fad48a496a",
-  "text": "ページ番号ごとに整理された抽出テキスト（read_text と同じ形式）。\n\n例:\n- リモート PDF を読む: { url: \"https://example.com/document.pdf\" }\n- タグなし 2 段組 PDF: { url: \"https://...\", split_columns: 2 }\n- 日本語の帳票: { url: \"https://...\", compact_whitespace: true }"
+  "src": "8406714107fd8ae7a6b93390a925a042",
+  "text": "`{ scope, pages }`。read_text と同じ形で、`pages` はページ番号ごとの抽出テキスト、`scope` はその背後にある 2 つの読みのどちらが行われたかを言う —— ページから文字を取り出すことと、その文字が Unicode に変換できるかを観測すること（ISO 32000-2 §9.10.1）である。どちらも単独で失敗しうる。両方とも行えなかったときだけエラーになり、そのときは 2 つの理由を両方載せる。\n\n例:\n- リモート PDF を読む: { url: \"https://example.com/document.pdf\" }\n- タグなし 2 段組 PDF: { url: \"https://...\", split_columns: 2 }\n- 日本語の帳票: { url: \"https://...\", compact_whitespace: true }"
  },
  "read_url|param:url": {
   "src": "e19eb41e7abf330cead28d072616dcf9",
@@ -180,8 +180,8 @@
   "text": "true にすると連続空白（全角空白 U+3000 含む）を 1 つの ASCII 空白に畳み、各行をトリムする。日本語の帳票様式 PDF でトークン消費を削減する。既定: false（空白の正規化なし）。"
  },
  "summarize|returns": {
-  "src": "2a03fe4b390558dda316eb19c079eb7d",
-  "text": "要約の内容: ページ数・PDF バージョン・ファイルサイズ・タグ付き/暗号化/署名フラグ・テキスト有無・文書全体のテキスト抽出可能性・完全には抽出できないページ一覧・画像数・1 ページ目のテキストプレビュー・`next` の提案。\n\n例:\n- 概観を手早く: { file_path: \"/path/to/doc.pdf\" }\n- 機械可読で: { file_path: \"/path/to/doc.pdf\", response_format: \"json\" }"
+  "src": "816fa02b6b1583a43aa3f6bfd65992ca",
+  "text": "要約の内容: ページ数・PDF バージョン・ファイルサイズ・タグ付き/暗号化/署名フラグ・テキスト有無・文書全体のテキスト抽出可能性・完全には抽出できないページ一覧・画像数・1 ページ目のテキストプレビュー・`next` の提案。\n\nこの要約は 4 つの別々の読みから作られる —— 文書情報・1 ページ目のテキスト・画像数・抽出可能性の観測 —— で、どれも単独で失敗しうる。どれが行われたかは `scope` が言う。読みが行われなかった項目は `null` であり、`0` でも `false` でも `\"\"` でもない。「読んでいない」と「読んで無かった」は別の答えである。`next` も、観測できなかった前提については何も述べない。\n\n例:\n- 概観を手早く: { file_path: \"/path/to/doc.pdf\" }\n- 機械可読で: { file_path: \"/path/to/doc.pdf\", response_format: \"json\" }"
  },
  "summarize|param:file_path": {
   "src": "1c06f136e55f5c125a42c9f2a76f12f6",
@@ -272,8 +272,8 @@
   "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
  },
  "extract_structured_text|returns": {
-  "src": "ce60988897573ca47317625358a47dbd",
-  "text": "isTagged・文書の言語・論理コンテンツ順の要素のフラットなリスト。\n各要素は role・depth（ネスト。トップレベルは 0）・text・pages と、必要に応じて alt / label / rows / boxes / boxNote を持つ。\n\nリストは入れ子ではなく depth フィールド付きのフラット構造である — 深さ優先の行きがけ順 + depth で木は正確に符号化され、失われるものはない。例外は Table で、rows を持つ。表は二次元であり、depth では「2 行目の 3 列目」を表せないからである。\n\n主な性質:\n- 順序は文書の構造ツリーの深さ優先走査で、ISO 32000-2 §14.8.2.5 が定義する論理コンテンツ順そのものである。\n- ページをまたぐ要素は 1 つの要素のまま（pages は配列）。改ページで分かれた段落は 2 つではなく 1 つの段落として返る。\n- ActualText があればグリフを置き換える（§14.9.4:「説明ではなく置換」）。Alt は alt に分けて報告され、text には決して入らない — テキストを持たない内容の説明であり（§14.9.3）、本文に漏れてはならない。\n- Lbl（リストの行頭記号や番号）は label に報告され、text には混ざらない。\n- アーティファクト（ページ番号・柱）は除外される: §14.8.2.5 NOTE 3 が論理コンテンツ順の外に置いている。\n\ninclude_bbox 付き（「この段落はどこにあるか」に答え、注釈を置けるようにする）:\n各要素に boxes が付く — ページごとに 1 矩形。ページをまたぐ要素に単一の矩形は無いからである。各矩形は PDF 既定ユーザー空間（原点は左下・pt・正規化済み）の { page, rect: {x1,y1,x2,y2}, basis } で、pdf-writer-mcp の add_annotation がそのまま受け取る形 — 途中で座標系を解釈し直す必要はない。/Rotate やずれた /CropBox の影響も受けない。\n\nbasis は主張の強さを示し、両者は同じ種類の主張ではない:\n  - layout-attribute-bbox — ファイルが要素について宣言する /BBox（ISO 32000-2 Table 379）。生成者による自己申告の幾何で、そのまま報告される。テキストを持たない内容ではこれが唯一の情報源。\n  - text-extent — 要素が持つテキストから実測した値: ベースライン原点とフォントの ascent/descent。つまり行ボックスであり、グリフの輪郭ではない。画像やベクター描画は寄与しない。\n\n宣言された /BBox が中で実測されたテキストを覆わない場合、その食い違いは均されず boxNote で報告される。\n\n矩形を持たない要素は boxes を持たず、理由を述べる boxNote が付く — 画像 1 つを持つ Figure が典型である（§14.8.4.8.5: そのような要素は「BBox 属性を持つべき」）。「無い」は「大きさゼロ」ではなく、推測もしない。\n\nタグなし PDF は理由付きの isTagged: false を返し、要素は返さない。座標からの推測は行わない — §14.8.2.5 NOTE 1 はページ順が論理順と一致するとは限らないと明記しており、推測は信頼できないからである。構造の足場を足すには pdf-writer-mcp の ensure_tagged を使って再試行すること。\n\n例:\n- 文書のアウトラインを抽出: { file_path: \"/doc.pdf\", roles: [\"H1\",\"H2\",\"H3\"] }\n- リフロー/変換用に構造を保ったまま内容を取得: { file_path: \"/doc.pdf\" }\n- 特定の節のページのテキストを読む: { file_path: \"/doc.pdf\", pages: \"4-6\" }\n- 注釈を置く場所を探す:\n  { file_path: \"/doc.pdf\", roles: [\"P\"], include_bbox: true } → 矩形をそのまま pdf-writer-mcp の add_annotation へ。逆方向（差分が報告したオブジェクト番号 → 矩形）は locate_objects を使う。"
+  "src": "10d1fcffa3799902d60ef5efc64c6851",
+  "text": "isTagged・文書の言語・論理コンテンツ順の要素のフラットなリスト。\n各要素は role・depth（ネスト。トップレベルは 0）・text・pages と、必要に応じて alt / label / rows / boxes / boxNote を持つ。\n\n`scope` は、この答えの背後にある 2 つの読みのどちらが行われたかを言う —— 構造ツリーを読むことと、その下の文字が Unicode に変換できるかを観測すること（ISO 32000-2 §9.10.1）である。構造ツリーを読めなかったときは、`isTagged` と `elements` が `false` と `[]` ではなく `null` になる。「読んでいない」と「読んでタグが無かった」は別の答えである。\n\nリストは入れ子ではなく depth フィールド付きのフラット構造である — 深さ優先の行きがけ順 + depth で木は正確に符号化され、失われるものはない。例外は Table で、rows を持つ。表は二次元であり、depth では「2 行目の 3 列目」を表せないからである。\n\n主な性質:\n- 順序は文書の構造ツリーの深さ優先走査で、ISO 32000-2 §14.8.2.5 が定義する論理コンテンツ順そのものである。\n- ページをまたぐ要素は 1 つの要素のまま（pages は配列）。改ページで分かれた段落は 2 つではなく 1 つの段落として返る。\n- ActualText があればグリフを置き換える（§14.9.4:「説明ではなく置換」）。Alt は alt に分けて報告され、text には決して入らない — テキストを持たない内容の説明であり（§14.9.3）、本文に漏れてはならない。\n- Lbl（リストの行頭記号や番号）は label に報告され、text には混ざらない。\n- アーティファクト（ページ番号・柱）は除外される: §14.8.2.5 NOTE 3 が論理コンテンツ順の外に置いている。\n\ninclude_bbox 付き（「この段落はどこにあるか」に答え、注釈を置けるようにする）:\n各要素に boxes が付く — ページごとに 1 矩形。ページをまたぐ要素に単一の矩形は無いからである。各矩形は PDF 既定ユーザー空間（原点は左下・pt・正規化済み）の { page, rect: {x1,y1,x2,y2}, basis } で、pdf-writer-mcp の add_annotation がそのまま受け取る形 — 途中で座標系を解釈し直す必要はない。/Rotate やずれた /CropBox の影響も受けない。\n\nbasis は主張の強さを示し、両者は同じ種類の主張ではない:\n  - layout-attribute-bbox — ファイルが要素について宣言する /BBox（ISO 32000-2 Table 379）。生成者による自己申告の幾何で、そのまま報告される。テキストを持たない内容ではこれが唯一の情報源。\n  - text-extent — 要素が持つテキストから実測した値: ベースライン原点とフォントの ascent/descent。つまり行ボックスであり、グリフの輪郭ではない。画像やベクター描画は寄与しない。\n\n宣言された /BBox が中で実測されたテキストを覆わない場合、その食い違いは均されず boxNote で報告される。\n\n矩形を持たない要素は boxes を持たず、理由を述べる boxNote が付く — 画像 1 つを持つ Figure が典型である（§14.8.4.8.5: そのような要素は「BBox 属性を持つべき」）。「無い」は「大きさゼロ」ではなく、推測もしない。\n\nタグなし PDF は理由付きの isTagged: false を返し、要素は返さない。座標からの推測は行わない — §14.8.2.5 NOTE 1 はページ順が論理順と一致するとは限らないと明記しており、推測は信頼できないからである。構造の足場を足すには pdf-writer-mcp の ensure_tagged を使って再試行すること。\n\n例:\n- 文書のアウトラインを抽出: { file_path: \"/doc.pdf\", roles: [\"H1\",\"H2\",\"H3\"] }\n- リフロー/変換用に構造を保ったまま内容を取得: { file_path: \"/doc.pdf\" }\n- 特定の節のページのテキストを読む: { file_path: \"/doc.pdf\", pages: \"4-6\" }\n- 注釈を置く場所を探す:\n  { file_path: \"/doc.pdf\", roles: [\"P\"], include_bbox: true } → 矩形をそのまま pdf-writer-mcp の add_annotation へ。逆方向（差分が報告したオブジェクト番号 → 矩形）は locate_objects を使う。"
  },
  "extract_structured_text|param:file_path": {
   "src": "1c06f136e55f5c125a42c9f2a76f12f6",
@@ -312,8 +312,8 @@
   "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
  },
  "validate_tagged|returns": {
-  "src": "b83f2adea083cda0d295259115f8da22",
-  "text": "検証結果: タグ付きかどうか・実施した検査数・合否件数・重要度（error/warning/info）付きの詳細・要約。\n\n実施される検査:\n- 文書がタグ付きとしてマークされているか\n- 構造ツリーのルートの存在\n- 文書ルートタグの有無\n- 見出し階層（H1-H6）の順序\n- 画像の Figure タグ\n- 段落タグの有無\n- 構造要素数\n- 表タグの構造（TR/TH/TD）\n\n例:\n- PDF が PDF/UA のアクセシビリティ要件を満たすか確認\n- 欠落・不正なタグ構造の特定\n- 文書のアクセシビリティ品質の評価"
+  "src": "c1cfbd76fcd57e2b09f3c8d9df2bbc32",
+  "text": "検証結果: タグ付きかどうか・実施した検査数・合否件数・重要度（error/warning/info）付きの詳細・要約。\n\n`totalChecks` が数えるのは、実際に判定できた検査だけである。前提を観測できずに回らなかった検査はそこに入らず、理由とともに `notChecked` に出る —— TAG-005 は Figure タグをページが描く画像の数に照らして判定するので、その数が分からないまま回すと「画像は 0 枚」と仮定することになり、誰も見ていないものについて合格を報告してしまう。\n\n実施される検査:\n- 文書がタグ付きとしてマークされているか\n- 構造ツリーのルートの存在\n- 文書ルートタグの有無\n- 見出し階層（H1-H6）の順序\n- 画像の Figure タグ\n- 段落タグの有無\n- 構造要素数\n- 表タグの構造（TR/TH/TD）\n\n例:\n- PDF が PDF/UA のアクセシビリティ要件を満たすか確認\n- 欠落・不正なタグ構造の特定\n- 文書のアクセシビリティ品質の評価"
  },
  "validate_tagged|param:file_path": {
   "src": "1c06f136e55f5c125a42c9f2a76f12f6",
@@ -336,8 +336,8 @@
   "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
  },
  "compare_structure|returns": {
-  "src": "0925ad828b08721814b5d99364d21cf8",
-  "text": "構造比較: 項目ごとの差分（ページ数・PDF バージョン・暗号化・タグ付き状態・オブジェクト数・ページ寸法・ファイルサイズ・カタログエントリ・署名）、フォント比較（各ファイル固有のフォントと共有フォント）、要約。\n\n例:\n- 同じ文書の 2 版を比較\n- PDF 出力間の構造的一貫性を確認\n- PDF 生成パイプラインの違いを特定"
+  "src": "83219bb17ca166c221181c118381149c",
+  "text": "構造比較: 項目ごとの差分（ページ数・PDF バージョン・暗号化・タグ付き状態・オブジェクト数・ページ寸法・ファイルサイズ・カタログエントリ・署名）、フォント比較（各ファイル固有のフォントと共有フォント）、要約。\n\n比較には 2 つとも要るので、読めないファイルがあるとエラーになる —— ただしそのエラーは、**どちらのファイルが読めなかったか**を名指しし、もう一方は読めていたことを述べる。\n\n例:\n- 同じ文書の 2 版を比較\n- PDF 出力間の構造的一貫性を確認\n- PDF 生成パイプラインの違いを特定"
  },
  "compare_structure|param:file_path_1": {
   "src": "2955460397c9df9c5547aa76d6c863ae",
@@ -372,8 +372,8 @@
   "text": "この高さを超える画像を縮小する。拡大は決してしない。"
  },
  "render_page|returns": {
-  "src": "ee09dd72b7c5a2cc2cc180dffd36089a",
-  "text": "ページごとのメタ情報（pt 寸法・ピクセル寸法・実効 dpi・バイト数）と省略の一覧を載せた text ブロック、続いて描画したページ 1 つにつき 1 つの image コンテンツブロック。\n\n例:\n- スキャンページ: { file_path: \"/path/to/scan.pdf\", pages: \"1\", format: \"jpeg\" }\n- 図面を高精細で: { file_path: \"/path/to/doc.pdf\", pages: \"3\", dpi: 300 }"
+  "src": "a7a52efecee3e8862fc11d4c6557d064",
+  "text": "ページごとのメタ情報（pt 寸法・ピクセル寸法・実効 dpi・バイト数）と省略の一覧を載せた text ブロック、続いて描画したページ 1 つにつき 1 つの image コンテンツブロック。\n\nページのラスタライズには上限のない時間がかかることがある。タイリングパターン（ISO 32000-2 §8.7.3.1）の `/XStep` や `/YStep` が 0 に近い大きさだと、天文学的な枚数のタイルを敷くことになる —— 条文が禁じているのは 0 だけである。そのため 1 ページにつき 20 秒の予算を置いてある（`PDF_READER_RENDER_TIMEOUT_MS` で変えられる）。描画は主スレッドの外で走るので、終わらないページがあってもサーバは応答を返し続ける。そのページはそこで止めて、省略の一覧に理由とともに出す。その前に描けたページはそのまま返り、後ろのページは「始めなかった」として別に報告される —— 「描けなかった」と「始めなかった」は別の答えである。\n\n例:\n- スキャンページ: { file_path: \"/path/to/scan.pdf\", pages: \"1\", format: \"jpeg\" }\n- 図面を高精細で: { file_path: \"/path/to/doc.pdf\", pages: \"3\", dpi: 300 }"
  },
  "render_page|param:file_path": {
   "src": "1c06f136e55f5c125a42c9f2a76f12f6",
