@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-reader-mcp v0.13.0 — parameters, types, defaults and returns of all 19 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-reader-mcp v0.14.0 — parameters, types, defaults and returns of all 19 tools, generated from the server's tools/list."
 ---
 
 # pdf-reader-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-reader-mcp v0.13.0 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.13.0** (19 tools, 2026-08-29). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.14.0** (19 tools, 2026-08-31). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-reader).
@@ -108,7 +108,7 @@ For Japanese form-style PDFs (帳票・様式) where U+3000 fullwidth spaces are
 
 ### Returns
 
-Extracted text organized by page number, preceded by the extractability tally. With `split_columns >= 2`, columns are separated by a blank line so a downstream LLM can tell them apart.
+`{ scope, pages }`. `pages` is the extracted text organized by page number, preceded by the extractability tally. With `split_columns >= 2`, columns are separated by a blank line so a downstream LLM can tell them apart.
 
 Examples:
 - Extract all text: { file_path: "/path/to/doc.pdf" }
@@ -138,7 +138,7 @@ The search runs over the same text `read_text` returns, so `/ActualText` replace
 
 ### Returns
 
-Search matches with page number, matched text, and surrounding context.
+Search matches with page number, matched text, and surrounding context, plus `scope` — which of the two readings behind the answer were done: searching the characters on the page, and observing whether those characters have a route to Unicode (ISO 32000-2 §9.10.1). When the search itself could not run, `totalMatches` and `matches` are `null` rather than `0` and `[]`: "could not search" and "searched and found nothing" are different answers.
 
 Examples:
 - Search entire PDF: { file_path: "/path/to/doc.pdf", query: "digital signature" }
@@ -199,7 +199,7 @@ Like `read_text`, accepts `split_columns: 2 | 3` for **untagged** multi-column P
 
 ### Returns
 
-Extracted text organized by page number, same format as read_text.
+`{ scope, pages }`, the same shape as read_text: `pages` is the extracted text by page number, and `scope` says which of the two readings behind it were done — taking the characters off the page, and observing whether those characters have a route to Unicode (ISO 32000-2 §9.10.1). Either can fail on its own; only when neither could be done is this an error, and it then names both reasons.
 
 Examples:
 - Read remote PDF: { url: "https://example.com/document.pdf" }
@@ -233,6 +233,8 @@ Rendering uses PDFium compiled to WebAssembly (optional dependency `@hyzyla/pdfi
 
 A text block with per-page metadata (point size, pixel size, effective dpi, bytes) and any omissions, then one image content block per rendered page.
 
+Rasterising a page can take unbounded time — a tiling pattern (ISO 32000-2 §8.7.3.1) whose `/XStep` or `/YStep` is a near-zero magnitude asks for an astronomical number of tiles, and the clause forbids only zero. Each page therefore gets 20 seconds (`PDF_READER_RENDER_TIMEOUT_MS` overrides it); the rendering runs off the main thread, so a page that does not finish is stopped and named in the omissions rather than taking the server down with it. The pages rendered before it are still returned, and the pages after it are reported separately as not attempted — "could not be rendered" and "never started" are different answers.
+
 Examples:
 - A scanned page: { file_path: "/path/to/scan.pdf", pages: "1", format: "jpeg" }
 - A diagram at high detail: { file_path: "/path/to/doc.pdf", pages: "3", dpi: 300 }
@@ -255,6 +257,8 @@ Combines metadata, text presence check, image count, and a text preview from the
 ### Returns
 
 Summary including: page count, PDF version, file size, tagged/encrypted/signature flags, text presence, per-document text extractability, the pages that are not fully extractable, image count, a text preview from page 1, and the `next` suggestions.
+
+Four separate readings produce that summary — the document information, the text of page 1, the image count, and the extractability observation — and any of them can fail on its own. `scope` says which were done. A field whose reading did not happen is `null`, never `0`, `false` or `""`: "not read" and "read and found nothing" are different answers, and `next` stays silent about any premise that was not observed.
 
 Examples:
 - Quick overview: { file_path: "/path/to/doc.pdf" }
@@ -441,6 +445,8 @@ isTagged, the document language, and a flat list of elements in logical content 
 Each element has: role, depth (nesting; top level is 0), text, pages, and optionally
 alt / label / rows / boxes / boxNote.
 
+`scope` says which of the two readings behind that answer were done — reading the structure tree, and observing whether the characters under it have a route to Unicode (ISO 32000-2 §9.10.1). When the structure tree could not be read, `isTagged` and `elements` are `null` rather than `false` and `[]`: "not read" and "read and found no tags" are different answers.
+
 The list is flat with a depth field rather than nested — a depth-first pre-order plus
 depth encodes the tree exactly, so nothing is lost. Table is the exception and carries
 rows, because a table is two-dimensional and depth cannot express "row 2, column 3".
@@ -561,6 +567,8 @@ Validate PDF/UA tagged structure requirements.
 
 Validation results including: whether the PDF is tagged, total checks performed, pass/fail counts, detailed issues with severity levels (error/warning/info), and a summary.
 
+`totalChecks` counts the checks that were actually decided. A check whose premise could not be observed is not counted there and appears in `notChecked` with the reason — TAG-005 judges Figure tags against the number of images the page draws, so without that number it would have to assume zero images and would report a pass for something nobody looked at.
+
 Checks performed:
 - Document marked as tagged
 - Structure tree root existence
@@ -644,6 +652,8 @@ Compare the internal structures of two PDF documents and identify differences.
 ### Returns
 
 Structural comparison including: property-by-property diff (page count, PDF version, encryption, tagged status, object counts, page dimensions, file size, catalog entries, signatures), font comparison (fonts unique to each file and shared fonts), and a summary.
+
+The comparison needs both files, so an unreadable file is an error — but the error names which of the two could not be read, and says that the other one was fine.
 
 Examples:
 - Compare two versions of the same document

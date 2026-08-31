@@ -1,5 +1,5 @@
 ---
-description: "pdf-reader-mcp v0.13.0 の全 19 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-reader-mcp v0.14.0 の全 19 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-reader-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-reader-mcp v0.13.0 の全 19 ツールの引数・型・既定
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-**v0.13.0** の `tools/list` ハンドシェイクから自動生成（19 ツール・2026-08-29）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.14.0** の `tools/list` ハンドシェイクから自動生成（19 ツール・2026-08-31）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-reader)へ。
@@ -108,12 +108,12 @@ U+3000 全角空白を視覚的な字下げに使う日本語の帳票・様式 
 
 ### 戻り値
 
-ページ番号ごとに整理された抽出テキスト。冒頭に抽出可能性の集計が付く。`split_columns >= 2` では列の間が空行で区切られ、下流の LLM が列を見分けられる。
+`{ scope, pages }`. `pages` is the extracted text organized by page number, preceded by the extractability tally. With `split_columns >= 2`, columns are separated by a blank line so a downstream LLM can tell them apart.
 
-例:
-- 全テキスト抽出: { file_path: "/path/to/doc.pdf" }
-- タグなしの新旧対照表: { file_path: "/path/to/older-shinkyu.pdf", split_columns: 2 }
-- 日本語の帳票・様式: { file_path: "/path/to/form.pdf", compact_whitespace: true }
+Examples:
+- Extract all text: { file_path: "/path/to/doc.pdf" }
+- Untagged 新旧対照表: { file_path: "/path/to/older-shinkyu.pdf", split_columns: 2 }
+- Japanese form template: { file_path: "/path/to/form.pdf", compact_whitespace: true }
 
 ## search_text
 
@@ -138,11 +138,11 @@ PDF 文書内のテキストを検索する。一致位置を前後の文脈付�
 
 ### 戻り値
 
-ページ番号・一致テキスト・前後文脈付きの検索結果。
+Search matches with page number, matched text, and surrounding context, plus `scope` — which of the two readings behind the answer were done: searching the characters on the page, and observing whether those characters have a route to Unicode (ISO 32000-2 §9.10.1). When the search itself could not run, `totalMatches` and `matches` are `null` rather than `0` and `[]`: "could not search" and "searched and found nothing" are different answers.
 
-例:
-- PDF 全体を検索: { file_path: "/path/to/doc.pdf", query: "digital signature" }
-- ページを絞って検索: { file_path: "/path/to/doc.pdf", query: "error", pages: "1-10" }
+Examples:
+- Search entire PDF: { file_path: "/path/to/doc.pdf", query: "digital signature" }
+- Search specific pages: { file_path: "/path/to/doc.pdf", query: "error", pages: "1-10" }
 
 ## read_images
 
@@ -199,12 +199,12 @@ URL から PDF を取得してテキストを抽出する。このツールが�
 
 ### 戻り値
 
-ページ番号ごとに整理された抽出テキスト（read_text と同じ形式）。
+`{ scope, pages }`, the same shape as read_text: `pages` is the extracted text by page number, and `scope` says which of the two readings behind it were done — taking the characters off the page, and observing whether those characters have a route to Unicode (ISO 32000-2 §9.10.1). Either can fail on its own; only when neither could be done is this an error, and it then names both reasons.
 
-例:
-- リモート PDF を読む: { url: "https://example.com/document.pdf" }
-- タグなし 2 段組 PDF: { url: "https://...", split_columns: 2 }
-- 日本語の帳票: { url: "https://...", compact_whitespace: true }
+Examples:
+- Read remote PDF: { url: "https://example.com/document.pdf" }
+- Untagged 2-column PDF: { url: "https://...", split_columns: 2 }
+- Japanese form: { url: "https://...", compact_whitespace: true }
 
 ## render_page
 
@@ -231,11 +231,13 @@ PDF のページを PNG または JPEG 画像にラスタライズし、MCP の 
 
 ### 戻り値
 
-ページごとのメタ情報（pt 寸法・ピクセル寸法・実効 dpi・バイト数）と省略の一覧を載せた text ブロック、続いて描画したページ 1 つにつき 1 つの image コンテンツブロック。
+A text block with per-page metadata (point size, pixel size, effective dpi, bytes) and any omissions, then one image content block per rendered page.
 
-例:
-- スキャンページ: { file_path: "/path/to/scan.pdf", pages: "1", format: "jpeg" }
-- 図面を高精細で: { file_path: "/path/to/doc.pdf", pages: "3", dpi: 300 }
+Rasterising a page can take unbounded time — a tiling pattern (ISO 32000-2 §8.7.3.1) whose `/XStep` or `/YStep` is a near-zero magnitude asks for an astronomical number of tiles, and the clause forbids only zero. Each page therefore gets 20 seconds (`PDF_READER_RENDER_TIMEOUT_MS` overrides it); the rendering runs off the main thread, so a page that does not finish is stopped and named in the omissions rather than taking the server down with it. The pages rendered before it are still returned, and the pages after it are reported separately as not attempted — "could not be rendered" and "never started" are different answers.
+
+Examples:
+- A scanned page: { file_path: "/path/to/scan.pdf", pages: "1", format: "jpeg" }
+- A diagram at high detail: { file_path: "/path/to/doc.pdf", pages: "3", dpi: 300 }
 
 ## summarize
 
@@ -254,11 +256,13 @@ PDF 文書の概観レポートを手早く生成する。
 
 ### 戻り値
 
-要約の内容: ページ数・PDF バージョン・ファイルサイズ・タグ付き/暗号化/署名フラグ・テキスト有無・文書全体のテキスト抽出可能性・完全には抽出できないページ一覧・画像数・1 ページ目のテキストプレビュー・`next` の提案。
+Summary including: page count, PDF version, file size, tagged/encrypted/signature flags, text presence, per-document text extractability, the pages that are not fully extractable, image count, a text preview from page 1, and the `next` suggestions.
 
-例:
-- 概観を手早く: { file_path: "/path/to/doc.pdf" }
-- 機械可読で: { file_path: "/path/to/doc.pdf", response_format: "json" }
+Four separate readings produce that summary — the document information, the text of page 1, the image count, and the extractability observation — and any of them can fail on its own. `scope` says which were done. A field whose reading did not happen is `null`, never `0`, `false` or `""`: "not read" and "read and found nothing" are different answers, and `next` stays silent about any premise that was not observed.
+
+Examples:
+- Quick overview: { file_path: "/path/to/doc.pdf" }
+- Machine-readable: { file_path: "/path/to/doc.pdf", response_format: "json" }
 
 ## inspect_structure
 
@@ -426,37 +430,63 @@ JSON — `{ isTagged, tables: [{ pages, index, headerRows, bodyRows, footerRows 
 
 ### 戻り値
 
-isTagged・文書の言語・論理コンテンツ順の要素のフラットなリスト。
-各要素は role・depth（ネスト。トップレベルは 0）・text・pages と、必要に応じて alt / label / rows / boxes / boxNote を持つ。
+isTagged, the document language, and a flat list of elements in logical content order.
+Each element has: role, depth (nesting; top level is 0), text, pages, and optionally
+alt / label / rows / boxes / boxNote.
 
-リストは入れ子ではなく depth フィールド付きのフラット構造である — 深さ優先の行きがけ順 + depth で木は正確に符号化され、失われるものはない。例外は Table で、rows を持つ。表は二次元であり、depth では「2 行目の 3 列目」を表せないからである。
+`scope` says which of the two readings behind that answer were done — reading the structure tree, and observing whether the characters under it have a route to Unicode (ISO 32000-2 §9.10.1). When the structure tree could not be read, `isTagged` and `elements` are `null` rather than `false` and `[]`: "not read" and "read and found no tags" are different answers.
 
-主な性質:
-- 順序は文書の構造ツリーの深さ優先走査で、ISO 32000-2 §14.8.2.5 が定義する論理コンテンツ順そのものである。
-- ページをまたぐ要素は 1 つの要素のまま（pages は配列）。改ページで分かれた段落は 2 つではなく 1 つの段落として返る。
-- ActualText があればグリフを置き換える（§14.9.4:「説明ではなく置換」）。Alt は alt に分けて報告され、text には決して入らない — テキストを持たない内容の説明であり（§14.9.3）、本文に漏れてはならない。
-- Lbl（リストの行頭記号や番号）は label に報告され、text には混ざらない。
-- アーティファクト（ページ番号・柱）は除外される: §14.8.2.5 NOTE 3 が論理コンテンツ順の外に置いている。
+The list is flat with a depth field rather than nested — a depth-first pre-order plus
+depth encodes the tree exactly, so nothing is lost. Table is the exception and carries
+rows, because a table is two-dimensional and depth cannot express "row 2, column 3".
 
-include_bbox 付き（「この段落はどこにあるか」に答え、注釈を置けるようにする）:
-各要素に boxes が付く — ページごとに 1 矩形。ページをまたぐ要素に単一の矩形は無いからである。各矩形は PDF 既定ユーザー空間（原点は左下・pt・正規化済み）の { page, rect: {x1,y1,x2,y2}, basis } で、pdf-writer-mcp の add_annotation がそのまま受け取る形 — 途中で座標系を解釈し直す必要はない。/Rotate やずれた /CropBox の影響も受けない。
+Key properties:
+- Order is a depth-first traversal of the document's structure tree, which is how
+  ISO 32000-2 §14.8.2.5 defines logical content order.
+- An element that spans pages stays ONE element (pages is an array). A paragraph
+  split across a page break is returned as one paragraph, not two.
+- ActualText replaces the glyphs when present (§14.9.4: "a replacement, not a
+  description"). Alt is reported separately in alt and never as text — it describes
+  content that has no text (§14.9.3), so it must not leak into the body.
+- Lbl (a list bullet or number) is reported in label, not mixed into text.
+- Artifacts (page numbers, running heads) are excluded: §14.8.2.5 NOTE 3 puts them
+  outside the logical content order.
 
-basis は主張の強さを示し、両者は同じ種類の主張ではない:
-  - layout-attribute-bbox — ファイルが要素について宣言する /BBox（ISO 32000-2 Table 379）。生成者による自己申告の幾何で、そのまま報告される。テキストを持たない内容ではこれが唯一の情報源。
-  - text-extent — 要素が持つテキストから実測した値: ベースライン原点とフォントの ascent/descent。つまり行ボックスであり、グリフの輪郭ではない。画像やベクター描画は寄与しない。
+With include_bbox (answers "where is this paragraph?", so an annotation can be placed on it):
+Each element gains boxes — ONE RECTANGLE PER PAGE, because an element that spans pages
+has no single rectangle. Each is { page, rect: {x1,y1,x2,y2}, basis } in PDF default user
+space (origin bottom-left, pt, already normalised), which is exactly what pdf-writer-mcp
+add_annotation takes: no coordinate system has to be reinterpreted in between. /Rotate and
+a shifted /CropBox do not affect it.
 
-宣言された /BBox が中で実測されたテキストを覆わない場合、その食い違いは均されず boxNote で報告される。
+basis says how strong the claim is, and the two are not the same kind of claim:
+  - layout-attribute-bbox — the /BBox the file DECLARES for the element (ISO 32000-2
+    Table 379). A statement by the producer about its own geometry, reported as-is.
+    This is the only source for content that has no text.
+  - text-extent — MEASURED from the text the element owns: baseline origin plus the
+    font's ascent/descent. That is the line box, not the glyph outlines. Images and
+    vector drawings contribute nothing to it.
 
-矩形を持たない要素は boxes を持たず、理由を述べる boxNote が付く — 画像 1 つを持つ Figure が典型である（§14.8.4.8.5: そのような要素は「BBox 属性を持つべき」）。「無い」は「大きさゼロ」ではなく、推測もしない。
+When a declared /BBox does not cover the text measured inside it, that disagreement is
+reported in boxNote rather than smoothed over.
 
-タグなし PDF は理由付きの isTagged: false を返し、要素は返さない。座標からの推測は行わない — §14.8.2.5 NOTE 1 はページ順が論理順と一致するとは限らないと明記しており、推測は信頼できないからである。構造の足場を足すには pdf-writer-mcp の ensure_tagged を使って再試行すること。
+An element with no rectangle has no boxes and carries boxNote saying why — a Figure
+holding one image is the usual case (§14.8.4.8.5: such an element "should have a BBox
+attribute"). Absent is not zero-sized, and neither is guessed at.
 
-例:
-- 文書のアウトラインを抽出: { file_path: "/doc.pdf", roles: ["H1","H2","H3"] }
-- リフロー/変換用に構造を保ったまま内容を取得: { file_path: "/doc.pdf" }
-- 特定の節のページのテキストを読む: { file_path: "/doc.pdf", pages: "4-6" }
-- 注釈を置く場所を探す:
-  { file_path: "/doc.pdf", roles: ["P"], include_bbox: true } → 矩形をそのまま pdf-writer-mcp の add_annotation へ。逆方向（差分が報告したオブジェクト番号 → 矩形）は locate_objects を使う。
+Untagged PDFs return isTagged: false with a reason and no elements. Nothing is guessed
+from coordinates — §14.8.2.5 NOTE 1 is explicit that page order need not match logical
+order, so a guess could not be trusted. To add a structure scaffold, use pdf-writer-mcp
+ensure_tagged and retry.
+
+Examples:
+- Extract a document outline: { file_path: "/doc.pdf", roles: ["H1","H2","H3"] }
+- Get content for reflow / conversion, structure preserved: { file_path: "/doc.pdf" }
+- Read the text of a specific section's pages: { file_path: "/doc.pdf", pages: "4-6" }
+- Find where to put an annotation:
+  { file_path: "/doc.pdf", roles: ["P"], include_bbox: true } → hand a box straight to
+  pdf-writer-mcp add_annotation. To go the other way, from an object number a diff
+  reported to a rectangle, use locate_objects.
 
 ## locate_objects
 
@@ -518,22 +548,24 @@ PDF/UA のタグ付き構造要件を検証する。
 
 ### 戻り値
 
-検証結果: タグ付きかどうか・実施した検査数・合否件数・重要度（error/warning/info）付きの詳細・要約。
+Validation results including: whether the PDF is tagged, total checks performed, pass/fail counts, detailed issues with severity levels (error/warning/info), and a summary.
 
-実施される検査:
-- 文書がタグ付きとしてマークされているか
-- 構造ツリーのルートの存在
-- 文書ルートタグの有無
-- 見出し階層（H1-H6）の順序
-- 画像の Figure タグ
-- 段落タグの有無
-- 構造要素数
-- 表タグの構造（TR/TH/TD）
+`totalChecks` counts the checks that were actually decided. A check whose premise could not be observed is not counted there and appears in `notChecked` with the reason — TAG-005 judges Figure tags against the number of images the page draws, so without that number it would have to assume zero images and would report a pass for something nobody looked at.
 
-例:
-- PDF が PDF/UA のアクセシビリティ要件を満たすか確認
-- 欠落・不正なタグ構造の特定
-- 文書のアクセシビリティ品質の評価
+Checks performed:
+- Document marked as tagged
+- Structure tree root existence
+- Document root tag presence
+- Heading hierarchy (H1-H6) sequential order
+- Figure tags for images
+- Paragraph tag presence
+- Structure element count
+- Table tag structure (TR/TH/TD)
+
+Examples:
+- Check if a PDF meets PDF/UA accessibility requirements
+- Identify missing or incorrect tag structure
+- Assess document accessibility quality
 
 ## validate_metadata
 
@@ -594,9 +626,11 @@ PDF/UA のタグ付き構造要件を検証する。
 
 ### 戻り値
 
-構造比較: 項目ごとの差分（ページ数・PDF バージョン・暗号化・タグ付き状態・オブジェクト数・ページ寸法・ファイルサイズ・カタログエントリ・署名）、フォント比較（各ファイル固有のフォントと共有フォント）、要約。
+Structural comparison including: property-by-property diff (page count, PDF version, encryption, tagged status, object counts, page dimensions, file size, catalog entries, signatures), font comparison (fonts unique to each file and shared fonts), and a summary.
 
-例:
-- 同じ文書の 2 版を比較
-- PDF 出力間の構造的一貫性を確認
-- PDF 生成パイプラインの違いを特定
+The comparison needs both files, so an unreadable file is an error — but the error names which of the two could not be read, and says that the other one was fine.
+
+Examples:
+- Compare two versions of the same document
+- Verify structural consistency across PDF exports
+- Identify differences in PDF generation pipelines

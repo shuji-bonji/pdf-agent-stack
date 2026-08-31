@@ -1,5 +1,5 @@
 ---
-description: "pdf-verify-mcp v0.21.1 の全 7 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-verify-mcp v0.26.0 の全 7 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-verify-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-verify-mcp v0.21.1 の全 7 ツールの引数・型・既定�
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-**v0.21.1** の `tools/list` ハンドシェイクから自動生成（7 ツール・2026-08-29）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.26.0** の `tools/list` ハンドシェイクから自動生成（7 ツール・2026-08-31）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-verify)へ。
@@ -187,16 +187,16 @@ PDF/A フレーバー（ISO 19005・長期保存）または PDF/UA フレーバ
 
 ### 戻り値
 
-どの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。
+Every report begins with a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
 
-ISO 条文参照付きのルール別結果。compliant は veraPDF なら true/false。ネイティブエンジンでは false = 決定的な違反あり、null = 「検査したサブセット内で違反なし」（認証では**ない**）。PDF/UA のネイティブ違反は severity 付きで、'error' ルールだけが非準拠を証明でき、'warning' ルールは人のレビューが要る。復号できない暗号化 PDF では、構造依存の PDF/UA ルールは違反ではなく skippedRules（未検査）として報告される。
+Per-rule results with ISO clause references. compliant is true/false for veraPDF; for the native engine, false means definitive violations were found and null means "no violations in the checked subset" (NOT certification). PDF/UA native violations carry a severity: only 'error' rules can prove non-conformance, 'warning' rules need human review. For an encrypted PDF that cannot be decrypted, structure-dependent PDF/UA rules are reported in skippedRules (not checked) rather than as violations. The PDF/A font-embedding rule looks at fonts that are actually rendered (text rendering mode 3 is invisible and needs no embedded program, ISO 32000-2 9.3.6); when the content streams cannot be read far enough to tell, that rule is reported in skippedRules instead of guessing.
 
-注意: PDF/UA は機械だけでは決定できない —— 代替テキストが「存在するか」は検査できるが、「意味があるか」はできない。構造ツリー自体の観測は pdf-reader-mcp の inspect_tags へ。
+Note: PDF/UA cannot be fully decided by machine — whether alt text is *present* is checkable, whether it is *meaningful* is not. Use pdf-reader-mcp's inspect_tags to examine the structure tree itself.
 
-例:
-- スキャンした保管 PDF が宣言どおり PDF/A-2b を満たすか確認
-- 公開前に生成文書がタグ付きでアクセシブルか検証（pdfua-1）
-- アーカイブシステムへ提出する前に PDF/A に落ちる理由を特定
+Examples:
+- Check whether a scanned archive PDF actually meets its declared PDF/A-2b
+- Verify a generated document is tagged and accessible before publishing (pdfua-1)
+- Find why a document fails PDF/A before submitting it to an archive system
 
 ## validate_clauses
 
