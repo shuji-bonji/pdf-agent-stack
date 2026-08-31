@@ -108,6 +108,27 @@ pdf-agent-stack/
 `.gitignore` に入れているのは秘匿のためではなく、`git add` で誤って gitlink として
 登録されるのを防ぐため。clone しても中身は入らない。
 
+## 版のずれを見る 3 つの検査
+
+部品が 12 個あり、版は別々に上がる。ずれても**何も落ちない**場所が 3 か所あるので、
+それぞれに検査を置いてある（いずれも週 1 と push で回る）。
+
+| 検査 | 見ているもの | ずれたとき何が起きるか |
+| --- | --- | --- |
+| `generate-stack.mjs --check` | stack.json / README の表 vs npm | 構成表の版が古いまま残る |
+| `skill-contract-probe.mjs --published` | Skill が分岐に使うフィールド vs 公開版の応答 | Skill の分岐が例外を出さずに素通りする |
+| `version-mentions.mjs` | 文中に書いた版 vs いまある版 | まだ無い版を「ある」と書いた文が残る |
+
+`skill-contract-probe.mjs` は実際に MCP サーバを起動して呼ぶ。
+2026-08-31 に `pdf-read` の暗号化停止が発火しなくなっていたのは、
+reader 0.14.0 が `metadata` を `null` にしたためで、その時は手で気づいた。
+
+`version-mentions.mjs` は**書き換えない**。過去の記述（「2026-08-27 のリリース
+（reader 0.13.0）」）は正しいので、未来の版を名乗る箇所だけを報告する。
+
+marketplace（`claude-plugins`）側の版は、そのリポジトリの
+`scripts/marketplace-version-check.mjs` が各 repo の `plugin.json` と照合する。
+
 ## ドキュメント
 
 サイト: <https://shuji-bonji.github.io/pdf-agent-stack/>
