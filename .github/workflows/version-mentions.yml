@@ -1,0 +1,34 @@
+name: Version mentions
+
+# 文の中に書いた版が、まだ存在しない版になっていないかを見る。
+#
+# stack.json / package.json / marketplace.json は機械が持っているので照合できるが、
+# README の「v0.13.0 以降」や SKILL.md の「v0.14.0+ 推奨」は誰も見ていない。
+# ここが見るのは**未来の版だけ**で、古い言及（「2026-08-27 のリリース（reader 0.13.0）」）
+# は正しい記述なので落とさない。書き換えも一切しない。
+#
+# 落ちたら: node scripts/version-mentions.mjs で場所を見て、手で直す。
+# その部品の版ではない数字なら、その行に version-mentions:ignore と書けば飛ばす。
+
+on:
+  schedule:
+    - cron: '0 21 * * 1' # 毎週月曜 06:00 JST
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # 検査自体が測れているかを先に見る（壊す先が無い検査は何も測っていない）
+      - run: node scripts/version-mentions.mjs --t3
+      - run: node scripts/version-mentions.mjs
