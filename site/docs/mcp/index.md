@@ -26,5 +26,7 @@ description: The four MCP servers and their layers — pdf-spec (canon) / pdf-re
 | Overall trust verdict | verify + Skill | evaluate_policy + [pdf-trust](/skills/pdf-trust) |
 
 ::: tip All server pages share the same structure
-Responsibility → Installation → Environment variables → Tool list → Per-tool manual → Error codes → Constraints
+One-line definition → What this one server gives you → What it gives you together with a Skill (its place in the stack) → What it cannot do → What it does not do → Installation → Common parameters → Tools → How to use it
+
+Parameters, types and defaults live in each server's [tools reference](/reference/mcp/pdf-spec), generated from `tools/list`. The guide pages point there instead of repeating the same tables.
 :::

@@ -71,6 +71,7 @@ const sidebar = (prefix: string, l: Record<string, string>) => ({
       text: l.mcpTools,
       items: [
         { text: 'pdf-spec', link: `${prefix}/reference/mcp/pdf-spec` },
+        { text: l.specOutput, link: `${prefix}/reference/pdf-spec-output` },
         { text: 'pdf-reader', link: `${prefix}/reference/mcp/pdf-reader` },
         { text: 'pdf-verify', link: `${prefix}/reference/mcp/pdf-verify` },
         { text: 'pdf-writer', link: `${prefix}/reference/mcp/pdf-writer` }
@@ -91,7 +92,8 @@ const en = {
   ucPublish: 'Publish Pipeline', ucPdfa: 'PDF/A Archiving', ucA11y: 'Accessibility (PDF/UA)',
   ucSpec: 'Spec Research', ucBatch: 'Batch Audit',
   envVars: 'Environment Variables', errorCodes: 'Error Codes', glossary: 'Glossary',
-  isoPrimer: 'How to Read ISO Specs', mcpTools: 'MCP Tools Reference', library: 'Library'
+  isoPrimer: 'How to Read ISO Specs', mcpTools: 'MCP Tools Reference', library: 'Library',
+  specOutput: 'Reading pdf-spec Output'
 };
 
 const ja = {
@@ -102,7 +104,8 @@ const ja = {
   ucPublish: '納品パイプライン', ucPdfa: '長期保存 (PDF/A)', ucA11y: 'アクセシビリティ (PDF/UA)',
   ucSpec: '仕様調査', ucBatch: '一括監査',
   envVars: '環境変数', errorCodes: 'エラーコード', glossary: '用語集',
-  isoPrimer: 'ISO 仕様書の読み方', mcpTools: 'MCP ツールリファレンス', library: 'ライブラリ'
+  isoPrimer: 'ISO 仕様書の読み方', mcpTools: 'MCP ツールリファレンス', library: 'ライブラリ',
+  specOutput: 'pdf-spec の出力の読み方'
 };
 
 const nav = (prefix: string, l: Record<string, string>) => [

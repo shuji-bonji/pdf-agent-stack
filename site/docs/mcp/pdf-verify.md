@@ -1,26 +1,76 @@
 ---
-description: The MCP that judges authenticity and conformance (7 tools) — signature verification, tamper detection, PAdES observation, PDF/A / PDF/UA validation, clause checks, deterministic 4-value verdicts. It can find broken rules, never prove the file meets the standard
+description: The MCP that judges authenticity and conformance (7 tools) — signature verification, tamper detection, PAdES observation, PDF/A / PDF/UA validation, clause checks, deterministic 4-value verdict. It can find breaches of the standard; it never proves conformance
 ---
 
 # pdf-verify-mcp
 
-**The server that decides whether a PDF is genuine and up to standard.** It verifies digital signatures cryptographically, detects changes made after signing, and scores conformance to PDF/A (long-term preservation) and PDF/UA (accessibility).
+**The server that judges whether a PDF is genuine and meets the standard.** It verifies electronic signatures cryptographically, detects changes made after signing, and scores conformance to PDF/A (archiving) and PDF/UA (accessibility).
 
 - npm: [`@shuji-bonji/pdf-verify-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) / current v0.26.0 / [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp)
 - This page is the guide — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-verify) (generated from `tools/list`)
 
-### What this one server gives you
+## What this one server gives you
 
-Answers to "is the signature on this contract valid?", "was anything rewritten after signing?", "will this PDF survive as PDF/A?" The verdicts come from cryptography and a fixed rule table, so **the same file yields the same result every time**. Deciding whether an incoming PDF may enter your workflow (intake audit) centres on this server.
+"Is the signature on this contract valid?" "Was it changed after signing?" "Will this PDF survive as PDF/A?" — all answerable here. Verdicts come from cryptography and rule tables, so **the same file yields the same result every time**. Deciding whether an incoming PDF may be used in a business process (incoming audit) centres on this server.
 
-### What it cannot do — it never proves the file meets the standard
+### What it can decide
 
-What this server does is look for errors it can demonstrate. If one is found, "this does not meet the standard" can be stated flatly; if none is found, that is *not* proof of full conformance. Read every result in that light.
+| Question | What is measured | Tool | [Assertion strength](/guide/architecture#assertion-strength-t1-t2-t3) |
+|---|---|---|---|
+| Is the signature cryptographically valid? | ByteRange digest recomputation, CMS messageDigest comparison, signature value verification, RFC 3161 timestamps | `verify_signatures` | T1 |
+| Is the signer trustworthy? | Certificate chain against trust anchors, revocation (OCSP / CRL) | `verify_signatures` (needs `trust_anchors`) | T1 |
+| Was it changed after signing? | Incremental revisions, signed-range coverage, DocMDP permissions and violations, **which objects changed** | `verify_integrity` | T1 |
+| Does it breach the ISO 32000 body? | The constraint tables of [pdf-constraints](/reference/pdf-constraints) (where veraPDF does not look) | `validate_clauses` | T1 |
+| Does it conform to PDF/UA (accessibility)? | ISO 14289, via veraPDF or 12 built-in rules | `validate_conformance` | T1 |
+| Does it conform to PDF/A (archiving)? | ISO 19005, via veraPDF or 15 built-in rules | `validate_conformance` | T2 |
+| Does it carry long-term-preservation structure? | PAdES B-B / B-T / B-LT / B-LTA-matching structure | `detect_pades_level` | T3 (observation) |
+| Does it **claim** to be PDF/A or PDF/UA? | The pdfaid / pdfuaid declarations in XMP | `identify_conformance` | Reading a declaration |
+| May it be used in the business process? | The facts above folded through a fixed rule table into 4 values | `evaluate_policy` | Folding of facts |
+
+## What it gives you together with a Skill
+
+This server sits in the **judgment** layer of the four: it decides pass or fail over facts. What to measure in which order, how to explain the verdict and which legal grounds to attach are a Skill's job.
+
+```mermaid
+graph LR
+  TARGET[/"the PDF received"/] --> VERIFY
+  ANCHORS[("trust anchor certificates")] --> VERIFY
+  VERA[("veraPDF")] --> VERIFY
+
+  subgraph SELF["this page"]
+    VERIFY[["pdf-verify-mcp<br>judgment — genuine and conformant?"]]
+  end
+
+  VERIFY -->|changed object numbers| READER[["pdf-reader-mcp<br>fact"]]
+  READER -->|page + rectangle| WRITER[["pdf-writer-mcp<br>production"]]
+  SPEC[["pdf-spec-mcp<br>norm"]]
+
+  TRUST{{"pdf-trust<br>incoming audit"}} -.->|orchestrates| VERIFY & READER & SPEC
+  PUBLISH{{"pdf-publish<br>publish"}} -.->|orchestrates| WRITER & READER & VERIFY
+```
+
+Shapes carry meaning (→ [legend](/reference/glossary#how-to-read-the-diagrams-shape-legend)).
+
+| Skill | What this server does there | Required? |
+|---|---|---|
+| [pdf-trust](/skills/pdf-trust) | The axis of the audit. `evaluate_policy` decides the 4-value verdict; the Skill explains firedRules, recommends actions and cites legal grounds | **Required** (v0.7.0+) |
+| [pdf-publish](/skills/pdf-publish) | The exit gate: machine-scores the produced PDF with veraPDF. At the `conformance` level the pipeline aborts without it | **Required** at `conformance` |
+
+::: warning The judge is code, the narrative is the LLM
+The verdict is decided by code. Use the returned `firedRules` / `advisories` **to explain the outcome, never to override it**. Do not read an advisory as a failure, or the absence of advisories as a pass.
+:::
+
+## What it cannot do
+
+- **It never proves conformance.** What it does is look for demonstrable errors. Finding one lets you state that the file does not meet the standard; finding none does not prove that it does
+- **Without trust anchors it cannot speak to identity.** Without `trust_anchors` (or the env var), `valid` means only that **the cryptography checks out** (`trust: not_evaluated`). Likewise for revocation: if it could not be checked, you may not say "not revoked"
+- **PDF/UA cannot be fully decided by machine.** Whether alt text *exists* is checkable; whether it is *meaningful* is not
+- **PAdES never becomes a conformance verdict.** ETSI EN 319 142 is not in the spec corpus and there is no third-party validator, so the result is "the structure matches B-LT", never "conforms to PAdES B-LT" (every report carries `normativeBasis: "T3"`)
 
 ## What it does not do
 
-- Judge the truth of the content (a correctly signed document can still lie)
-- Observation (→ pdf-reader), quoting the spec (→ pdf-spec), creation (→ pdf-writer)
+- Judging whether the content is true (a properly signed document can still lie)
+- Observation (→ pdf-reader), citing the spec (→ pdf-spec), production (→ pdf-writer)
 
 ## Installation
 
@@ -39,88 +89,61 @@ What this server does is look for errors it can demonstrate. If one is found, "t
 }
 ```
 
-Both environment variables are optional. Works without veraPDF using the built-in rules (→ [validate_conformance](#validate-conformance)).
+Both environment variables are optional; the built-in rules work without veraPDF.
 
 ## Common parameters
 
-All tools accept these (omitted from the per-tool tables).
+Every tool accepts these.
 
 | Parameter | Type | Description |
 |---|---|---|
 | `file_path` **required** | string | Absolute path to a local PDF |
 | `response_format` | `markdown` / `json` | Output format. Default markdown |
-| `password` | string | Password for an encrypted PDF. Permission-only encryption (empty user password) is tried automatically (where supported) |
+| `password` | string | Password for an encrypted PDF. Permissions encryption (empty user password) is tried automatically (where supported) |
 
 ## Tools
 
+Parameters, types and defaults are in the [tools reference](/reference/mcp/pdf-verify) (generated from `tools/list`).
+
 | Tool | One-liner |
 |---|---|
-| [`verify_signatures`](#verify-signatures) | Cryptographic signature verification (chain, revocation, timestamps) |
-| [`verify_integrity`](#verify-integrity) | Analysis of changes after signing (incremental updates, coverage, DocMDP) |
-| [`detect_pades_level`](#detect-pades-level) | **Observation** of PAdES B-B / B-T / B-LT / B-LTA-matching structure |
-| [`identify_conformance`](#identify-conformance) | Reading XMP declarations (pdfaid / pdfuaid) — the entry point of judgment |
-| [`validate_conformance`](#validate-conformance) | PDF/A / PDF/UA validation. Delegates to veraPDF, or built-in rules |
-| [`validate_clauses`](#validate-clauses) | Constraint checks against the **ISO 32000 body** (where veraPDF does not look) |
-| [`evaluate_policy`](#evaluate-policy) | Deterministic 4-value verdict from the facts |
+| [`verify_signatures`](/reference/mcp/pdf-verify#verify-signatures) | Cryptographic signature verification (chain, revocation, timestamps) |
+| [`verify_integrity`](/reference/mcp/pdf-verify#verify-integrity) | Analysis of changes after signing (incremental updates, coverage, DocMDP) |
+| [`detect_pades_level`](/reference/mcp/pdf-verify#detect-pades-level) | **Observation** of PAdES B-B / B-T / B-LT / B-LTA-matching structure |
+| [`identify_conformance`](/reference/mcp/pdf-verify#identify-conformance) | Reading XMP declarations (pdfaid / pdfuaid) — the entry point of judgment |
+| [`validate_conformance`](/reference/mcp/pdf-verify#validate-conformance) | PDF/A / PDF/UA validation. Delegates to veraPDF, or built-in rules |
+| [`validate_clauses`](/reference/mcp/pdf-verify#validate-clauses) | Constraint checks against the **ISO 32000 body** (where veraPDF does not look) |
+| [`evaluate_policy`](/reference/mcp/pdf-verify#evaluate-policy) | Deterministic 4-value verdict from the facts |
 
-## Per-tool manual
+## How to use it
 
-### verify_signatures
+### Signatures — valid is not identity
 
-For each signature: recomputes the ByteRange digest and compares it with the CMS messageDigest, verifies the CMS/PKCS#7 signature value against the signer certificate, verifies any RFC 3161 signature timestamp, evaluates the certificate chain against trust anchors, and checks revocation.
+`verify_signatures` returns three independent values. The verdict (`valid` / `invalid` / `indeterminate`) is about the cryptography, trust (`trusted` / `untrusted` / `not_evaluated`) is about the certificate chain, and revocation (`good` / `revoked` / `unknown` / `not_checked`) is about the OCSP / CRL check. **Pass no trust anchors and trust stays `not_evaluated`**, which caps `evaluate_policy` at `use_with_caution`.
 
-Returns: per-signature verdict (`valid` / `invalid` / `indeterminate`), trust (`trusted` / `untrusted` / `not_evaluated` + certificate path), revocation status (`good` / `revoked` / `unknown` / `not_checked`), and timestamp verification.
+Revocation checking defaults to `embedded` (data inside the PDF/CMS); `online` queries OCSP/CRL over HTTP.
 
-| Parameter | Type | Description |
-|---|---|---|
-| `trust_anchors` | array\<string\> | Paths to trust anchor certificates (PEM/DER). Merged with env `PDF_VERIFY_TRUST_ANCHORS` (a directory) |
-| `check_revocation` | `none` / `embedded` / `online` | Revocation checking. Default embedded (data inside the PDF/CMS). online queries OCSP/CRL over HTTP |
+### Incremental updates after signing are legal
 
-::: warning valid ≠ signer identity
-Without trust_anchors (or the env var), "valid" means only that **the cryptography checks out** — not that the signer is who they claim (`trust: not_evaluated`). Likewise for revocation: if it could not be checked, you may not say "not revoked".
-:::
+What `verify_integrity` reports is what to review — it does not automatically mean tampering. Adding signatures or DSS/LTV data is a legitimate PDF operation. Per ISO 32000-2 §12.8.2.2, DSS / document-timestamp increments after a P=1 certification are **not** reported as violations (flagged `laterChangesAppearLtvOnly`).
 
-Related: for structure only, use pdf-reader's `inspect_signatures`.
-
-### verify_integrity
-
-Analyzes changes after signing: revision count (incremental updates), whether bytes were added after each signature's signed range, whether the last signature covers the whole file, DocMDP (certification) permissions and violations, and DSS presence. Per ISO 32000-2 §12.8.2.2, DSS/document-timestamp increments after a P=1 certification are **not** reported as violations (flagged `laterChangesAppearLtvOnly`).
-
-::: tip Incremental updates after signing are legal
-Adding signatures or DSS/LTV data is a legitimate PDF operation. Findings say what to review — they do not automatically mean tampering.
-:::
-
-**Since v0.10.0, beyond per-revision reporting, it also returns *which objects* were written after signing**
-(`revisions` / `objectChangesAfterLastSignature`), walking the xref chain over raw bytes
-(table / xref stream / hybrid). **The verdict does not move** (incremental updates are legal).
-
-Hand those object numbers to [pdf-reader](/mcp/pdf-reader)'s `locate_objects` to get **a page and a rectangle**, which
-[pdf-writer](/mcp/pdf-writer)'s `add_annotation` takes as-is — "point at the changed spot with an annotation"
-becomes one continuous path across servers.
+Since v0.10.0, beyond per-revision reporting, it returns *which objects* were written after signing (`revisions` / `objectChangesAfterLastSignature`), walking the xref chain over raw bytes (table / xref stream / hybrid). **The verdict does not move.**
 
 ::: warning Could-not-walk ≠ nothing changed
-When the xref chain cannot be walked, the result is `null`, not an empty array. A naive implementation lies in
-three places (a linearized file has two xref sections for one save and must be merged, or every object looks "added";
-a full save measures 224,065 changes; unwalkable must not read as "unchanged") — all three were fixed against
-real measurements.
+When the xref chain cannot be walked, the result is `null`, not an empty array. A naive implementation lies in three places (a linearized file has two xref sections for one save and must be merged, or every object looks "added"; a full save measures 224,065 changes; unwalkable must not read as "unchanged") — all three were fixed against real measurements.
 :::
 
-### validate_clauses
+### Conformance splits into "read the claim" and "measure by rules"
 
-Checks constraints mapped from the **body clauses of ISO 32000-1/-2** — the area veraPDF does not look at.
-A document can pass PDF/A or PDF/UA and still violate ISO 32000 (example: embedding a CFF font program under
-`/FontFile2`, which Table 124 forbids).
+`identify_conformance` only **reads** whether the file wrote "I am PDF/A". **A label is not evidence** — the actual rule checking is `validate_conformance`.
 
-The mapping and its evaluation live in [pdf-constraints](/reference/pdf-constraints), and the output names the
-version that decided. **Same file plus same given facts always produce the same result.** The bundled domains
-and their constraint counts are listed there.
+`validate_conformance` is a **hybrid engine**: it delegates to veraPDF when available (authoritative), otherwise runs the built-in rules natively. `flavour` accepts `"pdfa-1b"`–`"pdfa-3b"` / `"pdfa-4"` / `"pdfa-4e"` / `"pdfa-4f"` (v0.11.0+) / `"pdfua-1"` / `"pdfua-2"` and follows the XMP declaration when omitted (PDF/A wins when both are declared; falls back to `pdfa-2b`). **PDF/A-4 has no conformance level, so `"pdfa-4b"` does not exist** — `e` / `f` are variants, not levels.
 
-| Parameter | Type | Description |
-|---|---|---|
-| `domains` | array\<string\> | Restrict the constraint domains |
-| `given` | object | Facts outside the file, e.g. `{ "isSubset": true }` |
+Reading the result: `compliant` is true / false under veraPDF. **Under the native engine, false = definitive violations found, `null` = "no violations in the checked subset" (not certification).** Native PDF/UA violations carry a severity: only `error` can prove non-conformance; `warning` needs human review.
 
-Each constraint returns one of four states.
+### Clause checks return four states
+
+`validate_clauses` checks constraints mapped from the body clauses of ISO 32000-1/-2 — a document can pass PDF/A or PDF/UA and still violate ISO 32000 (example: embedding a CFF font program under `/FontFile2`, which Table 124 forbids). The mapping and its evaluation live in [pdf-constraints](/reference/pdf-constraints), and the output names the version that decided.
 
 | State | Meaning |
 |---|---|
@@ -129,14 +152,9 @@ Each constraint returns one of four states.
 | `not_applicable` | The clause does not apply to this document |
 | `needs_external_fact` | An outside fact was not supplied, so **no decision was made** (never defaulted to pass) |
 
-::: warning Zero failures is not proof of conformance
-It means "nothing in the bundled constraints could be disproved". Failures marked `trace` mean the clause binds the
-PDF **processor** — evidence that someone broke it, not necessarily the last writer.
-:::
+Failures marked `trace` mean the clause binds the PDF **processor** — evidence that someone broke it, not necessarily the last writer.
 
-### detect_pades_level
-
-**Observes** which PAdES baseline level (ETSI EN 319 142) each signature's structure matches. The levels stack up as follows:
+### PAdES levels stack up
 
 | Level | Structure (on top of the row above) | Meaning |
 |---|---|---|
@@ -145,57 +163,13 @@ PDF **processor** — evidence that someone broke it, not necessarily the last w
 | B-LT | + DSS with validation data (certificates, OCSP/CRL) | Revocation-checking material is self-contained in the document |
 | B-LTA | + document timestamp | The validation material itself is sealed — survives long-term preservation |
 
-Legacy adbe.pkcs7.detached is reported as non-PAdES.
+B-LT / B-LTA additionally require that the DSS revocation data actually covers the signer certificate (otherwise the level caps at B-T). Legacy adbe.pkcs7.detached is reported as non-PAdES.
 
-::: warning An observation, not a conformance verdict
-ETSI EN 319 142 is not in the spec corpus and there is no third-party validator to delegate to. The result is "the structure matches B-LT", never "conforms to PAdES B-LT" — every report carries `normativeBasis: "T3"`.
-:::
+### The 4-value verdict depends on the profile
 
-B-LT / B-LTA additionally require that the DSS revocation data actually covers the signer certificate (otherwise the level caps at B-T).
+`evaluate_policy` internally runs `verify_signatures`, `verify_integrity` and `detect_pades_level` (plus `validate_conformance` for long-term-preservation profiles) and folds the facts through a fixed rule table — **same facts and same profile always yield the same verdict**. `profile` is one of `general` / `contract` (signature required, identity-focused) / `financial`, `government` (long-term-preservation checks) / `legal` / `medical` (most conservative — caution escalates to review).
 
-### identify_conformance
-
-Reads the PDF/A (pdfaid) and PDF/UA (pdfuaid) **declarations** in the XMP metadata. Returns the declared part / conformance level and the PDF version.
-
-::: warning A label is not evidence
-This tool only **reads** whether the file wrote "I am PDF/A". For the actual rule checking, use `validate_conformance`.
-:::
-
-### validate_conformance
-
-Validates against PDF/A (ISO 19005, archiving) or PDF/UA (ISO 14289, accessibility). **Hybrid engine**: delegates to veraPDF when available (authoritative), otherwise runs the built-in rules natively —
-
-- PDF/A (15 rules): encryption, file ID, LZW, font embedding, JavaScript/prohibited actions, OutputIntent, A-1 transparency, XFA, …
-- PDF/UA (12 rules): MarkInfo/Marked, StructTreeRoot, pdfuaid declaration, /Lang, DisplayDocTitle, title, Figure /Alt, image tagging, heading hierarchy, table TH/TR, Link /Contents
-
-| Parameter | Type | Description |
-|---|---|---|
-| `flavour` | string | `"pdfa-1b"`–`"pdfa-3b"` / **`"pdfa-4"` / `"pdfa-4e"` / `"pdfa-4f"`** (v0.11.0+) / `"pdfua-1"` / `"pdfua-2"` etc. Follows the XMP declaration when omitted (PDF/A wins when both are declared; falls back to pdfa-2b). **PDF/A-4 has no conformance level, so `"pdfa-4b"` does not exist** — `e` / `f` are variants, not levels |
-| `engine` | `auto` / `verapdf` / `native` | Default auto (delegates when veraPDF is present) |
-
-Reading the result: `compliant` is true/false under veraPDF. **Under the native engine, false = definitive violations found, null = "no violations in the checked subset" (not certification)**. Native PDF/UA violations carry a severity: only `error` can prove non-conformance; `warning` needs human review.
-
-::: tip PDF/UA cannot be fully decided by machine
-Whether alt text *exists* is machine-checkable; whether it is *meaningful* is not. For observing the structure tree itself, use pdf-reader's `inspect_tags`.
-:::
-
-### evaluate_policy
-
-Returns a deterministic 4-value verdict (`trust_and_use` / `use_with_caution` / `human_review_required` / `reject`). Internally runs `verify_signatures`, `verify_integrity` and `detect_pades_level` (plus `validate_conformance` for long-term-preservation profiles) and folds the facts through a fixed rule table — **same facts and same profile always yield the same verdict**.
-
-| Parameter | Type | Description |
-|---|---|---|
-| `profile` | `general` / `contract` / `financial` / `legal` / `medical` / `government` | Judgment profile. contract = signature required, identity-focused / financial, government = long-term-preservation checks / medical = most conservative (caution escalates to review) |
-| `trust_anchors` | array\<string\> | Trust anchors. **Without them, even valid signatures cap at use_with_caution** (identity not evaluated) |
-| `check_revocation` | `none` / `embedded` / `online` | Revocation checking. Default embedded |
-
-Returns: `verdict`, `firedRules` (rule IDs with reasons), `advisories` (recommendations that do not affect the verdict), and a facts summary.
-
-::: warning The judge is code, the narrative is the LLM
-The verdict is decided by code. Use the returned firedRules / advisories **to explain the outcome, never to override it**. Do not read an advisory as a failure, or the absence of advisories as a pass. It judges authenticity and integrity only, never the truth of the content.
-:::
-
-Related: the Skill that builds a whole audit around this verdict is [pdf-trust](/skills/pdf-trust).
+It returns `verdict`, `firedRules` (rule IDs with reasons), `advisories` (recommendations that do not affect the verdict) and a facts summary. The Skill that builds a whole audit around this verdict is [pdf-trust](/skills/pdf-trust).
 
 ## Assertion strength
 

@@ -10,19 +10,53 @@ description: PDF を生成・編集する MCP（20 ツール） — text / Markd
 - このページは責務と使いどころの解説です。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-writer)（`tools/list` から自動生成）へ
 - 内部実装は pdf-lib + fontkit
 
-### これ 1 台でできること
+## これ 1 台でできること
 
 「この内容で請求書 PDF を作って」「この 3 つの PDF をまとめて」「全ページに社外秘の透かしを入れて」といった作成・編集はここで完結します。スクリーンリーダーで読めるタグ付き PDF（PDF/UA-1）の生成にも対応しており、AI に文書を作らせてそのまま納品する用途に向きます。
 
-### 注意 — ラベルは書けますが、規格どおりにはできません
+## Skill 連携でできること
 
-`ensure_pdfa` / `ensure_tagged` は「この文書は PDF/A です」という**ラベル**をメタデータに書くツールです。フォント未埋め込みなどの違反は直らないため、非適合の文書に使うと「自分について嘘をつくファイル」ができてしまいます。ラベルを書いたら必ず pdf-verify で測ってください。
+このサーバーは 4 層のうち**生成**の層にあり、書くことだけをします。書いたものが規格どおりかは測れません — 測るのは pdf-verify、読み戻すのは pdf-reader です。この 3 つを **write → read-back → verify** のループに組むのが [pdf-publish](/ja/skills/pdf-publish) です。
+
+```mermaid
+graph LR
+  SRC[/"text / Markdown / 表<br>編集する PDF"/] --> WRITER
+  FONT[("日本語フォント<br>.ttf / .otf")] --> WRITER
+
+  subgraph SELF["このページ"]
+    WRITER[["pdf-writer-mcp<br>生成 — 仕様通りに書けるか"]]
+  end
+
+  WRITER --> OUT[/"生成・編集済み PDF"/]
+  OUT --> READER[["pdf-reader-mcp<br>read-back"]]
+  READER --> VERIFY[["pdf-verify-mcp<br>veraPDF 採点"]]
+  VERIFY -.->|違反が残れば書き直し（上限 3 回）| WRITER
+  SPEC[["pdf-spec-mcp<br>正典"]]
+
+  PUBLISH{{"pdf-publish<br>納品パイプライン"}} -.->|編成| WRITER & READER & VERIFY & SPEC
+```
+
+図中の形は要素の種別を表します（→ [図の読み方](/ja/reference/glossary#図の読み方-形の凡例)）。
+
+| Skill | このサーバーの役割 | 必須か |
+|---|---|---|
+| [pdf-publish](/ja/skills/pdf-publish) | パイプラインの基盤。書く側を担い、読み戻しと採点は他の 2 つに渡す | **必須** |
+
+::: danger 測れないならラベルを書かない
+`ensure_pdfa` / `ensure_tagged` を使う案件では、pdf-publish は水準にかかわらず pdf-verify を必須とします。検査できないならラベルも書きません。
+:::
+
+## できないこと
+
+- **ラベルは書けますが、規格どおりにはできません。** `ensure_pdfa` / `ensure_tagged` は「この文書は PDF/A です」という**ラベル**をメタデータに書くツールです。フォント未埋め込みなどの違反は直らないため、非適合の文書に使うと「自分について嘘をつくファイル」ができます。ラベルを書いたら必ず pdf-verify で測ってください
+- **機械は意味を推定できません。** `ensure_tagged` が新設するのは「足場」であって「アクセシブルな文書」ではありません。見出し・表・リスト・読み順・図の代替テキストは作られず、人手のレビューが要ります
+- **`ensure_pdfa` はフォント・透明・暗号化・JavaScript を修復しません**（文書レベル要件の供給のみ）
+- 暗号化 PDF は編集できません（`ENCRYPTED_PDF`）。XFA には対応していません
 
 ## しないこと
 
 - **署名しない**。署名付き PDF の編集は `preserveSignatures`（増分更新）か `allowBreakingSignatures` の明示が必要 — 黙って壊さない
 - 準拠判定（→ pdf-verify）・仕様引用（→ pdf-spec）
-- `ensure_pdfa` はフォント・透明・暗号化・JavaScript を修復しない（文書レベル要件の供給のみ）
 
 ## インストール
 
@@ -40,7 +74,7 @@ description: PDF を生成・編集する MCP（20 ツール） — text / Markd
 
 ## 共通引数
 
-ほとんどのツールが以下を受け取ります（各表では省略し、ツール固有の引数のみ記載します）。
+ほとんどのツールが以下を受け取ります。
 
 | 引数 | 型 | 説明 |
 |---|---|---|
@@ -63,224 +97,60 @@ graph TD
 
 ## ツール一覧（20）
 
+引数・型・既定値は[ツールリファレンス](/ja/reference/mcp/pdf-writer)にあります（`tools/list` から自動生成）。
+
 | 分類 | ツール |
 |---|---|
-| 作成 | [`create_text_pdf`](#create-text-pdf) / [`create_markdown_pdf`](#create-markdown-pdf) / [`create_table_pdf`](#create-table-pdf) |
-| ページ操作 | [`merge_pdfs`](#merge-pdfs) / [`split_pdf`](#split-pdf) / [`extract_pages`](#extract-pages) / [`delete_pages`](#delete-pages) / [`reorder_pages`](#reorder-pages) / [`rotate_pages`](#rotate-pages) |
-| 装飾・注釈 | [`add_bookmarks`](#add-bookmarks) / [`add_annotation`](#add-annotation) / [`add_watermark`](#add-watermark) / [`stamp_page_numbers`](#stamp-page-numbers) |
-| メタ・添付 | [`set_metadata`](#set-metadata) / [`attach_file`](#attach-file) |
-| フォーム | [`fill_form`](#fill-form) / [`flatten_form`](#flatten-form) / [`tag_form_fields`](#tag-form-fields) |
-| 宣言 | [`ensure_tagged`](#ensure-tagged) / [`ensure_pdfa`](#ensure-pdfa) |
+| 作成 | [`create_text_pdf`](/ja/reference/mcp/pdf-writer#create-text-pdf) / [`create_markdown_pdf`](/ja/reference/mcp/pdf-writer#create-markdown-pdf) / [`create_table_pdf`](/ja/reference/mcp/pdf-writer#create-table-pdf) |
+| ページ操作 | [`merge_pdfs`](/ja/reference/mcp/pdf-writer#merge-pdfs) / [`split_pdf`](/ja/reference/mcp/pdf-writer#split-pdf) / [`extract_pages`](/ja/reference/mcp/pdf-writer#extract-pages) / [`delete_pages`](/ja/reference/mcp/pdf-writer#delete-pages) / [`reorder_pages`](/ja/reference/mcp/pdf-writer#reorder-pages) / [`rotate_pages`](/ja/reference/mcp/pdf-writer#rotate-pages) |
+| 装飾・注釈 | [`add_bookmarks`](/ja/reference/mcp/pdf-writer#add-bookmarks) / [`add_annotation`](/ja/reference/mcp/pdf-writer#add-annotation) / [`add_watermark`](/ja/reference/mcp/pdf-writer#add-watermark) / [`stamp_page_numbers`](/ja/reference/mcp/pdf-writer#stamp-page-numbers) |
+| メタ・添付 | [`set_metadata`](/ja/reference/mcp/pdf-writer#set-metadata) / [`attach_file`](/ja/reference/mcp/pdf-writer#attach-file) |
+| フォーム | [`fill_form`](/ja/reference/mcp/pdf-writer#fill-form) / [`flatten_form`](/ja/reference/mcp/pdf-writer#flatten-form) / [`tag_form_fields`](/ja/reference/mcp/pdf-writer#tag-form-fields) |
+| 宣言 | [`ensure_tagged`](/ja/reference/mcp/pdf-writer#ensure-tagged) / [`ensure_pdfa`](/ja/reference/mcp/pdf-writer#ensure-pdfa) |
 
-## ツール別マニュアル — 作成
+## 使い方の要点
 
-create 系 3 ツールは共通で以下を受け取ります。
+### 作成 — タグ付きにするなら最初から
 
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `fontSize` | number | 本文サイズ(pt)。既定 11（4〜96） |
-| `pageSize` | `A4` / `A3` / `A5` / `LETTER` / `LEGAL` | 既定 A4 |
-| `margin` | number | 上下左右マージン(pt)。既定 56 ≒ 20mm |
-| `title` / `author` | string | メタデータ。title は本文冒頭にも見出し描画 |
-| `onMissingGlyph` | `error` / `replace` / `ignore` | フォントに無い文字の扱い。既定 error（欠落文字を列挙してエラー）。replace = 〓 に置換して警告 |
-| `tagged` | boolean | **タグ付き PDF（PDF/UA-1）として生成**。構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与。PDF/UA はタイトル必須のため `title` が必須になる |
-| `lang` | string | 文書言語（BCP 47。例 `"ja"`）。tagged 時に省略すると本文から推定し warnings で報告。誤った言語宣言はスクリーンリーダの誤読を招くため確実なら明示 |
-| `pdfVersion` | `"1.7"` \| `"2.0"` | 出力する PDF の版。既定 `"1.7"`（バイト列は従来どおり）。`"2.0"`（ISO 32000-2）にすると版の宣言に加えて **trailer /ID を付与**（Table 15 で Required）し、**Info 辞書を CreationDate / ModDate だけに絞って**題名・作成者・Producer を XMP へ移す（§14.3.3）。**`tagged: true` とは併用不可** — 本サーバーが書ける宣言は PDF/UA-1（PDF 1.7 基盤）だけで、2.0 の器に載せると誰にも測れない宣言になるため |
+`create_text_pdf` / `create_markdown_pdf` / `create_table_pdf` は共通で `tagged: true` を受け取ります。指定すると**タグ付き PDF（PDF/UA-1）として生成**し、構造木・PDF/UA 宣言・`/Lang`・DisplayDocTitle を付与します。PDF/UA はタイトル必須のため `title` も必須になります。
 
-### create_text_pdf
+- `lang`（BCP 47。例 `"ja"`）を省略すると本文から推定し warnings で報告します。**誤った言語宣言はスクリーンリーダの誤読を招く**ので、確実なら明示してください
+- 既存の PDF に後から `ensure_tagged` を掛けるより、最初から `tagged: true` で作るほうが良い文書になります
+- フォントに無い文字の扱いは `onMissingGlyph` で決めます。既定は `error`（欠落文字を列挙してエラー）です
 
-プレーンテキストから PDF を生成します。`\n` を尊重し、空行を段落区切りとして扱います。長い行は自動で折り返します。
+`pdfVersion` は既定 `"1.7"` で、`"2.0"`（ISO 32000-2）にすると版の宣言に加えて **trailer `/ID` を付与**し（Table 15 で Required）、**Info 辞書を CreationDate / ModDate だけに絞って**題名・作成者・Producer を XMP へ移します（§14.3.3）。**`tagged: true` とは併用できません** — 本サーバーが書ける宣言は PDF/UA-1（PDF 1.7 基盤）だけで、2.0 の器に載せると誰にも測れない宣言になるためです。
 
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `text` **必須** | string | 本文テキスト |
+### ページ操作は文書レベル情報を引き継がない
 
-### create_markdown_pdf
-
-Markdown から PDF を生成します。見出し・段落・リスト・コードブロック・引用・水平線・表に対応します。単一フォントのため、インライン装飾（**強調**等）は記号を除去し字面のみ反映します。
-
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `markdown` **必須** | string | Markdown 文字列 |
-
-### create_table_pdf
-
-ヘッダと行データから罫線付き表 PDF を生成します。列幅は内容から自動算出し、セル内折り返しと改ページ時のヘッダ再描画に対応します。
-
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `headers` **必須** | array\<string\> | 列見出し |
-| `rows` **必須** | array\<array\> | データ行。headers と同じ列数を推奨 |
-
-## ツール別マニュアル — ページ操作
-
-::: warning ページ複製系は文書レベル情報を引き継ぎません
+::: warning
 `merge_pdfs` / `split_pdf` / `extract_pages` / `delete_pages` / `reorder_pages` はページを新しい文書へ複製するため、**タグ付き構造・XMP・添付・AcroForm・しおり等は引き継がれません**。失われたものは warnings で報告されるので、必要なら出力に `attach_file` / `ensure_tagged` / `add_bookmarks` / `set_metadata` を後がけしてください。
 :::
 
-### merge_pdfs
+`extract_pages` は**指定順が出力順**になるため、並べ替えを兼ねた抽出もできます。`add_bookmarks` は**既存のしおりを置換**します。
 
-複数 PDF を指定順に結合します。メタデータは先頭ファイルから引き継ぎます。
+### 注釈・透かし・ページ番号はタグ付きを壊さない
 
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `inputPaths` **必須** | array\<string\> | 結合する PDF の絶対パス（結合順・2 件以上） |
+`add_annotation` の座標は **PDF 座標系（左下原点・pt）**で、[pdf-reader](/ja/mcp/pdf-reader) の `locate_objects` / `extract_structured_text`（`include_bbox`）が返す矩形をそのまま渡せます。タグ付き文書では Annot 構造要素への内包（PDF/UA 7.18.1-1）も行い、`preserveSignatures` 時は増分に含めて PDF/UA 準拠を維持します（DocMDP では P=3 のときのみ許可）。支援技術向けの代替テキストは `alt` で渡します。
 
-### split_pdf
+`add_watermark` と `stamp_page_numbers` はタグ付き PDF では Artifact として囲むため、PDF/UA 準拠が保たれます。どちらも日本語の文字列にはフォントが必須です。
 
-ページ範囲ごとに複数ファイルへ分割します。`ranges` の各要素が 1 ファイルになります。
+### フォーム — 名前が分からないときの調べ方
 
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `ranges` **必須** | array\<string\> | `"1-3"` / `"5"` / `"7-"` / `"-2"` 形式（1 始まり） |
-| `outputDir` **必須** | string | 出力先ディレクトリ（絶対パス） |
-| `prefix` | string | 出力名接頭辞。既定 `<入力名>-part` |
+`fill_form` は、**存在しないフィールド名を指定するとエラーに全フィールド名と型が列挙される**という調査法が使えます。XFA には対応していません。
 
-### extract_pages
+`flatten_form` はタグ付き PDF では Widget 注釈が消えて Form 構造要素が宙に浮くため、既定で拒否します（`allowBreakingTags: true` で強行できますが、**PDF/UA 準拠は壊れます**）。
 
-指定ページだけの新 PDF を作成します。**指定順が出力順**になるため、並べ替えを兼ねた抽出も可能です。
+`tag_form_fields` はタグ付き PDF のフォームを **PDF/UA-1 準拠へ修復**します: Widget を Form 構造要素へ内包（7.18.4-1）、対象ページに `/Tabs S`（7.18.3-1）、フィールドに代替名 `/TU`（7.18.1-3）。**何度実行しても結果は同じ**です。タグ無し文書は対象外です。
 
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `pages` **必須** | string | `"1,3-5,8-"` 形式（1 始まり） |
-
-### delete_pages
-
-指定ページを削除した新 PDF を作成します。全ページ削除はエラーになります。
-
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `pages` **必須** | string | 削除ページ。`"1,3-5,8-"` 形式 |
-
-### reorder_pages
-
-ページを並べ替えます。`order` には全ページを新順序で 1 回ずつ列挙してください。
-
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `order` **必須** | array\<integer\> | 新しいページ順（1 始まり）。例: 5 ページの逆順 `[5,4,3,2,1]` |
-
-### rotate_pages
-
-時計回りに回転します（90/180/270 度）。
-
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `rotation` **必須** | `90` / `180` / `270` | 回転角（度） |
-| `pages` | string | 対象ページ。省略時は全ページ |
-
-## ツール別マニュアル — 装飾・注釈
-
-### add_bookmarks
-
-しおり（アウトライン）を設定します。**既存のしおりは置換**されます。`children` で入れ子化できます（最大 8 階層・計 2000 件）。`preserveSignatures` に対応します。
-
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `bookmarks` **必須** | array | `{ title, page, open?, children? }` の配列。page は 1 始まり |
-
-### add_annotation
-
-注釈を 1 つ追加します: 付箋（text）/ ハイライト（highlight）/ 矩形（square）。座標は **PDF 座標系（左下原点・pt）**です。タグ付き文書では Annot 構造要素への内包（PDF/UA 7.18.1-1）も行い、`preserveSignatures` 時は増分に含めて PDF/UA 準拠を維持します（DocMDP では P=3 のときのみ許可）。
-
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `page` **必須** | integer | 対象ページ（1 始まり） |
-| `type` **必須** | `text` / `highlight` / `square` | 注釈種別 |
-| `rect` **必須** | object | 矩形（左下原点・pt）。x1\<x2 かつ y1\<y2 |
-| `contents` | string | 本文（日本語可） |
-| `alt` | string | 支援技術向け代替テキスト（タグ付き PDF で Annot 要素の /Alt に） |
-| `color` / `interiorColor` | string | #rrggbb。interiorColor は square の塗り |
-| `icon` | string | text のアイコン（Note / Comment / Key / Help / NewParagraph / Paragraph / Insert） |
-| `open` | boolean | text を開いた状態に。既定 false |
-
-### add_watermark
-
-各ページ中央に斜めの透かし（「社外秘」「DRAFT」等）を入れます。既定は本文の**背面**に薄く描きます。タグ付き PDF では Artifact として囲み、PDF/UA 準拠を維持します。日本語の透かしにはフォントが必須です。
-
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `text` **必須** | string | 透かし文字 |
-| `fontSize` | number | 既定 60 |
-| `opacity` | number | 0〜1。既定 0.15 |
-| `angle` | number | 反時計回りの角度。既定 45 |
-| `behind` | boolean | 背面に敷くか。既定 true |
-| `pages` | string | 対象ページ。省略時は全ページ |
-
-### stamp_page_numbers
-
-ページ番号を刻印します。タグ付き PDF では Artifact として囲み、PDF/UA 準拠を維持します。日本語書式にはフォントが必須です。
-
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `format` | string | `{n}`=現在頁・`{total}`=総頁。既定 `"{n}"`。例 `"{n} / {total}"` / `"{n} ページ"` |
-| `position` | string | bottom-left 〜 top-right の 6 種。既定 bottom-center。/Rotate 考慮 |
-| `pages` | string | 対象ページ。表紙を除くなら `"2-"` |
-| `startAt` | integer | 開始番号。既定 1 |
-| `margin` / `fontSize` / `color` | — | 余白 24pt / 9pt / #666666 が既定 |
-
-## ツール別マニュアル — メタ・添付
-
-### set_metadata
-
-Info 辞書を更新します（指定フィールドのみ変更）。title / author / subject / keywords / creator のうち最低 1 つが必要です。**XMP を持つ文書では dc:title 等も同期**して不整合を防ぎます。`preserveSignatures` に対応します。
-
-### attach_file
-
-ファイルを埋め込みます（/Names /EmbeddedFiles + catalog /AF、AFRelationship 付与）。PDF/A-3 や電帳法の「人が読む請求書 PDF + 機械可読データ（CSV/XML）」を 1 ファイルに束ねる用途に使います。
-
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `attachmentPath` **必須** | string | 埋め込むファイル |
-| `name` | string | PDF 内での表示名。既存添付と同名不可 |
-| `description` | string | /Desc（日本語可） |
-| `mimeType` | string | 省略時は拡張子から推定 |
-| `relationship` | `Source` / `Data` / `Alternative` / `Supplement` / `Unspecified` | 本文との関係（PDF/A-3 §6.8）。**PDF/A-3 では意味のある値が必須**（省略すると警告） |
-
-## ツール別マニュアル — フォーム
-
-### fill_form
-
-AcroForm にフィールド値を流し込みます。**フィールド名が分からないときは、存在しない名前を指定するとエラーに全フィールド名と型が列挙される**という調査法が使えます。XFA には対応していません。
-
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `fields` **必須** | object | フィールド名 → 値。text=文字列/数値、checkbox=真偽、dropdown/optionlist=文字列（配列可）、radio=文字列 |
-| `flatten` | boolean | 記入後にフラット化。既定 false |
-| `allowBreakingTags` | boolean | タグ付き PDF でのフラット化を許可（**PDF/UA 準拠が壊れる**）。既定 false |
-
-### flatten_form
-
-記入済みの見た目を保ったまま AcroForm を非対話化します。配布前の値固定に使います。タグ付き PDF では Widget 注釈が消えて Form 構造要素が宙に浮くため、既定で拒否します（`allowBreakingTags: true` で強行できます）。日本語フォームは外観再生成に備えてフォントを指定してください。
-
-### tag_form_fields
-
-タグ付き PDF のフォームを **PDF/UA-1 準拠へ修復**します: Widget を Form 構造要素へ内包（7.18.4-1）、対象ページに /Tabs S（7.18.3-1）、フィールドに代替名 /TU（7.18.1-3）。**何度実行しても結果は同じ**です（構造木に結ばれた Widget はスキップされます）。タグ無し文書は対象外です（create 系の `tagged: true` で作り直すか、`ensure_tagged` を先に適用してください）。
-
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `labels` | object | フィールド名 → スクリーンリーダが読む名前。例 `{"user.name": "氏名"}`。省略フィールドは名前を代用し warnings で報告 |
-
-## ツール別マニュアル — 宣言
+### 宣言 — 書いたら必ず測る
 
 ::: danger ラベルを書いたら必ず測る
 `ensure_tagged` / `ensure_pdfa` は XMP に pdfuaid / pdfaid を書きます — ファイルが自分で書いたラベルであって、規格どおりであることではありません。適合していない文書に適用すると**嘘を名乗る PDF** ができます（適用時は常に警告が返ります）。書いたら必ず pdf-verify の `validate_conformance` で測ってください（flavour は `ensure_pdfa` に渡したものと同じ文字列 — `pdfua-1` / `pdfa-3b` / `pdfa-4` / `pdfa-4f`）。**測れないならラベルを書かないでください。**
 :::
 
-### ensure_tagged
+`ensure_tagged` は、タグ付きなら構造木に触らず欠落した文書レベル要件（MarkInfo / Lang / DisplayDocTitle / XMP の pdfuaid・dc:title）だけを補い、タグ無しなら最小構造木（各ページ = 1 つの P 要素）を新設します。
 
-既存 PDF を PDF/UA-1 の「器」に載せます。タグ付きなら構造木に触らず欠落した文書レベル要件（MarkInfo / Lang / DisplayDocTitle / XMP の pdfuaid・dc:title）のみ補い、タグ無しなら最小構造木（各ページ = 1 つの P 要素）を新設します。
-
-**機械は意味を推定できない**ため、見出し・表・リスト・読み順・図の代替テキストは作られません。新設は「足場」であって「アクセシブルな文書」ではなく、人手のレビューが要ります。最初から正しく作れるなら create 系の `tagged: true` を使ってください。
-
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `title` | string | 文書タイトル（PDF/UA-1 7.1 で必須）。省略時は既存 Info の Title |
-| `lang` | string | 文書言語（PDF/UA-1 7.2 で必須。例 `"ja"`） |
-
-### ensure_pdfa
-
-既存 PDF を PDF/A の「器」に載せます（ensure_tagged の PDF/A 版）。`flavour` で **`"pdfa-3b"`（既定）/ `"pdfa-4"` / `"pdfa-4f"`** を選びます。補うのは trailer /ID（ISO 32000-1 14.4）・sRGB OutputIntent（ICC プロファイル生成・埋め込み）・XMP pdfaid で、**本文・構造木・フォントには触りません**。フォント未埋め込み・暗号化・JavaScript・LZW などの違反は直りません。
+`ensure_pdfa` が補うのは trailer `/ID`（ISO 32000-1 14.4）・sRGB OutputIntent（ICC プロファイル生成・埋め込み）・XMP pdfaid で、**本文・構造木・フォントには触りません**。`flavour` で `"pdfa-3b"`（既定）/ `"pdfa-4"` / `"pdfa-4f"` を選びます。
 
 **-4 系はさらにヘッダを PDF 2.0 にし、Info 辞書を削除します。** PDF/A-4 は catalog に `/PieceInfo` が無い限り Info を許さず（veraPDF `ISO 19005-4:2020 6.1.3-4`）、これは ISO 32000-2 §14.3.3 より厳しい要求です。作成日時は `xmp:CreateDate` が持つので情報は失われません。`pdfaid:rev` を書き、`pdfaid:conformance` は書きません（-4 は conformance level を持たないため）。
 
@@ -290,18 +160,15 @@ AcroForm にフィールド値を流し込みます。**フィールド名が分
 
 `preserveSignatures` との併用は、-4 系では**入力が既に PDF 2.0 でない限り拒否**されます。増分更新はファイル先頭のヘッダを書き換えられず、書き換えれば守るはずの署名が壊れるためです。
 
-電帳法の文脈では `attach_file` で機械可読データを添付した**後**に適用します。判定は veraPDF が下すため、「veraPDF はこう判定した」までしか言えません（ISO 19005 は条文を引けません）。
+電帳法の文脈では `attach_file` で機械可読データを添付した**後**に適用します。`attach_file` は `relationship`（`Source` / `Data` / `Alternative` / `Supplement` / `Unspecified`）で本文との関係を宣言します — **PDF/A-3 では意味のある値が必須**です（§6.8。省略すると警告）。
 
 ## エラーコード
 
-構造化エラー（`code` / `next_actions` / `retryable`）で返ります。メッセージ文字列をパースしないでください。
+構造化エラー（`code` / `next_actions` / `retryable`）で返ります。**メッセージ文字列をパースしないでください。** 全コードと対処は[エラーコード一覧](/ja/reference/error-codes)にあります。
 
-| コード | 対処 |
+| よく出るコード | 対処 |
 |---|---|
 | `SIGNED_PDF` | `preserveSignatures` か `allowBreakingSignatures` を明示 |
 | `TAGGED_PDF` | `allowBreakingTags` を明示（PDF/UA が壊れることを承知の上で） |
 | `FONT_REQUIRED` | `fontPath` / `PDF_WRITER_FONT` を指定 |
 | `MISSING_GLYPH` | `onMissingGlyph` で扱いを指定 |
-| `ENCRYPTED_PDF` | 暗号化 PDF は編集不可 |
-| `UNSUPPORTED_PDF_FEATURE` | XFA 等の非対応機能 |
-| その他 | `INVALID_ARGUMENT` / `DOC_NOT_FOUND` / `FONT_NOT_FOUND` / `INVALID_PDF` / `FILE_TOO_LARGE` / `INTERNAL_ERROR` |
