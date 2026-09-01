@@ -1,5 +1,5 @@
 ---
-description: The MCP that creates and edits PDFs (20 tools) — creation from text / Markdown / tables, CJK font embedding. It can write a label, cannot make the file meet the standard
+description: The MCP that creates and edits PDFs (20 tools) — creation from text / Markdown / tables, CJK font embedding. It can write a conformance declaration; it cannot guarantee conformance itself
 ---
 
 # pdf-writer-mcp
@@ -16,7 +16,7 @@ description: The MCP that creates and edits PDFs (20 tools) — creation from te
 
 ## What it gives you together with a Skill
 
-This server sits in the **production** layer of the four: it writes, and only writes. It cannot measure what it wrote — pdf-verify measures, pdf-reader reads back. Wiring the three into a **write → read-back → verify** loop is what [pdf-publish](/skills/pdf-publish) does.
+This server sits in the **production** layer of the four (production = returning a new or edited PDF): it writes, and only writes. It cannot measure what it wrote — pdf-verify measures, pdf-reader reads back. Wiring the three into a **write → read-back → verify** loop is what [pdf-publish](/skills/pdf-publish) does.
 
 ```mermaid
 graph LR
@@ -42,20 +42,20 @@ Shapes carry meaning (→ [legend](/reference/glossary#how-to-read-the-diagrams-
 |---|---|---|
 | [pdf-publish](/skills/pdf-publish) | The foundation of the pipeline: the writing side, with read-back and scoring left to the other two | **Required** |
 
-::: danger If you cannot measure it, do not write the label
-Whenever a job uses `ensure_pdfa` / `ensure_tagged`, pdf-publish requires pdf-verify regardless of the quality level. If it cannot be checked, the label is not written.
+::: danger If you cannot measure it, do not write the declaration
+Whenever a job uses `ensure_pdfa` / `ensure_tagged`, pdf-publish requires pdf-verify regardless of the quality level. If it cannot be checked, the declaration is not written.
 :::
 
 ## What it cannot do
 
-- **It writes a label; it cannot make the file meet the standard.** `ensure_pdfa` and `ensure_tagged` write a **label** into the metadata: "this document is PDF/A". Existing violations such as unembedded fonts are not repaired, so applying them to a non-conforming file produces a PDF that lies about itself. Whatever you label, measure it with pdf-verify
-- **Machines cannot infer meaning.** What `ensure_tagged` creates is a *scaffold*, not an accessible document: headings, tables, lists, reading order and figure alt text are not created, and human review is required
+- **It writes a conformance declaration; it cannot guarantee conformance.** `ensure_pdfa` and `ensure_tagged` write a **declaration** into the metadata: "this document is PDF/A". Existing violations such as unembedded fonts are not repaired. Applying them to a non-conforming file produces a PDF claiming conformance it does not have. Whatever you declare, measure it with pdf-verify
+- **Machines cannot infer meaning.** What `ensure_tagged` creates is a minimal structure tree, not an accessible document. Headings, tables, lists, reading order and figure alt text are not created, so human review is required
 - **`ensure_pdfa` does not repair fonts, transparency, encryption or JavaScript** (it supplies document-level requirements only)
 - Encrypted PDFs cannot be edited (`ENCRYPTED_PDF`). XFA is unsupported
 
 ## What it does not do
 
-- **It does not sign.** Editing a signed PDF requires an explicit `preserveSignatures` (incremental update) or `allowBreakingSignatures` — it never breaks silently
+- **It does not sign.** Editing a signed PDF requires an explicit `preserveSignatures` (incremental update) or `allowBreakingSignatures`. Unless one of them is stated, no edit that would invalidate a signature is performed
 - Conformance verdicts (→ pdf-verify), quoting the spec (→ pdf-spec)
 
 ## Installation
@@ -79,7 +79,7 @@ Most tools accept these.
 | Parameter | Type | Description |
 |---|---|---|
 | `inputPath` **required** (editing tools) | string | Absolute path of the PDF to edit |
-| `outputPath` | string | Where to save (absolute). **Omitting it returns base64 and floods the response — always set it** |
+| `outputPath` | string | Where to save (absolute). **Omitting it returns base64, which makes the response enormous and is likely to break the conversation — always set it** |
 | `returnBase64` | boolean | Also return base64 in addition to saving. Default false |
 | `fontPath` | string | Font to embed (.ttf/.otf; .ttc unsupported). Required for CJK. Env `PDF_WRITER_FONT` works too |
 | `allowBreakingSignatures` | boolean | A signed PDF (detected via /ByteRange) errors by default. true = proceed **knowing the signatures break** |
@@ -87,12 +87,18 @@ Most tools accept these.
 
 ### Handling signed PDFs (decision flow)
 
+The decision when editing a signed PDF goes like this.
+
+- The default is an error (signatures are not broken)
+- To keep the signatures, use `preserveSignatures` (incremental update)
+- Only when breaking them is acceptable, use `allowBreakingSignatures`
+
 ```mermaid
 graph TD
   A[Editing a signed PDF] --> B{Keep the signatures?}
   B -->|Yes| C[preserveSignatures: true<br>incremental update, supported tools only<br>within the DocMDP permission level]
   B -->|No / unavoidable| D[allowBreakingSignatures: true<br>signatures are invalidated]
-  B -->|Neither| E[Error SIGNED_PDF<br>never breaks silently]
+  B -->|Neither| E[Error SIGNED_PDF<br>nothing breaks unless stated]
 ```
 
 ## Tools (20)
@@ -142,23 +148,25 @@ With `fill_form`, **passing a nonexistent field name makes the error list every 
 
 `tag_form_fields` **repairs a tagged PDF's form to PDF/UA-1**: it encloses Widgets in Form structure elements (7.18.4-1), sets `/Tabs S` on the affected pages (7.18.3-1) and gives fields alternate names `/TU` (7.18.1-3). It is **idempotent**. Untagged documents are out of scope.
 
-### Declarations — whatever you label, measure
+### Declarations — whatever you declare, measure
 
-::: danger Whatever you label, measure
-`ensure_tagged` / `ensure_pdfa` write pdfuaid / pdfaid into the XMP — a label the file wrote about itself, not proof it meets the standard. Applied to a non-conforming document they produce **a PDF that lies about itself** (a warning is always returned). After writing, always measure with pdf-verify's `validate_conformance` (flavour = the same string you passed — `pdfua-1` / `pdfa-3b` / `pdfa-4` / `pdfa-4f`). **If you cannot measure it, do not write the label.**
+::: danger Whatever you declare, measure
+`ensure_tagged` / `ensure_pdfa` write pdfuaid / pdfaid into the XMP. That is a declaration the file makes about itself, not proof that it meets the standard. Applied to a non-conforming document they produce **a PDF claiming conformance it does not have** (a warning is always returned).
+
+After writing, always measure with pdf-verify's `validate_conformance`, passing the same flavour string you gave `ensure_pdfa` (`pdfua-1` / `pdfa-3b` / `pdfa-4` / `pdfa-4f`). **If you cannot measure it, do not write the declaration.**
 :::
 
 `ensure_tagged` leaves the structure tree untouched if the document is already tagged and supplies only the missing document-level requirements (MarkInfo / Lang / DisplayDocTitle / XMP pdfuaid and dc:title); if untagged, it creates a minimal structure tree (each page = one P element).
 
 `ensure_pdfa` supplies the trailer `/ID` (ISO 32000-1 14.4), an sRGB OutputIntent (generating and embedding an ICC profile) and XMP pdfaid — **it never touches content, structure tree or fonts**. Choose the target with `flavour`: `"pdfa-3b"` (default) / `"pdfa-4"` / `"pdfa-4f"`.
 
-**The -4 flavours additionally set the header to PDF 2.0 and delete the Info dictionary.** PDF/A-4 forbids Info unless the catalog has `/PieceInfo` (veraPDF `ISO 19005-4:2020 6.1.3-4`) — stricter than ISO 32000-2 §14.3.3. Nothing is lost: `xmp:CreateDate` holds the creation date. It writes `pdfaid:rev` and not `pdfaid:conformance` (-4 has no conformance level).
+**The PDF/A-4 flavours (`pdfa-4` / `pdfa-4f`) additionally set the header to PDF 2.0 and delete the Info dictionary.** PDF/A-4 forbids Info unless the catalog has `/PieceInfo` (veraPDF `ISO 19005-4:2020 6.1.3-4`) — stricter than ISO 32000-2 §14.3.3. Nothing is lost: `xmp:CreateDate` holds the creation date. It writes `pdfaid:rev` and not `pdfaid:conformance` (PDF/A-4 has no conformance level).
 
 ::: warning With attachments, use `"pdfa-4f"`
 Plain `"pdfa-4"` requires **every attachment to be PDF/A itself** (`6.9-3`). That breaks the e-bookkeeping-law pattern of bundling CSV or JSON — use **`"pdfa-4f"`**. Measured: the same document scored 108/109 under `pdfa-4` and **109/109 COMPLIANT** under `pdfa-4f`.
 :::
 
-Combining with `preserveSignatures` is **refused for the -4 flavours unless the input is already PDF 2.0**: an incremental update cannot rewrite the file header, and rewriting it would break the very signatures being preserved.
+Combining with `preserveSignatures` is **refused for the PDF/A-4 flavours unless the input is already PDF 2.0**: an incremental update cannot rewrite the file header, and rewriting it would break the very signatures being preserved.
 
 In the e-bookkeeping-law context, apply it **after** attaching the machine-readable data with `attach_file`. `attach_file` declares the relationship to the body with `relationship` (`Source` / `Data` / `Alternative` / `Supplement` / `Unspecified`) — **PDF/A-3 requires a meaningful value** (§6.8; omitting it warns).
 

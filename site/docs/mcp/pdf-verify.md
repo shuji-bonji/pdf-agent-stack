@@ -4,7 +4,7 @@ description: The MCP that judges authenticity and conformance (7 tools) — sign
 
 # pdf-verify-mcp
 
-**The server that judges whether a PDF is genuine and meets the standard.** It verifies electronic signatures cryptographically, detects changes made after signing, and scores conformance to PDF/A (archiving) and PDF/UA (accessibility).
+**The server that judges whether a signature is cryptographically valid and whether the file meets the standard.** It verifies electronic signatures cryptographically, detects changes made after signing, and scores conformance to PDF/A (archiving) and PDF/UA (accessibility).
 
 - npm: [`@shuji-bonji/pdf-verify-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) / current v0.26.0 / [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp)
 - This page is the guide — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-verify) (generated from `tools/list`)
@@ -23,13 +23,13 @@ description: The MCP that judges authenticity and conformance (7 tools) — sign
 | Does it breach the ISO 32000 body? | The constraint tables of [pdf-constraints](/reference/pdf-constraints) (where veraPDF does not look) | `validate_clauses` | T1 |
 | Does it conform to PDF/UA (accessibility)? | ISO 14289, via veraPDF or 12 built-in rules | `validate_conformance` | T1 |
 | Does it conform to PDF/A (archiving)? | ISO 19005, via veraPDF or 15 built-in rules | `validate_conformance` | T2 |
-| Does it carry long-term-preservation structure? | PAdES B-B / B-T / B-LT / B-LTA-matching structure | `detect_pades_level` | T3 (observation) |
+| Does it carry long-term-preservation structure? | PAdES B-B / B-T / B-LT / B-LTA-matching structure | `detect_pades_level` | T3 (observation only) |
 | Does it **claim** to be PDF/A or PDF/UA? | The pdfaid / pdfuaid declarations in XMP | `identify_conformance` | Reading a declaration |
-| May it be used in the business process? | The facts above folded through a fixed rule table into 4 values | `evaluate_policy` | Folding of facts |
+| May it be used in the business process? | The facts above applied to a fixed rule table and reduced to 4 values | `evaluate_policy` | Aggregation of facts |
 
 ## What it gives you together with a Skill
 
-This server sits in the **judgment** layer of the four: it decides pass or fail over facts. What to measure in which order, how to explain the verdict and which legal grounds to attach are a Skill's job.
+This server sits in the **judgment** layer of the four (judgment = pass or fail over observed facts): it decides pass or fail over the facts observed. What to measure in which order, how to explain the verdict and which legal grounds to attach are a Skill's job.
 
 ```mermaid
 graph LR
@@ -38,7 +38,7 @@ graph LR
   VERA[("veraPDF")] --> VERIFY
 
   subgraph SELF["this page"]
-    VERIFY[["pdf-verify-mcp<br>judgment — genuine and conformant?"]]
+    VERIFY[["pdf-verify-mcp<br>judgment — valid signature? conformant file?"]]
   end
 
   VERIFY -->|changed object numbers| READER[["pdf-reader-mcp<br>fact"]]
@@ -57,7 +57,7 @@ Shapes carry meaning (→ [legend](/reference/glossary#how-to-read-the-diagrams-
 | [pdf-publish](/skills/pdf-publish) | The exit gate: machine-scores the produced PDF with veraPDF. At the `conformance` level the pipeline aborts without it | **Required** at `conformance` |
 
 ::: warning The judge is code, the narrative is the LLM
-The verdict is decided by code. Use the returned `firedRules` / `advisories` **to explain the outcome, never to override it**. Do not read an advisory as a failure, or the absence of advisories as a pass.
+Use the returned `firedRules` / `advisories` **to explain the outcome, never to override it**. Do not read an advisory as a failure. Do not read the absence of advisories as a pass.
 :::
 
 ## What it cannot do
@@ -69,7 +69,7 @@ The verdict is decided by code. Use the returned `firedRules` / `advisories` **t
 
 ## What it does not do
 
-- Judging whether the content is true (a properly signed document can still lie)
+- Judging whether the content is true (a properly signed document can still state something untrue)
 - Observation (→ pdf-reader), citing the spec (→ pdf-spec), production (→ pdf-writer)
 
 ## Installation
@@ -129,8 +129,14 @@ What `verify_integrity` reports is what to review — it does not automatically 
 
 Since v0.10.0, beyond per-revision reporting, it returns *which objects* were written after signing (`revisions` / `objectChangesAfterLastSignature`), walking the xref chain over raw bytes (table / xref stream / hybrid). **The verdict does not move.**
 
-::: warning Could-not-walk ≠ nothing changed
-When the xref chain cannot be walked, the result is `null`, not an empty array. A naive implementation lies in three places (a linearized file has two xref sections for one save and must be merged, or every object looks "added"; a full save measures 224,065 changes; unwalkable must not read as "unchanged") — all three were fixed against real measurements.
+::: warning Not being able to walk the xref chain is not the same as nothing having changed
+When the xref chain cannot be walked, the result is `null`, not an empty array. Three things go wrong in a naive implementation:
+
+- A linearized file has two xref sections for one save. Without merging them, every object looks "added"
+- A full save reports an inflated change count (224,065 in one measurement)
+- Reading "could not walk" as "unchanged" states as settled a fact that was never established
+
+All three were fixed against real measurements.
 :::
 
 ### Conformance splits into "read the claim" and "measure by rules"
@@ -167,7 +173,7 @@ B-LT / B-LTA additionally require that the DSS revocation data actually covers t
 
 ### The 4-value verdict depends on the profile
 
-`evaluate_policy` internally runs `verify_signatures`, `verify_integrity` and `detect_pades_level` (plus `validate_conformance` for long-term-preservation profiles) and folds the facts through a fixed rule table — **same facts and same profile always yield the same verdict**. `profile` is one of `general` / `contract` (signature required, identity-focused) / `financial`, `government` (long-term-preservation checks) / `legal` / `medical` (most conservative — caution escalates to review).
+`evaluate_policy` internally runs `verify_signatures`, `verify_integrity` and `detect_pades_level` (plus `validate_conformance` for long-term-preservation profiles). It then applies those facts to a fixed rule table and reduces them to one of four values. **Same facts and same profile always yield the same verdict.** `profile` is one of `general` / `contract` (signature required, identity-focused) / `financial`, `government` (long-term-preservation checks) / `legal` / `medical` (most conservative — caution escalates to review).
 
 It returns `verdict`, `firedRules` (rule IDs with reasons), `advisories` (recommendations that do not affect the verdict) and a facts summary. The Skill that builds a whole audit around this verdict is [pdf-trust](/skills/pdf-trust).
 

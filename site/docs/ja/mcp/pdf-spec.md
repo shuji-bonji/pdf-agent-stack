@@ -10,7 +10,7 @@ description: ISO 32000 系仕様書の構造化参照 MCP — 条文・要件（
 - このページは責務と使いどころの解説です。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-spec)（`tools/list` から自動生成）へ
 
 ::: info 仕様 PDF は同梱していません
-`PDF_SPEC_DIR` に、無償入手できる原文をご自身で配置してください（→ [導入手順 Step 2](/ja/guide/getting-started)）。**中核文書はすべて正規ルートで無償入手できます。** コーパスが無いと本サーバーは 1 問も答えられません。
+`PDF_SPEC_DIR` に、無償入手できる原文をご自身で配置してください（→ [導入手順 Step 2](/ja/guide/getting-started)）。**中核文書はすべて正規ルートで無償入手できます。** コーパスが無いと、このサーバーは検索できません。
 :::
 
 ## これ 1 台でできること
@@ -19,7 +19,7 @@ description: ISO 32000 系仕様書の構造化参照 MCP — 条文・要件（
 
 ## Skill 連携でできること
 
-このサーバーは 4 層のうち**正典**の層にあり、「規格が何を要求するか」だけを供給します。判定は pdf-verify、観測は pdf-reader、生成は pdf-writer の仕事です。
+このサーバーは 4 層のうち**正典**（= 正しさの基準となる原文）の層にあり、「規格が何を要求するか」だけを供給します。判定は pdf-verify、観測は pdf-reader、生成は pdf-writer の仕事です。
 
 ```mermaid
 graph LR
@@ -38,7 +38,7 @@ graph LR
   PUBLISH{{"pdf-publish<br>納品パイプライン"}} -.->|編成| SPEC & VERIFY & WRITER
 ```
 
-図中の形は要素の種別を表します（→ [図の読み方](/ja/reference/glossary#図の読み方-形の凡例)）。**対象の PDF は pdf-spec に渡りません** — 入るのは利用者が配置した仕様 PDF だけです。
+図中の形は要素の種別を表します（→ [図の読み方](/ja/reference/glossary#図の読み方-形の凡例)）。**検証対象の PDF は、このサーバーには渡りません。** 読むのは、利用者が配置した仕様 PDF だけです。
 
 | Skill | このサーバーの役割 | 必須か |
 |---|---|---|
@@ -75,7 +75,7 @@ graph LR
 
 ## コーパスのキャッシュ
 
-v0.5.0 から、文書全体を走査する 2 つの操作 — `search_spec` の検索索引と、`section` を指定しない `get_requirements` の全走査 — は初回構築のあとディスクにキャッシュされます。以後のプロセスはこの 2 つに 6〜14 秒ではなく 1 秒未満で答えます。
+v0.5.0 から、文書全体を走査する 2 つの操作は、初回構築のあとディスクにキャッシュされます。対象は `search_spec` の検索索引と、`section` を指定しない `get_requirements` の全走査です。以後のプロセスはこの 2 つに、6〜14 秒ではなく 1 秒未満で答えます。
 
 置き場所の既定は `${XDG_CACHE_HOME:-~/.cache}/pdf-spec-mcp` で、コーパス全体で約 18 MB です。キーにサーバーの版・pdfjs の版・PDF の SHA-256 が入るので、更新やファイルの差し替えでは作り直します。キャッシュは利用者の PDF から利用者の機械上に作る派生物で、配布はしません。
 
@@ -113,12 +113,12 @@ npx -y @shuji-bonji/pdf-spec-mcp@latest --build-cache
 
 - **仕様条文**（`get_section` / `get_tables`）— 節の本文を、見出し・段落・リスト・表・注記の**要素の列**として返します。NOTE / EXAMPLE は本文と別の要素になります
 - **要件**（`get_requirements`）— 条文中の shall / shall not / should / should not / may を含む規範文を 1 文 = 1 要件で返します。**shall だけが適合の必要条件**です
-- **定義**（`get_definitions`）— 第 3 節（Terms and definitions）の用語定義を返します。日常語と意味がずれる語ほど、議論の前にここで確定させる価値があります
+- **定義**（`get_definitions`）— 第 3 節（Terms and definitions）の用語定義を返します。規格上の意味が日常語と違う用語は、議論の前にここで定義を確認してください
 
 どれも「規格が何と書いているか」の構造化であり、あなたのファイルについて何かを言うものではありません。JSON の形と読み違えやすい箇所は [pdf-spec の出力の読み方](/ja/reference/pdf-spec-output) にまとめてあります。
 
 ::: tip 前提知識: ISO 規格の文書規約
-NOTE は規範ではない・shall だけが適合の必要条件・定義は日常語を上書きする — といった ISO 共通の読み方を知らないと出力を誤読しやすいため、先に [ISO 仕様書の読み方（入門）](/ja/reference/iso-reading-primer) に目を通すことをお勧めします。
+NOTE は規範ではない、shall だけが適合の必要条件、定義は日常語を上書きする。こうした ISO 共通の読み方を知らないと出力を誤読しやすいため、先に [ISO 仕様書の読み方（入門）](/ja/reference/iso-reading-primer) に目を通すことをお勧めします。
 :::
 
 ## ツール一覧
@@ -138,14 +138,20 @@ NOTE は規範ではない・shall だけが適合の必要条件・定義は日
 
 ## 使い方の要点
 
-**最初の一手は `list_specs` です。** 何が配置されていて、何が配置されていないか（`coverage.gaps`）を先に見てください。「その要求は存在しない」と結論づける前に必ず gaps を読みます。
+**まず `list_specs` を呼びます。** 何が配置されていて、何が配置されていないか（`coverage.gaps`）を先に見てください。「その要求は存在しない」と結論づける前に必ず gaps を読みます。
 
-**節番号が分かっているなら `get_section`、分からないなら `search_spec`。** `get_section` は**親節を指定するとサブツリー全体**（全下位節を文書順で）が返るため、上位の節では応答が非常に大きくなります — 分かっている最も具体的な節番号を使ってください。`search_spec` はまず完全フレーズ、次に単語 AND でマッチします。
+**節番号が分かっているなら `get_section`、分からないなら `search_spec`。** `get_section` は**親節を指定するとサブツリー全体**（全下位節を文書順で）が返るため、上位の節では応答が非常に大きくなります。分かっている最も具体的な節番号を使ってください。`search_spec` はまず完全フレーズ、次に単語 AND でマッチします。
 
 ::: warning ヒット 0 件の意味
 「このコーパスでは答えられない」であって「そのような要求は存在しない」では**ありません**。PDF/A・PAdES はコーパス外です。
 :::
 
-**要求だけが欲しいなら `get_requirements`。** `level` で shall / shall not / should / should not / may を絞れます。このツールは**あなたのファイルではなく「規格」を読みます** — 特定の PDF が満たすかは pdf-verify の `validate_conformance` / `evaluate_policy` へ。
+**要求だけが欲しいなら `get_requirements`。** `level` で shall / shall not / should / should not / may を絞れます。このツールは**あなたのファイルではなく「規格」を読みます。** 特定の PDF が満たすかは pdf-verify の `validate_conformance` / `evaluate_policy` が答えます。
 
-**版の差を見るなら `compare_versions`。** タイトルベースの自動マッチングで、一致（同一・移動）・追加（2.0 で新設）・削除（2.0 に無い）を返します。PDF 1.7 と 2.0 の両ファイルが `PDF_SPEC_DIR` に必要です。
+**版の差を見るなら `compare_versions`。** 節タイトルを手がかりに 1.7 と 2.0 の節を対応づけ、次の 3 種を返します。
+
+- **一致** — 同一、または移動した節
+- **追加** — 2.0 で新設された節
+- **削除** — 2.0 に無い節
+
+PDF 1.7 と 2.0 の両ファイルが `PDF_SPEC_DIR` に必要です。

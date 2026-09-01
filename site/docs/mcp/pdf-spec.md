@@ -19,7 +19,7 @@ Questions like "what does PDF 2.0 require of incremental updates?" or "which cla
 
 ## What it gives you together with a Skill
 
-This server sits in the **norm** layer of the four: it supplies what the standard requires, and nothing else. Verdicts belong to pdf-verify, observation to pdf-reader, production to pdf-writer.
+This server sits in the **norm** layer of the four (norm = the original text that defines what is correct): it supplies what the standard requires, and nothing else. Verdicts belong to pdf-verify, observation to pdf-reader, production to pdf-writer.
 
 ```mermaid
 graph LR
@@ -38,7 +38,7 @@ graph LR
   PUBLISH{{"pdf-publish<br>publish pipeline"}} -.->|orchestrates| SPEC & VERIFY & WRITER
 ```
 
-Shapes carry meaning (→ [legend](/reference/glossary#how-to-read-the-diagrams-shape-legend)). **The PDF under examination never reaches pdf-spec** — the only input is the specification corpus you placed.
+Shapes carry meaning (→ [legend](/reference/glossary#how-to-read-the-diagrams-shape-legend)). **The PDF under examination never reaches this server.** The only input is the specification corpus you placed.
 
 | Skill | What this server does there | Required? |
 |---|---|---|
@@ -148,4 +148,10 @@ Parameters, types and defaults are in the [tools reference](/reference/mcp/pdf-s
 
 **Want only the requirements? `get_requirements`.** Filter with `level` (shall / shall not / should / should not / may). This tool **reads the standard, not your file** — to check a file, use pdf-verify's `validate_conformance` / `evaluate_policy`.
 
-**Comparing versions? `compare_versions`.** Title-based automatic matching returns matched (same or moved), added (new in 2.0) and removed (absent in 2.0). Both PDF 1.7 and PDF 2.0 must be in `PDF_SPEC_DIR`.
+**Comparing versions? `compare_versions`.** It matches sections between 1.7 and 2.0 by their titles and returns three kinds:
+
+- **matched** — the same section, or a moved one
+- **added** — new in 2.0
+- **removed** — absent from 2.0
+
+Both PDF 1.7 and PDF 2.0 must be in `PDF_SPEC_DIR`.

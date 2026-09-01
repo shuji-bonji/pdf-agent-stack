@@ -14,7 +14,7 @@ description: The MCP that observes what is inside a PDF and where it is (19 tool
 
 **If all you need is to read PDFs, this server alone is enough.** "Summarize this PDF", "turn this table into CSV", "which fonts are embedded?" — all of it finishes here. Unlike plain text extraction, a tagged PDF can be read in **logical reading order**, so multi-column layouts and tables do not come out scrambled.
 
-Beyond "what is inside", it also reports **where it is drawn on the page**. Rectangles come back in exactly the form [pdf-writer-mcp](/mcp/pdf-writer)'s `add_annotation` takes (PDF default user space, origin bottom-left, pt, normalised), so no coordinate system has to be reinterpreted in between.
+Beyond "what is inside", it also reports **where it is drawn on the page**. Rectangles come back in the coordinate space [pdf-writer-mcp](/mcp/pdf-writer)'s `add_annotation` uses directly (PDF default user space, origin bottom-left, pt, normalised), so no coordinate system has to be reinterpreted in between.
 
 | Question | Tool |
 |---|---|
@@ -23,7 +23,7 @@ Beyond "what is inside", it also reports **where it is drawn on the page**. Rect
 
 ## What it gives you together with a Skill
 
-This server sits in the **fact** layer of the four: it returns observations and nothing else. How far to read, and how to declare what could not be read, is a Skill's job.
+This server sits in the **fact** layer of the four (fact = what was observed): it returns observations and nothing else. How far to read, and how to declare what could not be read, is a Skill's job.
 
 ```mermaid
 graph LR
@@ -46,19 +46,19 @@ Shapes carry meaning (→ [legend](/reference/glossary#how-to-read-the-diagrams-
 
 | Skill | What this server does there | Required? |
 |---|---|---|
-| [pdf-read](/skills/pdf-read) | The foundation. The Skill picks the reading path and makes the server declare what it could not read | **Required** (v0.14.0+ recommended) |
+| [pdf-read](/skills/pdf-read) | The foundation. The Skill picks the reading path and makes the server report what it could not read | **Required** (v0.14.0+ recommended) |
 | [pdf-publish](/skills/pdf-publish) | The read-back stage of write → read-back → verify | Recommended |
 | [pdf-trust](/skills/pdf-trust) | Observation of signature-field structure, tags and metadata; locating changed objects | Optional |
 
-**Pointing at a tampered region with an annotation** runs through three servers in one line: `verify_integrity` returns the object numbers, `locate_objects` turns them into pages and rectangles, and pdf-writer's `add_annotation` takes those rectangles as-is.
+**Pointing at a tampered region with an annotation** connects three servers in sequence. `verify_integrity` returns the object numbers; `locate_objects` turns them into pages and rectangles; pdf-writer's `add_annotation` takes those rectangles as-is.
 
 ## What it cannot do
 
 - **It cannot say whether a signature is valid.** `inspect_signatures` reads the structure of signature fields; no cryptographic verification happens here
 - **It cannot say whether a file conforms.** Verdicts belong to pdf-verify
 - **It does not OCR.** Characters drawn as pixels are not readable. A page whose text cannot be extracted comes back not as an empty string but with the reason (no text layer / a font with no path to Unicode / could not be read)
-- **It never guesses logical reading order from coordinates.** For an untagged PDF `extract_structured_text` returns `isTagged: false` and nothing more. If you need a scaffold, run pdf-writer's `ensure_tagged` first
-- An encrypted document whose key cannot be derived does not open (counting functions return `null`; listing functions raise)
+- **It never guesses logical reading order from coordinates.** For an untagged PDF `extract_structured_text` returns `isTagged: false` and nothing more. If you need logical reading order, add tags first with pdf-writer's `ensure_tagged`
+- An encrypted document whose key cannot be derived does not open. Counts such as the page count come back as `null`, and tools that return a list raise instead
 
 ## What it does not do
 
@@ -117,9 +117,9 @@ Parameters, types and defaults are in the [tools reference](/reference/mcp/pdf-r
 
 ## How to use it
 
-### Start with `summarize`
+### Measure the document with `summarize` first
 
-It combines metadata, text presence, image count and a page-1 preview — **the right first move before deciding which detailed tool to use**. If all you need is the page count, `get_page_count` is lighter.
+It combines metadata, text presence, image count and a page-1 preview. **Decide which detailed tool to use only after reading it.** If all you need is the page count, `get_page_count` is lighter.
 
 ### There are three paths to the body text
 
@@ -129,15 +129,30 @@ It combines metadata, text presence, image count and a page-1 preview — **the 
 | Tables in a tagged PDF | `extract_tables` | `<TR>` → `<TH>`/`<TD>` structure, with kerning whitespace removed (「消 費 税 法」→「消費税法」) |
 | Untagged | `read_text` | Y-coordinate reading order. Multi-column documents split by X coordinate with `split_columns: 2` / `3` |
 
-`read_text` resolves `/ActualText` replacements (ISO 32000-2 §14.9.4) on both paths the clause defines — structure elements and `Span` marked content — so ligature-substituted and hyphenation-fixed words come back spelled the way a viewer shows them. `search_text` runs over that same text, so hits use the post-replacement spelling. Japanese forms indented with fullwidth spaces benefit from `compact_whitespace: true` (cuts tokens 20–40%).
+Three things to know about `read_text`:
 
-When `read_text` reports `no_text_layer` (a scan) or `not_extractable`, or the content is vector art, a form, handwriting or a seal impression, switch to `render_page` and look at the page as an image. Where `read_images` only pulls out the image XObjects a page embeds, `render_page` draws **the page itself — everything on it**. Rendering uses PDFium compiled to WebAssembly, **a different engine** from the pdf.js this server reads text with: when the two behave differently on a broken file, neither output is evidence for the other. `pages` is required — rendering every page never happens implicitly.
+- It resolves `/ActualText` replacements (ISO 32000-2 §14.9.4) on both paths the clause defines: structure elements and `Span` marked content. Ligature-substituted and hyphenation-fixed words come back spelled the way a viewer shows them
+- `search_text` runs over that same text, so hits use the post-replacement spelling
+- Japanese forms indented with fullwidth spaces benefit from `compact_whitespace: true`, which cuts tokens by 20–40%
 
-Elements from `extract_structured_text` form a flat list with `role` / `depth` / `text` / `pages` (pre-order + depth encodes the tree exactly). An element spanning pages stays **one element** — paragraphs are not split. `alt` is kept out of `text` (§14.9.3), `Lbl` (list bullets) goes to `label`, and Artifacts (page numbers, running heads) are excluded.
+**Pages that cannot be read as text go to `render_page` instead.** That covers pages where `read_text` reports `no_text_layer` (a scan) or `not_extractable`, and equally vector art, forms, handwriting and seal impressions.
+
+Where `read_images` only pulls out the image XObjects a page embeds, `render_page` draws **everything on the page**.
+
+Rendering uses PDFium compiled to WebAssembly, **a different engine** from the pdf.js this server reads text with. When the two behave differently on a broken file, neither output is evidence for the other.
+
+`pages` is required. Rendering every page never happens implicitly.
+
+Four things to know about `extract_structured_text` output:
+
+- Elements form a flat list with `role` / `depth` / `text` / `pages`. Pre-order plus `depth` encodes the tree exactly
+- An element spanning pages stays **one element**; paragraphs are not split
+- `alt` is returned separately rather than mixed into `text` (§14.9.3), and `Lbl` (list bullets) goes to `label`
+- Artifacts (page numbers, running heads) are excluded
 
 ### Two paths to position, with different strengths of claim
 
-Both `locate_objects` and `extract_structured_text` (`include_bbox: true`) attach a **`basis`** to every rectangle: was it measured, is it the file's own claim, or does it merely point at the whole page — a mechanism for **never returning claims of different strength with the same face**.
+Both `locate_objects` and `extract_structured_text` (`include_bbox: true`) attach a **`basis`** to every rectangle, distinguishing whether the rectangle was measured, is the file's own claim, or merely points at the whole page. It is the mechanism for **never returning values of differing evidential strength in the same undifferentiated form**.
 
 `basis` in `extract_structured_text`:
 
@@ -155,8 +170,8 @@ Both `locate_objects` and `extract_structured_text` (`include_bbox: true`) attac
 | `page-content-stream` | The object draws the page. The rectangle is **the whole page**, not the changed part |
 | `page-resource` | A font, image or other resource. **No rectangle exists** (`rect: null`) |
 
-- **An element spanning pages gets one rectangle per page.** Collapsing them would put a rectangle on a page where the element does not exist
-- **Declared values are returned as-is, then cross-checked** against the page box (§7.7.3.3) and the element's own text; disagreements are reported in `boxNote`. Files lie without blushing — the cover Figure of *Well-Tagged PDF 1.0* declares `/BBox [-32768 -32768 32767 32767]` (an int16 sentinel where a rectangle should be)
+- **An element spanning pages gets one rectangle per page.** Merging them into one would put a rectangle on a page where the element does not exist
+- **Declared values are returned as-is, then cross-checked** against the page box (§7.7.3.3) and the element's own text; disagreements are reported in `boxNote`. A declared value does not always agree with measurement: the cover Figure of *Well-Tagged PDF 1.0* declares `/BBox [-32768 -32768 32767 32767]` (an int16 sentinel where a rectangle should be)
 - **An element with no derivable rectangle never gets a zero-size box** — it carries a `boxNote` explaining why
 - A nonexistent object number returns `found: false` (not "coordinates unknown"). Freed numbers arrive here from diffs, and mixing the two would read as "exists but position unknown"
 - In an encrypted document, coordinates and types are returned but `/T` is `null` (numbers and names are unencrypted per §7.6.2; strings stay ciphertext)
@@ -175,4 +190,4 @@ For content streams, `locate_objects` can only say "the whole page". To point at
 
 ### The two deprecated tools
 
-`validate_metadata` and `validate_tagged` will be removed in the next major version; pdf-verify's `validate_conformance` supersedes both. For structure-tree **facts** use `inspect_tags` (which is NOT deprecated); to just read metadata, use `get_metadata`.
+`validate_metadata` and `validate_tagged` will be removed in the next major version; pdf-verify's `validate_conformance` supersedes both. If you need structure-tree **facts**, use `inspect_tags` (which is NOT deprecated); to just read metadata, use `get_metadata`.
