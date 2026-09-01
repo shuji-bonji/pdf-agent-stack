@@ -192,8 +192,8 @@
   "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
  },
  "inspect_structure|returns": {
-  "src": "16f036c71f4217fc22a4b2cdf678159c",
-  "text": "カタログのエントリ（キーと型）・ページツリー情報（ページ数・MediaBox のサンプル）・オブジェクト統計（総数・ストリーム数・型分布）・暗号化状態。\n\n例:\n- 構造的特徴を見るためにカタログを調べる\n- PDF のオブジェクトとストリームを数える\n- 文書全体のページ寸法を確認する"
+  "src": "30b844e8dd4ef691917101df230a6e6c",
+  "text": "カタログのエントリ（キーと COS の型）・ページツリー情報（ページ数・MediaBox のサンプル）・オブジェクト統計・暗号化状態。\n\nオブジェクト統計は 3 つの数を別々に返す:\n- byType: 各間接オブジェクトの COS の型（ISO 32000-2 §7.3）。dict / stream / array / name /\n  string / integer / real / boolean / null / ref のいずれか\n- byDocType: 各辞書の /Type（Catalog, Pages, Page, Font, ObjStm, XRef, ...）\n- unreadable: 相互参照表が名指ししているが読めなかったオブジェクトの数。\n  totalObjects とは別に数える —— 0 は「全部読めた」であって「何も見ていない」ではない。\n\n例:\n- 構造的特徴を見るためにカタログを調べる\n- PDF のオブジェクトとストリームを数える\n- 文書全体のページ寸法を確認する"
  },
  "inspect_structure|param:file_path": {
   "src": "1c06f136e55f5c125a42c9f2a76f12f6",

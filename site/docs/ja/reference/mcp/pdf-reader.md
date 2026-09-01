@@ -1,5 +1,5 @@
 ---
-description: "pdf-reader-mcp v0.14.0 の全 19 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-reader-mcp v0.15.0 の全 19 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-reader-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-reader-mcp v0.14.0 の全 19 ツールの引数・型・既定
 <!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
 
 ::: info
-**v0.14.0** の `tools/list` ハンドシェイクから自動生成（19 ツール・2026-08-31）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.15.0** の `tools/list` ハンドシェイクから自動生成（19 ツール・2026-09-01）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-reader)へ。
@@ -279,7 +279,14 @@ PDF 文書の概観レポートを手早く生成する。
 
 ### 戻り値
 
-カタログのエントリ（キーと型）・ページツリー情報（ページ数・MediaBox のサンプル）・オブジェクト統計（総数・ストリーム数・型分布）・暗号化状態。
+カタログのエントリ（キーと COS の型）・ページツリー情報（ページ数・MediaBox のサンプル）・オブジェクト統計・暗号化状態。
+
+オブジェクト統計は 3 つの数を別々に返す:
+- byType: 各間接オブジェクトの COS の型（ISO 32000-2 §7.3）。dict / stream / array / name /
+  string / integer / real / boolean / null / ref のいずれか
+- byDocType: 各辞書の /Type（Catalog, Pages, Page, Font, ObjStm, XRef, ...）
+- unreadable: 相互参照表が名指ししているが読めなかったオブジェクトの数。
+  totalObjects とは別に数える —— 0 は「全部読めた」であって「何も見ていない」ではない。
 
 例:
 - 構造的特徴を見るためにカタログを調べる
