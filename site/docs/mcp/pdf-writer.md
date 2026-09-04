@@ -8,7 +8,7 @@ description: The MCP that creates and edits PDFs (20 tools) — creation from te
 
 - npm: [`@shuji-bonji/pdf-writer-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-writer-mcp) / current v0.21.0 / [GitHub](https://github.com/shuji-bonji/pdf-writer-mcp)
 - This page is the guide — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-writer) (generated from `tools/list`)
-- Built on pdf-lib + fontkit
+- Built on [normativepdf](https://github.com/shuji-bonji/normativepdf) — a PDF library in which every behaviour is tied to an ISO 32000 clause — with CJK font embedding via harfbuzz subsetting
 
 ## What this one server gives you
 

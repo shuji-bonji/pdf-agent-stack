@@ -62,15 +62,18 @@ sequenceDiagram
 
 facts: `Signature1`（内閣府）= **valid** / `e-timing EVIDENCE3161_1`（文書タイムスタンプ）= **valid** / PAdES 構造 = B-B（T3 の観測）。政府プロファイル向けの PDF/A 検査は「未実施」と記録されます（暗号化のため veraPDF に渡せない）。
 
-`verify_integrity`: ファイル 139,503 バイト、増分 1 回。`Signature1` の署名済み範囲のあとに **+9,938 バイト**。最後の署名（文書タイムスタンプ）はファイル全体を覆うので、`objectChangesAfterLastSignature` は空です。+9,938 バイト側の変更は次です。
+`verify_integrity`: ファイル 139,503 バイト、増分 1 回。`Signature1` の署名済み範囲のあとに **+9,938 バイト**。最後の署名（文書タイムスタンプ）はファイル全体を覆うので、`objectChangesAfterLastSignature` は空です。+9,938 バイト側で触られたのは **6 オブジェクト**（`changeCount: 6`）です。各行には、どの種類の変更かを示す `changeClass` が付きます。
 
-| オブジェクト | 変更 | 役割 |
-|---|---|---|
-| 64 | added | form field widget（`locate_objects`: p.1、`annotation-rect` が 0×0） |
-| 65 | added | **DocTimeStamp**（ページ上の位置は無い） |
-| 54 | modified | AcroForm 辞書（ページ上の位置は無い） |
+| オブジェクト | 変更 | `changeClass` | 役割 |
+|---|---|---|---|
+| 64 | added | form-fill | form field widget（`locate_objects`: p.1、`annotation-rect` が 0×0） |
+| 65 | added | unknown | 署名辞書そのもの。`locate_objects` は型を **DocTimeStamp** と読む。ページ上の位置は無い |
+| 54 | modified | form-fill | AcroForm 辞書（ページ上の位置は無い） |
+| 7 | modified | housekeeping | 文書カタログ |
+| 8 | modified | housekeeping | ページオブジェクト（`/Annots` が増えた） |
+| 5 | modified | housekeeping | 型が読めないオブジェクト |
 
-署名後の変更は **文書タイムスタンプの付与そのもの**です。増分更新は PDF として認められた書き方です（ISO 32000-2 §7.5.6）。この表は「見るべき場所」であって、改ざんの証明ではありません。
+housekeeping の 3 行は、認められた変更が必然的に引きずるものです。だからこそ所見と数えずに別扱いされます。署名後の変更は **文書タイムスタンプの付与そのもの**です。増分更新は PDF として認められた書き方です（ISO 32000-2 §7.5.6）。この表は「見るべき場所」であって、改ざんの証明ではありません。
 
 ::: details 呼び出し — evaluate_policy（government、アンカー無し）
 - 実測: pdf-verify-mcp v0.26.0

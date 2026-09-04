@@ -15,6 +15,6 @@ graph LR
 
 | Skill | 役割 | 前提 MCP |
 |---|---|---|
-| [pdf-trust](/ja/skills/pdf-trust) | 受入監査を編成し Trust Report を返す | pdf-verify **必須** (v0.7.0+) / reader・spec・houki 系は任意 |
+| [pdf-trust](/ja/skills/pdf-trust) | 受入監査を編成し Trust Report を返す | pdf-verify **必須**（v0.7.0+、**v0.21.0+ 推奨**） / reader・spec・houki 系は任意 |
 | [pdf-publish](/ja/skills/pdf-publish) | write → read-back → verify の納品パイプライン | pdf-writer / pdf-reader / pdf-verify |
 | [pdf-read](/ja/skills/pdf-read) | 大きな PDF・読めない PDF から必要な箇所を取り出し、読めなかった箇所を申告する | pdf-reader **必須** (v0.14.0+ 推奨) / spec は任意 |

@@ -53,7 +53,7 @@ Shapes carry meaning (→ [legend](/reference/glossary#how-to-read-the-diagrams-
 
 | Skill | What this server does there | Required? |
 |---|---|---|
-| [pdf-trust](/skills/pdf-trust) | The axis of the audit. `evaluate_policy` decides the 4-value verdict; the Skill explains firedRules, recommends actions and cites legal grounds | **Required** (v0.7.0+) |
+| [pdf-trust](/skills/pdf-trust) | The axis of the audit. `evaluate_policy` decides the 4-value verdict; the Skill explains firedRules, recommends actions and cites legal grounds | **Required** (v0.7.0+, **v0.21.0+ recommended**) |
 | [pdf-publish](/skills/pdf-publish) | The exit gate: machine-scores the produced PDF with veraPDF. At the `conformance` level the pipeline aborts without it | **Required** at `conformance` |
 
 ::: warning The judge is code, the narrative is the LLM

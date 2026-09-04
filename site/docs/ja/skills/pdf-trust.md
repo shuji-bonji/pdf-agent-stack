@@ -26,10 +26,12 @@ description: 受け取った PDF の信頼性監査を編成する Skill — eva
 
 | MCP | 必須/任意 | 役割 |
 |---|---|---|
-| pdf-verify (v0.7.0+) | **必須** | evaluate_policy・署名検証・改ざん検知・PAdES・PDF/A（**v0.11.0+ は PDF/A-4 も**。`pdfa-4` / `pdfa-4e` / `pdfa-4f`。**`pdfa-4b` は存在しない**） |
+| pdf-verify（v0.7.0+、**v0.21.0+ 推奨**） | **必須** | evaluate_policy・署名検証・改ざん検知・PAdES・PDF/A（**v0.11.0+ は PDF/A-4 も**。`pdfa-4` / `pdfa-4e` / `pdfa-4f`。**`pdfa-4b` は存在しない**） |
 | pdf-reader | 任意 | 署名フィールド構造・タグ・メタデータの観測 |
 | pdf-spec | 任意 | 逸脱時の ISO 32000 根拠引用 |
 | houki-egov / houki-nta / tax-law / labor-law | 任意 | プロファイルが指定する法令根拠 |
+
+v0.7.0 が下限なのは、そこで初めて `evaluate_policy` が入るからです。**Skill が推奨するのは v0.21.0+** で、この版で `verify_signatures` / `detect_pades_level` の JSON 最上位が配列から辞書（`{ scope, signatures: [...] }` / `{ scope, levels: [...] }`）に変わりました。一覧だけを読んでいると、その一覧が不完全であることに気づけません。
 
 ## 監査の流れ（Phase）
 

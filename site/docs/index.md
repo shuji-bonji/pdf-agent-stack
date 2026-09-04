@@ -22,7 +22,7 @@ features:
     details: Specification reference over ISO 32000 and 16 more documents. Answers what the spec requires. Never opens the PDF under examination.
     link: /mcp/pdf-spec
   - title: pdf-reader-mcp (fact)
-    details: 17 tools that observe what is inside a PDF — text, tables, structure tree, signature fields. Never passes judgment.
+    details: 19 tools that observe what is inside a PDF — text, tables, structure tree, signature fields. Never passes judgment.
     link: /mcp/pdf-reader
   - title: pdf-verify-mcp (judgment)
     details: Cryptographic signature verification, tamper detection, PAdES level, PDF/A & PDF/UA validation, deterministic policy verdicts.
@@ -36,6 +36,9 @@ features:
   - title: pdf-publish skill (delivery gate)
     details: Quality-gated delivery pipeline — write → read-back → verify, with a Publish Report.
     link: /skills/pdf-publish
+  - title: pdf-read skill (reading pipeline)
+    details: Pulls what you need out of large or unreadable PDFs, and reports what could not be read.
+    link: /skills/pdf-read
 ---
 
 ## Quick start

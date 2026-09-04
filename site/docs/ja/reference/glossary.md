@@ -33,7 +33,7 @@ T3 のレポートには `normativeBasis: "T3"` が付き、観測であるこ�
 ### basis — 位置情報の根拠
 
 reader が矩形を返すとき、その座標が**どこから来たか**を示します。強さの違う主張を同じ顔で返さないための機構です
-（[locate_objects](/ja/mcp/pdf-reader#locate-objects) / [extract_structured_text](/ja/mcp/pdf-reader#extract-structured-text) の `include_bbox`）。
+（[locate_objects](/ja/reference/mcp/pdf-reader#locate-objects) / [extract_structured_text](/ja/reference/mcp/pdf-reader#extract-structured-text) の `include_bbox`）。
 
 | basis | 意味 | 強さ |
 |---|---|---|

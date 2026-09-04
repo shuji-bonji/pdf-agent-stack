@@ -50,24 +50,25 @@ The ISO/IEC Directives Part 2 defines the auxiliaries strictly.
 
 Terms and definitions is a normative section that fixes what a term means *inside that standard*. The terms that drift furthest from everyday usage deserve the most care. Important PDF examples:
 
-- **conforming reader / conforming writer / conforming product** — a conforming *processor*. Whether a shall binds the file or the processor depends on the subject of the sentence
-- **artifact** — page decoration outside the logical content (page numbers, running heads). Not the everyday "artifact/deliverable"
-- **annotation** — in PDF, an annotation object on the page (including links and form Widgets); much broader than "comment"
+- **PDF processor** (3.49) / **PDF reader** (3.51) / **PDF writer** (3.52) — any active agent that writes, reads, updates or otherwise processes a PDF file, software or not. Whether a shall binds the file or the processor depends on the subject of the sentence. ISO 32000-1's *conforming reader / conforming writer* was replaced by these in ISO 32000-2, so quoting the older wording against a PDF 2.0 clause misnames the subject
+- **running text** (3.59) — the body of text, *as distinct from* headings, footnotes, diagrams and callouts. Narrower than everyday "text"
+- **object** (3.44) — the basic data structure of a PDF file, and exactly these 9 types (array, boolean, dictionary, integer, name, null, real, stream, string). Not "object" in the programming sense
+- **deprecated** (3.15) — should not be *written* into a PDF 2.0 document and should be *ignored* by a PDF processor. Not "removed"
 
-Settling the term with `get_definitions` before arguing is the safe move. The `notes` attached to a definition (Note to entry) are supplements, kept separate from the definition text.
+`get_definitions` returns Clause 3, which holds 71 entries (3.1–3.71) in ISO 32000-2. **Many everyday-sounding PDF terms are not there**: *artifact* and *annotation*, for instance, are defined in the body (§14.8.2.2 "Real content and Artifacts", §12.5 "Annotations"), so `get_definitions` finds nothing for them and `search_spec` / `get_section` is the way in. An empty result means "not in Clause 3", never "not defined". The `notes` attached to a definition (Note to entry) are supplements, kept separate from the definition text.
 
 ## 5. Watch the subject — a requirement on the file, or on the processor?
 
 ISO 32000's shalls point in two directions.
 
 - "The value **shall** be …" → a requirement on the **PDF file** (a validator can check the file)
-- "A conforming reader **shall** …" → a requirement on the **processor** (looking at the file cannot decide conformance)
+- "A PDF reader **shall** …" (ISO 32000-1: "A conforming reader shall …") → a requirement on the **processor** (looking at the file cannot decide conformance)
 
 pdf-verify can check only the former. The latter is never grounds for "this PDF violates the spec". When quoting a clause, quote it with its subject (`get_requirements`' `text` is verbatim, so it can be quoted as-is).
 
 ## 6. Read table-derived requirements with their context
 
-ISO 32000 keeps many of its requirements in **tables** (e.g. Table 182 — Entries in an annotation dictionary). A cell saying "The type of annotation … shall be …" is meaningless without knowing which table and which entry it binds. That is why `get_requirements` attaches `table` / `key` to requirements with `source: "table"` — **quote that context along with the text**. The tables themselves come back structured from `get_tables`.
+ISO 32000 keeps many of its requirements in **tables** (e.g. Table 182 — Additional entries specific to text markup annotations). A cell saying "The type of annotation … shall be …" is meaningless without knowing which table and which entry it binds — that same sentence appears in several annotation tables, each binding a different set of subtypes. That is why `get_requirements` attaches `table` / `key` to requirements with `source: "table"` — **quote that context along with the text**. The tables themselves come back structured from `get_tables`.
 
 ## 7. Map of PDF-related standards
 

@@ -26,10 +26,12 @@ A Skill that audits whether an incoming PDF (contract, invoice, medical document
 
 | MCP | Required / optional | Role |
 |---|---|---|
-| pdf-verify (v0.7.0+) | **Required** | evaluate_policy, signature verification, tamper detection, PAdES, PDF/A (**v0.11.0+ adds PDF/A-4**: `pdfa-4` / `pdfa-4e` / `pdfa-4f` — **`pdfa-4b` does not exist**) |
+| pdf-verify (v0.7.0+, **v0.21.0+ recommended**) | **Required** | evaluate_policy, signature verification, tamper detection, PAdES, PDF/A (**v0.11.0+ adds PDF/A-4**: `pdfa-4` / `pdfa-4e` / `pdfa-4f` — **`pdfa-4b` does not exist**) |
 | pdf-reader | Optional | Observing signature-field structure, tags, metadata |
 | pdf-spec | Optional | Citing ISO 32000 grounds for deviations |
 | houki-egov / houki-nta / tax-law / labor-law | Optional | Statutory grounds required by the chosen profile |
+
+v0.7.0 is the floor because that is where `evaluate_policy` arrives at all; **v0.21.0+ is what the Skill recommends**, because that release moved the top level of `verify_signatures` / `detect_pades_level` JSON from an array to an object (`{ scope, signatures: [...] }` / `{ scope, levels: [...] }`) — reading only the list leaves you unable to notice that the list is incomplete.
 
 ## How an audit flows (Phases)
 

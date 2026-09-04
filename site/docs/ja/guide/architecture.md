@@ -17,6 +17,7 @@ graph LR
     subgraph SKILL["Skill — 手順・編成"]
       TRUST{{"pdf-trust<br>受入監査"}}
       PUBLISH{{"pdf-publish<br>納品パイプライン"}}
+      READ{{"pdf-read<br>読み取りパイプライン"}}
     end
     subgraph MCP["MCP — 計算・暗号（各サーバーは独立）"]
       SPEC[["pdf-spec<br>正典 norm"]]
@@ -29,8 +30,9 @@ graph LR
 
   IN[/"受け取った PDF"/] --> AGENT
   NEED[/"作りたい PDF"/] --> AGENT
+  DOC[/"読みたい PDF"/] --> AGENT
   AGENT <--> FAMILY
-  FAMILY --> OUT(["Trust Report / Publish Report<br>検証済み・納品可能な PDF"])
+  FAMILY --> OUT(["Trust / Publish / Read Report<br>検証済み・納品可能な PDF と、取り出した内容"])
 
   SPECDOC[("ISO 32000 ほか<br>17 文書")] -.-> SPEC
   VERA[("veraPDF")] -.-> VERIFY
@@ -49,6 +51,7 @@ graph TB
   subgraph Skills["Skill 層（編成）"]
     TRUST{{"pdf-trust<br>受入監査（入口ゲート）"}}
     PUBLISH{{"pdf-publish<br>納品パイプライン（出口ゲート）"}}
+    READ{{"pdf-read<br>読み取りパイプライン"}}
   end
   subgraph MCPs["MCP 層（独立・単独完結）"]
     SPEC[["pdf-spec-mcp<br>正典 (norm)<br>仕様は何を要求するか"]]
@@ -58,6 +61,7 @@ graph TB
   end
   TRUST -.->|編成| VERIFY & READER & SPEC
   PUBLISH -.->|編成| WRITER & READER & VERIFY
+  READ -.->|編成| READER
 ```
 
 | 層                               | サーバー   | 返すもの                                          | やらないこと                                                                |
@@ -83,12 +87,14 @@ PDF Agent Stack 全体を貫く思想です。
 
 ## 入口と出口の 2 ゲート
 
-全体構成図の 2 本の入力（受け取った PDF / 作りたい PDF）は、それぞれ別のゲートを通ります。
+全体構成図の 3 本の入力のうち 2 本（受け取った PDF / 作りたい PDF）は、それぞれ別のゲートを通ります。
 
 | ゲート       | Skill                                 | 流れ                                         |
 | ------------ | ------------------------------------- | -------------------------------------------- |
 | 入口（受入） | [pdf-trust](/ja/skills/pdf-trust)     | 受け取った PDF → 監査 → 利用・保存           |
 | 出口（納品） | [pdf-publish](/ja/skills/pdf-publish) | 作る PDF → write → read-back → verify → 納品 |
+
+3 本目の入力（読みたいだけの PDF）はゲートを通りません。[pdf-read](/ja/skills/pdf-read) が読み取りを編成し、読んだ範囲と読めなかった箇所を Read Report で申告します。受け入れるものも送り出すものも無いので、verify が下す判定もありません。
 
 verify は入口（受入）と出口（納品）の両方に立つゲートキーパーです。4 値判定（trust_and_use / use_with_caution / human_review_required / reject）は `evaluate_policy` の決定論的（同じ入力なら常に同じ結果を返す）ルールエンジンが下し、LLM は解説と推奨アクションだけを担います — **ジャッジはコード、ナラティブは LLM**（判定はコードが下し、LLM が書くのは説明の文章だけ）。
 

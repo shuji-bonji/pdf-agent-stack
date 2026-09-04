@@ -8,7 +8,7 @@ description: PDF を生成・編集する MCP（20 ツール） — text / Markd
 
 - npm: [`@shuji-bonji/pdf-writer-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-writer-mcp) / 現行 v0.21.0 / [GitHub](https://github.com/shuji-bonji/pdf-writer-mcp)
 - このページは責務と使いどころの解説です。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-writer)（`tools/list` から自動生成）へ
-- 内部実装は pdf-lib + fontkit
+- 内部実装は [normativepdf](https://github.com/shuji-bonji/normativepdf)（振る舞いを ISO 32000 の条項に紐づけた PDF ライブラリ）。日本語フォント埋め込みは harfbuzz サブセットで行う
 
 ## これ 1 台でできること
 

@@ -17,6 +17,7 @@ graph LR
     subgraph SKILL["Skills — procedure & orchestration"]
       TRUST{{"pdf-trust<br>incoming audit"}}
       PUBLISH{{"pdf-publish<br>delivery pipeline"}}
+      READ{{"pdf-read<br>reading pipeline"}}
     end
     subgraph MCP["MCPs — computation & cryptography (each server independent)"]
       SPEC[["pdf-spec<br>canon (norm)"]]
@@ -29,10 +30,11 @@ graph LR
 
   IN[/"Incoming PDF"/] --> AGENT
   NEED[/"PDF to produce"/] --> AGENT
+  DOC[/"PDF to read"/] --> AGENT
   AGENT <--> FAMILY
-  FAMILY --> OUT(["Trust Report / Publish Report<br>verified, deliverable PDFs"])
+  FAMILY --> OUT(["Trust / Publish / Read Report<br>verified, deliverable PDFs and content"])
 
-  SPECDOC[("ISO 32000<br>+ 17 documents")] -.-> SPEC
+  SPECDOC[("ISO 32000<br>and 16 more documents")] -.-> SPEC
   VERA[("veraPDF")] -.-> VERIFY
 ```
 
@@ -49,6 +51,7 @@ graph TB
   subgraph Skills["Skill layer (orchestration)"]
     TRUST{{"pdf-trust<br>incoming audit (intake gate)"}}
     PUBLISH{{"pdf-publish<br>delivery pipeline (exit gate)"}}
+    READ{{"pdf-read<br>reading pipeline"}}
   end
   subgraph MCPs["MCP layer (independent, self-contained)"]
     SPEC[["pdf-spec-mcp<br>canon (norm)<br>what the spec requires"]]
@@ -58,6 +61,7 @@ graph TB
   end
   TRUST -.->|orchestrates| VERIFY & READER & SPEC
   PUBLISH -.->|orchestrates| WRITER & READER & VERIFY
+  READ -.->|orchestrates| READER
 ```
 
 | Layer | Server | Returns | Never does |
@@ -83,12 +87,14 @@ That is why the writer's `ensure_pdfa` is a tool that *writes a label*, and the 
 
 ## Two gates: intake and exit
 
-The two inputs in the diagram above (an incoming PDF, a PDF to produce) each pass through their own gate.
+Two of the three inputs in the diagram above (an incoming PDF, a PDF to produce) each pass through their own gate.
 
 | Gate | Skill | Flow |
 |---|---|---|
 | Intake (audit) | [pdf-trust](/skills/pdf-trust) | incoming PDF → audit → use / archive |
 | Exit (delivery) | [pdf-publish](/skills/pdf-publish) | PDF to produce → write → read-back → verify → delivery |
+
+The third input — a PDF you only want to read — passes through no gate: [pdf-read](/skills/pdf-read) orchestrates the reading and closes with a Read Report saying what was read and what could not be. There is nothing to admit or ship, so there is nothing for verify to decide.
 
 verify is the gatekeeper standing at both the intake (audit) and the exit (delivery). The 4-value verdict (trust_and_use / use_with_caution / human_review_required / reject) is decided by `evaluate_policy`'s deterministic rule engine; the LLM only supplies the explanation and recommended actions — **the judge is code, the narrative is the LLM**.
 

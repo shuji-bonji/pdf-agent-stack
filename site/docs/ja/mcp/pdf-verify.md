@@ -54,7 +54,7 @@ graph LR
 
 | Skill                                 | このサーバーの役割                                                                                        | 必須か                       |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------- |
-| [pdf-trust](/ja/skills/pdf-trust)     | 監査の軸。4 値判定は `evaluate_policy` が下し、Skill は firedRules の解説・推奨アクション・法令根拠を担う | **必須**（v0.7.0+）          |
+| [pdf-trust](/ja/skills/pdf-trust)     | 監査の軸。4 値判定は `evaluate_policy` が下し、Skill は firedRules の解説・推奨アクション・法令根拠を担う | **必須**（v0.7.0+、**v0.21.0+ 推奨**） |
 | [pdf-publish](/ja/skills/pdf-publish) | 出口ゲート。書いた PDF を veraPDF で機械採点する。`conformance` 水準では未接続なら中止                    | **必須**（conformance 水準） |
 
 ::: warning 判定はプログラム、文章生成はAI（LLM）が行います

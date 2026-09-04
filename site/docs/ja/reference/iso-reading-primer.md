@@ -50,24 +50,25 @@ ISO/IEC 専門業務用指針 Part 2 が助動詞の意味を厳密に定めて�
 
 Terms and definitions は「その規格の中での意味」を確定させる規範的な節です。日常語と意味がずれる用語ほど注意が要ります。PDF 系でとくに重要な例:
 
-- **conforming reader / conforming writer / conforming product** — 「適合する処理系」。要求文の主語がファイルなのか処理系なのかで、shall が誰への要求かが変わります
-- **artifact** — 論理コンテンツに属さないページ装飾（ページ番号・柱など）。日常語の「成果物」ではありません
-- **annotation** — PDF ではページ上の注釈オブジェクト（リンクやフォームの Widget を含む）で、「コメント」より広い概念です
+- **PDF processor**（3.49）/ **PDF reader**（3.51）/ **PDF writer**（3.52） — PDF を書く・読む・更新する能動的な主体で、ソフトウェアに限りません。要求文の主語がファイルなのか処理系なのかで、shall が誰への要求かが変わります。ISO 32000-1 の *conforming reader / conforming writer* は ISO 32000-2 でこの語に置き換わったので、PDF 2.0 の条文に旧表記を当てると主語を取り違えます
+- **running text**（3.59） — 見出し・脚注・図・吹き出しと**区別された**本文。日常語の「テキスト」より狭い概念です
+- **object**（3.44） — PDF ファイルを構成する基本データ構造で、9 種（array, boolean, dictionary, integer, name, null, real, stream, string）ちょうど。プログラミングの「オブジェクト」ではありません
+- **deprecated**（3.15） — PDF 2.0 文書には**書くべきでない**、かつ処理系は**無視すべき**もの。「削除された」ではありません
 
-議論の前に `get_definitions` で確定させるのが安全です。定義に付く `notes`（Note to entry）は定義本文への補足で、これも本文とは区別されます。
+`get_definitions` が返すのは Clause 3 で、ISO 32000-2 では 71 件（3.1〜3.71）です。**PDF 用語らしく見えても Clause 3 に無い語は多くあります**。たとえば *artifact* と *annotation* は本文側の定義（§14.8.2.2 "Real content and Artifacts"、§12.5 "Annotations"）なので `get_definitions` では 0 件になり、`search_spec` / `get_section` から入ります。0 件は「Clause 3 に無い」であって「定義が無い」ではありません。定義に付く `notes`（Note to entry）は定義本文への補足で、これも本文とは区別されます。
 
 ## 5. 要求文の主語を見る — ファイルへの要求か、処理系への要求か
 
 ISO 32000 の shall には 2 方向あります。
 
 - 「The value **shall** be …」→ **PDF ファイル**への要求（検証器がファイルを検査できます）
-- 「A conforming reader **shall** …」→ **処理系**への要求（ファイルを見ても適合は判定できません）
+- 「A PDF reader **shall** …」（ISO 32000-1 では「A conforming reader shall …」）→ **処理系**への要求（ファイルを見ても適合は判定できません）
 
 pdf-verify が検査できるのは前者だけです。後者を根拠に「この PDF は違反」とは言えません。条文を引用するときは主語まで含めて引用してください（`get_requirements` の `text` は原文のままなのでそのまま使えます）。
 
 ## 6. 表由来の要件は文脈ごと読む
 
-ISO 32000 は要求の多くを**表**（例: Table 182 — Entries in an annotation dictionary）に持ちます。表のセルに書かれた「The type of annotation … shall be …」は、どの表のどのエントリの話かが分からないと意味が取れません。`get_requirements` が `source: "table"` の要件に `table` / `key` を併記するのはこのためで、**引用時はこの文脈ごと示す**のが作法です。表そのものは `get_tables` で構造のまま取れます。
+ISO 32000 は要求の多くを**表**（例: Table 182 — Additional entries specific to text markup annotations）に持ちます。表のセルに書かれた「The type of annotation … shall be …」は、どの表のどのエントリの話かが分からないと意味が取れません。同じ文は複数の注釈の表に現れ、表ごとに縛る subtype が違います。`get_requirements` が `source: "table"` の要件に `table` / `key` を併記するのはこのためで、**引用時はこの文脈ごと示す**のが作法です。表そのものは `get_tables` で構造のまま取れます。
 
 ## 7. PDF 関連規格の地図
 

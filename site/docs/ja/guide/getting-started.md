@@ -110,7 +110,11 @@ sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出�
 
 ## Step 6 — Skill の導入
 
-[pdf-trust](/ja/skills/pdf-trust)（受入監査）と [pdf-publish](/ja/skills/pdf-publish)（納品）を Skill として追加すると、複数 MCP の編成が定型化されます。pdf-trust は pdf-verify **v0.7.0+ が必須**（`evaluate_policy` を使うため）です。
+[pdf-trust](/ja/skills/pdf-trust)（受入監査）・[pdf-publish](/ja/skills/pdf-publish)（納品）・[pdf-read](/ja/skills/pdf-read)（読み取り）を Skill として追加すると、複数 MCP の編成が定型化されます。
+
+- pdf-trust は pdf-verify が**必須**。`evaluate_policy` を使うので最低 v0.7.0+、**v0.21.0+ 推奨**（この版で `verify_signatures` / `detect_pades_level` の JSON 最上位が配列から辞書に変わった）
+- pdf-publish は pdf-writer が必須。品質ゲート水準 `conformance` では pdf-verify も必須（`scope` が入った **v0.20.0+ 推奨**）
+- pdf-read は pdf-reader が必須（**v0.14.0+ 推奨**）
 
 ## 環境変数一覧
 
@@ -118,6 +122,10 @@ sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出�
 | -------------------------- | ---------- | ------------------ | --------------------------------------------------- |
 | `PDF_SPEC_DIR`             | pdf-spec   | **必須**           | 仕様 PDF コーパスのディレクトリ                     |
 | `PDF_SPEC_CACHE_DIR`       | pdf-spec   | 任意               | 索引のディスクキャッシュ（v0.5.0+。既定 `${XDG_CACHE_HOME:-~/.cache}/pdf-spec-mcp`）。`PDF_SPEC_CACHE=off` で無効 |
+| `PDF_READER_CONCURRENCY`   | pdf-reader | 任意               | `read_url` のリモート取得の同時実行数。既定 `4` |
+| `PDF_READER_RENDER_TIMEOUT_MS` | pdf-reader | 任意           | `render_page` の 1 ページあたりの制限時間。既定 20,000 ms |
 | `PDF_VERIFY_VERAPDF`       | pdf-verify | 任意               | veraPDF 実行パス（無ければ PATH 探索 → 内蔵ルール） |
 | `PDF_VERIFY_TRUST_ANCHORS` | pdf-verify | 任意               | 信頼アンカー証明書のディレクトリ                    |
 | `PDF_WRITER_FONT`          | pdf-writer | CJK 出力に実質必須 | 既定フォント（単一フェイス .ttf/.otf）              |
+
+既定値まで含めた一覧は [環境変数リファレンス](/ja/reference/env-vars) にあります。

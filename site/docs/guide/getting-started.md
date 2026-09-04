@@ -110,7 +110,11 @@ Hit one tool per server.
 
 ## Step 6 — Adding the Skills
 
-Adding [pdf-trust](/skills/pdf-trust) (incoming audit) and [pdf-publish](/skills/pdf-publish) (delivery) as Skills gives you a fixed choreography for multi-MCP workflows. pdf-trust **requires pdf-verify v0.7.0+** (it uses `evaluate_policy`).
+Adding [pdf-trust](/skills/pdf-trust) (incoming audit), [pdf-publish](/skills/pdf-publish) (delivery) and [pdf-read](/skills/pdf-read) (reading) as Skills gives you a fixed choreography for multi-MCP workflows.
+
+- pdf-trust **requires pdf-verify** — v0.7.0+ for `evaluate_policy` at all, **v0.21.0+ recommended** (that release changed the top level of `verify_signatures` / `detect_pades_level` JSON from an array to an object)
+- pdf-publish requires pdf-writer, and pdf-verify at the `conformance` gate level (**v0.20.0+ recommended** for the `scope` field)
+- pdf-read requires pdf-reader (**v0.14.0+ recommended**)
 
 ## Environment variables
 
@@ -118,6 +122,10 @@ Adding [pdf-trust](/skills/pdf-trust) (incoming audit) and [pdf-publish](/skills
 |---|---|---|---|
 | `PDF_SPEC_DIR` | pdf-spec | **Required** | Directory of the specification PDF corpus |
 | `PDF_SPEC_CACHE_DIR` | pdf-spec | Optional | On-disk index cache (v0.5.0+; default `${XDG_CACHE_HOME:-~/.cache}/pdf-spec-mcp`). `PDF_SPEC_CACHE=off` disables it |
+| `PDF_READER_CONCURRENCY` | pdf-reader | Optional | Concurrent remote fetches in `read_url`. Default `4` |
+| `PDF_READER_RENDER_TIMEOUT_MS` | pdf-reader | Optional | Per-page budget for `render_page`. Default 20,000 ms |
 | `PDF_VERIFY_VERAPDF` | pdf-verify | Optional | veraPDF executable path (falls back to PATH lookup → built-in rules) |
 | `PDF_VERIFY_TRUST_ANCHORS` | pdf-verify | Optional | Directory of trust anchor certificates |
 | `PDF_WRITER_FONT` | pdf-writer | Effectively required for CJK output | Default font (single-face .ttf/.otf) |
+
+The full list, with defaults, is the [environment variable reference](/reference/env-vars).

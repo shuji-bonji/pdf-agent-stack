@@ -64,15 +64,18 @@ sequenceDiagram
 
 Facts: `Signature1` (Cabinet Office) = **valid** / `e-timing EVIDENCE3161_1` (document timestamp) = **valid** / PAdES structure = B-B (T3 observation). The government profile's PDF/A check is recorded as "not performed" (the file is encrypted, so veraPDF cannot be given it).
 
-`verify_integrity`: file 139,503 bytes, one incremental update. **+9,938 bytes** after `Signature1`'s signed range. The last signature (the document timestamp) covers the whole file, so `objectChangesAfterLastSignature` is empty. The +9,938-byte revision changed:
+`verify_integrity`: file 139,503 bytes, one incremental update. **+9,938 bytes** after `Signature1`'s signed range. The last signature (the document timestamp) covers the whole file, so `objectChangesAfterLastSignature` is empty. The +9,938-byte revision touched **six objects** (`changeCount: 6`), each carrying the `changeClass` that says what kind of change it is:
 
-| Object | Change | Role |
-|---|---|---|
-| 64 | added | form field widget (`locate_objects`: p.1, `annotation-rect` 0×0) |
-| 65 | added | **DocTimeStamp** (no place on any page) |
-| 54 | modified | AcroForm dictionary (no place on any page) |
+| Object | Change | `changeClass` | Role |
+|---|---|---|---|
+| 64 | added | form-fill | form field widget (`locate_objects`: p.1, `annotation-rect` 0×0) |
+| 65 | added | unknown | the signature dictionary itself — `locate_objects` reads its type as **DocTimeStamp**; no place on any page |
+| 54 | modified | form-fill | AcroForm dictionary (no place on any page) |
+| 7 | modified | housekeeping | document catalog |
+| 8 | modified | housekeeping | page object (its `/Annots` grew) |
+| 5 | modified | housekeeping | type not readable |
 
-The post-signing change is **the document timestamp itself**. Incremental updates are permitted in PDF (ISO 32000-2 §7.5.6). This table is what to look at, not proof of tampering.
+The three housekeeping rows are what a permitted change necessarily drags along, which is why they are classified apart rather than counted as findings. The post-signing change is **the document timestamp itself**. Incremental updates are permitted in PDF (ISO 32000-2 §7.5.6). This table is what to look at, not proof of tampering.
 
 ::: details Call — evaluate_policy (government, no anchors)
 - Measured: pdf-verify-mcp v0.26.0

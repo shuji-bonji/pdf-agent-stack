@@ -33,7 +33,7 @@ T3 reports carry `normativeBasis: "T3"`, making "this is an observation" machine
 ### basis — the grounds for a rectangle
 
 When the reader returns a rectangle, `basis` says **where the coordinates came from** — the mechanism for never returning claims of different strength with the same face
-([locate_objects](/mcp/pdf-reader#locate-objects) / [extract_structured_text](/mcp/pdf-reader#extract-structured-text) with `include_bbox`).
+([locate_objects](/reference/mcp/pdf-reader#locate-objects) / [extract_structured_text](/reference/mcp/pdf-reader#extract-structured-text) with `include_bbox`).
 
 | basis | Meaning | Strength |
 |---|---|---|
