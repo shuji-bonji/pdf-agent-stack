@@ -10,7 +10,7 @@ description: 長期保存 (PDF/A) — 作る側は attach_file → ensure_pdfa �
 公文書の保存文脈で、**作る側**は PDF/A の器に載せて veraPDF で採点し、**受け取る側**は
 その文書が長期保存に耐える構造か（LTV データの実在）を確認します。
 
-以下は **2026-08-11 の実測**（請求書デモ・インターネット官報・自作 known-good 検体）です。
+以下は **2026-09-04 の実測**です（pdf-verify-mcp v0.26.0 / veraPDF 1.30.0。請求書デモ・インターネット官報・自作検体）。
 
 ## 登場 MCP / Skill
 
@@ -46,19 +46,61 @@ sequenceDiagram
 
 ## 実測例
 
-**作る側**（請求書デモ）: CSV 添付 → `ensure_pdfa(pdfa-3b)` → **veraPDF が COMPLIANT（146/146）と判定**しました。
-`ensure_pdfa` は「ラベルを書いただけで、規格どおりかは未検査」という warning を必ず返します — 測らずに納品しません。
+**作る側**（`publish-demo-invoice.pdf`）: catalog に Names / AF / OutputIntents あり。**veraPDF 1.30.0 が PDF/A-3b COMPLIANT（146/146）と判定**しました。同じファイルの PDF/UA-1 も 106/106 です。
 
-**受け取る側**（署名済み文書の保存性・3 検体の対比）:
+**受け取る側**（`detect_pades_level`、3 検体）:
 
-| 検体 | 構造の観測 | 意味 |
+| 検体 | 構造の観測 | 根拠 |
 |---|---|---|
-| 官報 2026-08-10 号 | **B-B**（署名 TS なし・DSS なし・DocTS あり） | 証明書の失効・期限後に**検証不能になるリスク**。入手経路の記録で補強 |
-| 自作検体（CRL なし） | B-T | 失効確認は文書の外に依存したまま |
-| 自作検体（**CRL を DSS に同梱**） | **B-LTA** | 検証材料が文書内で完結 — 差分は CRL の有無だけ（文書タイムスタンプは両検体に最初から入っており、CRL で B-LT の条件が満たされると同時に B-LTA の構造が揃う） |
+| 官報 2026-08-10 号 | **B-B** | 署名 TS なし・DSS なし・DocTS あり |
+| `selfmade-pades-lta.pdf`（CRL なし） | **B-T** | DSS はあるが `revocationDataCoversSigner: false`（dssCrlCount 0） |
+| `selfmade-pades-crl.pdf`（CRL を DSS に同梱） | **B-LTA** | `revocationDataCoversSigner: true`（dssCrlCount 1） |
 
-`detect_pades_level` は DSS の失効情報が**署名者を実際にカバーしているか**まで見ます —
-「宣言だけの B-LT」は B-T に切り詰められます。
+`detect_pades_level` は DSS の失効データが**署名者証明書を実際に覆っているか**まで見ます。覆っていなければ B-T 止まりです。これは T3 の観測であって、「PAdES に準拠」ではありません。
+
+::: details 呼び出し — validate_conformance と detect_pades_level
+- 実測: pdf-verify-mcp v0.26.0、veraPDF 1.30.0
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo-invoice.pdf",
+  "flavour": "pdfa-3b",
+  "response_format": "json"
+}
+```
+
+```jsonc
+{
+  "engine": "verapdf",
+  "flavour": "PDF/A-3b",
+  "compliant": true,
+  "checkedRules": 146,
+  "passedRules": 146,
+  "failedRules": 0
+}
+```
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/selfmade-pades-crl.pdf",
+  "response_format": "json"
+}
+```
+
+```jsonc
+{
+  "levels": [
+    {
+      "fieldName": "Sig1",
+      "level": "B-LTA",
+      "normativeBasis": "T3",
+      "evidence": { "hasSignatureTimestamp": true, "hasDss": true, "hasDocumentTimestamp": true },
+      "ltv": { "dssCrlCount": 1, "revocationDataCoversSigner": true }
+    }
+  ]
+}
+```
+:::
 
 ## 結果の読み方
 

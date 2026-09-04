@@ -10,7 +10,7 @@ description: 品質ゲート付き納品パイプライン — write → read-ba
 意図どおりかを観測し、pdf-verify（veraPDF）で機械採点してから納品します。合否は verify のみが下し、
 writer の正常終了は「要求どおり出力された」の証拠にしません。
 
-以下は **2026-08-11 の実走**（日本語・タグ付き請求書 + CSV 添付を水準 `conformance(pdfa-3b + pdfua-1)` で納品）です。
+書き込み列（`FONT_REQUIRED` → fontPath 再試行）は **2026-08-11** の Publish Report です。成果物 `publish-demo-invoice.pdf` の読み戻しとゲートは **2026-09-04** に取り直しました（pdf-writer-mcp v0.21.0 / pdf-reader-mcp v0.15.0 / pdf-verify-mcp v0.26.0 / veraPDF 1.30.0）。
 
 ## 登場 MCP / Skill
 
@@ -55,13 +55,39 @@ sequenceDiagram
 
 | Phase | 結果 |
 |---|---|
-| 生成 | `FONT_REQUIRED` → 構造化エラーの `next_actions` に従い fontPath 指定で復帰。attach（Data）→ ensure_pdfa（最後） |
-| 読み戻し | 請求書番号・全明細数値が残存 / H1 は 1 つ / フォント埋め込み + サブセット / catalog に Names・AF・OutputIntents 実在 |
-| 品質ゲート | **veraPDF が PDF/A-3b COMPLIANT（146/146）・PDF/UA-1 COMPLIANT（106/106）と判定** |
+| 生成（2026-08-11） | `FONT_REQUIRED` → 構造化エラーの `next_actions` に従い fontPath 指定で復帰。attach（Data）→ ensure_pdfa（最後） |
+| 読み戻し（2026-09-04） | `inspect_tags`: タグ付き、H1×1、TH 5 / TD 15 / TR 4。catalog に StructTreeRoot・MarkInfo・Lang・Names・AF・OutputIntents |
+| 品質ゲート（2026-09-04） | **veraPDF 1.30.0 が PDF/A-3b COMPLIANT（146/146）・PDF/UA-1 COMPLIANT（106/106）と判定** |
 | 修正ループ | 0 回 |
 
+::: details 呼び出し — 成果物のゲート（取り直し）
+- 実測: pdf-verify-mcp v0.26.0、veraPDF 1.30.0
+- 標本: `docs/specimens/publish-demo-invoice.pdf`
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo-invoice.pdf",
+  "flavour": "pdfa-3b",
+  "response_format": "json"
+}
+```
+
+```jsonc
+{
+  "engine": "verapdf",
+  "flavour": "PDF/A-3b",
+  "compliant": true,
+  "checkedRules": 146,
+  "passedRules": 146,
+  "failedRules": 0
+}
+```
+
+`flavour: "pdfua-1"` では `checkedRules` / `passedRules` が 106、`compliant: true` です。
+:::
+
 `ensure_pdfa` は成功時にも必ず warning を返します（「CLAIMS … NOT checked」）。これは設計であり、
-**ラベルを書いた瞬間に検証が省略不能になる**ことを機械側が言い続けています。
+**ラベルを書いた瞬間に検証が省略不能になる**ことを機械側が言い続けています。生成列そのものは 2026-08-11 のログのままです（日本語フォントの `.otf` がこの環境に無く、書き込みは再実行していません）。
 
 ## 結果の読み方
 

@@ -11,8 +11,9 @@ reads it back to observe whether it matches the intent, and pdf-verify (veraPDF)
 before delivery. Only verify decides pass/fail; the writer's exit code is never taken as proof
 that the output matches the request.
 
-Below is a **real run from 2026-08-11**: a Japanese, tagged demo invoice with a CSV attachment,
-delivered at gate level `conformance(pdfa-3b + pdfua-1)`.
+The write sequence (`FONT_REQUIRED` → retry with fontPath) is the **2026-08-11** Publish Report.
+Read-back and gates on the stored deliverable `publish-demo-invoice.pdf` were **re-measured on 2026-09-04**
+(pdf-writer-mcp v0.21.0 / pdf-reader-mcp v0.15.0 / pdf-verify-mcp v0.26.0 / veraPDF 1.30.0).
 
 ## Cast
 
@@ -57,13 +58,39 @@ sequenceDiagram
 
 | Phase | Result |
 |---|---|
-| Write | `FONT_REQUIRED` → recovered via the structured error's `next_actions` (fontPath). attach (Data) → ensure_pdfa (last) |
-| Read-back | Invoice number and every figure preserved / exactly one H1 / font embedded + subset / Names, AF, OutputIntents present in the catalog |
-| Gate | **veraPDF judged PDF/A-3b COMPLIANT (146/146) and PDF/UA-1 COMPLIANT (106/106)** |
+| Write (2026-08-11) | `FONT_REQUIRED` → recovered via the structured error's `next_actions` (fontPath). attach (Data) → ensure_pdfa (last) |
+| Read-back (2026-09-04) | `inspect_tags`: tagged, one H1, TH 5 / TD 15 / TR 4. Catalog has StructTreeRoot, MarkInfo, Lang, Names, AF, OutputIntents |
+| Gate (2026-09-04) | **veraPDF 1.30.0 judged PDF/A-3b COMPLIANT (146/146) and PDF/UA-1 COMPLIANT (106/106)** |
 | Fix loop | 0 iterations |
 
+::: details Call — gates on the stored deliverable (re-measured)
+- Measured: pdf-verify-mcp v0.26.0, veraPDF 1.30.0
+- Specimen: `docs/specimens/publish-demo-invoice.pdf`
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo-invoice.pdf",
+  "flavour": "pdfa-3b",
+  "response_format": "json"
+}
+```
+
+```jsonc
+{
+  "engine": "verapdf",
+  "flavour": "PDF/A-3b",
+  "compliant": true,
+  "checkedRules": 146,
+  "passedRules": 146,
+  "failedRules": 0
+}
+```
+
+With `flavour: "pdfua-1"`, `checkedRules` / `passedRules` are 106 and `compliant` is true.
+:::
+
 `ensure_pdfa` always returns a warning even on success ("CLAIMS … NOT checked"). That is design:
-the machine keeps saying that **writing a label makes verification non-optional**.
+the machine keeps saying that **writing a label makes verification non-optional**. The write sequence itself is still the 2026-08-11 log (no Japanese `.otf` in this environment, so the write was not re-run).
 
 ## How to read the results
 

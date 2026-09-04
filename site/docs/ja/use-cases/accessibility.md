@@ -10,7 +10,7 @@ description: アクセシビリティ (PDF/UA) — タグ付き生成から vera
 読める構造か**測る**、という 2 つの場面です。PDF/UA-1（ISO 14289-1）は仕様コーパスに原文があるため、
 違反は**条文を引いて**言い切れます（T1 — PDF/A との大きな違い）。
 
-以下は **2026-08-11 の実測**（タグ付き請求書デモ = 通過側 / インターネット官報 = 不合格側）です。
+以下は **2026-09-04 の実測**です（pdf-verify-mcp v0.26.0 / veraPDF 1.30.0。タグ付き請求書デモ = 通過側 / インターネット官報 = 不合格側）。
 
 ## 登場 MCP / Skill
 
@@ -44,19 +44,44 @@ sequenceDiagram
 
 ## 実測例 — 両面
 
-**作る側**（請求書デモ）: `tagged: true` + 埋め込みフォント + title + lang → 読み戻しで
-H1×1・TH/TD の表構造を確認 → **veraPDF が PDF/UA-1 COMPLIANT（106/106）と判定**しました。
+**作る側**（`publish-demo-invoice.pdf`）: `inspect_tags` はタグ付き、H1 が 1、TH 5 / TD 15 / TR 4。**veraPDF 1.30.0 が PDF/UA-1 COMPLIANT（106/106）と判定**しました。同じファイルの PDF/A-3b も 146/146 です。
 
-**測る側**（官報 2026-08-10 号）: **NOT COMPLIANT** — 106 検査中 10 規則で違反が出ました。主要なものは次のとおりです:
+**測る側**（官報 2026-08-10 号）: **NOT COMPLIANT** — 106 検査中 10 規則が失敗（96 通過）。暗号化文書なので、veraPDF は復号した書き換えに対して採点しています。主要な違反は次のとおりです。
 
 | 条文（ISO 14289-1） | 違反 |
 |---|---|
 | 7.1-3 | タグ付けも Artifact 化もされていない実コンテンツ **236 件** |
-| 7.1-11 | StructTreeRoot がない（構造木が存在しない） |
+| 7.1-11 | StructTreeRoot がない |
 | 6.2-1 | MarkInfo/Marked がない |
 | 7.21.7-1 | ToUnicode を欠くフォント 9 件 |
+| 7.2-34 | ページ本文の自然言語が決まっていない（186 件） |
 
-タグなしの実文書はここまで具体的に「何が読めないか」を条文 ID で列挙できます。
+::: details 呼び出し — validate_conformance（pdfua-1）
+- 実測: pdf-verify-mcp v0.26.0、veraPDF 1.30.0
+
+通過側:
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo-invoice.pdf",
+  "flavour": "pdfua-1",
+  "response_format": "json"
+}
+```
+
+```jsonc
+{
+  "engine": "verapdf",
+  "flavour": "PDF/UA-1",
+  "compliant": true,
+  "checkedRules": 106,
+  "passedRules": 106,
+  "failedRules": 0
+}
+```
+
+不合格側は同じ引数で `file_path` を官報にし、`compliant: false`、`failedRules: 10` です。
+:::
 
 ## 結果の読み方
 

@@ -10,7 +10,7 @@ Audit a whole folder of received PDFs and spend human attention **only on the pr
 First run `evaluate_policy` over everything to triage; deep-dive only reject /
 human_review_required — deep-diving everything wastes time and context.
 
-Below is a **real measurement from 2026-08-11** (5 specimens, producing all four verdicts).
+Below is a **real measurement from 2026-09-04** (pdf-verify-mcp v0.26.0; 5 specimens, producing all four verdicts).
 
 ## Cast
 
@@ -48,15 +48,40 @@ sequenceDiagram
 
 | Specimen | Profile | Verdict |
 |---|---|---|
-| Self-made signature + CRL in DSS + trust anchor | general | `trust_and_use` |
-| Official gazette, 2026-08-10 issue | government | `use_with_caution` |
-| Self-made signature (no CRL) | general | `use_with_caution` |
-| Unsigned invoice | contract | `human_review_required` |
-| One byte flipped inside the signed range | general | `reject` |
+| `selfmade-pades-crl.pdf` + `selfmade-ca2.pem` | general | `trust_and_use` (no rules fired; revocation `good`; structure B-LTA) |
+| `kanpo-20260810-h01765-p1.pdf` | government | `use_with_caution` |
+| `selfmade-pades-lta.pdf` + `selfmade-ca.pem` | general | `use_with_caution` (`POL-CAUTION-REVOCATION-UNKNOWN`; structure B-T) |
+| `publish-demo-invoice.pdf` (unsigned) | contract | `human_review_required` (`POL-REVIEW-UNSIGNED-REQUIRED`) |
+| `selfmade-tampered.pdf` | general | `reject` (`POL-REJECT-INVALID`; both Sig1 and the document timestamp `invalid`) |
 
-Only 2 of 5 files needed a deep dive (review / reject); the reject sheet goes down to
-"digest mismatch, signature and DocTS both invalid — while the signature timestamp stays valid
-(the content was altered, not the signature value)".
+The CRL specimen stays `untrusted` with `selfmade-ca.pem`. `trust_and_use` needs `selfmade-ca2.pem`.
+
+Only 2 of 5 files need a deep dive (review / reject). On reject, facts show both Sig1 and the document timestamp as `invalid`.
+
+::: details Call — evaluate_policy × 5
+Specimens under `docs/specimens/` (pass absolute paths). `response_format`: `"json"`.
+
+```jsonc
+// trust_and_use
+{ "file_path": "…/selfmade-pades-crl.pdf", "profile": "general",
+  "trust_anchors": ["…/selfmade-ca2.pem"], "response_format": "json" }
+
+// use_with_caution (gazette)
+{ "file_path": "…/kanpo-20260810-h01765-p1.pdf", "profile": "government", "response_format": "json" }
+
+// use_with_caution (no CRL)
+{ "file_path": "…/selfmade-pades-lta.pdf", "profile": "general",
+  "trust_anchors": ["…/selfmade-ca.pem"], "response_format": "json" }
+
+// human_review_required
+{ "file_path": "…/publish-demo-invoice.pdf", "profile": "contract", "response_format": "json" }
+
+// reject
+{ "file_path": "…/selfmade-tampered.pdf", "profile": "general", "response_format": "json" }
+```
+
+Returned `verdict` values match the table. The same file and the same `profile` (and anchors) always yield the same verdict.
+:::
 
 ## How to read the results
 

@@ -11,8 +11,8 @@ e-bookkeeping-law context (bundling machine-readable data) or for public records
 **producer** puts the document onto the PDF/A vessel and has veraPDF score it; the **recipient**
 checks whether the document's structure can survive preservation (does LTV data really exist?).
 
-Everything below is a **real measurement from 2026-08-11** (demo invoice, the Japanese official
-gazette, and self-made known-good specimens).
+Everything below is a **real measurement from 2026-09-04** (pdf-verify-mcp v0.26.0 /
+veraPDF 1.30.0; demo invoice, the Japanese official gazette, and self-made specimens).
 
 ## Cast
 
@@ -48,20 +48,61 @@ sequenceDiagram
 
 ## Measured examples
 
-**Producer side** (demo invoice): CSV attached → `ensure_pdfa(pdfa-3b)` → **veraPDF judged it
-COMPLIANT (146/146)**. `ensure_pdfa` always warns that only the claim was written and conformance
-was not checked — never deliver without measuring.
+**Producer side** (`publish-demo-invoice.pdf`): catalog has Names / AF / OutputIntents. **veraPDF 1.30.0 judged PDF/A-3b COMPLIANT (146/146)**. The same file is 106/106 under PDF/UA-1.
 
-**Recipient side** (preservability of signed documents — three specimens compared):
+**Recipient side** (`detect_pades_level`, three specimens):
 
-| Specimen | Structural observation | Meaning |
+| Specimen | Structural observation | Evidence |
 |---|---|---|
-| Official gazette, 2026-08-10 issue | **B-B** (no signature TS, no DSS; DocTS present) | **Risk of becoming unverifiable** after certificate expiry/revocation. Reinforce via the acquisition channel |
-| Self-made specimen (no CRL) | B-T | Revocation checking still depends on the outside world |
-| Self-made specimen (**CRL embedded in DSS**) | **B-LTA** | Verification material is self-contained — the only difference is the CRL (both specimens carry a document timestamp from the start, so the CRL completes B-LT and B-LTA at once) |
+| Gazette, 2026-08-10 issue | **B-B** | no signature TS, no DSS, DocTS present |
+| `selfmade-pades-lta.pdf` (no CRL) | **B-T** | DSS present but `revocationDataCoversSigner: false` (dssCrlCount 0) |
+| `selfmade-pades-crl.pdf` (CRL in DSS) | **B-LTA** | `revocationDataCoversSigner: true` (dssCrlCount 1) |
 
-`detect_pades_level` checks whether the DSS revocation data **actually covers the signer** —
-a "declared-only B-LT" is capped down to B-T.
+`detect_pades_level` checks whether the DSS revocation data **actually covers the signer certificate**. Without that coverage the level stops at B-T. That is a T3 observation, not "conforms to PAdES".
+
+::: details Call — validate_conformance and detect_pades_level
+- Measured: pdf-verify-mcp v0.26.0, veraPDF 1.30.0
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo-invoice.pdf",
+  "flavour": "pdfa-3b",
+  "response_format": "json"
+}
+```
+
+```jsonc
+{
+  "engine": "verapdf",
+  "flavour": "PDF/A-3b",
+  "compliant": true,
+  "checkedRules": 146,
+  "passedRules": 146,
+  "failedRules": 0
+}
+```
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/selfmade-pades-crl.pdf",
+  "response_format": "json"
+}
+```
+
+```jsonc
+{
+  "levels": [
+    {
+      "fieldName": "Sig1",
+      "level": "B-LTA",
+      "normativeBasis": "T3",
+      "evidence": { "hasSignatureTimestamp": true, "hasDss": true, "hasDocumentTimestamp": true },
+      "ltv": { "dssCrlCount": 1, "revocationDataCoversSigner": true }
+    }
+  ]
+}
+```
+:::
 
 ## How to read the results
 

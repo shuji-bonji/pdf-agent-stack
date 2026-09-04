@@ -10,7 +10,7 @@ description: 仕様調査 — pdf-spec で ISO 32000 の条文・要求(shall/ma
 実装や監査の判断を、記憶や検索エンジンではなく **ISO 32000 の原文**に着地させます。
 pdf-spec が開くのは手元に置いた仕様コーパスだけで、**検証対象の PDF は開きません**。仕様が**何を要求するか**に答え、ファイルが**それを満たすか**は pdf-verify の仕事です。
 
-以下は **2026-08-11 の実測クエリ**（受入監査で見つけた「署名後の増分更新」を条文に降ろした例）です。
+以下は **2026-09-04 の実測クエリ**です（pdf-spec-mcp v0.6.0。受入監査で見つけた「署名後の増分更新」を条文に降ろした例。コーパスは手元の `PDF_SPEC_DIR`）。
 
 ## 登場 MCP / Skill
 
@@ -27,7 +27,7 @@ sequenceDiagram
   participant S as pdf-spec
 
   U->>S: search_spec("document timestamp")
-  S-->>U: §12.8.4.2（DSS）・§12.8.5（DTS 辞書）ほか 4 件
+  S-->>U: §12.8.4.2（DSS）・§12.8.5.2（DTS）ほか 10 件
   U->>S: get_requirements(section: "7.5.6")
   S-->>U: 10 要求（shall 8 / may 2）+ 条文文脈
   Note over U: 答えは条文 ID と原文で返す。<br>ファイルの合否は pdf-verify へ
@@ -41,15 +41,56 @@ sequenceDiagram
 
 ## 実測例
 
-`search_spec("document timestamp")` → 4 件: **§12.8.4.2**（DSS 導入・DTS への参照）・
-§12.8.4.3（DSS 辞書）・§12.8.1（署名の全体像）・§12.8.2.2.1（DocMDP と DSS/DTS 増分更新）。
+`search_spec("document timestamp")`（`max_results`: 10）→ **10 件**。先頭は **§12.8.4.2**（DSS 導入・DTS への参照）、§12.8.4.3（DSS 辞書）、§12.8.1（署名の全体像）、§12.8.2.2.1（DocMDP と DSS/DTS 増分更新）。DTS 本体は §12.8.5.2 / §12.8.5.3 にも当たります。
 
-`get_requirements(section: "7.5.6")` → **10 要求（shall 8 / may 2）**。例:
+`get_requirements(section: "7.5.6")` → **10 要求（shall 8 / may 2）**。
 
-> **R-7.5.6-1（shall）**: "When updating a PDF file incrementally, changes shall be appended to
-> the end of the file, leaving its original contents intact."
+::: details 呼び出し — search_spec と get_requirements
+- 実測: pdf-spec-mcp v0.6.0
+- 既定 spec: `iso32000-2`
 
-受入監査で観測した「署名後に 9,938 バイト追加」が、この条文の**合法な形**
+**パラメータ**
+
+```jsonc
+{ "query": "document timestamp", "max_results": 10 }
+```
+
+```jsonc
+{ "section": "7.5.6" }
+```
+
+**返る JSON**（検索は先頭 4 件、要求は 1 件目だけ）
+
+```jsonc
+{
+  "query": "document timestamp",
+  "totalResults": 10,
+  "results": [
+    { "section": "12.8.4.2", "title": "Introduction to the document security store (DSS)", "page": 600, "score": 18 },
+    { "section": "12.8.4.3", "title": "Document Security Store (DSS)", "page": 601, "score": 10 },
+    { "section": "12.8.1", "title": "General", "page": 583, "score": 9 },
+    { "section": "12.8.2.2.1", "title": "General", "page": 588, "score": 9 }
+  ]
+}
+```
+
+```jsonc
+{
+  "totalRequirements": 10,
+  "statistics": { "shall": 8, "may": 2 },
+  "requirements": [
+    {
+      "id": "R-7.5.6-1",
+      "level": "shall",
+      "text": "When updating a PDF file incrementally, changes shall be appended to the end of the file, leaving its original contents intact.",
+      "section": "7.5.6"
+    }
+  ]
+}
+```
+:::
+
+受入監査で観測した「署名後に 9,938 バイト追加」が、この条文の認められた形
 （原本無傷・末尾追記 = タイムスタンプ付与）であることを原文で確認できます。
 
 ## 結果の読み方

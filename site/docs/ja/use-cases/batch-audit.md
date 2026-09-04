@@ -10,7 +10,7 @@ description: 一括監査 — 複数 PDF に evaluate_policy を回して決定�
 まず全件に `evaluate_policy` を回してトリアージし、reject / human_review_required だけを
 深掘りします — 全件深掘りは時間と文脈の無駄遣いになります。
 
-以下は **2026-08-11 の実測**（5 検体一括・4 値判定がすべて出た回）です。
+以下は **2026-09-04 の実測**です（pdf-verify-mcp v0.26.0。5 検体一括・4 値判定がすべて出た回）。
 
 ## 登場 MCP / Skill
 
@@ -48,15 +48,40 @@ sequenceDiagram
 
 | 検体 | プロファイル | 判定 |
 |---|---|---|
-| 自作署名 + CRL 同梱 + trust_anchors | general | `trust_and_use` |
-| 官報 2026-08-10 号本紙 | government | `use_with_caution` |
-| 自作署名（CRL なし） | general | `use_with_caution` |
-| 未署名の請求書 | contract | `human_review_required` |
-| 署名対象を 1 バイト改変 | general | `reject` |
+| `selfmade-pades-crl.pdf` + `selfmade-ca2.pem` | general | `trust_and_use`（発火ルールなし。失効 `good`、構造は B-LTA） |
+| `kanpo-20260810-h01765-p1.pdf` | government | `use_with_caution` |
+| `selfmade-pades-lta.pdf` + `selfmade-ca.pem` | general | `use_with_caution`（`POL-CAUTION-REVOCATION-UNKNOWN`。構造は B-T） |
+| `publish-demo-invoice.pdf`（未署名） | contract | `human_review_required`（`POL-REVIEW-UNSIGNED-REQUIRED`） |
+| `selfmade-tampered.pdf` | general | `reject`（`POL-REJECT-INVALID`。Sig1 と文書タイムスタンプがともに `invalid`） |
 
-深掘りは 5 件中 2 件（review / reject）だけに絞られ、reject の個票は
-「digest 不一致・署名/DocTS とも invalid・ただし署名タイムスタンプは valid（改変されたのは
-本文であって署名値ではない）」まで降ります。
+CRL 同梱検体は `selfmade-ca.pem` では `untrusted` のままです。`trust_and_use` になるのは `selfmade-ca2.pem` を渡したときです。
+
+深掘りは 5 件中 2 件（review / reject）に絞れます。reject の facts では Sig1 と文書タイムスタンプの両方が `invalid` です。
+
+::: details 呼び出し — evaluate_policy × 5
+標本は `docs/specimens/`（呼び出すときは絶対パス）。`response_format`: `"json"`。
+
+```jsonc
+// trust_and_use
+{ "file_path": "…/selfmade-pades-crl.pdf", "profile": "general",
+  "trust_anchors": ["…/selfmade-ca2.pem"], "response_format": "json" }
+
+// use_with_caution（官報）
+{ "file_path": "…/kanpo-20260810-h01765-p1.pdf", "profile": "government", "response_format": "json" }
+
+// use_with_caution（CRL なし）
+{ "file_path": "…/selfmade-pades-lta.pdf", "profile": "general",
+  "trust_anchors": ["…/selfmade-ca.pem"], "response_format": "json" }
+
+// human_review_required
+{ "file_path": "…/publish-demo-invoice.pdf", "profile": "contract", "response_format": "json" }
+
+// reject
+{ "file_path": "…/selfmade-tampered.pdf", "profile": "general", "response_format": "json" }
+```
+
+返る `verdict` は上の表のとおりです。同じファイルと、同じ `profile`（とアンカー）からは、いつも同じ判定です。
+:::
 
 ## 結果の読み方
 

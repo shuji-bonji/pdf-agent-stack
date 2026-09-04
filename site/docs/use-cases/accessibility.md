@@ -10,8 +10,8 @@ description: Accessibility (PDF/UA) — from tagged generation to veraPDF scorin
 an incoming PDF has a readable structure. PDF/UA-1 (ISO 14289-1) is inside the spec corpus,
 so violations can be stated **with the clause quoted** (T1 — the big difference from PDF/A).
 
-Everything below is a **real measurement from 2026-08-11** (tagged demo invoice = the passing
-side / the Japanese official gazette = the failing side).
+Everything below is a **real measurement from 2026-09-04** (pdf-verify-mcp v0.26.0 /
+veraPDF 1.30.0; tagged demo invoice = the passing side / the Japanese official gazette = the failing side).
 
 ## Cast
 
@@ -45,19 +45,44 @@ sequenceDiagram
 
 ## Measured examples — both sides
 
-**Producer side** (demo invoice): `tagged: true` + embedded font + title + lang → read-back
-confirms one H1 and a TH/TD table → **veraPDF judged PDF/UA-1 COMPLIANT (106/106)**.
+**Producer side** (`publish-demo-invoice.pdf`): `inspect_tags` reports tagged, one H1, TH 5 / TD 15 / TR 4. **veraPDF 1.30.0 judged PDF/UA-1 COMPLIANT (106/106)**. The same file is 146/146 under PDF/A-3b.
 
-**Auditor side** (the gazette, 2026-08-10 issue): **NOT COMPLIANT** — 10 of 106 rules failed:
+**Auditor side** (gazette, 2026-08-10 issue): **NOT COMPLIANT** — 10 of 106 rules failed (96 passed). The file is encrypted, so veraPDF scored a decrypted rewrite. Principal violations:
 
 | Clause (ISO 14289-1) | Violation |
 |---|---|
 | 7.1-3 | **236** pieces of real content neither tagged nor marked as Artifact |
-| 7.1-11 | No StructTreeRoot (no structure tree at all) |
+| 7.1-11 | No StructTreeRoot |
 | 6.2-1 | No MarkInfo/Marked |
 | 7.21.7-1 | 9 fonts without ToUnicode |
+| 7.2-34 | Natural language for page content not determined (186 checks) |
 
-For a real untagged document, "what cannot be read" can be enumerated this concretely, clause by clause.
+::: details Call — validate_conformance (pdfua-1)
+- Measured: pdf-verify-mcp v0.26.0, veraPDF 1.30.0
+
+Passing side:
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo-invoice.pdf",
+  "flavour": "pdfua-1",
+  "response_format": "json"
+}
+```
+
+```jsonc
+{
+  "engine": "verapdf",
+  "flavour": "PDF/UA-1",
+  "compliant": true,
+  "checkedRules": 106,
+  "passedRules": 106,
+  "failedRules": 0
+}
+```
+
+The failing side uses the same arguments with the gazette path: `compliant: false`, `failedRules: 10`.
+:::
 
 ## How to read the results
 
