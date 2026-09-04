@@ -137,7 +137,19 @@ export default withMermaid(
     // プラグインの dev ミドルウェアは「.md で終わる全リクエスト」を横取りして
     // dist の生 Markdown を返すため、dist が存在すると dev の SPA 遷移
     // （ページを .md モジュールとして取得する）が全ページで壊れる。
-    vite: { plugins: [llmstxt().map((p) => ({ ...p, apply: 'build' as const }))] },
+    vite: {
+      plugins: [llmstxt().map((p) => ({ ...p, apply: 'build' as const }))],
+      // mermaid 本体は事前バンドルされず生 ESM のまま配信されるため、その依存のうち
+      // CJS/UMD のものは名指しで事前バンドルしないと dev でブラウザが読めない
+      // （生の UMD を ESM として読むので export が無く、
+      //  "does not provide an export named 'default'" になる）。
+      // vitepress-plugin-mermaid が入れてくれるのは cytoscape 等だけなので、
+      // 漏れているものをここで足す。fastdom は mermaid 11.17 で増えた依存。
+      // build は Rollup の CJS 変換が効くので再現しない。
+      optimizeDeps: {
+        include: ['fastdom', 'fastdom/extensions/fastdom-promised.js', 'cytoscape-fcose']
+      }
+    },
     head: [
       // favicon: SVG を優先し、対応しないブラウザは .ico に落ちる
       ['link', { rel: 'icon', type: 'image/svg+xml', href: `${BASE}images/logo.svg` }],

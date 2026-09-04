@@ -4,7 +4,8 @@ description: 真正性・準拠性を判定する MCP（7 ツール） — 署�
 
 # pdf-verify-mcp
 
-**署名が暗号学的に有効か、規格に適っているかを判定するサーバーです。** 電子署名を暗号学的に検証し、署名後の改ざんを検知し、PDF/A（長期保存）や PDF/UA（アクセシビリティ）への適合を採点します。
+**署名が暗号学的に有効か、規格に適っているかを判定するサーバーです。**  
+電子署名を暗号学的に検証し、署名後の改ざんを検知し、PDF/A（長期保存）や PDF/UA（アクセシビリティ）への適合を採点します。
 
 - npm: [`@shuji-bonji/pdf-verify-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) / 現行 v0.26.0 / [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp)
 - このページは責務と使いどころの解説です。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-verify)（`tools/list` から自動生成）へ
@@ -15,21 +16,21 @@ description: 真正性・準拠性を判定する MCP（7 ツール） — 署�
 
 ### 判定できるもの
 
-| 問い | 何を測るか | ツール | [言い切り強度](/ja/guide/architecture#言い切り強度-t1-t2-t3) |
-|---|---|---|---|
-| 電子署名は暗号学的に有効か | ByteRange ダイジェストの再計算・CMS messageDigest の照合・署名値の検証・RFC 3161 タイムスタンプ | `verify_signatures` | T1 |
-| 署名者は信頼できるか | 信頼アンカーに対する証明書チェーン評価・失効確認（OCSP / CRL） | `verify_signatures`（`trust_anchors` 必須） | T1 |
-| 署名の後に書き換えられたか | 増分更新のリビジョン・署名済み範囲のカバレッジ・DocMDP の許可と違反・**変更されたオブジェクト番号** | `verify_integrity` | T1 |
-| ISO 32000 本体の条文に違反していないか | [pdf-constraints](/ja/reference/pdf-constraints) の制約表（veraPDF が見ない領域） | `validate_clauses` | T1 |
-| PDF/UA（アクセシビリティ）に適合しているか | ISO 14289。veraPDF 委譲、または内蔵 12 ルール | `validate_conformance` | T1 |
-| PDF/A（長期保存）に適合しているか | ISO 19005。veraPDF 委譲、または内蔵 15 ルール | `validate_conformance` | T2 |
-| 長期保存の構造を備えているか | PAdES B-B / B-T / B-LT / B-LTA 相当の構造 | `detect_pades_level` | T3（観測のみ） |
-| PDF/A・PDF/UA を**名乗っている**か | XMP の pdfaid / pdfuaid 宣言 | `identify_conformance` | 宣言の読取 |
-| 業務に載せてよいか | 上記の事実を固定ルールに当てはめて集約した 4 値判定 | `evaluate_policy` | 事実の集約 |
+| 問い                                       | 何を測るか                                                                                          | ツール                                      | [言い切り強度](/ja/guide/architecture#言い切り強度-t1-t2-t3) |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------ |
+| 電子署名は暗号学的に有効か                 | ByteRange ダイジェストの再計算・CMS messageDigest の照合・署名値の検証・RFC 3161 タイムスタンプ     | `verify_signatures`                         | T1                                                           |
+| 署名者は信頼できるか                       | 信頼アンカーに対する証明書チェーン評価・失効確認（OCSP / CRL）                                      | `verify_signatures`（`trust_anchors` 必須） | T1                                                           |
+| 署名の後に書き換えられたか                 | 増分更新のリビジョン・署名済み範囲のカバレッジ・DocMDP の許可と違反・**変更されたオブジェクト番号** | `verify_integrity`                          | T1                                                           |
+| ISO 32000 本体の条文に違反していないか     | [pdf-constraints](/ja/reference/pdf-constraints) の制約表（veraPDF が見ない領域）                   | `validate_clauses`                          | T1                                                           |
+| PDF/UA（アクセシビリティ）に適合しているか | ISO 14289。veraPDF 委譲、または内蔵 12 ルール                                                       | `validate_conformance`                      | T1                                                           |
+| PDF/A（長期保存）に適合しているか          | ISO 19005。veraPDF 委譲、または内蔵 15 ルール                                                       | `validate_conformance`                      | T2                                                           |
+| 長期保存の構造を備えているか               | PAdES B-B / B-T / B-LT / B-LTA 相当の構造                                                           | `detect_pades_level`                        | T3（観測のみ）                                               |
+| PDF/A・PDF/UA を**名乗っている**か         | XMP の pdfaid / pdfuaid 宣言                                                                        | `identify_conformance`                      | 宣言の読取                                                   |
+| 業務に載せてよいか                         | 上記の事実を固定ルールに当てはめて集約した 4 値判定                                                 | `evaluate_policy`                           | 事実の集約                                                   |
 
 ## Skill 連携でできること
 
-このサーバーは 4 層のうち**真正性・準拠性**（= 事実に対する合否の判断）の層にあり、観測された事実に対して合否を下します。何をどの順で測り、その判定をどう説明し、どんな法令根拠を添えるかは Skill の仕事です。
+このMCP サーバーは 4 層のうち**真正性・準拠性**（= 事実に対する合否の判断）の層にあり、観測された事実に対して合否を下します。何をどの順で測り、その判定をどう説明し、どんな法令根拠を添えるかは Skill の仕事です。
 
 ```mermaid
 graph LR
@@ -51,21 +52,29 @@ graph LR
 
 図中の形は要素の種別を表します（→ [図の読み方](/ja/reference/glossary#図の読み方-形の凡例)）。
 
-| Skill | このサーバーの役割 | 必須か |
-|---|---|---|
-| [pdf-trust](/ja/skills/pdf-trust) | 監査の軸。4 値判定は `evaluate_policy` が下し、Skill は firedRules の解説・推奨アクション・法令根拠を担う | **必須**（v0.7.0+） |
-| [pdf-publish](/ja/skills/pdf-publish) | 出口ゲート。書いた PDF を veraPDF で機械採点する。`conformance` 水準では未接続なら中止 | **必須**（conformance 水準） |
+| Skill                                 | このサーバーの役割                                                                                        | 必須か                       |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| [pdf-trust](/ja/skills/pdf-trust)     | 監査の軸。4 値判定は `evaluate_policy` が下し、Skill は firedRules の解説・推奨アクション・法令根拠を担う | **必須**（v0.7.0+）          |
+| [pdf-publish](/ja/skills/pdf-publish) | 出口ゲート。書いた PDF を veraPDF で機械採点する。`conformance` 水準では未接続なら中止                    | **必須**（conformance 水準） |
 
-::: warning ジャッジはコード、ナラティブは LLM
-返された `firedRules` / `advisories` は**結果の説明に使うもので、判定の上書きには使いません**。advisory を失敗と読まないでください。advisory が無いことを合格と読まないでください。
-:::
+::: warning 判定はプログラム、文章生成はAI（LLM）が行います
+結果に含まれる firedRules（適用されたルール）や advisories（助言）は、あくまで「結果の理由を説明するため」のものであり、判定そのものを上書きするために使うものではありません。  
+また、以下の点にご注意ください。
+
+- `advisory`（助言）が出ているからといって、`「不合格（失敗）」`と判断しないでください。
+- `advisory` が一切出ていないからといって、`「合格」`と判断しないでください。
+  :::
 
 ## できないこと
 
-- **規格どおりであることは証明できません。** このサーバーがするのは「示せる誤りを探すこと」です。誤りが見つかれば「規格に適っていない」と断定できますが、誤りが見つからなくても「完全に適合している」と証明したことにはなりません
-- **署名者が本人であることは、信頼アンカー無しでは言えません。** `trust_anchors`（または env）なしの `valid` は**暗号計算の一致**のみを意味します（`trust: not_evaluated`）。失効も、確認できなかったなら「失効していない」とは言えません
-- **PDF/UA は機械だけでは決められません。** 代替テキストが「存在するか」は検査できますが、「意味があるか」はできません
-- **PAdES は準拠判定になりません。** ETSI EN 319 142 は仕様コーパスに無く、第三者検証器も存在しないため、結果は「構造が B-LT に一致する」であって「PAdES B-LT に準拠」ではありません（全レポートに `normativeBasis: "T3"` が付きます）
+- **規格どおりであることは証明できません。**  
+  このサーバーがするのは「示せる誤りを探すこと」です。誤りが見つかれば「規格に適っていない」と断定できますが、誤りが見つからなくても「完全に適合している」と証明したことにはなりません
+- **署名者が本人であることは、信頼アンカー無しでは言えません。**  
+  `trust_anchors`（または env）なしの `valid` は**暗号計算の一致**のみを意味します（`trust: not_evaluated`）。失効も、確認できなかったなら「失効していない」とは言えません
+- **PDF/UA は機械だけでは決められません。**  
+  代替テキストが「存在するか」は検査できますが、「意味があるか」はできません
+- **PAdES は準拠判定になりません。**  
+  ETSI EN 319 142 は仕様コーパスに無く、第三者検証器も存在しないため、結果は「構造が B-LT に一致する」であって「PAdES B-LT に準拠」ではありません（全レポートに `normativeBasis: "T3"` が付きます）
 
 ## しないこと
 
@@ -82,10 +91,10 @@ graph LR
       "args": ["-y", "@shuji-bonji/pdf-verify-mcp@latest"],
       "env": {
         "PDF_VERIFY_VERAPDF": "/usr/local/bin/verapdf",
-        "PDF_VERIFY_TRUST_ANCHORS": "/path/to/trust-anchors"
-      }
-    }
-  }
+        "PDF_VERIFY_TRUST_ANCHORS": "/path/to/trust-anchors",
+      },
+    },
+  },
 }
 ```
 
@@ -95,25 +104,25 @@ graph LR
 
 全ツールが以下を受け取ります。
 
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `file_path` **必須** | string | ローカル PDF の絶対パス |
-| `response_format` | `markdown` / `json` | 出力形式。既定 markdown |
-| `password` | string | 暗号化 PDF のパスワード。権限暗号化（空ユーザパスワード）は自動で試行（対応ツールのみ） |
+| 引数                 | 型                  | 説明                                                                                    |
+| -------------------- | ------------------- | --------------------------------------------------------------------------------------- |
+| `file_path` **必須** | string              | ローカル PDF の絶対パス                                                                 |
+| `response_format`    | `markdown` / `json` | 出力形式。既定 markdown                                                                 |
+| `password`           | string              | 暗号化 PDF のパスワード。権限暗号化（空ユーザパスワード）は自動で試行（対応ツールのみ） |
 
 ## ツール一覧
 
 引数・型・既定値は[ツールリファレンス](/ja/reference/mcp/pdf-verify)にあります（`tools/list` から自動生成）。
 
-| ツール | 一行説明 |
-|---|---|
-| [`verify_signatures`](/ja/reference/mcp/pdf-verify#verify-signatures) | 電子署名の暗号学的検証（チェーン・失効・タイムスタンプ） |
-| [`verify_integrity`](/ja/reference/mcp/pdf-verify#verify-integrity) | 署名後の変更の分析（増分更新・カバレッジ・DocMDP） |
-| [`detect_pades_level`](/ja/reference/mcp/pdf-verify#detect-pades-level) | PAdES B-B / B-T / B-LT / B-LTA 相当構造の**観測** |
-| [`identify_conformance`](/ja/reference/mcp/pdf-verify#identify-conformance) | XMP 宣言（pdfaid / pdfuaid）の読取 — 判定の入口 |
-| [`validate_conformance`](/ja/reference/mcp/pdf-verify#validate-conformance) | PDF/A / PDF/UA 検証。veraPDF 委譲 or 内蔵ルール |
-| [`validate_clauses`](/ja/reference/mcp/pdf-verify#validate-clauses) | ISO 32000 **本体条文**の制約検査（veraPDF が見ない領域） |
-| [`evaluate_policy`](/ja/reference/mcp/pdf-verify#evaluate-policy) | 事実からの決定論的 4 値判定 |
+| ツール                                                                      | 一行説明                                                 |
+| --------------------------------------------------------------------------- | -------------------------------------------------------- |
+| [`verify_signatures`](/ja/reference/mcp/pdf-verify#verify-signatures)       | 電子署名の暗号学的検証（チェーン・失効・タイムスタンプ） |
+| [`verify_integrity`](/ja/reference/mcp/pdf-verify#verify-integrity)         | 署名後の変更の分析（増分更新・カバレッジ・DocMDP）       |
+| [`detect_pades_level`](/ja/reference/mcp/pdf-verify#detect-pades-level)     | PAdES B-B / B-T / B-LT / B-LTA 相当構造の**観測**        |
+| [`identify_conformance`](/ja/reference/mcp/pdf-verify#identify-conformance) | XMP 宣言（pdfaid / pdfuaid）の読取 — 判定の入口          |
+| [`validate_conformance`](/ja/reference/mcp/pdf-verify#validate-conformance) | PDF/A / PDF/UA 検証。veraPDF 委譲 or 内蔵ルール          |
+| [`validate_clauses`](/ja/reference/mcp/pdf-verify#validate-clauses)         | ISO 32000 **本体条文**の制約検査（veraPDF が見ない領域） |
+| [`evaluate_policy`](/ja/reference/mcp/pdf-verify#evaluate-policy)           | 事実からの決定論的 4 値判定                              |
 
 ## 使い方の要点
 
@@ -151,23 +160,23 @@ xref チェーンを辿れなかった場合は、空配列ではなく `null` �
 
 `validate_clauses` は ISO 32000-1/-2 本体の条文から書き起こした制約を検査します。PDF/A や PDF/UA に通っても ISO 32000 に違反しうるためです（例: CFF フォントプログラムを `/FontFile2` に埋め込む。Table 124 が禁じています）。制約テーブルとその評価器は [pdf-constraints](/ja/reference/pdf-constraints) にあり、どの版が判定したかを出力に含めます。
 
-| 状態 | 意味 |
-|---|---|
-| `pass` | この制約では**規格破りは見つからなかった** |
-| `fail` | 規格破りが見つかった。根拠となる事実と実測値つき |
-| `not_applicable` | この文書には条文が適用されない |
+| 状態                  | 意味                                                              |
+| --------------------- | ----------------------------------------------------------------- |
+| `pass`                | この制約では**規格破りは見つからなかった**                        |
+| `fail`                | 規格破りが見つかった。根拠となる事実と実測値つき                  |
+| `not_applicable`      | この文書には条文が適用されない                                    |
 | `needs_external_fact` | ファイル外の事実が与えられず**判定しなかった**（pass に倒さない） |
 
 `trace` 印の失敗は、条文が PDF **処理系**に向けたものであることを示します ── 誰かが破った痕跡であって、最後に書いた者が破ったとは限りません。
 
 ### PAdES レベルは積み上げで決まる
 
-| レベル | 構造（上の行に追加で） | 意味 |
-|---|---|---|
-| B-B | CAdES 署名 | 署名のみ |
-| B-T | + 署名タイムスタンプ（RFC 3161） | 署名時刻を第三者が証明 |
-| B-LT | + 検証データ入り DSS（証明書・OCSP/CRL） | 失効確認の材料が文書内で完結 |
-| B-LTA | + 文書タイムスタンプ | 検証材料ごと封印し、長期保存に耐える |
+| レベル | 構造（上の行に追加で）                   | 意味                                 |
+| ------ | ---------------------------------------- | ------------------------------------ |
+| B-B    | CAdES 署名                               | 署名のみ                             |
+| B-T    | + 署名タイムスタンプ（RFC 3161）         | 署名時刻を第三者が証明               |
+| B-LT   | + 検証データ入り DSS（証明書・OCSP/CRL） | 失効確認の材料が文書内で完結         |
+| B-LTA  | + 文書タイムスタンプ                     | 検証材料ごと封印し、長期保存に耐える |
 
 B-LT / B-LTA は DSS の失効データが署名者証明書を実際にカバーしていることを追加要求します（満たさなければ B-T 止まり）。旧式の adbe.pkcs7.detached は非 PAdES として報告します。
 
