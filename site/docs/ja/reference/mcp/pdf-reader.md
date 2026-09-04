@@ -4,7 +4,7 @@ description: "pdf-reader-mcp v0.15.0 の全 19 ツールの引数・型・既定
 
 # pdf-reader-mcp — ツールリファレンス
 
-<!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
+<!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
 **v0.15.0** の `tools/list` ハンドシェイクから自動生成（19 ツール・2026-09-04）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
@@ -58,6 +58,27 @@ PDF ヘッダのみを読む軽量な操作で、本文全体は読まない。
 - どのページを抽出するか決める前の簡易チェック
 - PDF ファイルが読めるかの確認
 
+::: details 呼び出し例 — 「ページ数だけ教えて」
+- 実測: v0.15.0
+- 標本: `docs/specimens/publish-demo.pdf`（呼び出すときは絶対パス）
+
+ヘッダだけ読む軽い操作です。
+
+**パラメータ**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf"
+}
+```
+
+**返る値**
+
+```jsonc
+1
+```
+:::
+
 ## get_metadata
 
 **Get PDF Metadata**
@@ -79,6 +100,38 @@ PDF ヘッダのみを読む軽量な操作で、本文全体は読まない。
 - 台帳管理用に文書プロパティを取得
 - タグ付き PDF か確認（アクセシビリティ）
 - PDF バージョン互換性の確認
+
+::: details 呼び出し例 — 「タイトルとタグの有無を」
+- 実測: v0.15.0
+- 標本: `docs/specimens/publish-demo.pdf`（呼び出すときは絶対パス）
+- `response_format`: `"json"`
+
+**パラメータ**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "response_format": "json"
+}
+```
+
+**返る JSON**
+
+```jsonc
+{
+  "title": "請求書（サンプル）— pdf-publish デモ",
+  "author": "PDF Agent Stack",
+  "pageCount": 1,
+  "pdfVersion": "1.7",
+  "isEncrypted": false,
+  "isTagged": true,
+  "hasSignatures": false,
+  "fileSize": 88943
+}
+```
+
+`isTagged` は観測です。PDF/UA かどうかの判定ではありません。
+:::
 
 ## read_text
 
@@ -115,6 +168,49 @@ U+3000 全角空白を視覚的な字下げに使う日本語の帳票・様式 
 - タグなしの新旧対照表: { file_path: "/path/to/older-shinkyu.pdf", split_columns: 2 }
 - 日本語の帳票・様式: { file_path: "/path/to/form.pdf", compact_whitespace: true }
 
+::: details 呼び出し例 — 「1 ページ目のテキストを」
+- 実測: v0.15.0
+- 標本: `docs/specimens/publish-demo.pdf`（呼び出すときは絶対パス）
+- `pages`: `"1"`
+- `response_format`: `"json"`
+
+この標本はタグ付きなので、順序が要るときは [`extract_structured_text`](#extract-structured-text) が先です。
+
+**パラメータ**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "pages": "1",
+  "response_format": "json"
+}
+```
+
+**返る JSON**
+
+```jsonc
+{
+  "scope": {
+    "textExtraction": { "status": "read" },
+    "extractabilityObservation": { "status": "read" }
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "請求書（サンプル）— pdf-publish デモ\n請求書（サンプル）\n株式会社サンプル商事 御中\n…",
+      "extractability": {
+        "page": 1,
+        "unmappableFonts": [],
+        "state": "extracted"
+      }
+    }
+  ]
+}
+```
+
+`extractability.state` が `no_text_layer` または `not_extractable` なら、次は [`render_page`](#render-page) です。
+:::
+
 ## search_text
 
 **Search PDF Text**
@@ -143,6 +239,49 @@ PDF 文書内のテキストを検索する。一致位置を前後の文脈付�
 例:
 - PDF 全体を検索: { file_path: "/path/to/doc.pdf", query: "digital signature" }
 - ページを絞って検索: { file_path: "/path/to/doc.pdf", query: "error", pages: "1-10" }
+
+::: details 呼び出し例 — 「『請求明細』は何ページ？」
+- 実測: v0.15.0
+- 標本: `docs/specimens/publish-demo.pdf`（呼び出すときは絶対パス）
+- `query`: `"請求明細"`
+- `response_format`: `"json"`
+
+検索対象は `read_text` と同じテキストです。
+
+**パラメータ**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "query": "請求明細",
+  "max_results": 3,
+  "response_format": "json"
+}
+```
+
+**返る JSON**
+
+```jsonc
+{
+  "scope": {
+    "textExtraction": { "status": "read" },
+    "extractabilityObservation": { "status": "read" }
+  },
+  "query": "請求明細",
+  "totalMatches": 1,
+  "matches": [
+    {
+      "page": 1,
+      "lineIndex": 5,
+      "text": "請求明細",
+      "contextBefore": "",
+      "contextAfter": ""
+    }
+  ],
+  "truncated": false
+}
+```
+:::
 
 ## read_images
 
@@ -264,6 +403,52 @@ PDF 文書の概観レポートを手早く生成する。
 - 概観を手早く: { file_path: "/path/to/doc.pdf" }
 - 機械可読で: { file_path: "/path/to/doc.pdf", response_format: "json" }
 
+::: details 呼び出し例 — 「この PDF の概要を見せて」
+- 実測: v0.15.0
+- 標本: `docs/specimens/publish-demo.pdf`（呼び出すときは絶対パス）
+- `response_format`: `"json"`
+
+**パラメータ**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "response_format": "json"
+}
+```
+
+**返る JSON**（`textPreview` は省略）
+
+```jsonc
+{
+  "scope": {
+    "metadata": { "status": "read" },
+    "textPreview": { "status": "read" },
+    "imageCount": { "status": "read" },
+    "extractabilityObservation": { "status": "read" }
+  },
+  "metadata": {
+    "title": "請求書（サンプル）— pdf-publish デモ",
+    "pageCount": 1,
+    "pdfVersion": "1.7",
+    "isEncrypted": false,
+    "isTagged": true,
+    "hasSignatures": false,
+    "fileSize": 88943
+  },
+  "imageCount": 0,
+  "hasText": true,
+  "textExtractability": "extracted",
+  "unreadablePages": [],
+  "next": [
+    "isTagged is true: extract_structured_text returns the body in logical content order …"
+  ]
+}
+```
+
+`isTagged: true` と `textExtractability: "extracted"` なので、次は [`extract_structured_text`](#extract-structured-text) です。`next` は提案であり、強制ではありません。
+:::
+
 ## inspect_structure
 
 **Inspect PDF Structure**
@@ -293,6 +478,48 @@ PDF 文書の概観レポートを手早く生成する。
 - PDF のオブジェクトとストリームを数える
 - 文書全体のページ寸法を確認する
 
+::: details 呼び出し例 — 「カタログに何があるか」
+- 実測: v0.15.0
+- 標本: `docs/specimens/publish-demo.pdf`（呼び出すときは絶対パス）
+- `response_format`: `"json"`
+
+`catalog` は一部だけ残しています。
+
+**パラメータ**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "response_format": "json"
+}
+```
+
+**返る JSON**
+
+```jsonc
+{
+  "catalog": [
+    { "key": "Type", "type": "name", "value": "Catalog" },
+    { "key": "Pages", "type": "ref", "value": "ref(1)" },
+    { "key": "StructTreeRoot", "type": "ref", "value": "ref(5)" },
+    { "key": "Lang", "type": "string", "value": "ja" }
+  ],
+  "pageTree": {
+    "totalPages": 1,
+    "mediaBoxSamples": [{ "page": 1, "width": 595.28, "height": 841.89 }]
+  },
+  "objectStats": {
+    "totalObjects": 52,
+    "unreadable": 0
+  },
+  "isEncrypted": false,
+  "pdfVersion": "1.7"
+}
+```
+
+`unreadable: 0` は「全オブジェクトを読んだ」です。「何も調べていない」ではありません。
+:::
+
 ## inspect_tags
 
 **Inspect Tagged PDF Structure**
@@ -315,6 +542,45 @@ PDF 文書の概観レポートを手早く生成する。
 - タグ階層と role 分布を調べる
 - 文書構造の品質を評価する
 
+::: details 呼び出し例 — 「タグ構造を観測して」
+- 実測: v0.15.0
+- 標本: `docs/specimens/publish-demo.pdf`（呼び出すときは絶対パス）
+- `response_format`: `"json"`
+
+木の全体は省略し、集計だけ示します。
+
+**パラメータ**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "response_format": "json"
+}
+```
+
+**返る JSON**
+
+```jsonc
+{
+  "isTagged": true,
+  "maxDepth": 5,
+  "totalElements": 29,
+  "roleCounts": {
+    "Document": 1,
+    "H1": 2,
+    "P": 3,
+    "H2": 2,
+    "Table": 1,
+    "TR": 4,
+    "TH": 4,
+    "TD": 12
+  }
+}
+```
+
+合否は返しません。PDF/UA の判定は pdf-verify-mcp の `validate_conformance` です。
+:::
+
 ## inspect_fonts
 
 **Inspect PDF Fonts**
@@ -336,6 +602,42 @@ PDF 文書で使われている全フォントをプロパティ付きで一覧�
 - 全フォント埋め込みか確認（PDF/A・PDF/X の前提）
 - フォントの型とエンコーディングを特定
 - 特定フォントを使うページを探す
+
+::: details 呼び出し例 — 「どんなフォントが埋め込まれている？」
+- 実測: v0.15.0
+- 標本: `docs/specimens/publish-demo.pdf`（呼び出すときは絶対パス）
+- `response_format`: `"json"`
+
+**パラメータ**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "response_format": "json"
+}
+```
+
+**返る JSON**
+
+```jsonc
+{
+  "fonts": [
+    {
+      "name": "OAFEEB+NotoSansJP-Regular",
+      "type": "Type0",
+      "encoding": "Identity-H",
+      "isEmbedded": true,
+      "isSubset": true,
+      "pagesUsed": [1]
+    }
+  ],
+  "totalFontCount": 1,
+  "embeddedCount": 1,
+  "subsetCount": 1,
+  "pagesScanned": 1
+}
+```
+:::
 
 ## inspect_annotations
 
@@ -360,6 +662,37 @@ PDF 文書内の全注釈を抽出して種類別に分類する。
 - 文書内の全リンクを探す
 - マークアップ注釈（ハイライト・コメント）の棚卸し
 
+::: details 呼び出し例 — 「注釈はあるか」
+- 実測: v0.15.0
+- 標本: `docs/specimens/publish-demo.pdf`（呼び出すときは絶対パス）
+- `response_format`: `"json"`
+
+0 件は「読めなかった」ではなく「読んで無い」です。
+
+**パラメータ**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "response_format": "json"
+}
+```
+
+**返る JSON**
+
+```jsonc
+{
+  "totalAnnotations": 0,
+  "bySubtype": {},
+  "byPage": { "1": 0 },
+  "annotations": [],
+  "hasLinks": false,
+  "hasForms": false,
+  "hasMarkup": false
+}
+```
+:::
+
 ## inspect_signatures
 
 **Inspect PDF Digital Signatures**
@@ -383,6 +716,52 @@ PDF 文書のデジタル署名フィールドを調べる。
 - PDF が電子署名されているか確認
 - 署名者情報と署名日時を調べる
 - 署名フィールドの構造を確認
+
+::: details 呼び出し例 — 「署名フィールドの構造を見せて」
+- 実測: v0.15.0
+- 標本: `docs/specimens/selfmade-pades-lta.pdf`（呼び出すときは絶対パス）
+- `response_format`: `"json"`
+
+暗号学的検証はしません。
+
+**パラメータ**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/selfmade-pades-lta.pdf",
+  "response_format": "json"
+}
+```
+
+**返る JSON**
+
+```jsonc
+{
+  "totalFields": 2,
+  "signedCount": 2,
+  "unsignedCount": 0,
+  "fields": [
+    {
+      "fieldName": "Sig1",
+      "isSigned": true,
+      "reason": "known-good specimen",
+      "signingTime": "D:20260811163237+09'00'",
+      "filter": "Adobe.PPKLite",
+      "subFilter": "ETSI.CAdES.detached"
+    },
+    {
+      "fieldName": "Timestamp-938ea022-8782-4761-b0a2-a5ba44d069e4",
+      "isSigned": true,
+      "filter": "Adobe.PPKLite",
+      "subFilter": "ETSI.RFC3161"
+    }
+  ],
+  "note": "Cryptographic signature verification is not performed. Only field structure is inspected."
+}
+```
+
+署名が数学的に有効かは pdf-verify-mcp の `verify_signatures` / `verify_integrity` です。
+:::
 
 ## extract_tables
 
@@ -416,6 +795,60 @@ JSON — `{ isTagged, tables: [{ pages, index, headerRows, bodyRows, footerRows 
 例:
 - 改正通達 PDF から新旧対照表を取り出して差分を取る
 - 帳票（様式）の表を構造化データに変換する
+
+::: details 呼び出し例 — 「この表を構造化して」
+- 実測: v0.15.0
+- 標本: `docs/specimens/publish-demo.pdf`（呼び出すときは絶対パス）
+- `response_format`: `"json"`
+
+**パラメータ**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "response_format": "json"
+}
+```
+
+**返る JSON**
+
+```jsonc
+{
+  "isTagged": true,
+  "tables": [
+    {
+      "pages": [1],
+      "index": 1,
+      "headerRows": [],
+      "bodyRows": [
+        {
+          "cells": [
+            { "text": "品目", "isHeader": true },
+            { "text": "数量", "isHeader": true },
+            { "text": "単価", "isHeader": true },
+            { "text": "金額", "isHeader": true }
+          ]
+        },
+        {
+          "cells": [
+            { "text": "PDF監査サービス", "isHeader": false },
+            { "text": "1", "isHeader": false },
+            { "text": "50,000", "isHeader": false },
+            { "text": "50,000", "isHeader": false }
+          ]
+        }
+        // … 「タグ付きPDF生成」「合計」の行が続く
+      ],
+      "footerRows": []
+    }
+  ],
+  "totalTables": 1,
+  "pagesScanned": 1
+}
+```
+
+タグ無し PDF では表は空で、`note` が付きます。
+:::
 
 ## extract_structured_text
 
@@ -471,6 +904,71 @@ basis は主張の強さを示し、両者は同じ種類の主張ではない:
 - 注釈を置く場所を探す:
   { file_path: "/doc.pdf", roles: ["P"], include_bbox: true } → 矩形をそのまま pdf-writer-mcp の add_annotation へ。逆方向（差分が報告したオブジェクト番号 → 矩形）は locate_objects を使う。
 
+::: details 呼び出し例 — 「見出しと段落を論理読み順で、位置付きで」
+- 実測: v0.15.0
+- 標本: `docs/specimens/publish-demo.pdf`（呼び出すときは絶対パス）
+- `pages`: `"1"`
+- `include_bbox`: `true`
+- `response_format`: `"json"`
+
+`elements` は先頭 2 件だけ残しています。
+
+**パラメータ**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "pages": "1",
+  "include_bbox": true,
+  "response_format": "json"
+}
+```
+
+**返る JSON**
+
+```jsonc
+{
+  "scope": {
+    "textExtraction": { "status": "read" },
+    "extractabilityObservation": { "status": "read" }
+  },
+  "isTagged": true,
+  "lang": "ja",
+  "elements": [
+    {
+      "role": "H1",
+      "depth": 1,
+      "text": "請求書（サンプル）— pdf-publish デモ",
+      "pages": [1],
+      "boxes": [
+        {
+          "page": 1,
+          "rect": { "x1": 56, "y1": 766.306, "x2": 375.194, "y2": 792.37 },
+          "basis": "text-extent"
+        }
+      ]
+    },
+    {
+      "role": "P",
+      "depth": 1,
+      "text": "株式会社サンプル商事 御中",
+      "pages": [1],
+      "boxes": [
+        {
+          "page": 1,
+          "rect": { "x1": 56, "y1": 699.322, "x2": 190.464, "y2": 715.25 },
+          "basis": "text-extent"
+        }
+      ]
+    }
+    // … H2「請求明細」、Table、備考 が続く
+  ]
+}
+```
+
+`rect` は PDF 座標系（左下原点・pt）です。pdf-writer-mcp の `add_annotation` にそのまま渡せます。`basis` が `text-extent` なので、テキストからの実測です。
+:::
+
 ## locate_objects
 
 **Locate PDF Objects (object number → page and rectangle)**
@@ -503,6 +1001,70 @@ basis は主張の強さを示し、両者は同じ種類の主張ではない:
 例:
 - verify_integrity の「obj 27 が署名後に追加された」をページと矩形に変換する
 - 変更されたフォームフィールドの Widget がどのページにあるか、注釈を付ける前に特定する
+
+::: details 呼び出し例 — 「オブジェクト 7 と 9 と 4 はどこか」
+- 実測: v0.15.0
+- 標本: `docs/specimens/publish-demo.pdf`（呼び出すときは絶対パス）
+- `object_numbers`: `[7, 9, 4]`
+- `response_format`: `"json"`
+
+pdf-verify-mcp の `verify_integrity` が返した番号を渡す想定です。
+
+**パラメータ**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "object_numbers": [7, 9, 4],
+  "response_format": "json"
+}
+```
+
+**返る JSON**
+
+```jsonc
+{
+  "objects": [
+    {
+      "objectNumber": 7,
+      "found": true,
+      "type": "Page",
+      "locations": [
+        {
+          "page": 1,
+          "rect": { "x1": 0, "y1": 0, "x2": 595.28, "y2": 841.89 },
+          "basis": "page-box"
+        }
+      ]
+    },
+    {
+      "objectNumber": 9,
+      "found": true,
+      "type": null,
+      "locations": [
+        {
+          "page": 1,
+          "rect": { "x1": 0, "y1": 0, "x2": 595.28, "y2": 841.89 },
+          "basis": "page-content-stream"
+        }
+      ],
+      "reason": "This is the page's content stream, so the rectangle is the whole page. …"
+    },
+    {
+      "objectNumber": 4,
+      "found": true,
+      "type": "Font",
+      "subtype": "Type0",
+      "locations": [{ "page": 1, "rect": null, "basis": "page-resource" }],
+      "reason": "A resource is used by the page but has no rectangle of its own; …"
+    }
+  ],
+  "isEncrypted": false
+}
+```
+
+`page-content-stream` の矩形はページ全体です。段落を指すなら [`extract_structured_text`](#extract-structured-text) の `include_bbox` です。
+:::
 
 ## validate_tagged
 

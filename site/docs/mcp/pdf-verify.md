@@ -117,6 +117,8 @@ Parameters, types and defaults are in the [tools reference](/reference/mcp/pdf-v
 
 ## How to use it
 
+Per-tool cautions and prompt → parameters → returned JSON are at the end of each tool on the [tools reference](/reference/mcp/pdf-verify).
+
 ### Signatures — valid is not identity
 
 `verify_signatures` returns three independent values. The verdict (`valid` / `invalid` / `indeterminate`) is about the cryptography, trust (`trusted` / `untrusted` / `not_evaluated`) is about the certificate chain, and revocation (`good` / `revoked` / `unknown` / `not_checked`) is about the OCSP / CRL check. **Pass no trust anchors and trust stays `not_evaluated`**, which caps `evaluate_policy` at `use_with_caution`.

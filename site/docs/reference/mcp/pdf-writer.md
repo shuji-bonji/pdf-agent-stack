@@ -4,7 +4,7 @@ description: "Tools reference for pdf-writer-mcp v0.21.0 — parameters, types, 
 
 # pdf-writer-mcp — Tools Reference
 
-<!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
+<!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
 Auto-generated from the `tools/list` handshake of **v0.21.0** (20 tools, 2026-09-04). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
@@ -61,6 +61,54 @@ Create a PDF from plain text. Honours line breaks (\n) and treats blank lines as
 | `lang` | string | no |  | Natural language of the document (BCP 47, e.g. "ja" / "en-US"). When omitted with tagged, it is inferred from the text and the guess is reported in warnings. A wrong language declaration makes screen readers misread — state it explicitly when you know it. |
 | `pdfVersion` | `"1.7"` \| `"2.0"` | no |  | PDF version to output. Default "1.7". "2.0" (ISO 32000-2) satisfies not just the version claim but the duties bound to it: a trailer /ID is added (Required per Table 15), and the Info dictionary is trimmed to CreationDate / ModDate with title, author and Producer moved to XMP (§14.3.3). Cannot be combined with tagged: true (the only declaration the writer can produce is PDF/UA-1, built on PDF 1.7). |
 
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: warning `tagged: true` cannot be combined with `pdfVersion: "2.0"`
+The only conformance declaration this server can write is PDF/UA-1 (built on PDF 1.7). Putting it on a PDF 2.0 document would make a declaration nobody can measure.
+:::
+
+::: tip If it should be tagged, tag it from the start
+Building with `tagged: true` beats applying `ensure_tagged` afterwards. PDF/UA requires a title, so `title` becomes required. Set `lang` explicitly when you know it.
+:::
+
+::: details Worked example — "Make a short tagged PDF"
+- Measured: v0.21.0
+- `tagged`: `true`
+- `lang`: `"en"`
+- `title`: `"Tagged sample"`
+- Font: standard Helvetica (no `fontPath`)
+
+**Parameters**
+
+```jsonc
+{
+  "text": "This is a tagged sample.\n\nSecond paragraph.",
+  "title": "Tagged sample",
+  "tagged": true,
+  "lang": "en",
+  "outputPath": "/absolute/path/to/output.pdf"
+}
+```
+
+**Returned JSON**
+
+```jsonc
+{
+  "pageCount": 1,
+  "bytes": 4122,
+  "font": "Helvetica",
+  "path": "/absolute/path/to/output.pdf",
+  "warnings": [
+    "The standard font (Helvetica) is not embedded, but PDF/UA-1 (7.21.4.1) requires all fonts to be embedded — this tagged PDF will NOT pass conformance validation. Pass \"fontPath\" (or set PDF_WRITER_FONT) to embed a font."
+  ]
+}
+```
+
+The standard font is not embedded, so veraPDF will not pass PDF/UA-1 7.21.4.1. For Japanese or tagged delivery, pass `fontPath` (or `PDF_WRITER_FONT`).
+:::
+
 ## create_markdown_pdf
 
 **Create PDF from Markdown**
@@ -84,6 +132,20 @@ Create a PDF from Markdown. Supports headings, paragraphs, bullet/numbered lists
 | `tagged` | boolean | no |  | Generate as a tagged PDF (PDF/UA-1, ISO 14289). Default false. When true, a structure tree, the PDF/UA declaration, /Lang and DisplayDocTitle are added, making the document readable by screen readers. PDF/UA requires a title, so title becomes required. |
 | `lang` | string | no |  | Natural language of the document (BCP 47, e.g. "ja" / "en-US"). When omitted with tagged, it is inferred from the text and the guess is reported in warnings. A wrong language declaration makes screen readers misread — state it explicitly when you know it. |
 | `pdfVersion` | `"1.7"` \| `"2.0"` | no |  | PDF version to output. Default "1.7". "2.0" (ISO 32000-2) satisfies not just the version claim but the duties bound to it: a trailer /ID is added (Required per Table 15), and the Info dictionary is trimmed to CreationDate / ModDate with title, author and Producer moved to XMP (§14.3.3). Cannot be combined with tagged: true (the only declaration the writer can produce is PDF/UA-1, built on PDF 1.7). |
+
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: warning `tagged: true` cannot be combined with `pdfVersion: "2.0"`
+The only conformance declaration this server can write is PDF/UA-1 (built on PDF 1.7). Putting it on a PDF 2.0 document would make a declaration nobody can measure.
+:::
+
+::: tip If it should be tagged, tag it from the start
+Building with `tagged: true` beats applying `ensure_tagged` afterwards. PDF/UA requires a title, so `title` becomes required. Set `lang` explicitly when you know it.
+:::
+
+The call shape matches [`create_text_pdf`](#create-text-pdf) (`markdown` instead of `text`).
 
 ## create_table_pdf
 
@@ -110,6 +172,20 @@ Create a ruled table PDF from headers and row data. Column widths are computed f
 | `lang` | string | no |  | Natural language of the document (BCP 47, e.g. "ja" / "en-US"). When omitted with tagged, it is inferred from the text and the guess is reported in warnings. A wrong language declaration makes screen readers misread — state it explicitly when you know it. |
 | `pdfVersion` | `"1.7"` \| `"2.0"` | no |  | PDF version to output. Default "1.7". "2.0" (ISO 32000-2) satisfies not just the version claim but the duties bound to it: a trailer /ID is added (Required per Table 15), and the Info dictionary is trimmed to CreationDate / ModDate with title, author and Producer moved to XMP (§14.3.3). Cannot be combined with tagged: true (the only declaration the writer can produce is PDF/UA-1, built on PDF 1.7). |
 
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: warning `tagged: true` cannot be combined with `pdfVersion: "2.0"`
+The only conformance declaration this server can write is PDF/UA-1 (built on PDF 1.7). Putting it on a PDF 2.0 document would make a declaration nobody can measure.
+:::
+
+::: tip If it should be tagged, tag it from the start
+Building with `tagged: true` beats applying `ensure_tagged` afterwards. PDF/UA requires a title, so `title` becomes required. Set `lang` explicitly when you know it.
+:::
+
+The call shape matches [`create_text_pdf`](#create-text-pdf) (`headers` and `rows` instead of `text`).
+
 ## set_metadata
 
 **Set PDF Metadata**
@@ -131,6 +207,18 @@ Update an existing PDF's metadata (the Info dictionary). Only the given fields c
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
 | `allowBreakingSignatures` | boolean | no |  | When the target is digitally signed (detected via /ByteRange), the default is an error. Set true to proceed, accepting that the signatures become invalid. |
 
+::: info Documents with XMP also sync dc:title and similar
+Only the Info dictionary would otherwise diverge from XMP. At least one of `title` / `author` / `subject` / `keywords` / `creator` is required.
+:::
+
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: warning A signed PDF errors by default
+To keep signatures, pass `preserveSignatures: true` (incremental update). Set `allowBreakingSignatures: true` only if invalidating them is acceptable. They are not invalidated unless stated.
+:::
+
 ## merge_pdfs
 
 **Merge PDFs**
@@ -145,6 +233,52 @@ Merge multiple PDFs into one, in the given order. Document metadata is carried o
 | `outputPath` | string (minLength 1) | no |  | Destination file path (absolute). When omitted, a base64 string is returned instead. |
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
 | `allowBreakingSignatures` | boolean | no |  | When the target is digitally signed (detected via /ByteRange), the default is an error. Set true to proceed, accepting that the signatures become invalid. |
+
+::: warning Document-level information is not carried over
+Pages are copied into a new document, so tagged structure, XMP, AcroForm, bookmarks and similar are not carried over. What was lost is reported in warnings — follow up on the output with `attach_file` / `ensure_tagged` / `add_bookmarks` / `set_metadata` as needed.
+:::
+
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: warning A signed PDF errors by default
+This is not a signature-preserving operation. Set `allowBreakingSignatures: true` only if invalidating signatures is acceptable. They are not invalidated unless stated.
+:::
+
+::: details Worked example — "Merge these two PDFs into one"
+- Measured: v0.21.0
+- Specimens: `docs/specimens/publish-demo.pdf` and `docs/specimens/selfmade-base.pdf` (pass absolute paths)
+
+**Parameters**
+
+```jsonc
+{
+  "inputPaths": [
+    "/absolute/path/to/docs/specimens/publish-demo.pdf",
+    "/absolute/path/to/docs/specimens/selfmade-base.pdf"
+  ],
+  "outputPath": "/absolute/path/to/output.pdf"
+}
+```
+
+**Returned JSON** (warnings abbreviated)
+
+```jsonc
+{
+  "pageCount": 2,
+  "bytes": 35552,
+  "path": "/absolute/path/to/output.pdf",
+  "warnings": [
+    "The input XMP declares conformance (pdfuaid/pdfaid) that this output can no longer meet — the structure tree is not carried over yet — so it was dropped rather than copied. …",
+    "merge_pdfs did not carry over the tagged structure (/StructTreeRoot, /MarkInfo) that the input had …",
+    "merge_pdfs did not carry over the XMP metadata (/Metadata) that the input had …"
+  ]
+}
+```
+
+pdfaid / pdfuaid in XMP is dropped rather than copied. A file that still claims conformance without a structure tree is worse than one that claims nothing.
+:::
 
 ## split_pdf
 
@@ -162,6 +296,14 @@ Split a PDF into multiple files by page range. Each element of ranges becomes on
 | `prefix` | string (minLength 1) | no |  | Output filename prefix. Default "<input name>-part". |
 | `allowBreakingSignatures` | boolean | no |  | When the target is digitally signed (detected via /ByteRange), the default is an error. Set true to proceed, accepting that the signatures become invalid. |
 
+::: warning Document-level information is not carried over
+Pages are copied into a new document, so tagged structure, XMP, AcroForm, bookmarks and similar are not carried over. What was lost is reported in warnings — follow up on each output with `attach_file` / `ensure_tagged` / `add_bookmarks` / `set_metadata` as needed.
+:::
+
+::: warning A signed PDF errors by default
+This is not a signature-preserving operation. Set `allowBreakingSignatures: true` only if invalidating signatures is acceptable. They are not invalidated unless stated.
+:::
+
 ## extract_pages
 
 **Extract Pages**
@@ -177,6 +319,49 @@ Create a new PDF containing only the given pages. The given order is preserved, 
 | `outputPath` | string (minLength 1) | no |  | Destination file path (absolute). When omitted, a base64 string is returned instead. |
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
 | `allowBreakingSignatures` | boolean | no |  | When the target is digitally signed (detected via /ByteRange), the default is an error. Set true to proceed, accepting that the signatures become invalid. |
+
+::: warning Document-level information is not carried over
+Pages are copied into a new document, so tagged structure, XMP, AcroForm, bookmarks and similar are not carried over. What was lost is reported in warnings — follow up on the output with `attach_file` / `ensure_tagged` / `add_bookmarks` / `set_metadata` as needed.
+:::
+
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: info `pages` is a string
+`"1"` / `"1,3-5,8-"` — not an array. The given order becomes the output order.
+:::
+
+::: details Worked example — "Extract page 1 only"
+- Measured: v0.21.0
+- Specimen: `docs/specimens/publish-demo.pdf` (pass an absolute path)
+- `pages`: `"1"`
+
+**Parameters**
+
+```jsonc
+{
+  "inputPath": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "pages": "1",
+  "outputPath": "/absolute/path/to/output.pdf"
+}
+```
+
+**Returned JSON** (warnings abbreviated)
+
+```jsonc
+{
+  "pageCount": 1,
+  "bytes": 26881,
+  "path": "/absolute/path/to/output.pdf",
+  "warnings": [
+    "The input XMP declares conformance (pdfuaid/pdfaid) that this output can no longer meet — the structure tree is not carried over yet — so it was dropped rather than copied. …",
+    "extract_pages did not carry over the tagged structure (/StructTreeRoot, /MarkInfo) that the input had …",
+    "extract_pages did not carry over the XMP metadata (/Metadata) that the input had …"
+  ]
+}
+```
+:::
 
 ## delete_pages
 
@@ -194,6 +379,18 @@ Create a new PDF with the given pages removed. Deleting every page is an error. 
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
 | `allowBreakingSignatures` | boolean | no |  | When the target is digitally signed (detected via /ByteRange), the default is an error. Set true to proceed, accepting that the signatures become invalid. |
 
+::: warning Document-level information is not carried over
+Pages are copied into a new document, so tagged structure, XMP, AcroForm, bookmarks and similar are not carried over. What was lost is reported in warnings — follow up on the output with `attach_file` / `ensure_tagged` / `add_bookmarks` / `set_metadata` as needed.
+:::
+
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: warning A signed PDF errors by default
+This is not a signature-preserving operation. Set `allowBreakingSignatures: true` only if invalidating signatures is acceptable. They are not invalidated unless stated.
+:::
+
 ## reorder_pages
 
 **Reorder Pages**
@@ -209,6 +406,18 @@ Reorder pages. order must list every page exactly once, in the new order. Pages 
 | `outputPath` | string (minLength 1) | no |  | Destination file path (absolute). When omitted, a base64 string is returned instead. |
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
 | `allowBreakingSignatures` | boolean | no |  | When the target is digitally signed (detected via /ByteRange), the default is an error. Set true to proceed, accepting that the signatures become invalid. |
+
+::: warning Document-level information is not carried over
+Pages are copied into a new document, so tagged structure, XMP, AcroForm, bookmarks and similar are not carried over. What was lost is reported in warnings — follow up on the output with `attach_file` / `ensure_tagged` / `add_bookmarks` / `set_metadata` as needed.
+:::
+
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: warning A signed PDF errors by default
+This is not a signature-preserving operation. Set `allowBreakingSignatures: true` only if invalidating signatures is acceptable. They are not invalidated unless stated.
+:::
 
 ## add_bookmarks
 
@@ -226,6 +435,18 @@ Set the bookmarks (outline) of a PDF. Existing bookmarks are replaced. Nest with
 | `outputPath` | string (minLength 1) | no |  | Destination file path (absolute). When omitted, a base64 string is returned instead. |
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
 | `allowBreakingSignatures` | boolean | no |  | When the target is digitally signed (detected via /ByteRange), the default is an error. Set true to proceed, accepting that the signatures become invalid. |
+
+::: warning Existing bookmarks are replaced
+This is a replace, not an append.
+:::
+
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: warning A signed PDF errors by default
+To keep signatures, pass `preserveSignatures: true` (incremental update). Set `allowBreakingSignatures: true` only if invalidating them is acceptable. They are not invalidated unless stated.
+:::
 
 ## add_annotation
 
@@ -257,6 +478,49 @@ Add one annotation to a page: sticky note (text), highlight, or rectangle (squar
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
 | `allowBreakingSignatures` | boolean | no |  | When the target is digitally signed (detected via /ByteRange), the default is an error. Set true to proceed, accepting that the signatures become invalid. |
 
+::: info Coordinates are PDF space
+Origin bottom-left, pt. Pass the rectangles pdf-reader-mcp's `locate_objects` / `extract_structured_text` (`include_bbox`) return as-is. In tagged documents the annotation is enclosed in an Annot structure element (PDF/UA 7.18.1-1); alt text for assistive technology goes in `alt`.
+:::
+
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: warning A signed PDF errors by default
+To keep signatures, pass `preserveSignatures: true` (incremental update; under DocMDP, allowed only at P=3). Set `allowBreakingSignatures: true` only if invalidating them is acceptable. They are not invalidated unless stated.
+:::
+
+::: details Worked example — "Put a square annotation on the H1 rectangle"
+- Measured: v0.21.0
+- Specimen: `docs/specimens/publish-demo.pdf` (pass an absolute path)
+- `type`: `"square"`
+- `rect`: the H1 bbox pdf-reader-mcp returned — (56, 766.306)–(375.194, 792.37)
+
+**Parameters**
+
+```jsonc
+{
+  "inputPath": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "page": 1,
+  "type": "square",
+  "rect": { "x1": 56, "y1": 766.306, "x2": 375.194, "y2": 792.37 },
+  "contents": "H1",
+  "alt": "Heading highlight",
+  "outputPath": "/absolute/path/to/output.pdf"
+}
+```
+
+**Returned JSON**
+
+```jsonc
+{
+  "pageCount": 1,
+  "bytes": 93486,
+  "path": "/absolute/path/to/output.pdf"
+}
+```
+:::
+
 ## stamp_page_numbers
 
 **Stamp Page Numbers**
@@ -280,6 +544,18 @@ Stamp a page number on each page. In tagged PDFs the stamp is wrapped as an Arti
 | `outputPath` | string (minLength 1) | no |  | Destination file path (absolute). When omitted, a base64 string is returned instead. |
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
 | `allowBreakingSignatures` | boolean | no |  | When the target is digitally signed (detected via /ByteRange), the default is an error. Set true to proceed, accepting that the signatures become invalid. |
+
+::: tip Artifact in tagged PDFs
+The stamp is wrapped as an Artifact, preserving PDF/UA conformance. Formats containing CJK text need a font.
+:::
+
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: warning A signed PDF errors by default
+To keep signatures, pass `preserveSignatures: true` (incremental update). Set `allowBreakingSignatures: true` only if invalidating them is acceptable. They are not invalidated unless stated.
+:::
 
 ## add_watermark
 
@@ -305,6 +581,48 @@ Overlay a diagonal watermark across the middle of each page ("社外秘" / "DRAF
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
 | `allowBreakingSignatures` | boolean | no |  | When the target is digitally signed (detected via /ByteRange), the default is an error. Set true to proceed, accepting that the signatures become invalid. |
 
+::: tip Artifact in tagged PDFs
+The watermark is wrapped as an Artifact, preserving PDF/UA conformance. CJK strings need a font.
+:::
+
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: warning A signed PDF errors by default
+To keep signatures, pass `preserveSignatures: true` (incremental update). Set `allowBreakingSignatures: true` only if invalidating them is acceptable. They are not invalidated unless stated.
+:::
+
+::: details Worked example — "Put a DRAFT watermark on every page"
+- Measured: v0.21.0
+- Specimen: `docs/specimens/publish-demo.pdf` (pass an absolute path)
+- `text`: `"DRAFT"`
+
+**Parameters**
+
+```jsonc
+{
+  "inputPath": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "text": "DRAFT",
+  "outputPath": "/absolute/path/to/output.pdf"
+}
+```
+
+**Returned JSON**
+
+```jsonc
+{
+  "pageCount": 1,
+  "bytes": 93321,
+  "path": "/absolute/path/to/output.pdf",
+  "watermarked": 1,
+  "artifact": true
+}
+```
+
+`artifact: true` means the watermark was wrapped as an Artifact on a tagged input.
+:::
+
 ## fill_form
 
 **Fill Form (AcroForm)**
@@ -324,6 +642,45 @@ Fill field values into an existing PDF's interactive form (AcroForm). If you do 
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
 | `allowBreakingSignatures` | boolean | no |  | When the target is digitally signed (detected via /ByteRange), the default is an error. Set true to proceed, accepting that the signatures become invalid. |
 
+::: tip When you do not know the field names
+Pass one nonexistent name — the error lists every field name and type. Branch on `code`; do not parse the message text.
+:::
+
+::: warning XFA is unsupported
+AcroForm only. `flatten: true` on a tagged PDF breaks PDF/UA conformance and additionally requires `allowBreakingTags: true`.
+:::
+
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: details Worked example — "Fill the form" (specimen with no AcroForm)
+- Measured: v0.21.0
+- Specimen: `docs/specimens/publish-demo.pdf` (pass an absolute path; no AcroForm)
+- `fields`: `{ "dummy": "x" }`
+
+**Parameters**
+
+```jsonc
+{
+  "inputPath": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "fields": { "dummy": "x" },
+  "outputPath": "/absolute/path/to/output.pdf"
+}
+```
+
+**Returned JSON** (error)
+
+```jsonc
+{
+  "error": "\"/absolute/path/to/docs/specimens/publish-demo.pdf\" has no AcroForm fields to fill.",
+  "code": "INVALID_ARGUMENT"
+}
+```
+
+No fields yields this `code`. A wrong name on a file that does have fields lists every name and type in the error body.
+:::
+
 ## flatten_form
 
 **Flatten Form**
@@ -341,6 +698,18 @@ Flatten an existing PDF's interactive form (AcroForm), keeping the filled appear
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
 | `allowBreakingSignatures` | boolean | no |  | When the target is digitally signed (detected via /ByteRange), the default is an error. Set true to proceed, accepting that the signatures become invalid. |
 
+::: warning Tagged PDFs are refused by default
+Widget annotations disappear and Form structure elements are left dangling. `allowBreakingTags: true` forces it, and the file is no longer PDF/UA-conformant.
+:::
+
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: warning A signed PDF errors by default
+This is not a signature-preserving operation. Set `allowBreakingSignatures: true` only if invalidating signatures is acceptable. They are not invalidated unless stated.
+:::
+
 ## tag_form_fields
 
 **Tag Form Fields (PDF/UA repair)**
@@ -357,6 +726,18 @@ Repair a tagged PDF's form to PDF/UA-1: enclose Widget annotations in Form struc
 | `outputPath` | string (minLength 1) | no |  | Destination file path (absolute). When omitted, a base64 string is returned instead. |
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
 | `allowBreakingSignatures` | boolean | no |  | When the target is digitally signed (detected via /ByteRange), the default is an error. Set true to proceed, accepting that the signatures become invalid. |
+
+::: info Untagged documents are out of scope
+This repairs a tagged PDF's form to PDF/UA-1 (Widgets enclosed in Form, `/Tabs S`, `/TU`). It is idempotent. For an untagged file, run `ensure_tagged` first or build with `tagged: true`.
+:::
+
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: warning A signed PDF errors by default
+To keep signatures, pass `preserveSignatures: true` (approval signatures only; certification signatures are refused). Set `allowBreakingSignatures: true` only if invalidating them is acceptable. They are not invalidated unless stated.
+:::
 
 ## ensure_tagged
 
@@ -376,22 +757,139 @@ Put an existing PDF onto the PDF/UA-1 "vessel". If it is already tagged, the str
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
 | `allowBreakingSignatures` | boolean | no |  | When the target is digitally signed (detected via /ByteRange), the default is an error. Set true to proceed, accepting that the signatures become invalid. |
 
+::: danger This writes a declaration, not proof of conformance
+It writes pdfuaid into XMP. Applied to a non-conforming document it produces a PDF claiming conformance it does not have. After writing, always measure with pdf-verify-mcp `validate_conformance` (`flavour: "pdfua-1"`). If you cannot measure it, do not write the declaration.
+:::
+
+::: warning Machines cannot infer meaning
+The new tree is a scaffold (each page = one P element). Headings, tables, lists, reading order and figure alt text are not created. If you can build with `tagged: true` from the start, do that.
+:::
+
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: details Worked example — "Put an existing PDF onto the PDF/UA-1 vessel"
+- Measured: v0.21.0
+- Specimen: `docs/specimens/selfmade-base.pdf` (pass an absolute path; already tagged)
+- `title`: `"Selfmade base"`
+- `lang`: `"en"`
+
+**Parameters**
+
+```jsonc
+{
+  "inputPath": "/absolute/path/to/docs/specimens/selfmade-base.pdf",
+  "title": "Selfmade base",
+  "lang": "en",
+  "outputPath": "/absolute/path/to/output.pdf"
+}
+```
+
+**Returned JSON**
+
+```jsonc
+{
+  "pageCount": 1,
+  "bytes": 18406,
+  "path": "/absolute/path/to/output.pdf",
+  "wasTagged": true,
+  "createdStructure": false,
+  "wrappedPages": 0,
+  "addedRequirements": [
+    "Lang",
+    "ViewerPreferences/DisplayDocTitle",
+    "XMP(pdfuaid:part, dc:title)"
+  ]
+}
+```
+
+Already tagged, so the structure tree was left untouched and only missing document-level requirements were supplied. After writing the declaration, measure with `validate_conformance` (`flavour: "pdfua-1"`).
+:::
+
 ## ensure_pdfa
 
 **Ensure PDF/A (archival conformance scaffold)**
 
-Put an existing PDF onto the PDF/A "vessel" (the PDF/A counterpart of ensure_tagged). Choose the flavour: "pdfa-3b" (default) / "pdfa-4" / "pdfa-4f". Supplies only the missing document-level requirements: the trailer /ID (ISO 32000-1 14.4), an sRGB OutputIntent (GTS_PDFA1; an ICC profile is generated and embedded), and XMP pdfaid. **The -4 flavours additionally set the header to PDF 2.0 and delete the Info dictionary** (-4 forbids Info unless the catalog has /PieceInfo — stricter than ISO 32000-2 14.3.3). **Content, structure tree and fonts are never touched.** **Documents with attachments must use "pdfa-4f"** — plain "pdfa-4" requires every attachment to be PDF/A itself, so bundling CSV or JSON (the Japanese e-bookkeeping-law pattern) would not conform. **IMPORTANT**: this is preparation for claiming PDF/A, not a guarantee of conformance. Violations such as unembedded fonts, encryption, JavaScript or LZW are not repaired. **Writing pdfaid into XMP is the document claiming "I am PDF/A"** — applied to a non-conforming document it produces **a PDF that lies about itself** (which is why a warning is always returned). Always confirm with pdf-verify-mcp's validate_conformance (flavour: the same value) — the verdict is veraPDF's, and since ISO 19005 clauses cannot be quoted, the strongest statement is "veraPDF judged it so". In the e-bookkeeping-law context, apply it **after** attaching machine-readable data with attach_file. For signed PDFs, preserveSignatures: true (approval signatures only; certification signatures are refused). However, **the -4 flavours combined with preserveSignatures are refused unless the input is already PDF 2.0** (an incremental update cannot rewrite the file header, and rewriting it would break the signatures).
+Put an existing PDF onto the PDF/A "vessel" (the PDF/A counterpart of `ensure_tagged`). Supplies only missing document-level requirements:
+
+- trailer `/ID` (ISO 32000-1 14.4)
+- sRGB OutputIntent (GTS_PDFA1; an ICC profile is generated and embedded)
+- XMP pdfaid
+- **-4 flavours additionally** set the header to PDF 2.0 and delete the Info dictionary (−4 forbids Info unless the catalog has `/PieceInfo` — stricter than ISO 32000-2 §14.3.3)
+
+Content, structure tree and fonts are never touched.
+
+| `flavour` | What it claims |
+| --- | --- |
+| `pdfa-3b` | Default. PDF 1.7 basis |
+| `pdfa-4` | PDF 2.0. Every attachment must itself be PDF/A |
+| `pdfa-4f` | PDF 2.0 with non-PDF/A attachments (CSV / JSON) |
+
+This is preparation for claiming PDF/A, not a guarantee of conformance. Unembedded fonts, encryption, JavaScript and LZW are not repaired. Writing pdfaid is the document claiming "I am PDF/A"; applied to a non-conforming file it produces a PDF that lies about itself (a warning is always returned). Measure with pdf-verify-mcp `validate_conformance` (same flavour). The verdict is veraPDF's.
+
+- Apply **after** `attach_file` in the e-bookkeeping-law context
+- Signed PDFs: `preserveSignatures: true` (approval signatures only; certification refused)
+- `-4` × `preserveSignatures` is refused unless the input is already PDF 2.0
 
 ### Parameters
 
 | Parameter | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `inputPath` | string (minLength 1) | **yes** |  | Absolute path of the target PDF. |
-| `flavour` | `"pdfa-3b"` \| `"pdfa-4"` \| `"pdfa-4f"` | no |  | The PDF/A to claim. Default "pdfa-3b". "pdfa-4" (ISO 19005-4) is built on PDF 2.0, so beyond /ID, OutputIntent and XMP pdfaid it **sets the header to 2.0 and drops the Info dictionary** (-4 forbids Info unless PieceInfo is present). **-4 has no conformance level**, so pdfaid:rev is written instead of pdfaid:conformance. **Documents with attachments must use "pdfa-4f"** — plain "pdfa-4" requires every attachment to be PDF/A itself, so bundling JSON or CSV (the Japanese e-bookkeeping-law pattern) would not conform. Combination with preserveSignatures is refused unless the input is already PDF 2.0 (an incremental update cannot rewrite the header, and rewriting it would break the signatures). |
+| `flavour` | `"pdfa-3b"` \| `"pdfa-4"` \| `"pdfa-4f"` | no |  | The PDF/A to claim. Default `"pdfa-3b"`. See the flavour table above. |
 | `preserveSignatures` | boolean | no |  | Edit a signed PDF via an incremental update (appending) without invalidating existing signatures. Default false. The original bytes are untouched, so /ByteRange holds. Changes beyond the certification (DocMDP) permission level are refused. |
 | `outputPath` | string (minLength 1) | no |  | Destination file path (absolute). When omitted, a base64 string is returned instead. |
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
 | `allowBreakingSignatures` | boolean | no |  | When the target is digitally signed (detected via /ByteRange), the default is an error. Set true to proceed, accepting that the signatures become invalid. |
+
+::: danger This writes a declaration, not proof of conformance
+It writes pdfaid into XMP. Unembedded fonts, encryption and JavaScript are not repaired. Applied to a non-conforming document it produces a PDF claiming conformance it does not have. After writing, always measure with pdf-verify-mcp `validate_conformance`, passing the same flavour string. If you cannot measure it, do not write the declaration. A PDF/A result stops at "veraPDF judged it COMPLIANT".
+:::
+
+::: warning With attachments, use `"pdfa-4f"`
+Plain `"pdfa-4"` requires every attachment to be PDF/A itself (`6.9-3`). Bundling CSV or JSON means `"pdfa-4f"`. The PDF/A-4 flavours set the header to PDF 2.0 and delete the Info dictionary. Combining with `preserveSignatures` is refused unless the input is already PDF 2.0.
+:::
+
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: details Worked example — "Put it onto the PDF/A-3b vessel"
+- Measured: v0.21.0
+- Specimen: `docs/specimens/publish-demo.pdf` (pass an absolute path; already declares PDF/A-3b)
+- `flavour`: `"pdfa-3b"`
+
+**Parameters**
+
+```jsonc
+{
+  "inputPath": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "flavour": "pdfa-3b",
+  "outputPath": "/absolute/path/to/output.pdf"
+}
+```
+
+**Returned JSON** (warnings abbreviated)
+
+```jsonc
+{
+  "pageCount": 1,
+  "bytes": 92945,
+  "path": "/absolute/path/to/output.pdf",
+  "flavour": "3b",
+  "addedRequirements": ["XMP pdfaid (part 3, conformance B)"],
+  "wasDeclared": true,
+  "warnings": [
+    "The document already has a trailer /ID; it was left unchanged.",
+    "The document already declares a GTS_PDFA1 output intent; it was left unchanged.",
+    "This file now CLAIMS PDF/A-3b (pdfaid:part=3, conformance=B), but conformance was NOT checked here. … Verify before relying on it: pdf-verify-mcp validate_conformance(flavour: \"pdfa-3b\") …"
+  ]
+}
+```
+
+That warning is by design, not an anomaly — do not discard it. The verdict is veraPDF's `validate_conformance`.
+:::
 
 ## attach_file
 
@@ -414,6 +912,58 @@ Embed (attach) a file into a PDF. Registers it under /Names /EmbeddedFiles and t
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
 | `allowBreakingSignatures` | boolean | no |  | When the target is digitally signed (detected via /ByteRange), the default is an error. Set true to proceed, accepting that the signatures become invalid. |
 
+::: warning PDF/A-3 requires a meaningful `relationship`
+Pass `Source` / `Data` / `Alternative` / `Supplement`. Omitting it warns and the value is `Unspecified` (ISO 19005-3 §6.8).
+:::
+
+::: warning With attachments, PDF/A-4 must be `"pdfa-4f"`
+Plain `"pdfa-4"` requires every attachment to be PDF/A itself. Bundling CSV or JSON means `ensure_pdfa` flavour `"pdfa-4f"`. In the e-bookkeeping-law pattern, apply `ensure_pdfa` **after** the attachment.
+:::
+
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: details Worked example — "Embed a CSV as Data"
+- Measured: v0.21.0
+- Specimen: `docs/specimens/selfmade-base.pdf` (pass an absolute path)
+- Attachment: `docs/specimens/publish-demo-data.csv`
+- `name`: `"invoice-data.csv"` (a duplicate name is `INVALID_ARGUMENT`)
+- `relationship`: `"Data"`
+
+**Parameters**
+
+```jsonc
+{
+  "inputPath": "/absolute/path/to/docs/specimens/selfmade-base.pdf",
+  "attachmentPath": "/absolute/path/to/docs/specimens/publish-demo-data.csv",
+  "name": "invoice-data.csv",
+  "description": "Machine-readable invoice data",
+  "relationship": "Data",
+  "outputPath": "/absolute/path/to/output.pdf"
+}
+```
+
+**Returned JSON**
+
+```jsonc
+{
+  "pageCount": 1,
+  "bytes": 19070,
+  "path": "/absolute/path/to/output.pdf",
+  "attachment": {
+    "name": "invoice-data.csv",
+    "bytes": 114,
+    "mimeType": "text/csv",
+    "relationship": "Data"
+  },
+  "attachments": ["invoice-data.csv"]
+}
+```
+
+A file that already has that name (e.g. `publish-demo.pdf` with `publish-demo-data.csv`) returns `INVALID_ARGUMENT`.
+:::
+
 ## rotate_pages
 
 **Rotate Pages**
@@ -430,3 +980,11 @@ Rotate pages clockwise (90/180/270 degrees). All pages when pages is omitted.
 | `outputPath` | string (minLength 1) | no |  | Destination file path (absolute). When omitted, a base64 string is returned instead. |
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
 | `allowBreakingSignatures` | boolean | no |  | When the target is digitally signed (detected via /ByteRange), the default is an error. Set true to proceed, accepting that the signatures become invalid. |
+
+::: warning Always pass `outputPath`
+Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
+:::
+
+::: warning A signed PDF errors by default
+This is not a signature-preserving operation. Set `allowBreakingSignatures: true` only if invalidating signatures is acceptable. They are not invalidated unless stated.
+:::

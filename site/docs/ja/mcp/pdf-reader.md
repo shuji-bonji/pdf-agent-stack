@@ -131,58 +131,77 @@ pdf-verify の `verify_integrity` が返したオブジェクト番号を `locat
 
 ## 使い方の要点
 
-### まず `summarize` で文書の性質を測る
+どの詳細ツールを使うかは、先に [`summarize`](/ja/reference/mcp/pdf-reader#summarize) で文書の性質を測ってから決めます。ページ数だけなら [`get_page_count`](/ja/reference/mcp/pdf-reader#get-page-count) が軽いです。各ツールの「プロンプト → 引数 → 返る JSON」は [ツールリファレンス](/ja/reference/mcp/pdf-reader) の該当ツール末尾にあります。
 
-メタデータ・テキスト有無・画像数・1 ページ目のプレビューを返します。**どの詳細ツールを使うかは、これを見てから決めます。** ページ数だけなら `get_page_count` が軽量です。
+### 経路を選ぶ
 
-### 本文の取り出しは 3 経路ある
+`summarize` が返す `metadata.isTagged` と `textExtractability` で、本文の経路が決まります。`next` は観測から出た提案であり、強制ではありません。
 
-| 文書              | ツール                    | 理由                                                                                                      |
-| ----------------- | ------------------------- | --------------------------------------------------------------------------------------------------------- |
-| タグ付き PDF      | `extract_structured_text` | 論理コンテンツ順（ISO 32000-2 §14.8.2.5 の深さ優先走査）。「H1 のテキストは何か」に答えられる唯一のツール |
-| タグ付き PDF の表 | `extract_tables`          | `<TR>` → `<TH>/<TD>` で構造化。カーニング空白を除去（「消 費 税 法」→「消費税法」）                       |
-| タグ無し          | `read_text`               | Y 座標ベースの読み順。多段組は `split_columns: 2` / `3` で X 座標により列分割                             |
+```mermaid
+flowchart TD
+  S["summarize"] --> T{"metadata.isTagged"}
+  T -->|true| EST["extract_structured_text"]
+  EST --> TAB{"表が要るか"}
+  TAB -->|要る| ET["extract_tables"]
+  T -->|false| RT["read_text"]
+  S --> X{"textExtractability"}
+  X -->|extracted| OK["上の本文ツールへ"]
+  X -->|"no_text_layer または not_extractable"| RP["render_page"]
+```
 
-`read_text` については 3 点あります。
+位置は本文とは別の経路です。指したいものが段落か、オブジェクト番号かでツールが分かれます。
+
+```mermaid
+flowchart TD
+  P["位置を取りたい"] --> Q{"指したいものは何か"}
+  Q -->|段落・見出し| BBOX["extract_structured_text<br/>include_bbox: true"]
+  Q -->|オブジェクト番号| LOC["locate_objects"]
+```
+
+### 本文 — 3 経路
+
+| 文書 | ツール | 理由 |
+| --- | --- | --- |
+| タグ付き PDF | [`extract_structured_text`](/ja/reference/mcp/pdf-reader#extract-structured-text) | 論理コンテンツ順（ISO 32000-2 §14.8.2.5 の深さ優先走査）。「H1 のテキストは何か」に答えられる唯一のツール |
+| タグ付き PDF の表 | [`extract_tables`](/ja/reference/mcp/pdf-reader#extract-tables) | `<TR>` → `<TH>/<TD>` で構造化。カーニング空白を除去（「消 費 税 法」→「消費税法」） |
+| タグ無し | [`read_text`](/ja/reference/mcp/pdf-reader#read-text) | Y 座標ベースの読み順。多段組は `split_columns: 2` / `3` で X 座標により列分割 |
+
+`read_text` については次の 3 点です。
 
 - `/ActualText` 置換（ISO 32000-2 §14.9.4）を、構造要素と `Span` マーク付きコンテンツの両方で解決します。合字やハイフン処理された語も、見た目どおりの綴りで返ります
-- `search_text` は `read_text` と同じテキストを検索します。ヒットするのは置換後の綴りです
+- [`search_text`](/ja/reference/mcp/pdf-reader#search-text) は `read_text` と同じテキストを検索します。ヒットするのは置換後の綴りです
 - 全角空白でインデントされた日本語帳票では、`compact_whitespace: true` がトークンを 20–40% 削減します
 
-**テキストとして読めないページは `render_page` に切り替えます。** `read_text` が `no_text_layer`（スキャン）や `not_extractable` と報告したページがこれにあたります。ベクタ図形・フォーム・手書き・印影も同じです。
+**テキストとして読めないページは [`render_page`](/ja/reference/mcp/pdf-reader#render-page) に切り替えます。** `read_text` が `no_text_layer`（スキャン）や `not_extractable` と報告したページがこれにあたります。ベクタ図形・フォーム・手書き・印影も同じです。
 
-`read_images` はページが埋め込む画像 XObject を取り出すだけですが、`render_page` は**ページの上にあるすべて**を描きます。
+[`read_images`](/ja/reference/mcp/pdf-reader#read-images) はページが埋め込む画像 XObject を取り出すだけです。`render_page` は**ページの上にあるすべて**を描きます。描画には WebAssembly の PDFium を使います。テキストを読む pdf.js とは**別のエンジン**です。壊れたファイルに対する挙動が両者で違う場合、一方の出力はもう一方の証拠になりません。`pages` は必須です。全ページの描画が暗黙に起きることはありません。
 
-描画には WebAssembly の PDFium を使います。テキストを読む pdf.js とは**別のエンジン**です。壊れたファイルに対する挙動が両者で違う場合、一方の出力はもう一方の証拠になりません。
-
-`pages` は必須です。全ページの描画が暗黙に起きることはありません。
-
-`extract_structured_text` の出力については 4 点あります。
+`extract_structured_text` の出力については次の 4 点です。
 
 - 要素は `role` / `depth` / `text` / `pages` を持つフラットなリストです。深さ優先の並びと `depth` の組で、木の形をそのまま表せます
 - ページをまたぐ要素は **1 要素のまま**です。段落は分割されません
 - `alt` は `text` に混ぜず、別の項目で返します（§14.9.3）。`Lbl`（箇条書き記号）も `label` に分けます
 - Artifact（ページ番号・柱）は除外されます
 
-### 位置は 2 経路あり、根拠の強さが違う
+### 位置 — 2 経路
 
-`locate_objects` と `extract_structured_text`（`include_bbox: true`）はどちらも各矩形に **`basis`（根拠）** を付けて返します。その矩形が実測なのか、ファイルの自己申告なのか、それともページ全体を指しているだけなのかを区別するためです。**根拠の強さが違う値を、同じ形式のまま区別せず返さない**ための仕組みです。
+`locate_objects` と `extract_structured_text`（`include_bbox: true`）は、各矩形に **`basis`** を付けて返します。実測か、ファイルの宣言か、ページ全体を指しているだけかを区別します。根拠の強さが違う値を、同じ形式のまま混ぜません。
 
 `extract_structured_text` の `basis`:
 
-| `basis`                 | 中身                                                                                                                                                                        |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `layout-attribute-bbox` | ファイルが**宣言**している `/BBox`（ISO 32000-2 Table 379）。生成者の自称であって測定値ではない。**テキストを持たない要素（画像だけの Figure 等）について言える唯一の根拠** |
-| `text-extent`           | 要素が持つテキストからの**実測**。ベースライン原点＋フォントの ascent/descent = 行ボックスであってグリフ輪郭ではない。画像・ベクター描画は一切寄与しない                    |
+| `basis` | 中身 |
+| --- | --- |
+| `layout-attribute-bbox` | ファイルが**宣言**している `/BBox`（ISO 32000-2 Table 379）。測定値ではない。**テキストを持たない要素（画像だけの Figure 等）について言える唯一の根拠** |
+| `text-extent` | 要素が持つテキストからの**実測**。ベースライン原点＋フォントの ascent/descent = 行ボックスであってグリフ輪郭ではない。画像・ベクター描画は寄与しない |
 
 `locate_objects` の `basis`:
 
-| `basis`               | 意味                                                                           |
-| --------------------- | ------------------------------------------------------------------------------ |
-| `annotation-rect`     | オブジェクト自身の `/Rect`。**正確**                                           |
-| `page-box`            | オブジェクトがページ。その crop / media box                                    |
+| `basis` | 意味 |
+| --- | --- |
+| `annotation-rect` | オブジェクト自身の `/Rect`。**正確** |
+| `page-box` | オブジェクトがページ。その crop / media box |
 | `page-content-stream` | オブジェクトがページを描いている。矩形は**ページ全体**であって変更箇所ではない |
-| `page-resource`       | フォント・画像などのリソース。**矩形は存在しない**（`rect: null`）             |
+| `page-resource` | フォント・画像などのリソース。**矩形は存在しない**（`rect: null`） |
 
 - ページを跨ぐ要素は**ページごとに 1 矩形**です。1 つにまとめると、その要素が無いページにも矩形を置くことになります
 - **宣言はそのまま返した上で突き合わせます。** ページボックス（§7.7.3.3）と要素自身の本文の両方に照合し、矛盾すれば `boxNote` で報告します。ファイル上の宣言は、実測と一致しないことがあります。実例として、_Well-Tagged PDF 1.0_ の表紙 Figure は `/BBox [-32768 -32768 32767 32767]`（矩形であるべき場所に int16 のセンチネル）を宣言しています
@@ -200,8 +219,8 @@ _Well-Tagged PDF 1.0_ の `Link` 構造要素 166 件の実測矩形を、生成
 
 ### 署名は構造だけ
 
-`inspect_signatures` は署名フィールド数・署名済み/未署名の内訳・各フィールドの詳細（署名者名・理由・場所・署名日時・filter/subFilter）を返します。**暗号学的検証は行いません。** 署名が数学的に有効かは pdf-verify の `verify_signatures` / `verify_integrity` が答えます。
+[`inspect_signatures`](/ja/reference/mcp/pdf-reader#inspect-signatures) は署名フィールド数・署名済み/未署名の内訳・各フィールドの詳細（署名者名・理由・場所・署名日時・filter/subFilter）を返します。**暗号学的検証は行いません。** 署名が数学的に有効かは pdf-verify-mcp の `verify_signatures` / `verify_integrity` が答えます。
 
 ### deprecated な 2 つ
 
-`validate_metadata` と `validate_tagged` は次メジャーで削除予定です。どちらも pdf-verify の `validate_conformance` が上位互換です。構造ツリーの**事実**が必要なら `inspect_tags`（deprecated ではありません）、メタデータを読むだけなら `get_metadata` を使ってください。
+`validate_metadata` と `validate_tagged` は次メジャーで削除予定です。どちらも pdf-verify-mcp の `validate_conformance` が上位互換です。構造ツリーの**事実**が必要なら [`inspect_tags`](/ja/reference/mcp/pdf-reader#inspect-tags)（deprecated ではありません）、メタデータを読むだけなら [`get_metadata`](/ja/reference/mcp/pdf-reader#get-metadata) を使ってください。

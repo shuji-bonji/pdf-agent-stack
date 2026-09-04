@@ -4,7 +4,7 @@ description: "Tools reference for pdf-reader-mcp v0.15.0 — parameters, types, 
 
 # pdf-reader-mcp — Tools Reference
 
-<!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
+<!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
 Auto-generated from the `tools/list` handshake of **v0.15.0** (19 tools, 2026-09-04). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
@@ -58,6 +58,27 @@ Examples:
 - Quick check before deciding which pages to extract
 - Validate a PDF file is readable
 
+::: details Worked example — "Just the page count"
+- Measured: v0.15.0
+- Specimen: `docs/specimens/publish-demo.pdf` (pass an absolute path)
+
+Lightweight: header only.
+
+**Parameters**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf"
+}
+```
+
+**Returned value**
+
+```jsonc
+1
+```
+:::
+
 ## get_metadata
 
 **Get PDF Metadata**
@@ -79,6 +100,38 @@ Examples:
 - Get document properties for cataloging
 - Check if a PDF is tagged (accessibility)
 - Verify PDF version compatibility
+
+::: details Worked example — "Title, and is it tagged?"
+- Measured: v0.15.0
+- Specimen: `docs/specimens/publish-demo.pdf` (pass an absolute path)
+- `response_format`: `"json"`
+
+**Parameters**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "response_format": "json"
+}
+```
+
+**Returned JSON**
+
+```jsonc
+{
+  "title": "請求書（サンプル）— pdf-publish デモ",
+  "author": "PDF Agent Stack",
+  "pageCount": 1,
+  "pdfVersion": "1.7",
+  "isEncrypted": false,
+  "isTagged": true,
+  "hasSignatures": false,
+  "fileSize": 88943
+}
+```
+
+`isTagged` is an observation. It is not a PDF/UA verdict.
+:::
 
 ## read_text
 
@@ -115,6 +168,49 @@ Examples:
 - Untagged 新旧対照表: { file_path: "/path/to/older-shinkyu.pdf", split_columns: 2 }
 - Japanese form template: { file_path: "/path/to/form.pdf", compact_whitespace: true }
 
+::: details Worked example — "The text of page 1"
+- Measured: v0.15.0
+- Specimen: `docs/specimens/publish-demo.pdf` (pass an absolute path)
+- `pages`: `"1"`
+- `response_format`: `"json"`
+
+This specimen is tagged, so when order matters call [`extract_structured_text`](#extract-structured-text) first.
+
+**Parameters**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "pages": "1",
+  "response_format": "json"
+}
+```
+
+**Returned JSON**
+
+```jsonc
+{
+  "scope": {
+    "textExtraction": { "status": "read" },
+    "extractabilityObservation": { "status": "read" }
+  },
+  "pages": [
+    {
+      "page": 1,
+      "text": "請求書（サンプル）— pdf-publish デモ\n請求書（サンプル）\n株式会社サンプル商事 御中\n…",
+      "extractability": {
+        "page": 1,
+        "unmappableFonts": [],
+        "state": "extracted"
+      }
+    }
+  ]
+}
+```
+
+If `extractability.state` is `no_text_layer` or `not_extractable`, the next call is [`render_page`](#render-page).
+:::
+
 ## search_text
 
 **Search PDF Text**
@@ -143,6 +239,49 @@ Search matches with page number, matched text, and surrounding context, plus `sc
 Examples:
 - Search entire PDF: { file_path: "/path/to/doc.pdf", query: "digital signature" }
 - Search specific pages: { file_path: "/path/to/doc.pdf", query: "error", pages: "1-10" }
+
+::: details Worked example — "Which page is 『請求明細』 on?"
+- Measured: v0.15.0
+- Specimen: `docs/specimens/publish-demo.pdf` (pass an absolute path)
+- `query`: `"請求明細"`
+- `response_format`: `"json"`
+
+The search runs over the same text `read_text` returns.
+
+**Parameters**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "query": "請求明細",
+  "max_results": 3,
+  "response_format": "json"
+}
+```
+
+**Returned JSON**
+
+```jsonc
+{
+  "scope": {
+    "textExtraction": { "status": "read" },
+    "extractabilityObservation": { "status": "read" }
+  },
+  "query": "請求明細",
+  "totalMatches": 1,
+  "matches": [
+    {
+      "page": 1,
+      "lineIndex": 5,
+      "text": "請求明細",
+      "contextBefore": "",
+      "contextAfter": ""
+    }
+  ],
+  "truncated": false
+}
+```
+:::
 
 ## read_images
 
@@ -264,6 +403,52 @@ Examples:
 - Quick overview: { file_path: "/path/to/doc.pdf" }
 - Machine-readable: { file_path: "/path/to/doc.pdf", response_format: "json" }
 
+::: details Worked example — "Give me an overview of this PDF"
+- Measured: v0.15.0
+- Specimen: `docs/specimens/publish-demo.pdf` (pass an absolute path)
+- `response_format`: `"json"`
+
+**Parameters**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "response_format": "json"
+}
+```
+
+**Returned JSON** (`textPreview` omitted)
+
+```jsonc
+{
+  "scope": {
+    "metadata": { "status": "read" },
+    "textPreview": { "status": "read" },
+    "imageCount": { "status": "read" },
+    "extractabilityObservation": { "status": "read" }
+  },
+  "metadata": {
+    "title": "請求書（サンプル）— pdf-publish デモ",
+    "pageCount": 1,
+    "pdfVersion": "1.7",
+    "isEncrypted": false,
+    "isTagged": true,
+    "hasSignatures": false,
+    "fileSize": 88943
+  },
+  "imageCount": 0,
+  "hasText": true,
+  "textExtractability": "extracted",
+  "unreadablePages": [],
+  "next": [
+    "isTagged is true: extract_structured_text returns the body in logical content order …"
+  ]
+}
+```
+
+`isTagged: true` and `textExtractability: "extracted"`, so the next call is [`extract_structured_text`](#extract-structured-text). `next` is a suggestion, not an order.
+:::
+
 ## inspect_structure
 
 **Inspect PDF Structure**
@@ -293,6 +478,48 @@ Examples:
 - Count PDF objects and streams
 - Check page dimensions across the document
 
+::: details Worked example — "What is in the catalog?"
+- Measured: v0.15.0
+- Specimen: `docs/specimens/publish-demo.pdf` (pass an absolute path)
+- `response_format`: `"json"`
+
+`catalog` trimmed.
+
+**Parameters**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "response_format": "json"
+}
+```
+
+**Returned JSON**
+
+```jsonc
+{
+  "catalog": [
+    { "key": "Type", "type": "name", "value": "Catalog" },
+    { "key": "Pages", "type": "ref", "value": "ref(1)" },
+    { "key": "StructTreeRoot", "type": "ref", "value": "ref(5)" },
+    { "key": "Lang", "type": "string", "value": "ja" }
+  ],
+  "pageTree": {
+    "totalPages": 1,
+    "mediaBoxSamples": [{ "page": 1, "width": 595.28, "height": 841.89 }]
+  },
+  "objectStats": {
+    "totalObjects": 52,
+    "unreadable": 0
+  },
+  "isEncrypted": false,
+  "pdfVersion": "1.7"
+}
+```
+
+`unreadable: 0` means "every object was read", not "nothing was checked".
+:::
+
 ## inspect_tags
 
 **Inspect Tagged PDF Structure**
@@ -315,6 +542,45 @@ Examples:
 - Inspect the tag hierarchy and role distribution
 - Assess document structure quality
 
+::: details Worked example — "Observe the tag structure"
+- Measured: v0.15.0
+- Specimen: `docs/specimens/publish-demo.pdf` (pass an absolute path)
+- `response_format`: `"json"`
+
+The full tree is omitted; counts only.
+
+**Parameters**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "response_format": "json"
+}
+```
+
+**Returned JSON**
+
+```jsonc
+{
+  "isTagged": true,
+  "maxDepth": 5,
+  "totalElements": 29,
+  "roleCounts": {
+    "Document": 1,
+    "H1": 2,
+    "P": 3,
+    "H2": 2,
+    "Table": 1,
+    "TR": 4,
+    "TH": 4,
+    "TD": 12
+  }
+}
+```
+
+No pass/fail. PDF/UA judgment is pdf-verify-mcp's `validate_conformance`.
+:::
+
 ## inspect_fonts
 
 **Inspect PDF Fonts**
@@ -336,6 +602,42 @@ Examples:
 - Check if all fonts are embedded (required for PDF/A, PDF/X)
 - Identify font types and encodings
 - Find which pages use specific fonts
+
+::: details Worked example — "Which fonts are embedded?"
+- Measured: v0.15.0
+- Specimen: `docs/specimens/publish-demo.pdf` (pass an absolute path)
+- `response_format`: `"json"`
+
+**Parameters**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "response_format": "json"
+}
+```
+
+**Returned JSON**
+
+```jsonc
+{
+  "fonts": [
+    {
+      "name": "OAFEEB+NotoSansJP-Regular",
+      "type": "Type0",
+      "encoding": "Identity-H",
+      "isEmbedded": true,
+      "isSubset": true,
+      "pagesUsed": [1]
+    }
+  ],
+  "totalFontCount": 1,
+  "embeddedCount": 1,
+  "subsetCount": 1,
+  "pagesScanned": 1
+}
+```
+:::
 
 ## inspect_annotations
 
@@ -360,6 +662,37 @@ Examples:
 - Find all links in a document
 - Inventory markup annotations (highlights, comments)
 
+::: details Worked example — "Are there any annotations?"
+- Measured: v0.15.0
+- Specimen: `docs/specimens/publish-demo.pdf` (pass an absolute path)
+- `response_format`: `"json"`
+
+Zero means "read and found none", not "could not read".
+
+**Parameters**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "response_format": "json"
+}
+```
+
+**Returned JSON**
+
+```jsonc
+{
+  "totalAnnotations": 0,
+  "bySubtype": {},
+  "byPage": { "1": 0 },
+  "annotations": [],
+  "hasLinks": false,
+  "hasForms": false,
+  "hasMarkup": false
+}
+```
+:::
+
 ## inspect_signatures
 
 **Inspect PDF Digital Signatures**
@@ -383,6 +716,52 @@ Examples:
 - Check if a PDF has been digitally signed
 - Inspect signer information and signing dates
 - Verify signature field structure
+
+::: details Worked example — "Show me the signature-field structure"
+- Measured: v0.15.0
+- Specimen: `docs/specimens/selfmade-pades-lta.pdf` (pass an absolute path)
+- `response_format`: `"json"`
+
+No cryptographic verification is performed.
+
+**Parameters**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/selfmade-pades-lta.pdf",
+  "response_format": "json"
+}
+```
+
+**Returned JSON**
+
+```jsonc
+{
+  "totalFields": 2,
+  "signedCount": 2,
+  "unsignedCount": 0,
+  "fields": [
+    {
+      "fieldName": "Sig1",
+      "isSigned": true,
+      "reason": "known-good specimen",
+      "signingTime": "D:20260811163237+09'00'",
+      "filter": "Adobe.PPKLite",
+      "subFilter": "ETSI.CAdES.detached"
+    },
+    {
+      "fieldName": "Timestamp-938ea022-8782-4761-b0a2-a5ba44d069e4",
+      "isSigned": true,
+      "filter": "Adobe.PPKLite",
+      "subFilter": "ETSI.RFC3161"
+    }
+  ],
+  "note": "Cryptographic signature verification is not performed. Only field structure is inspected."
+}
+```
+
+Whether a signature is mathematically valid is pdf-verify-mcp's `verify_signatures` / `verify_integrity`.
+:::
 
 ## extract_tables
 
@@ -426,6 +805,60 @@ Limitations:
 Examples:
 - Pull 新旧対照表 from a kaisei tsutatsu PDF for diffing
 - Convert 帳票 (form template) tables into structured data
+
+::: details Worked example — "Give me this table as structured data"
+- Measured: v0.15.0
+- Specimen: `docs/specimens/publish-demo.pdf` (pass an absolute path)
+- `response_format`: `"json"`
+
+**Parameters**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "response_format": "json"
+}
+```
+
+**Returned JSON**
+
+```jsonc
+{
+  "isTagged": true,
+  "tables": [
+    {
+      "pages": [1],
+      "index": 1,
+      "headerRows": [],
+      "bodyRows": [
+        {
+          "cells": [
+            { "text": "品目", "isHeader": true },
+            { "text": "数量", "isHeader": true },
+            { "text": "単価", "isHeader": true },
+            { "text": "金額", "isHeader": true }
+          ]
+        },
+        {
+          "cells": [
+            { "text": "PDF監査サービス", "isHeader": false },
+            { "text": "1", "isHeader": false },
+            { "text": "50,000", "isHeader": false },
+            { "text": "50,000", "isHeader": false }
+          ]
+        }
+        // … rows for タグ付きPDF生成 and 合計 follow
+      ],
+      "footerRows": []
+    }
+  ],
+  "totalTables": 1,
+  "pagesScanned": 1
+}
+```
+
+On an untagged PDF the tables array is empty and a `note` is attached.
+:::
 
 ## extract_structured_text
 
@@ -506,6 +939,71 @@ Examples:
   pdf-writer-mcp add_annotation. To go the other way, from an object number a diff
   reported to a rectangle, use locate_objects.
 
+::: details Worked example — "Headings and paragraphs in logical order, with positions"
+- Measured: v0.15.0
+- Specimen: `docs/specimens/publish-demo.pdf` (pass an absolute path)
+- `pages`: `"1"`
+- `include_bbox`: `true`
+- `response_format`: `"json"`
+
+`elements` trimmed to the first two items.
+
+**Parameters**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "pages": "1",
+  "include_bbox": true,
+  "response_format": "json"
+}
+```
+
+**Returned JSON**
+
+```jsonc
+{
+  "scope": {
+    "textExtraction": { "status": "read" },
+    "extractabilityObservation": { "status": "read" }
+  },
+  "isTagged": true,
+  "lang": "ja",
+  "elements": [
+    {
+      "role": "H1",
+      "depth": 1,
+      "text": "請求書（サンプル）— pdf-publish デモ",
+      "pages": [1],
+      "boxes": [
+        {
+          "page": 1,
+          "rect": { "x1": 56, "y1": 766.306, "x2": 375.194, "y2": 792.37 },
+          "basis": "text-extent"
+        }
+      ]
+    },
+    {
+      "role": "P",
+      "depth": 1,
+      "text": "株式会社サンプル商事 御中",
+      "pages": [1],
+      "boxes": [
+        {
+          "page": 1,
+          "rect": { "x1": 56, "y1": 699.322, "x2": 190.464, "y2": 715.25 },
+          "basis": "text-extent"
+        }
+      ]
+    }
+    // … H2 "請求明細", Table, remarks follow
+  ]
+}
+```
+
+`rect` is PDF user space (origin bottom-left, pt). pdf-writer-mcp's `add_annotation` takes it as-is. `basis` is `text-extent`, so it is measured from the text.
+:::
+
 ## locate_objects
 
 **Locate PDF Objects (object number → page and rectangle)**
@@ -538,6 +1036,70 @@ Limits (observations, not judgements):
 Examples:
 - Turn verify_integrity's "obj 27 was added after signing" into a page and rectangle
 - Find which page a changed form field widget is on before annotating it
+
+::: details Worked example — "Where are objects 7, 9 and 4?"
+- Measured: v0.15.0
+- Specimen: `docs/specimens/publish-demo.pdf` (pass an absolute path)
+- `object_numbers`: `[7, 9, 4]`
+- `response_format`: `"json"`
+
+Typical input is the object numbers pdf-verify-mcp's `verify_integrity` returned.
+
+**Parameters**
+
+```jsonc
+{
+  "file_path": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "object_numbers": [7, 9, 4],
+  "response_format": "json"
+}
+```
+
+**Returned JSON**
+
+```jsonc
+{
+  "objects": [
+    {
+      "objectNumber": 7,
+      "found": true,
+      "type": "Page",
+      "locations": [
+        {
+          "page": 1,
+          "rect": { "x1": 0, "y1": 0, "x2": 595.28, "y2": 841.89 },
+          "basis": "page-box"
+        }
+      ]
+    },
+    {
+      "objectNumber": 9,
+      "found": true,
+      "type": null,
+      "locations": [
+        {
+          "page": 1,
+          "rect": { "x1": 0, "y1": 0, "x2": 595.28, "y2": 841.89 },
+          "basis": "page-content-stream"
+        }
+      ],
+      "reason": "This is the page's content stream, so the rectangle is the whole page. …"
+    },
+    {
+      "objectNumber": 4,
+      "found": true,
+      "type": "Font",
+      "subtype": "Type0",
+      "locations": [{ "page": 1, "rect": null, "basis": "page-resource" }],
+      "reason": "A resource is used by the page but has no rectangle of its own; …"
+    }
+  ],
+  "isEncrypted": false
+}
+```
+
+A `page-content-stream` rectangle is the whole page. To point at a paragraph, use [`extract_structured_text`](#extract-structured-text) with `include_bbox`.
+:::
 
 ## validate_tagged
 

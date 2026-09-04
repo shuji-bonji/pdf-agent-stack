@@ -4,7 +4,7 @@ description: "pdf-writer-mcp v0.21.0 の全 20 ツールの引数・型・既定
 
 # pdf-writer-mcp — ツールリファレンス
 
-<!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->
+<!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
 **v0.21.0** の `tools/list` ハンドシェイクから自動生成（20 ツール・2026-09-04）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
@@ -61,6 +61,54 @@ description: "pdf-writer-mcp v0.21.0 の全 20 ツールの引数・型・既定
 | `lang` | string | 任意 |  | 文書の自然言語(BCP 47。例 "ja" / "en-US")。tagged 時に省略すると本文から推定し、推定結果を warnings で報告する。誤った言語宣言はスクリーンリーダの誤読を招くため、確実な場合は明示すること。 |
 | `pdfVersion` | `"1.7"` \| `"2.0"` | 任意 |  | 出力する PDF の版。既定 "1.7"。"2.0"(ISO 32000-2)にすると版の宣言だけでなく、版に紐づく義務も満たす: trailer /ID を付与し(Table 15 で Required)、Info 辞書を CreationDate / ModDate に絞って題名・作成者・Producer は XMP へ移す(§14.3.3)。tagged: true とは併用できない(writer が書けるのは PDF 1.7 基盤の PDF/UA-1 宣言のみ)。 |
 
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: warning `tagged: true` と `pdfVersion: "2.0"` は併用できません
+このサーバーが書ける適合宣言は PDF/UA-1（PDF 1.7 基盤）だけです。PDF 2.0 の文書に載せると、誰にも測れない宣言になります。
+:::
+
+::: tip タグ付きにするなら最初から
+後から `ensure_tagged` を掛けるより、`tagged: true` で作るほうが良い文書になります。PDF/UA はタイトル必須のため `title` も必須です。`lang` は確実なら明示してください。
+:::
+
+::: details 呼び出し例 — 「タグ付きの短い PDF を作って」
+- 実測: v0.21.0
+- `tagged`: `true`
+- `lang`: `"en"`
+- `title`: `"Tagged sample"`
+- フォント: 標準 Helvetica（`fontPath` なし）
+
+**パラメータ**
+
+```jsonc
+{
+  "text": "This is a tagged sample.\n\nSecond paragraph.",
+  "title": "Tagged sample",
+  "tagged": true,
+  "lang": "en",
+  "outputPath": "/absolute/path/to/output.pdf"
+}
+```
+
+**返る JSON**
+
+```jsonc
+{
+  "pageCount": 1,
+  "bytes": 4122,
+  "font": "Helvetica",
+  "path": "/absolute/path/to/output.pdf",
+  "warnings": [
+    "The standard font (Helvetica) is not embedded, but PDF/UA-1 (7.21.4.1) requires all fonts to be embedded — this tagged PDF will NOT pass conformance validation. Pass \"fontPath\" (or set PDF_WRITER_FONT) to embed a font."
+  ]
+}
+```
+
+標準フォントは埋め込まれないため、PDF/UA-1 7.21.4.1 では veraPDF は通りません。日本語やタグ付き納品では `fontPath`（または `PDF_WRITER_FONT`）を渡してください。
+:::
+
 ## create_markdown_pdf
 
 **Create PDF from Markdown**
@@ -84,6 +132,20 @@ Markdown から PDF を生成する。見出し・段落・箇条書き/番号�
 | `tagged` | boolean | 任意 |  | タグ付き PDF(PDF/UA-1・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。 |
 | `lang` | string | 任意 |  | 文書の自然言語(BCP 47。例 "ja" / "en-US")。tagged 時に省略すると本文から推定し、推定結果を warnings で報告する。誤った言語宣言はスクリーンリーダの誤読を招くため、確実な場合は明示すること。 |
 | `pdfVersion` | `"1.7"` \| `"2.0"` | 任意 |  | 出力する PDF の版。既定 "1.7"。"2.0"(ISO 32000-2)にすると版の宣言だけでなく、版に紐づく義務も満たす: trailer /ID を付与し(Table 15 で Required)、Info 辞書を CreationDate / ModDate に絞って題名・作成者・Producer は XMP へ移す(§14.3.3)。tagged: true とは併用できない(writer が書けるのは PDF 1.7 基盤の PDF/UA-1 宣言のみ)。 |
+
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: warning `tagged: true` と `pdfVersion: "2.0"` は併用できません
+このサーバーが書ける適合宣言は PDF/UA-1（PDF 1.7 基盤）だけです。PDF 2.0 の文書に載せると、誰にも測れない宣言になります。
+:::
+
+::: tip タグ付きにするなら最初から
+後から `ensure_tagged` を掛けるより、`tagged: true` で作るほうが良い文書になります。PDF/UA はタイトル必須のため `title` も必須です。`lang` は確実なら明示してください。
+:::
+
+呼び出し例の形は [`create_text_pdf`](#create-text-pdf) と同じです（`text` の代わりに `markdown`）。
 
 ## create_table_pdf
 
@@ -110,6 +172,20 @@ Markdown から PDF を生成する。見出し・段落・箇条書き/番号�
 | `lang` | string | 任意 |  | 文書の自然言語(BCP 47。例 "ja" / "en-US")。tagged 時に省略すると本文から推定し、推定結果を warnings で報告する。誤った言語宣言はスクリーンリーダの誤読を招くため、確実な場合は明示すること。 |
 | `pdfVersion` | `"1.7"` \| `"2.0"` | 任意 |  | 出力する PDF の版。既定 "1.7"。"2.0"(ISO 32000-2)にすると版の宣言だけでなく、版に紐づく義務も満たす: trailer /ID を付与し(Table 15 で Required)、Info 辞書を CreationDate / ModDate に絞って題名・作成者・Producer は XMP へ移す(§14.3.3)。tagged: true とは併用できない(writer が書けるのは PDF 1.7 基盤の PDF/UA-1 宣言のみ)。 |
 
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: warning `tagged: true` と `pdfVersion: "2.0"` は併用できません
+このサーバーが書ける適合宣言は PDF/UA-1（PDF 1.7 基盤）だけです。PDF 2.0 の文書に載せると、誰にも測れない宣言になります。
+:::
+
+::: tip タグ付きにするなら最初から
+後から `ensure_tagged` を掛けるより、`tagged: true` で作るほうが良い文書になります。PDF/UA はタイトル必須のため `title` も必須です。`lang` は確実なら明示してください。
+:::
+
+呼び出し例の形は [`create_text_pdf`](#create-text-pdf) と同じです（`text` の代わりに `headers` と `rows`）。
+
 ## set_metadata
 
 **Set PDF Metadata**
@@ -131,6 +207,18 @@ Markdown から PDF を生成する。見出し・段落・箇条書き/番号�
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
 
+::: info XMP がある文書では dc:title 等も同期します
+Info 辞書だけを変えて XMP と食い違わないようにします。`title` / `author` / `subject` / `keywords` / `creator` の少なくとも 1 つが必須です。
+:::
+
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: warning 署名済み PDF は既定でエラー
+署名を保つなら `preserveSignatures: true`（増分更新）。無効になってもよい場合のみ `allowBreakingSignatures: true`。明示が無ければ無効にしません。
+:::
+
 ## merge_pdfs
 
 **Merge PDFs**
@@ -147,6 +235,52 @@ Markdown から PDF を生成する。見出し・段落・箇条書き/番号�
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
+
+::: warning 文書レベル情報は引き継がれない
+ページを新しい文書へ複製するため、タグ付き構造・XMP・AcroForm・しおり等は引き継がれません。失われたものは warnings で報告されます。必要なら出力に `attach_file` / `ensure_tagged` / `add_bookmarks` / `set_metadata` を後がけしてください。
+:::
+
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: warning 署名済み PDF は既定でエラー
+署名を保つ操作ではありません。無効になってもよい場合のみ `allowBreakingSignatures: true` を明示してください。明示が無ければ無効にしません。
+:::
+
+::: details 呼び出し例 — 「この 2 つの PDF を 1 つにまとめて」
+- 実測: v0.21.0
+- 標本: `docs/specimens/publish-demo.pdf` と `docs/specimens/selfmade-base.pdf`（呼び出すときは絶対パス）
+
+**パラメータ**
+
+```jsonc
+{
+  "inputPaths": [
+    "/absolute/path/to/docs/specimens/publish-demo.pdf",
+    "/absolute/path/to/docs/specimens/selfmade-base.pdf"
+  ],
+  "outputPath": "/absolute/path/to/output.pdf"
+}
+```
+
+**返る JSON**（warnings は要約）
+
+```jsonc
+{
+  "pageCount": 2,
+  "bytes": 35552,
+  "path": "/absolute/path/to/output.pdf",
+  "warnings": [
+    "The input XMP declares conformance (pdfuaid/pdfaid) that this output can no longer meet — the structure tree is not carried over yet — so it was dropped rather than copied. …",
+    "merge_pdfs did not carry over the tagged structure (/StructTreeRoot, /MarkInfo) that the input had …",
+    "merge_pdfs did not carry over the XMP metadata (/Metadata) that the input had …"
+  ]
+}
+```
+
+XMP の pdfaid / pdfuaid はコピーせず落とします。名乗ったまま構造木が無いファイルは、名乗らないファイルより悪いためです。
+:::
 
 ## split_pdf
 
@@ -166,6 +300,14 @@ PDF をページ範囲ごとに複数ファイルへ分割する。ranges の各
 | `prefix` | string (minLength 1) | 任意 |  | 出力ファイル名の接頭辞。既定は "<入力ファイル名>-part"。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
 
+::: warning 文書レベル情報は引き継がれない
+ページを新しい文書へ複製するため、タグ付き構造・XMP・AcroForm・しおり等は引き継がれません。失われたものは warnings で報告されます。必要なら各出力に `attach_file` / `ensure_tagged` / `add_bookmarks` / `set_metadata` を後がけしてください。
+:::
+
+::: warning 署名済み PDF は既定でエラー
+署名を保つ操作ではありません。無効になってもよい場合のみ `allowBreakingSignatures: true` を明示してください。明示が無ければ無効にしません。
+:::
+
 ## extract_pages
 
 **Extract Pages**
@@ -183,6 +325,49 @@ PDF をページ範囲ごとに複数ファイルへ分割する。ranges の各
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
+
+::: warning 文書レベル情報は引き継がれない
+ページを新しい文書へ複製するため、タグ付き構造・XMP・AcroForm・しおり等は引き継がれません。失われたものは warnings で報告されます。必要なら出力に `attach_file` / `ensure_tagged` / `add_bookmarks` / `set_metadata` を後がけしてください。
+:::
+
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: info `pages` は文字列
+`"1"` / `"1,3-5,8-"` です。配列ではありません。指定順が出力順になります。
+:::
+
+::: details 呼び出し例 — 「1 ページ目だけ抜き出して」
+- 実測: v0.21.0
+- 標本: `docs/specimens/publish-demo.pdf`（呼び出すときは絶対パス）
+- `pages`: `"1"`
+
+**パラメータ**
+
+```jsonc
+{
+  "inputPath": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "pages": "1",
+  "outputPath": "/absolute/path/to/output.pdf"
+}
+```
+
+**返る JSON**（warnings は要約）
+
+```jsonc
+{
+  "pageCount": 1,
+  "bytes": 26881,
+  "path": "/absolute/path/to/output.pdf",
+  "warnings": [
+    "The input XMP declares conformance (pdfuaid/pdfaid) that this output can no longer meet — the structure tree is not carried over yet — so it was dropped rather than copied. …",
+    "extract_pages did not carry over the tagged structure (/StructTreeRoot, /MarkInfo) that the input had …",
+    "extract_pages did not carry over the XMP metadata (/Metadata) that the input had …"
+  ]
+}
+```
+:::
 
 ## delete_pages
 
@@ -202,6 +387,18 @@ PDF をページ範囲ごとに複数ファイルへ分割する。ranges の各
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
 
+::: warning 文書レベル情報は引き継がれない
+ページを新しい文書へ複製するため、タグ付き構造・XMP・AcroForm・しおり等は引き継がれません。失われたものは warnings で報告されます。必要なら出力に `attach_file` / `ensure_tagged` / `add_bookmarks` / `set_metadata` を後がけしてください。
+:::
+
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: warning 署名済み PDF は既定でエラー
+署名を保つ操作ではありません。無効になってもよい場合のみ `allowBreakingSignatures: true` を明示してください。明示が無ければ無効にしません。
+:::
+
 ## reorder_pages
 
 **Reorder Pages**
@@ -220,6 +417,18 @@ PDF をページ範囲ごとに複数ファイルへ分割する。ranges の各
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
 
+::: warning 文書レベル情報は引き継がれない
+ページを新しい文書へ複製するため、タグ付き構造・XMP・AcroForm・しおり等は引き継がれません。失われたものは warnings で報告されます。必要なら出力に `attach_file` / `ensure_tagged` / `add_bookmarks` / `set_metadata` を後がけしてください。
+:::
+
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: warning 署名済み PDF は既定でエラー
+署名を保つ操作ではありません。無効になってもよい場合のみ `allowBreakingSignatures: true` を明示してください。明示が無ければ無効にしません。
+:::
+
 ## add_bookmarks
 
 **Add Bookmarks (Outline)**
@@ -236,6 +445,18 @@ PDF にしおり(アウトライン)を設定する。既存のしおりは置�
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
+
+::: warning 既存のしおりを置換します
+追加ではなく置き換えです。
+:::
+
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: warning 署名済み PDF は既定でエラー
+署名を保つなら `preserveSignatures: true`（増分更新）。無効になってもよい場合のみ `allowBreakingSignatures: true`。明示が無ければ無効にしません。
+:::
 
 ## add_annotation
 
@@ -269,6 +490,49 @@ PDF にしおり(アウトライン)を設定する。既存のしおりは置�
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
 
+::: info 座標は PDF 座標系
+左下原点・pt です。pdf-reader-mcp の `locate_objects` / `extract_structured_text`（`include_bbox`）が返す矩形をそのまま渡せます。タグ付き文書では Annot 構造要素への内包（PDF/UA 7.18.1-1）も行い、支援技術向けの代替テキストは `alt` で渡します。
+:::
+
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: warning 署名済み PDF は既定でエラー
+署名を保つなら `preserveSignatures: true`（増分更新。DocMDP では P=3 のときのみ許可）。無効になってもよい場合のみ `allowBreakingSignatures: true`。明示が無ければ無効にしません。
+:::
+
+::: details 呼び出し例 — 「H1 の矩形に四角注釈を付けて」
+- 実測: v0.21.0
+- 標本: `docs/specimens/publish-demo.pdf`（呼び出すときは絶対パス）
+- `type`: `"square"`
+- `rect`: pdf-reader-mcp が返した H1 の bbox（56, 766.306）–（375.194, 792.37）
+
+**パラメータ**
+
+```jsonc
+{
+  "inputPath": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "page": 1,
+  "type": "square",
+  "rect": { "x1": 56, "y1": 766.306, "x2": 375.194, "y2": 792.37 },
+  "contents": "H1",
+  "alt": "Heading highlight",
+  "outputPath": "/absolute/path/to/output.pdf"
+}
+```
+
+**返る JSON**
+
+```jsonc
+{
+  "pageCount": 1,
+  "bytes": 93486,
+  "path": "/absolute/path/to/output.pdf"
+}
+```
+:::
+
 ## stamp_page_numbers
 
 **Stamp Page Numbers**
@@ -292,6 +556,18 @@ PDF にしおり(アウトライン)を設定する。既存のしおりは置�
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
+
+::: tip タグ付き PDF では Artifact
+ページ番号は Artifact として囲むため、PDF/UA 準拠が保たれます。日本語を含む `format` にはフォントが必須です。
+:::
+
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: warning 署名済み PDF は既定でエラー
+署名を保つなら `preserveSignatures: true`（増分更新）。無効になってもよい場合のみ `allowBreakingSignatures: true`。明示が無ければ無効にしません。
+:::
 
 ## add_watermark
 
@@ -317,6 +593,48 @@ PDF にしおり(アウトライン)を設定する。既存のしおりは置�
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
 
+::: tip タグ付き PDF では Artifact
+透かしは Artifact として囲むため、PDF/UA 準拠が保たれます。日本語の文字列にはフォントが必須です。
+:::
+
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: warning 署名済み PDF は既定でエラー
+署名を保つなら `preserveSignatures: true`（増分更新）。無効になってもよい場合のみ `allowBreakingSignatures: true`。明示が無ければ無効にしません。
+:::
+
+::: details 呼び出し例 — 「全ページに DRAFT の透かしを入れて」
+- 実測: v0.21.0
+- 標本: `docs/specimens/publish-demo.pdf`（呼び出すときは絶対パス）
+- `text`: `"DRAFT"`
+
+**パラメータ**
+
+```jsonc
+{
+  "inputPath": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "text": "DRAFT",
+  "outputPath": "/absolute/path/to/output.pdf"
+}
+```
+
+**返る JSON**
+
+```jsonc
+{
+  "pageCount": 1,
+  "bytes": 93321,
+  "path": "/absolute/path/to/output.pdf",
+  "watermarked": 1,
+  "artifact": true
+}
+```
+
+`artifact: true` は、タグ付き入力では透かしが Artifact として囲まれたことを示します。
+:::
+
 ## fill_form
 
 **Fill Form (AcroForm)**
@@ -340,6 +658,45 @@ PDF にしおり(アウトライン)を設定する。既存のしおりは置�
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
 
+::: tip フィールド名が分からないとき
+存在しない名前を 1 つ渡すと、エラーに全フィールド名と型が列挙されます。メッセージ文字列ではなく `code` で分岐してください。
+:::
+
+::: warning XFA には対応していません
+AcroForm だけです。`flatten: true` をタグ付き PDF に使うと PDF/UA 準拠でなくなり、さらに `allowBreakingTags: true` が必要です。
+:::
+
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: details 呼び出し例 — 「フォームに値を流し込む」（AcroForm が無い標本）
+- 実測: v0.21.0
+- 標本: `docs/specimens/publish-demo.pdf`（呼び出すときは絶対パス。AcroForm 無し）
+- `fields`: `{ "dummy": "x" }`
+
+**パラメータ**
+
+```jsonc
+{
+  "inputPath": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "fields": { "dummy": "x" },
+  "outputPath": "/absolute/path/to/output.pdf"
+}
+```
+
+**返る JSON**（エラー）
+
+```jsonc
+{
+  "error": "\"/absolute/path/to/docs/specimens/publish-demo.pdf\" has no AcroForm fields to fill.",
+  "code": "INVALID_ARGUMENT"
+}
+```
+
+フィールドが無いときはこの `code` です。フィールドはあるが名前を間違えたときは、エラー本文に名前と型が列挙されます。
+:::
+
 ## flatten_form
 
 **Flatten Form**
@@ -358,6 +715,18 @@ PDF にしおり(アウトライン)を設定する。既存のしおりは置�
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
+
+::: warning タグ付き PDF では既定で拒否
+Widget 注釈が消えて Form 構造要素が宙に浮くためです。`allowBreakingTags: true` で強行できますが、PDF/UA 準拠でなくなります。
+:::
+
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: warning 署名済み PDF は既定でエラー
+署名を保つ操作ではありません。無効になってもよい場合のみ `allowBreakingSignatures: true` を明示してください。明示が無ければ無効にしません。
+:::
 
 ## tag_form_fields
 
@@ -384,6 +753,18 @@ labels でスクリーンリーダー向けの人間可読な名前を渡すこ�
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
 
+::: info タグ無し文書は対象外
+タグ付き PDF のフォームを PDF/UA-1 へ修復します（Widget を Form へ内包、`/Tabs S`、`/TU`）。何度実行しても結果は同じです。タグ無しなら先に `ensure_tagged` か、作成時の `tagged: true` です。
+:::
+
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: warning 署名済み PDF は既定でエラー
+署名を保つなら `preserveSignatures: true`（承認署名のみ。認証署名は拒否）。無効になってもよい場合のみ `allowBreakingSignatures: true`。明示が無ければ無効にしません。
+:::
+
 ## ensure_tagged
 
 **Ensure Tagged (PDF/UA scaffold & repair)**
@@ -409,11 +790,67 @@ labels でスクリーンリーダー向けの人間可読な名前を渡すこ�
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
 
+::: danger 書いたのは宣言。適合の証明ではない
+XMP に pdfuaid を書きます。適合していない文書に適用すると、適合していないのに適合を名乗った PDF になります。書いたら必ず pdf-verify-mcp の `validate_conformance`（`flavour: "pdfua-1"`）で測ってください。測れないなら宣言を書かないでください。
+:::
+
+::: warning 機械は意味を推定できません
+新設するのは最小限の構造木（各ページ = 1 つの P 要素）です。見出し・表・リスト・読み順・図の代替テキストは作られません。最初から `tagged: true` で作れるなら、そちらを使ってください。
+:::
+
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: details 呼び出し例 — 「既存 PDF を PDF/UA-1 の器に載せて」
+- 実測: v0.21.0
+- 標本: `docs/specimens/selfmade-base.pdf`（呼び出すときは絶対パス。既にタグ付き）
+- `title`: `"Selfmade base"`
+- `lang`: `"en"`
+
+**パラメータ**
+
+```jsonc
+{
+  "inputPath": "/absolute/path/to/docs/specimens/selfmade-base.pdf",
+  "title": "Selfmade base",
+  "lang": "en",
+  "outputPath": "/absolute/path/to/output.pdf"
+}
+```
+
+**返る JSON**
+
+```jsonc
+{
+  "pageCount": 1,
+  "bytes": 18406,
+  "path": "/absolute/path/to/output.pdf",
+  "wasTagged": true,
+  "createdStructure": false,
+  "wrappedPages": 0,
+  "addedRequirements": [
+    "Lang",
+    "ViewerPreferences/DisplayDocTitle",
+    "XMP(pdfuaid:part, dc:title)"
+  ]
+}
+```
+
+既にタグ付きなので構造木には触らず、欠けていた文書レベル要件だけを補いました。宣言を書いたあとは `validate_conformance`（`flavour: "pdfua-1"`）で測ります。
+:::
+
 ## ensure_pdfa
 
 **Ensure PDF/A (archival conformance scaffold)**
 
-既存 PDF を PDF/A の「器」に載せる（ensure_tagged の PDF/A 版）。flavour で "pdfa-3b"（既定）/ "pdfa-4" / "pdfa-4f" を選ぶ。
+既存 PDF を PDF/A の「器」に載せる（ensure_tagged の PDF/A 版）。
+
+| `flavour` | 名乗らせる内容 |
+| --- | --- |
+| `pdfa-3b` | 既定。PDF 1.7 基盤 |
+| `pdfa-4` | PDF 2.0。添付ファイル自身が PDF/A であること |
+| `pdfa-4f` | PDF 2.0。CSV / JSON などの非 PDF/A 添付向け |
 
 補うのは文書レベルの欠落要件だけである:
 
@@ -437,11 +874,59 @@ labels でスクリーンリーダー向けの人間可読な名前を渡すこ�
 | 引数 | 型 | 必須 | 既定値 | 説明 |
 |---|---|---|---|---|
 | `inputPath` | string (minLength 1) | **必須** |  | 対象 PDF の絶対パス。 |
-| `flavour` | `"pdfa-3b"` \| `"pdfa-4"` \| `"pdfa-4f"` | 任意 |  | 名乗らせる PDF/A。既定 "pdfa-3b"。"pdfa-4"(ISO 19005-4) は PDF 2.0 基盤なので、/ID・OutputIntent・XMP pdfaid に加えて**ヘッダを 2.0 にし、Info 辞書を落とす**(-4 は PieceInfo が無い限り Info を許さない)。**-4 は conformance level を持たない**ため pdfaid:conformance を書かず pdfaid:rev を書く。**添付がある文書は "pdfa-4f" を使うこと** — 素の "pdfa-4" は添付ファイル自身が PDF/A であることを要求するので、JSON や CSV を添える電帳法の使い方では非適合になる。署名保持(preserveSignatures)との併用は、入力が既に PDF 2.0 でない限り拒否する(増分更新では先頭のヘッダを書き換えられず、書き換えれば署名が壊れるため)。 |
+| `flavour` | `"pdfa-3b"` \| `"pdfa-4"` \| `"pdfa-4f"` | 任意 |  | 名乗らせる PDF/A。既定 `"pdfa-3b"`。上の flavour 表を参照。 |
 | `preserveSignatures` | boolean | 任意 |  | 署名済み PDF に対し、既存署名を無効化せず増分更新（末尾追記）で編集する。既定 false。元のバイト列には一切触れないため /ByteRange が保たれる。認証署名（DocMDP）の許可レベルに反する変更は拒否される。 |
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
+
+::: danger 書いたのは宣言。適合の証明ではない
+XMP に pdfaid を書きます。フォント未埋め込み・暗号化・JavaScript などは直りません。適合していない文書に適用すると、適合していないのに適合を名乗った PDF になります。書いたら必ず pdf-verify-mcp の `validate_conformance` で測ってください。flavour にはここに渡したものと同じ文字列を指定します。測れないなら宣言を書かないでください。PDF/A の結果は「veraPDF が COMPLIANT と判定した」までです。
+:::
+
+::: warning 添付があるなら `"pdfa-4f"`
+素の `"pdfa-4"` は添付ファイル自身が PDF/A であることを要求します（`6.9-3`）。CSV や JSON を同梱するなら `"pdfa-4f"` です。PDF/A-4 系はヘッダを PDF 2.0 にし Info 辞書を削除します。`preserveSignatures` との併用は、入力が既に PDF 2.0 でない限り拒否されます。
+:::
+
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: details 呼び出し例 — 「PDF/A-3b の器に載せて」
+- 実測: v0.21.0
+- 標本: `docs/specimens/publish-demo.pdf`（呼び出すときは絶対パス。既に PDF/A-3b を宣言）
+- `flavour`: `"pdfa-3b"`
+
+**パラメータ**
+
+```jsonc
+{
+  "inputPath": "/absolute/path/to/docs/specimens/publish-demo.pdf",
+  "flavour": "pdfa-3b",
+  "outputPath": "/absolute/path/to/output.pdf"
+}
+```
+
+**返る JSON**（warnings は要約）
+
+```jsonc
+{
+  "pageCount": 1,
+  "bytes": 92945,
+  "path": "/absolute/path/to/output.pdf",
+  "flavour": "3b",
+  "addedRequirements": ["XMP pdfaid (part 3, conformance B)"],
+  "wasDeclared": true,
+  "warnings": [
+    "The document already has a trailer /ID; it was left unchanged.",
+    "The document already declares a GTS_PDFA1 output intent; it was left unchanged.",
+    "This file now CLAIMS PDF/A-3b (pdfaid:part=3, conformance=B), but conformance was NOT checked here. … Verify before relying on it: pdf-verify-mcp validate_conformance(flavour: \"pdfa-3b\") …"
+  ]
+}
+```
+
+この warnings は異常ではなく設計です。捨てないでください。合否は veraPDF の `validate_conformance` です。
+:::
 
 ## attach_file
 
@@ -464,6 +949,58 @@ PDF にファイルを埋め込む(添付する)。/Names /EmbeddedFiles と cat
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
 
+::: warning PDF/A-3 では `relationship` に意味のある値が必須
+`Source` / `Data` / `Alternative` / `Supplement` を渡してください。省略すると警告が返り、値は `Unspecified` です（ISO 19005-3 §6.8）。
+:::
+
+::: warning 添付があるなら PDF/A-4 は `"pdfa-4f"`
+素の `"pdfa-4"` は添付ファイル自身が PDF/A であることを要求します。CSV や JSON を同梱するなら `ensure_pdfa` の flavour は `"pdfa-4f"` です。電帳法の文脈では添付の**後**に `ensure_pdfa` を掛けます。
+:::
+
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: details 呼び出し例 — 「CSV を Data として埋め込んで」
+- 実測: v0.21.0
+- 標本: `docs/specimens/selfmade-base.pdf`（呼び出すときは絶対パス）
+- 添付: `docs/specimens/publish-demo-data.csv`
+- `name`: `"invoice-data.csv"`（既存名と重複すると `INVALID_ARGUMENT`）
+- `relationship`: `"Data"`
+
+**パラメータ**
+
+```jsonc
+{
+  "inputPath": "/absolute/path/to/docs/specimens/selfmade-base.pdf",
+  "attachmentPath": "/absolute/path/to/docs/specimens/publish-demo-data.csv",
+  "name": "invoice-data.csv",
+  "description": "Machine-readable invoice data",
+  "relationship": "Data",
+  "outputPath": "/absolute/path/to/output.pdf"
+}
+```
+
+**返る JSON**
+
+```jsonc
+{
+  "pageCount": 1,
+  "bytes": 19070,
+  "path": "/absolute/path/to/output.pdf",
+  "attachment": {
+    "name": "invoice-data.csv",
+    "bytes": 114,
+    "mimeType": "text/csv",
+    "relationship": "Data"
+  },
+  "attachments": ["invoice-data.csv"]
+}
+```
+
+同じ名前の添付が既にあるファイル（例: `publish-demo.pdf` の `publish-demo-data.csv`）では `INVALID_ARGUMENT` になります。
+:::
+
 ## rotate_pages
 
 **Rotate Pages**
@@ -480,3 +1017,11 @@ PDF にファイルを埋め込む(添付する)。/Names /EmbeddedFiles と cat
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
+
+::: warning `outputPath` は必ず渡す
+省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
+:::
+
+::: warning 署名済み PDF は既定でエラー
+署名を保つ操作ではありません。無効になってもよい場合のみ `allowBreakingSignatures: true` を明示してください。明示が無ければ無効にしません。
+:::

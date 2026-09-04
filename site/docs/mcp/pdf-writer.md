@@ -116,6 +116,8 @@ Parameters, types and defaults are in the [tools reference](/reference/mcp/pdf-w
 
 ## How to use it
 
+Per-tool cautions and prompt → parameters → returned JSON are at the end of each tool on the [tools reference](/reference/mcp/pdf-writer).
+
 ### Creation — if it should be tagged, tag it from the start
 
 `create_text_pdf` / `create_markdown_pdf` / `create_table_pdf` all take `tagged: true`, which **generates a tagged PDF (PDF/UA-1)** with a structure tree, the PDF/UA declaration, `/Lang` and DisplayDocTitle. PDF/UA requires a title, so `title` becomes required too.

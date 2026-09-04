@@ -38,7 +38,7 @@ graph LR
   ANCHORS[("信頼アンカー証明書")] --> VERIFY
   VERA[("veraPDF")] --> VERIFY
 
-  subgraph SELF["このページ"]
+  subgraph SELF["このMCPサーバー"]
     VERIFY[["pdf-verify-mcp<br>判定 — 署名が有効か・規格に適っているか"]]
   end
 
@@ -125,6 +125,8 @@ graph LR
 | [`evaluate_policy`](/ja/reference/mcp/pdf-verify#evaluate-policy)           | 事実からの決定論的 4 値判定                              |
 
 ## 使い方の要点
+
+各ツールの運用上の注意と「プロンプト → 引数 → 返る JSON」は [ツールリファレンス](/ja/reference/mcp/pdf-verify) の該当ツール末尾にあります。
 
 ### 署名 — valid は「本人」ではない
 

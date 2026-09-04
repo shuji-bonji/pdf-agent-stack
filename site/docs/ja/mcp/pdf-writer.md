@@ -23,7 +23,7 @@ graph LR
   SRC[/"text / Markdown / 表<br>編集する PDF"/] --> WRITER
   FONT[("日本語フォント<br>.ttf / .otf")] --> WRITER
 
-  subgraph SELF["このページ"]
+  subgraph SELF["このMCPサーバー"]
     WRITER[["pdf-writer-mcp<br>生成 — 仕様通りに書けるか"]]
   end
 
@@ -38,8 +38,8 @@ graph LR
 
 図中の形は要素の種別を表します（→ [図の読み方](/ja/reference/glossary#図の読み方-形の凡例)）。
 
-| Skill | このサーバーの役割 | 必須か |
-|---|---|---|
+| Skill                                 | このサーバーの役割                                                | 必須か   |
+| ------------------------------------- | ----------------------------------------------------------------- | -------- |
 | [pdf-publish](/ja/skills/pdf-publish) | パイプラインの基盤。書く側を担い、読み戻しと採点は他の 2 つに渡す | **必須** |
 
 ::: danger 測れないなら適合宣言を書かない
@@ -66,9 +66,9 @@ graph LR
     "pdf-writer": {
       "command": "npx",
       "args": ["-y", "@shuji-bonji/pdf-writer-mcp@latest"],
-      "env": { "PDF_WRITER_FONT": "/path/to/NotoSansJP-Regular.otf" }
-    }
-  }
+      "env": { "PDF_WRITER_FONT": "/path/to/NotoSansJP-Regular.otf" },
+    },
+  },
 }
 ```
 
@@ -76,14 +76,14 @@ graph LR
 
 ほとんどのツールが以下を受け取ります。
 
-| 引数 | 型 | 説明 |
-|---|---|---|
-| `inputPath` **必須**（編集系） | string | 編集対象 PDF の絶対パス |
-| `outputPath` | string | 保存先（絶対パス）。**省略すると base64 で返り、応答が巨大になって会話が破綻しやすいため、必ず指定すること** |
-| `returnBase64` | boolean | 保存に加えて base64 も返す。既定 false |
-| `fontPath` | string | 埋め込むフォント（.ttf/.otf、.ttc 不可）。日本語には必須。env `PDF_WRITER_FONT` でも指定可 |
-| `allowBreakingSignatures` | boolean | 署名済み PDF（/ByteRange 検知）は既定でエラー。true で**署名無効化を承知の上**続行 |
-| `preserveSignatures` | boolean | 署名を無効化せず**増分更新（末尾追記）**で編集。元のバイト列に触れないため /ByteRange が保たれる。DocMDP の許可レベルに反する変更は拒否（対応ツールのみ） |
+| 引数                           | 型      | 説明                                                                                                                                                      |
+| ------------------------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `inputPath` **必須**（編集系） | string  | 編集対象 PDF の絶対パス                                                                                                                                   |
+| `outputPath`                   | string  | 保存先（絶対パス）。**省略すると base64 で返り、応答が巨大になって会話が破綻しやすいため、必ず指定すること**                                              |
+| `returnBase64`                 | boolean | 保存に加えて base64 も返す。既定 false                                                                                                                    |
+| `fontPath`                     | string  | 埋め込むフォント（.ttf/.otf、.ttc 不可）。日本語には必須。env `PDF_WRITER_FONT` でも指定可                                                                |
+| `allowBreakingSignatures`      | boolean | 署名済み PDF（/ByteRange 検知）は既定でエラー。true で**署名無効化を承知の上**続行                                                                        |
+| `preserveSignatures`           | boolean | 署名を無効化せず**増分更新（末尾追記）**で編集。元のバイト列に触れないため /ByteRange が保たれる。DocMDP の許可レベルに反する変更は拒否（対応ツールのみ） |
 
 ### 署名済み PDF の扱い（判断フロー）
 
@@ -105,16 +105,18 @@ graph TD
 
 引数・型・既定値は[ツールリファレンス](/ja/reference/mcp/pdf-writer)にあります（`tools/list` から自動生成）。
 
-| 分類 | ツール |
-|---|---|
-| 作成 | [`create_text_pdf`](/ja/reference/mcp/pdf-writer#create-text-pdf) / [`create_markdown_pdf`](/ja/reference/mcp/pdf-writer#create-markdown-pdf) / [`create_table_pdf`](/ja/reference/mcp/pdf-writer#create-table-pdf) |
+| 分類       | ツール                                                                                                                                                                                                                                                                                                                                                                      |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 作成       | [`create_text_pdf`](/ja/reference/mcp/pdf-writer#create-text-pdf) / [`create_markdown_pdf`](/ja/reference/mcp/pdf-writer#create-markdown-pdf) / [`create_table_pdf`](/ja/reference/mcp/pdf-writer#create-table-pdf)                                                                                                                                                         |
 | ページ操作 | [`merge_pdfs`](/ja/reference/mcp/pdf-writer#merge-pdfs) / [`split_pdf`](/ja/reference/mcp/pdf-writer#split-pdf) / [`extract_pages`](/ja/reference/mcp/pdf-writer#extract-pages) / [`delete_pages`](/ja/reference/mcp/pdf-writer#delete-pages) / [`reorder_pages`](/ja/reference/mcp/pdf-writer#reorder-pages) / [`rotate_pages`](/ja/reference/mcp/pdf-writer#rotate-pages) |
-| 装飾・注釈 | [`add_bookmarks`](/ja/reference/mcp/pdf-writer#add-bookmarks) / [`add_annotation`](/ja/reference/mcp/pdf-writer#add-annotation) / [`add_watermark`](/ja/reference/mcp/pdf-writer#add-watermark) / [`stamp_page_numbers`](/ja/reference/mcp/pdf-writer#stamp-page-numbers) |
-| メタ・添付 | [`set_metadata`](/ja/reference/mcp/pdf-writer#set-metadata) / [`attach_file`](/ja/reference/mcp/pdf-writer#attach-file) |
-| フォーム | [`fill_form`](/ja/reference/mcp/pdf-writer#fill-form) / [`flatten_form`](/ja/reference/mcp/pdf-writer#flatten-form) / [`tag_form_fields`](/ja/reference/mcp/pdf-writer#tag-form-fields) |
-| 宣言 | [`ensure_tagged`](/ja/reference/mcp/pdf-writer#ensure-tagged) / [`ensure_pdfa`](/ja/reference/mcp/pdf-writer#ensure-pdfa) |
+| 装飾・注釈 | [`add_bookmarks`](/ja/reference/mcp/pdf-writer#add-bookmarks) / [`add_annotation`](/ja/reference/mcp/pdf-writer#add-annotation) / [`add_watermark`](/ja/reference/mcp/pdf-writer#add-watermark) / [`stamp_page_numbers`](/ja/reference/mcp/pdf-writer#stamp-page-numbers)                                                                                                   |
+| メタ・添付 | [`set_metadata`](/ja/reference/mcp/pdf-writer#set-metadata) / [`attach_file`](/ja/reference/mcp/pdf-writer#attach-file)                                                                                                                                                                                                                                                     |
+| フォーム   | [`fill_form`](/ja/reference/mcp/pdf-writer#fill-form) / [`flatten_form`](/ja/reference/mcp/pdf-writer#flatten-form) / [`tag_form_fields`](/ja/reference/mcp/pdf-writer#tag-form-fields)                                                                                                                                                                                     |
+| 宣言       | [`ensure_tagged`](/ja/reference/mcp/pdf-writer#ensure-tagged) / [`ensure_pdfa`](/ja/reference/mcp/pdf-writer#ensure-pdfa)                                                                                                                                                                                                                                                   |
 
 ## 使い方の要点
+
+各ツールの運用上の注意と「プロンプト → 引数 → 返る JSON」は [ツールリファレンス](/ja/reference/mcp/pdf-writer) の該当ツール末尾にあります。
 
 ### 作成 — タグ付きにするなら最初から
 
@@ -176,9 +178,9 @@ graph TD
 
 構造化エラー（`code` / `next_actions` / `retryable`）で返ります。**メッセージ文字列をパースしないでください。** 全コードと対処は[エラーコード一覧](/ja/reference/error-codes)にあります。
 
-| よく出るコード | 対処 |
-|---|---|
-| `SIGNED_PDF` | `preserveSignatures` か `allowBreakingSignatures` を明示 |
-| `TAGGED_PDF` | `allowBreakingTags` を明示（PDF/UA 準拠でなくなることを承知の上で） |
-| `FONT_REQUIRED` | `fontPath` / `PDF_WRITER_FONT` を指定 |
-| `MISSING_GLYPH` | `onMissingGlyph` で扱いを指定 |
+| よく出るコード  | 対処                                                                |
+| --------------- | ------------------------------------------------------------------- |
+| `SIGNED_PDF`    | `preserveSignatures` か `allowBreakingSignatures` を明示            |
+| `TAGGED_PDF`    | `allowBreakingTags` を明示（PDF/UA 準拠でなくなることを承知の上で） |
+| `FONT_REQUIRED` | `fontPath` / `PDF_WRITER_FONT` を指定                               |
+| `MISSING_GLYPH` | `onMissingGlyph` で扱いを指定                                       |

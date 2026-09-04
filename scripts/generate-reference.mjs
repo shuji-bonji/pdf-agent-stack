@@ -4,8 +4,10 @@
  *
  * Spawns each MCP server over stdio, performs the MCP handshake, and renders
  * `tools/list` into Markdown reference pages (en + ja) for the VitePress site.
- * The site cannot lie about the implementation: everything on the page comes
- * from the running server, not from hand-written prose.
+ * The site cannot lie about the implementation: parameters come from the
+ * running server. Agent-facing description manuals are reshaped for humans
+ * (scripts/reference-humanize.mjs). Optional worked examples are appended from
+ * scripts/reference-examples/<server>/<lang>/<tool>.md when that file exists.
  *
  * Usage:
  *   node scripts/generate-reference.mjs             # all servers in REGISTRY
@@ -19,6 +21,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { humanizeParam, humanizeTool, pageIntro } from './reference-humanize.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -294,6 +297,18 @@ function splitDescription(desc) {
   return { prose, returns };
 }
 
+/**
+ * Hand-written worked example for one tool, if present.
+ * Path: scripts/reference-examples/<server>/<lang>/<tool>.md
+ * Missing file = no sidecar. The file is Markdown appended as-is
+ * (`::: warning` / `::: danger` / `::: tip` / `::: info` and `::: details`).
+ */
+function loadToolExample(server, lang, toolName) {
+  const p = join(ROOT, 'scripts/reference-examples', server, lang, `${toolName}.md`);
+  if (!existsSync(p)) return null;
+  return readFileSync(p, 'utf8').trim();
+}
+
 function firstSentence(prose) {
   // First paragraph, joined to one line, then first sentence.
   // 。 ends a sentence with no following space (Japanese); '.' needs one.
@@ -315,7 +330,9 @@ function renderPage(server, info, tools, t, lang, tr) {
   L.push('');
   L.push(`# ${t.title(displayName)}`);
   L.push('');
-  L.push('<!-- GENERATED FILE — do not edit. Source of truth: the server itself. -->');
+  L.push(
+    '<!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->'
+  );
   L.push('');
   L.push('::: info');
   L.push(t.generated(info.version, tools.length, date));
@@ -323,6 +340,8 @@ function renderPage(server, info, tools, t, lang, tr) {
   L.push('');
   L.push(t.roleNote(server));
   L.push('');
+  const intro = pageIntro(server, lang);
+  if (intro) L.push(intro);
   L.push(`## ${t.toc}`);
   L.push('');
   L.push(`| ${t.tool} | ${t.summary} |`);
@@ -339,6 +358,7 @@ function renderPage(server, info, tools, t, lang, tr) {
     let { prose, returns } = splitDescription(tool.description ?? '');
     prose = tr(tool.name, 'prose', prose);
     returns = tr(tool.name, 'returns', returns);
+    ({ prose, returns } = humanizeTool(server, tool.name, lang, prose, returns));
     const deprecated = /deprecat/i.test(tool.description ?? '');
     L.push(`## ${tool.name}`);
     L.push('');
@@ -361,7 +381,7 @@ function renderPage(server, info, tools, t, lang, tr) {
       L.push('|---|---|---|---|---|');
       for (const r of rows) {
         L.push(
-          `| \`${r.name}\` | ${r.type} | ${r.required ? `**${t.yes}**` : t.no} | ${r.def} | ${cellSafe(tr(tool.name, `param:${r.name}`, r.desc))} |`
+          `| \`${r.name}\` | ${r.type} | ${r.required ? `**${t.yes}**` : t.no} | ${r.def} | ${cellSafe(humanizeParam(server, tool.name, r.name, tr(tool.name, `param:${r.name}`, r.desc), lang))} |`
         );
       }
     }
@@ -370,6 +390,11 @@ function renderPage(server, info, tools, t, lang, tr) {
       L.push(`### ${t.returns}`);
       L.push('');
       L.push(proseSafe(returns));
+      L.push('');
+    }
+    const example = loadToolExample(server, lang, tool.name);
+    if (example) {
+      L.push(example);
       L.push('');
     }
   }

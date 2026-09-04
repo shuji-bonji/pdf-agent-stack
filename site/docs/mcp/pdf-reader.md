@@ -125,31 +125,50 @@ Parameters, types and defaults are in the [tools reference](/reference/mcp/pdf-r
 
 ## How to use it
 
-### Measure the document with `summarize` first
+Decide which detailed tool to use only after measuring the document with [`summarize`](/reference/mcp/pdf-reader#summarize). If all you need is the page count, [`get_page_count`](/reference/mcp/pdf-reader#get-page-count) is lighter. Prompt → parameters → returned JSON for each tool is in the accordion at the end of that tool on the [tools reference](/reference/mcp/pdf-reader).
 
-It combines metadata, text presence, image count and a page-1 preview. **Decide which detailed tool to use only after reading it.** If all you need is the page count, `get_page_count` is lighter.
+### Pick the path
 
-### There are three paths to the body text
+`summarize` returns `metadata.isTagged` and `textExtractability`; those two fields pick the body-text path. `next` is a suggestion derived from the observations. It is not enforced.
+
+```mermaid
+flowchart TD
+  S["summarize"] --> T{"metadata.isTagged"}
+  T -->|true| EST["extract_structured_text"]
+  EST --> TAB{"need the table?"}
+  TAB -->|yes| ET["extract_tables"]
+  T -->|false| RT["read_text"]
+  S --> X{"textExtractability"}
+  X -->|extracted| OK["body-text tools above"]
+  X -->|"no_text_layer or not_extractable"| RP["render_page"]
+```
+
+Position is a separate path from the body text. The tool depends on whether you are pointing at a paragraph or at an object number.
+
+```mermaid
+flowchart TD
+  P["need a location"] --> Q{"what are you pointing at?"}
+  Q -->|paragraph / heading| BBOX["extract_structured_text<br/>include_bbox: true"]
+  Q -->|object number| LOC["locate_objects"]
+```
+
+### Body text — three paths
 
 | Document | Tool | Why |
 |---|---|---|
-| Tagged PDF | `extract_structured_text` | Logical content order (the depth-first traversal of ISO 32000-2 §14.8.2.5). The only tool that can answer "what is the text of the H1?" |
-| Tables in a tagged PDF | `extract_tables` | `<TR>` → `<TH>`/`<TD>` structure, with kerning whitespace removed (「消 費 税 法」→「消費税法」) |
-| Untagged | `read_text` | Y-coordinate reading order. Multi-column documents split by X coordinate with `split_columns: 2` / `3` |
+| Tagged PDF | [`extract_structured_text`](/reference/mcp/pdf-reader#extract-structured-text) | Logical content order (the depth-first traversal of ISO 32000-2 §14.8.2.5). The only tool that can answer "what is the text of the H1?" |
+| Tables in a tagged PDF | [`extract_tables`](/reference/mcp/pdf-reader#extract-tables) | `<TR>` → `<TH>`/`<TD>` structure, with kerning whitespace removed (「消 費 税 法」→「消費税法」) |
+| Untagged | [`read_text`](/reference/mcp/pdf-reader#read-text) | Y-coordinate reading order. Multi-column documents split by X coordinate with `split_columns: 2` / `3` |
 
 Three things to know about `read_text`:
 
 - It resolves `/ActualText` replacements (ISO 32000-2 §14.9.4) on both paths the clause defines: structure elements and `Span` marked content. Ligature-substituted and hyphenation-fixed words come back spelled the way a viewer shows them
-- `search_text` runs over that same text, so hits use the post-replacement spelling
+- [`search_text`](/reference/mcp/pdf-reader#search-text) runs over that same text, so hits use the post-replacement spelling
 - Japanese forms indented with fullwidth spaces benefit from `compact_whitespace: true`, which cuts tokens by 20–40%
 
-**Pages that cannot be read as text go to `render_page` instead.** That covers pages where `read_text` reports `no_text_layer` (a scan) or `not_extractable`, and equally vector art, forms, handwriting and seal impressions.
+**Pages that cannot be read as text go to [`render_page`](/reference/mcp/pdf-reader#render-page) instead.** That covers pages where `read_text` reports `no_text_layer` (a scan) or `not_extractable`, and equally vector art, forms, handwriting and seal impressions.
 
-Where `read_images` only pulls out the image XObjects a page embeds, `render_page` draws **everything on the page**.
-
-Rendering uses PDFium compiled to WebAssembly, **a different engine** from the pdf.js this server reads text with. When the two behave differently on a broken file, neither output is evidence for the other.
-
-`pages` is required. Rendering every page never happens implicitly.
+[`read_images`](/reference/mcp/pdf-reader#read-images) only pulls out the image XObjects a page embeds. `render_page` draws **everything on the page**. Rendering uses PDFium compiled to WebAssembly, **a different engine** from the pdf.js this server reads text with. When the two behave differently on a broken file, neither output is evidence for the other. `pages` is required. Rendering every page never happens implicitly.
 
 Four things to know about `extract_structured_text` output:
 
@@ -158,15 +177,15 @@ Four things to know about `extract_structured_text` output:
 - `alt` is returned separately rather than mixed into `text` (§14.9.3), and `Lbl` (list bullets) goes to `label`
 - Artifacts (page numbers, running heads) are excluded
 
-### Two paths to position, with different strengths of claim
+### Position — two paths
 
-Both `locate_objects` and `extract_structured_text` (`include_bbox: true`) attach a **`basis`** to every rectangle, distinguishing whether the rectangle was measured, is the file's own claim, or merely points at the whole page. It is the mechanism for **never returning values of differing evidential strength in the same undifferentiated form**.
+`locate_objects` and `extract_structured_text` (`include_bbox: true`) attach a **`basis`** to every rectangle, distinguishing whether it was measured, is the file's declaration, or merely points at the whole page. Values of differing evidential strength are not mixed in the same undifferentiated form.
 
 `basis` in `extract_structured_text`:
 
 | `basis` | What it is |
 |---|---|
-| `layout-attribute-bbox` | The `/BBox` the file **declares** (ISO 32000-2 Table 379). The producer's self-description, not a measurement. **The only possible basis for content with no text (an image-only Figure, say)** |
+| `layout-attribute-bbox` | The `/BBox` the file **declares** (ISO 32000-2 Table 379). Not a measurement. **The only possible basis for content with no text (an image-only Figure, say)** |
 | `text-extent` | **Measured** from the element's own text: baseline origin plus the font's ascent/descent — the line box, not glyph outlines. Images and vector art contribute nothing |
 
 `basis` in `locate_objects`:
@@ -194,8 +213,8 @@ For content streams, `locate_objects` can only say "the whole page". To point at
 
 ### Signatures: structure only
 
-`inspect_signatures` returns the signature-field count, signed/unsigned breakdown and each field's details (signer name, reason, location, signing time, filter/subFilter). **No cryptographic verification is performed** — whether a signature is mathematically valid is pdf-verify's answer (`verify_signatures` / `verify_integrity`).
+[`inspect_signatures`](/reference/mcp/pdf-reader#inspect-signatures) returns the signature-field count, signed/unsigned breakdown and each field's details (signer name, reason, location, signing time, filter/subFilter). **No cryptographic verification is performed.** Whether a signature is mathematically valid is pdf-verify-mcp's answer (`verify_signatures` / `verify_integrity`).
 
 ### The two deprecated tools
 
-`validate_metadata` and `validate_tagged` will be removed in the next major version; pdf-verify's `validate_conformance` supersedes both. If you need structure-tree **facts**, use `inspect_tags` (which is NOT deprecated); to just read metadata, use `get_metadata`.
+`validate_metadata` and `validate_tagged` will be removed in the next major version; pdf-verify-mcp's `validate_conformance` supersedes both. If you need structure-tree **facts**, use [`inspect_tags`](/reference/mcp/pdf-reader#inspect-tags) (which is NOT deprecated); to just read metadata, use [`get_metadata`](/reference/mcp/pdf-reader#get-metadata).
