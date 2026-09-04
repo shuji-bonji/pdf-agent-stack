@@ -119,20 +119,28 @@ Parameters, types and defaults are in the [tools reference](/reference/mcp/pdf-v
 
 Per-tool cautions and prompt → parameters → returned JSON are at the end of each tool on the [tools reference](/reference/mcp/pdf-verify).
 
-### Signatures — valid is not identity
+### Check the signatures
 
-`verify_signatures` returns three independent values. The verdict (`valid` / `invalid` / `indeterminate`) is about the cryptography, trust (`trusted` / `untrusted` / `not_evaluated`) is about the certificate chain, and revocation (`good` / `revoked` / `unknown` / `not_checked`) is about the OCSP / CRL check. **Pass no trust anchors and trust stays `not_evaluated`**, which caps `evaluate_policy` at `use_with_caution`.
+`verify_signatures` returns three values per signature. They are independent.
 
-Revocation checking defaults to `embedded` (data inside the PDF/CMS); `online` queries OCSP/CRL over HTTP.
+| Field | Values | What it looks at |
+| --- | --- | --- |
+| `verdict` | `valid` / `invalid` / `indeterminate` | whether the cryptography matched |
+| `trust` | `trusted` / `untrusted` / `not_evaluated` | the certificate chain |
+| revocation | `good` / `revoked` / `unknown` / `not_checked` | OCSP / CRL |
 
-### Incremental updates after signing are legal
+Without trust anchors (`trust_anchors` or `PDF_VERIFY_TRUST_ANCHORS`), `trust` stays `not_evaluated`. That `valid` means the digest matched; it does not prove the signer is who they claim to be. `evaluate_policy` then stops at `use_with_caution`.
 
-What `verify_integrity` reports is what to review — it does not automatically mean tampering. Adding signatures or DSS/LTV data is a legitimate PDF operation. Per ISO 32000-2 §12.8.2.2, DSS / document-timestamp increments after a P=1 certification are **not** reported as violations (flagged `laterChangesAppearLtvOnly`).
+Revocation checking defaults to `embedded` (data inside the PDF and CMS). `online` queries OCSP and CRL over HTTP.
 
-Since v0.10.0, beyond per-revision reporting, it returns *which objects* were written after signing (`revisions` / `objectChangesAfterLastSignature`), walking the xref chain over raw bytes (table / xref stream / hybrid). **The verdict does not move.**
+### When the file grew after signing
+
+What `verify_integrity` returns is what to look at — not an automatic finding of tampering. Adding a signature, DSS or a document timestamp is a permitted way to write PDF. Per ISO 32000-2 §12.8.2.2, DSS / document-timestamp increments after a P=1 certification are **not** reported as violations (flagged `laterChangesAppearLtvOnly`).
+
+Since v0.10.0 it also returns which objects were written after signing (`revisions` / `objectChangesAfterLastSignature`), walking the xref chain over raw bytes (table / xref stream / hybrid). That diff does not move the signature verdict.
 
 ::: warning Not being able to walk the xref chain is not the same as nothing having changed
-When the xref chain cannot be walked, the result is `null`, not an empty array. Three things go wrong in a naive implementation:
+When the chain cannot be walked, the result is `null`, not an empty array. Three things go wrong in a naive implementation:
 
 - A linearized file has two xref sections for one save. Without merging them, every object looks "added"
 - A full save reports an inflated change count (224,065 in one measurement)
@@ -141,43 +149,47 @@ When the xref chain cannot be walked, the result is `null`, not an empty array. 
 All three were fixed against real measurements.
 :::
 
-### Conformance splits into "read the claim" and "measure by rules"
+### A claim in the file is not a measurement
 
-`identify_conformance` only **reads** whether the file wrote "I am PDF/A". **A label is not evidence** — the actual rule checking is `validate_conformance`.
+`identify_conformance` only **reads** whether the XMP wrote "I am PDF/A". Writing it is not evidence. Rule checking is `validate_conformance`.
 
-`validate_conformance` is a **hybrid engine**: it delegates to veraPDF when available (authoritative), otherwise runs the built-in rules natively. `flavour` accepts `"pdfa-1b"`–`"pdfa-3b"` / `"pdfa-4"` / `"pdfa-4e"` / `"pdfa-4f"` (v0.11.0+) / `"pdfua-1"` / `"pdfua-2"` and follows the XMP declaration when omitted (PDF/A wins when both are declared; falls back to `pdfa-2b`). **PDF/A-4 has no conformance level, so `"pdfa-4b"` does not exist** — `e` / `f` are variants, not levels.
+`validate_conformance` delegates to veraPDF when it is present (authoritative), and otherwise runs the built-in rules. `flavour` accepts `"pdfa-1b"`–`"pdfa-3b"` / `"pdfa-4"` / `"pdfa-4e"` / `"pdfa-4f"` (v0.11.0+) / `"pdfua-1"` / `"pdfua-2"`. When omitted it follows the XMP declaration (PDF/A wins when both are declared; otherwise `pdfa-2b`). **PDF/A-4 has no conformance level, so `"pdfa-4b"` does not exist** — `e` / `f` are variants, not levels.
 
-Reading the result: `compliant` is true / false under veraPDF. **Under the native engine, false = definitive violations found, `null` = "no violations in the checked subset" (not certification).** Native PDF/UA violations carry a severity: only `error` can prove non-conformance; `warning` needs human review.
+Read `compliant` as follows. Under veraPDF it is true / false. Under the built-in rules, false means a decisive violation, and `null` means "no violation in the subset that was checked" (not a certificate). Native PDF/UA violations carry a severity: only `error` can prove non-conformance; `warning` needs a person to review.
 
-### Clause checks return four states
+### Check against ISO 32000 clauses
 
-`validate_clauses` checks constraints mapped from the body clauses of ISO 32000-1/-2 — a document can pass PDF/A or PDF/UA and still violate ISO 32000 (example: embedding a CFF font program under `/FontFile2`, which Table 124 forbids). The mapping and its evaluation live in [pdf-constraints](/reference/pdf-constraints), and the output names the version that decided.
+`validate_clauses` looks at constraints mapped from the ISO 32000-1/-2 body. A file can pass PDF/A or PDF/UA and still violate ISO 32000 (example: embedding a CFF font program under `/FontFile2`, which Table 124 forbids). The mapping and its evaluator live in [pdf-constraints](/reference/pdf-constraints), and the output names the version that decided.
 
 | State | Meaning |
-|---|---|
-| `pass` | **Nothing could be disproved** by this constraint |
-| `fail` | Disproved — with the fact and measured value as evidence |
-| `not_applicable` | The clause does not apply to this document |
-| `needs_external_fact` | An outside fact was not supplied, so **no decision was made** (never defaulted to pass) |
+| --- | --- |
+| `pass` | nothing in this constraint could be disproved |
+| `fail` | disproved, with the fact and measured value |
+| `not_applicable` | the clause does not apply to this document |
+| `needs_external_fact` | a fact outside the file was missing, so no decision was made (never defaulted to pass) |
 
 Failures marked `trace` mean the clause binds the PDF **processor** — evidence that someone broke it, not necessarily the last writer.
 
-### PAdES levels stack up
+### Observe PAdES structure
 
-| Level | Structure (on top of the row above) | Meaning |
-|---|---|---|
-| B-B | CAdES signature | Signature only |
-| B-T | + signature timestamp (RFC 3161) | A third party attests the signing time |
-| B-LT | + DSS with validation data (certificates, OCSP/CRL) | Revocation-checking material is self-contained in the document |
-| B-LTA | + document timestamp | The validation material itself is sealed — survives long-term preservation |
+`detect_pades_level` observes structure. Do not write "conforms to PAdES". Levels are added in this order.
 
-B-LT / B-LTA additionally require that the DSS revocation data actually covers the signer certificate (otherwise the level caps at B-T). Legacy adbe.pkcs7.detached is reported as non-PAdES.
+| Level | Structure (each row adds to the one above) | Meaning |
+| --- | --- | --- |
+| B-B | CAdES signature | signature only |
+| B-T | + signature timestamp (RFC 3161) | a third party attests the signing time |
+| B-LT | + DSS with validation data (certificates, OCSP/CRL) | revocation-checking material is self-contained in the document |
+| B-LTA | + document timestamp | the validation material itself is sealed for long-term preservation |
 
-### The 4-value verdict depends on the profile
+B-LT and B-LTA also require that the DSS revocation data actually covers the signer certificate. Otherwise the level stops at B-T. Legacy `adbe.pkcs7.detached` is reported as non-PAdES.
 
-`evaluate_policy` internally runs `verify_signatures`, `verify_integrity` and `detect_pades_level` (plus `validate_conformance` for long-term-preservation profiles). It then applies those facts to a fixed rule table and reduces them to one of four values. **Same facts and same profile always yield the same verdict.** `profile` is one of `general` / `contract` (signature required, identity-focused) / `financial`, `government` (long-term-preservation checks) / `legal` / `medical` (most conservative — caution escalates to review).
+### Ask whether it may be used in the process
 
-It returns `verdict`, `firedRules` (rule IDs with reasons), `advisories` (recommendations that do not affect the verdict) and a facts summary. The Skill that builds a whole audit around this verdict is [pdf-trust](/skills/pdf-trust).
+`evaluate_policy` runs `verify_signatures`, `verify_integrity` and `detect_pades_level` internally (plus `validate_conformance` for long-term-preservation profiles). It then applies those facts to a fixed rule table and reduces them to one of four values. The same facts and the same `profile` always yield the same verdict.
+
+Choose `profile` from `general` / `contract` (signature required, identity-focused) / `financial` and `government` (long-term-preservation checks) / `legal` / `medical` (most conservative — caution escalates to review).
+
+It returns `verdict`, `firedRules` (fired rule IDs and reasons), `advisories` (recommendations that do not move the verdict) and a facts summary. The Skill that builds a whole audit around this verdict is [pdf-trust](/skills/pdf-trust).
 
 ## Assertion strength
 

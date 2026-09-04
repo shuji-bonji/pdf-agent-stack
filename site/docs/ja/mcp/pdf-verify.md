@@ -128,65 +128,77 @@ graph LR
 
 各ツールの運用上の注意と「プロンプト → 引数 → 返る JSON」は [ツールリファレンス](/ja/reference/mcp/pdf-verify) の該当ツール末尾にあります。
 
-### 署名 — valid は「本人」ではない
+### 署名を確認する
 
-`verify_signatures` の返す 3 つの値は独立しています。verdict（`valid` / `invalid` / `indeterminate`）は暗号計算の一致、trust（`trusted` / `untrusted` / `not_evaluated`）は証明書チェーンの評価、失効状態（`good` / `revoked` / `unknown` / `not_checked`）は OCSP / CRL の確認結果です。**信頼アンカーを渡さなければ trust は `not_evaluated` のまま**で、`evaluate_policy` の判定も `use_with_caution` 止まりになります。
+`verify_signatures` は、署名ごとに次の 3 つを返します。3 つは別々の結果です。
 
-失効確認は既定で `embedded`（PDF/CMS 内のデータ）です。`online` にすると OCSP/CRL へ HTTP 問い合わせを行います。
+| フィールド | 値 | 見ているもの |
+| --- | --- | --- |
+| `verdict` | `valid` / `invalid` / `indeterminate` | 暗号計算が一致したか |
+| `trust` | `trusted` / `untrusted` / `not_evaluated` | 証明書チェーン |
+| 失効 | `good` / `revoked` / `unknown` / `not_checked` | OCSP / CRL |
 
-### 署名後の増分更新は合法
+信頼アンカー（`trust_anchors` または `PDF_VERIFY_TRUST_ANCHORS`）を渡さないと、`trust` は `not_evaluated` のままです。そのときの `valid` は、ダイジェストが一致したという意味であって、署名者が本人であることの証明ではありません。`evaluate_policy` の判定も `use_with_caution` までです。
 
-`verify_integrity` が報告するのは「レビューすべき点」であって、自動的に改ざんを意味しません。署名の追加・DSS/LTV データの付与は PDF として正当な操作です。ISO 32000-2 §12.8.2.2 に従い、P=1 認証後の DSS / 文書タイムスタンプ増分は違反として**報告しません**（`laterChangesAppearLtvOnly` としてフラグ）。
+失効確認の既定は `embedded`（PDF と CMS の中のデータ）です。`online` にすると、OCSP と CRL へ HTTP で問い合わせます。
 
-v0.10.0 から、リビジョン単位に加えて「署名後にどのオブジェクトが書かれたか」まで返します（`revisions` / `objectChangesAfterLastSignature`）。生バイトで xref チェーンを歩きます（table / xref stream / hybrid 対応）。**判定は不変**です。
+### 署名のあとにファイルが増えているとき
+
+`verify_integrity` が返すのは「見てほしい箇所」です。それだけで改ざんとは言いません。署名の追加や、DSS / 文書タイムスタンプの付与は、PDF として認められた書き方です。ISO 32000-2 §12.8.2.2 に従い、P=1 の認証のあとでも、DSS と文書タイムスタンプの増分は違反として報告しません（`laterChangesAppearLtvOnly` の印が付きます）。
+
+v0.10.0 からは、リビジョン単位に加えて、署名のあとにどのオブジェクトが書かれたかも返します（`revisions` / `objectChangesAfterLastSignature`）。xref チェーンは生バイトで歩きます（table / xref stream / hybrid）。この差分を見ても、署名の判定そのものは変わりません。
 
 ::: warning xref チェーンを辿れないことと、変更が無いことは同じではありません
-xref チェーンを辿れなかった場合は、空配列ではなく `null` を返します。次の 3 点は、素朴に実装すると誤った結果になります。
+辿れなかったときは、空の配列ではなく `null` を返します。次の 3 点は、そのまま実装すると誤ります。
 
-- 線形化 PDF は 1 回の保存で xref が 2 つできるため、併合しないと「全オブジェクトが追加された」と誤報する
-- フルセーブでは変更件数が過大になる（実測で 224,065 件）
-- 辿れないことを「変更なし」と読むと、確認できていない事実を確定してしまう
+- 線形化 PDF は、1 回の保存で xref が 2 つできます。併せないと「すべてのオブジェクトが追加された」と誤ります
+- フルセーブでは、変更件数が過大になります（実測で 224,065 件）
+- 辿れないことを「変更なし」と読むと、確認できていない事実を確定してしまいます
 
-いずれも実測で対処済みです。
+いずれも、実測を見て対処済みです。
 :::
 
-### 準拠判定は「宣言を読む」と「ルールで測る」に分かれる
+### 名乗っていることと、測った結果は別です
 
-`identify_conformance` は「私は PDF/A です」と書いてあるかを**読むだけ**です。**宣言は証拠になりません。** 実際のルール検査は `validate_conformance` が行います。
+`identify_conformance` は、XMP に「私は PDF/A です」と書いてあるかを**読むだけ**です。書いてあることは証拠になりません。ルールで測るのは `validate_conformance` です。
 
-`validate_conformance` は**ハイブリッドエンジン**です。veraPDF があれば委譲し（authoritative）、なければ内蔵ルールをネイティブ実行します。`flavour` は `"pdfa-1b"`〜`"pdfa-3b"` / `"pdfa-4"` / `"pdfa-4e"` / `"pdfa-4f"`（v0.11.0+）/ `"pdfua-1"` / `"pdfua-2"` 等で、省略時は XMP 宣言に従います（両方宣言時は PDF/A 優先、fallback `pdfa-2b`）。**PDF/A-4 は conformance level を持たないので `"pdfa-4b"` は存在しません。** `e` / `f` はレベルではなく variant です。
+`validate_conformance` は、veraPDF があればそちらに渡し（authoritative）、無ければ内蔵ルールで見ます。`flavour` は `"pdfa-1b"`〜`"pdfa-3b"` / `"pdfa-4"` / `"pdfa-4e"` / `"pdfa-4f"`（v0.11.0 以降）/ `"pdfua-1"` / `"pdfua-2"` です。省略すると XMP の宣言に従います。両方書いてあるときは PDF/A を優先し、どちらも無ければ `pdfa-2b` です。**PDF/A-4 に conformance level は無いので、`"pdfa-4b"` はありません。** `e` と `f` はレベルではなく variant です。
 
-結果の読み方: `compliant` は veraPDF なら true / false。**ネイティブエンジンでは false = 決定的違反あり、`null` =「検査したサブセット内で違反なし」（認証ではない）**です。PDF/UA ネイティブ違反は severity 付きで、`error` のみが非準拠を証明でき、`warning` は人のレビューが要ります。
+`compliant` の読み方は次のとおりです。veraPDF なら true / false です。内蔵ルールでは、false は決定的な違反あり、`null` は「見た範囲では違反なし」（認証ではありません）。PDF/UA の内蔵ルールの違反には severity が付きます。`error` だけが非準拠を証明でき、`warning` は人の確認が要ります。
 
-### 条文検査は 4 状態で返る
+### ISO 32000 の条文に照らす
 
-`validate_clauses` は ISO 32000-1/-2 本体の条文から書き起こした制約を検査します。PDF/A や PDF/UA に通っても ISO 32000 に違反しうるためです（例: CFF フォントプログラムを `/FontFile2` に埋め込む。Table 124 が禁じています）。制約テーブルとその評価器は [pdf-constraints](/ja/reference/pdf-constraints) にあり、どの版が判定したかを出力に含めます。
+`validate_clauses` は、ISO 32000-1/-2 本体の条文から書き起こした制約を見ます。PDF/A や PDF/UA に通っても、ISO 32000 に違反することはあります（例: CFF フォントプログラムを `/FontFile2` に入れる。Table 124 が禁じています）。制約の表と評価器は [pdf-constraints](/ja/reference/pdf-constraints) にあり、どの版が判定したかを出力に含めます。
 
-| 状態                  | 意味                                                              |
-| --------------------- | ----------------------------------------------------------------- |
-| `pass`                | この制約では**規格破りは見つからなかった**                        |
-| `fail`                | 規格破りが見つかった。根拠となる事実と実測値つき                  |
-| `not_applicable`      | この文書には条文が適用されない                                    |
-| `needs_external_fact` | ファイル外の事実が与えられず**判定しなかった**（pass に倒さない） |
+| 状態 | 意味 |
+| --- | --- |
+| `pass` | この制約では、規格破りは見つからなかった |
+| `fail` | 規格破りが見つかった。根拠となる事実と実測値が付く |
+| `not_applicable` | この文書には、その条文が当たらない |
+| `needs_external_fact` | ファイルの外の事実が無く、判定しなかった（pass にはしません） |
 
-`trace` 印の失敗は、条文が PDF **処理系**に向けたものであることを示します ── 誰かが破った痕跡であって、最後に書いた者が破ったとは限りません。
+`trace` 印の失敗は、条文が PDF の**処理系**に向けたものです。誰かが破った痕跡であって、最後に書いた者が破ったとは限りません。
 
-### PAdES レベルは積み上げで決まる
+### PAdES の構造を見る
 
-| レベル | 構造（上の行に追加で）                   | 意味                                 |
-| ------ | ---------------------------------------- | ------------------------------------ |
-| B-B    | CAdES 署名                               | 署名のみ                             |
-| B-T    | + 署名タイムスタンプ（RFC 3161）         | 署名時刻を第三者が証明               |
-| B-LT   | + 検証データ入り DSS（証明書・OCSP/CRL） | 失効確認の材料が文書内で完結         |
-| B-LTA  | + 文書タイムスタンプ                     | 検証材料ごと封印し、長期保存に耐える |
+`detect_pades_level` が見るのは構造です。「PAdES に準拠している」とは書きません。レベルは次の順で足されます。
 
-B-LT / B-LTA は DSS の失効データが署名者証明書を実際にカバーしていることを追加要求します（満たさなければ B-T 止まり）。旧式の adbe.pkcs7.detached は非 PAdES として報告します。
+| レベル | 構造（上の行に足したもの） | 意味 |
+| --- | --- | --- |
+| B-B | CAdES 署名 | 署名だけ |
+| B-T | + 署名タイムスタンプ（RFC 3161） | 署名時刻を第三者が証明する |
+| B-LT | + 検証データ入り DSS（証明書・OCSP/CRL） | 失効確認の材料が文書の中で揃う |
+| B-LTA | + 文書タイムスタンプ | 検証材料ごと封印し、長期の保存に耐える |
 
-### 4 値判定はプロファイルで変わる
+B-LT と B-LTA は、DSS の失効データが署名者証明書を実際に覆っていることも要ります。満たさなければ B-T までです。旧式の `adbe.pkcs7.detached` は、非 PAdES として報告します。
 
-`evaluate_policy` は内部で `verify_signatures`・`verify_integrity`・`detect_pades_level`（長期保存プロファイルでは `validate_conformance` も）を実行します。得られた事実を固定ルールに当てはめ、4 値に集約します。**同じ事実と同じプロファイルからは常に同じ判定**です。`profile` は `general` / `contract`（署名必須・本人性重視）/ `financial`・`government`（長期保存検査）/ `legal` / `medical`（最保守。caution が review に昇格）から選びます。
+### 業務に載せてよいかを聞く
 
-返るのは `verdict`・`firedRules`（発火ルール ID と理由）・`advisories`（判定に影響しない推奨）・事実サマリです。この判定を軸に監査全体を編成するのが [pdf-trust Skill](/ja/skills/pdf-trust) です。
+`evaluate_policy` は、内部で `verify_signatures`、`verify_integrity`、`detect_pades_level` を実行します。長期保存のプロファイルでは `validate_conformance` も実行します。得られた事実を固定のルールに当てはめ、4 値にまとめます。同じ事実と、同じ `profile` からは、いつも同じ判定です。
+
+`profile` は次から選びます。`general` / `contract`（署名必須、本人性を重視）/ `financial` と `government`（長期保存の検査）/ `legal` / `medical`（いちばん保守的。caution が review に上がる）。
+
+返るのは `verdict`、`firedRules`（発火したルールの ID と理由）、`advisories`（判定を動かさない推奨）、事実の要約です。この判定を軸に監査全体を組むのが [pdf-trust Skill](/ja/skills/pdf-trust) です。
 
 ## 言い切り強度
 

@@ -31,6 +31,20 @@
   --vp-c-brand-soft: rgba(228, 80, 111, 0.16);
 }
 
+/* h3 は h2 との差が弱いので、左線と余白でブロックの始まりを示す */
+.vp-doc h3 {
+  margin-top: 2.75rem;
+  padding: 0.4rem 0 0.4rem 0.9rem;
+  border-left: 3px solid var(--vp-c-brand-1);
+  font-size: 1.2rem;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
+}
+
+.vp-doc h3 .header-anchor {
+  top: 0.4rem;
+}
+
 /* ---------------------------------------------------------------------------
  * Mermaid — クリックで全画面表示（theme/index.ts が svg-pan-zoom を適用する）
  * ------------------------------------------------------------------------- */

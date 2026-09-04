@@ -150,22 +150,36 @@ Parameters, types and defaults are in the [tools reference](/reference/mcp/pdf-s
 
 ## How to use it
 
-**Start with `list_specs`.** See what is present and what is not (`coverage.gaps`) before anything else. Always read the gaps before concluding that a requirement does not exist.
+Prompt → parameters → returned JSON for each tool is at the end of that tool on the [tools reference](/reference/mcp/pdf-spec). How to read the JSON shape is in [Reading pdf-spec Output](/reference/pdf-spec-output). The full scenario is [spec research](/use-cases/spec-research).
 
-**Know the section number? `get_section`. Don't? `search_spec`.** `get_section` on **a parent section returns its whole subtree** (all subsections in document order), so top-level clauses can return very large responses — use the most specific section number you know. `search_spec` matches as an exact phrase first, then as AND over the words. The corpus is English, so search terms should be the specification's English.
+### See what the corpus holds first
 
-::: warning What zero hits mean
-"This corpus cannot answer" — **not** "no such requirement exists". PDF/A and PAdES are outside the corpus.
+Start with `list_specs`. What is present and what is not is in `coverage.gaps`. PDF/A and PAdES are outside the corpus. Read the gaps before saying a requirement does not exist.
+
+### Get the clause text
+
+If you know the section number, use `get_section`. If you do not, search with `search_spec`.
+
+Passing a parent section to `get_section` returns every subsection in document order. A chapter number alone can make a very large response — use the most specific number you know.
+
+`search_spec` matches as an exact phrase first, then as AND over the words. The corpus is English, so search terms should be the specification's English.
+
+::: warning When there are zero hits
+That means "this corpus cannot answer" — **not** "no such requirement exists". PDF/A and PAdES are outside the corpus.
 :::
 
-**Want only the requirements? `get_requirements`.** Filter with `level` (shall / shall not / should / should not / may). This tool **reads the standard, not your file.** Whether a given PDF satisfies it is pdf-verify's `validate_conformance` / `evaluate_policy`.
+### Extract only the requirements
 
-**Comparing versions? `compare_versions`.** It matches sections between 1.7 and 2.0 by their titles and returns three kinds:
+If you want shall / should / may only, use `get_requirements` and filter with `level`. It **reads the standard, not your file.** Whether a given PDF satisfies it is pdf-verify's `validate_conformance` / `evaluate_policy`.
 
-- **matched** — the same section, or a moved one
-- **added** — new in 2.0
-- **removed** — absent from 2.0
+### Compare 1.7 and 2.0
 
-Both PDF 1.7 and PDF 2.0 must be in `PDF_SPEC_DIR`.
+`compare_versions` matches sections between PDF 1.7 and 2.0 by their titles and returns three kinds:
 
-Prompt → parameters → returned JSON for each tool is in the accordion at the end of that tool on the [tools reference](/reference/mcp/pdf-spec). How to read the JSON shape is in [Reading pdf-spec Output](/reference/pdf-spec-output). The full scenario is [spec research](/use-cases/spec-research).
+| Kind | Meaning |
+| --- | --- |
+| matched | the same section, or one that moved |
+| added | new in 2.0 |
+| removed | absent from 2.0 |
+
+Both the PDF 1.7 and PDF 2.0 files must be in `PDF_SPEC_DIR`.

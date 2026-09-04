@@ -118,43 +118,43 @@ Parameters, types and defaults are in the [tools reference](/reference/mcp/pdf-w
 
 Per-tool cautions and prompt → parameters → returned JSON are at the end of each tool on the [tools reference](/reference/mcp/pdf-writer).
 
-### Creation — if it should be tagged, tag it from the start
+### Create a new PDF
 
-`create_text_pdf` / `create_markdown_pdf` / `create_table_pdf` all take `tagged: true`, which **generates a tagged PDF (PDF/UA-1)** with a structure tree, the PDF/UA declaration, `/Lang` and DisplayDocTitle. PDF/UA requires a title, so `title` becomes required too.
+`create_text_pdf` / `create_markdown_pdf` / `create_table_pdf` all take `tagged: true`. That builds a tagged PDF (PDF/UA-1), with a structure tree, the PDF/UA declaration, `/Lang` and DisplayDocTitle. PDF/UA requires a title, so `title` becomes required too.
 
-- Omitting `lang` (BCP 47, e.g. `"ja"`) under `tagged` infers it from the text and reports it in warnings. **A wrong language declaration makes screen readers misread** — set it explicitly when you know it
-- Building the structure right from the start beats applying `ensure_tagged` to an existing PDF afterwards
-- What happens to characters the font lacks is decided by `onMissingGlyph`; the default is `error` (which lists the missing characters)
+- Omitting `lang` (BCP 47, e.g. `"ja"`) infers it from the text and reports it in warnings. A wrong language declaration makes screen readers misread — set it explicitly when you know it
+- Building with `tagged: true` from the start beats applying `ensure_tagged` afterwards
+- What happens to characters the font lacks is decided by `onMissingGlyph`. The default is `error`, which lists the missing characters and fails
 
-`pdfVersion` defaults to `"1.7"`. Setting `"2.0"` (ISO 32000-2) adds, beyond the version claim, a **trailer `/ID`** (Required per Table 15) and **trims the Info dictionary to CreationDate / ModDate**, moving title/author/Producer to XMP (§14.3.3).
+`pdfVersion` defaults to `"1.7"`. Setting `"2.0"` (ISO 32000-2) adds a trailer `/ID` (Required per Table 15) and trims the Info dictionary to CreationDate / ModDate, moving title, author and Producer to XMP (§14.3.3).
 
-**It cannot be combined with `tagged: true`.** The only conformance declaration this server can write is PDF/UA-1 (built on PDF 1.7), and putting it on a PDF 2.0 document would make a declaration nobody can measure.
+`tagged: true` cannot be combined with `"2.0"`. The only declaration this server can write is PDF/UA-1 (built on PDF 1.7). Putting it on a PDF 2.0 document would make a declaration nobody can measure.
 
-### Page operations do not carry document-level information
+### Extract or merge pages
 
-::: warning
-`merge_pdfs` / `split_pdf` / `extract_pages` / `delete_pages` / `reorder_pages` copy pages into a new document, so **tagged structure, XMP, attachments, AcroForm, bookmarks etc. are not carried over**. What was lost is reported in warnings — follow up on the output with `attach_file` / `ensure_tagged` / `add_bookmarks` / `set_metadata` as needed.
+::: warning Document-level information is not carried over
+`merge_pdfs` / `split_pdf` / `extract_pages` / `delete_pages` / `reorder_pages` copy pages into a new document. Tagged structure, XMP, attachments, AcroForm, bookmarks and similar are not carried over. What was lost is reported in warnings — follow up on the output with `attach_file` / `ensure_tagged` / `add_bookmarks` / `set_metadata`.
 :::
 
-`extract_pages` outputs in **the order you list the pages**, so it can reorder while extracting. `add_bookmarks` **replaces** the existing outline.
+`extract_pages` outputs in the order you list the pages, so it can reorder while extracting. `add_bookmarks` replaces the existing outline. It does not append.
 
-### Annotations, watermarks and page numbers keep tagging intact
+### Add annotations, watermarks and page numbers
 
-`add_annotation` takes coordinates in **PDF space (origin bottom-left, pt)** — exactly the rectangles [pdf-reader](/mcp/pdf-reader)'s `locate_objects` and `extract_structured_text` (`include_bbox`) return. In tagged documents it also encloses the annotation in an Annot structure element (PDF/UA 7.18.1-1); with `preserveSignatures` that enclosure rides the incremental update too (under DocMDP, allowed only at P=3). Alt text for assistive technology goes in `alt`.
+`add_annotation` takes coordinates in PDF space (origin bottom-left, pt) — exactly the rectangles [pdf-reader](/mcp/pdf-reader)'s `locate_objects` and `extract_structured_text` (`include_bbox`) return. In tagged documents it also encloses the annotation in an Annot structure element (PDF/UA 7.18.1-1). With `preserveSignatures` that enclosure rides the incremental update (under DocMDP, allowed only at P=3). Alt text for assistive technology goes in `alt`.
 
-`add_watermark` and `stamp_page_numbers` are wrapped as Artifacts in tagged PDFs, preserving PDF/UA conformance. Both need a font for CJK strings.
+`add_watermark` and `stamp_page_numbers` are wrapped as Artifacts in tagged PDFs. Assistive technology does not read the watermark or page numbers as body text. Both need a font for CJK strings.
 
-### Forms — how to discover field names
+### Fill a form
 
-With `fill_form`, **passing a nonexistent field name makes the error list every field name and type**. XFA is unsupported.
+If you do not know the field names, pass one nonexistent name to `fill_form`. The error lists every field name and type. XFA is unsupported.
 
-`flatten_form` refuses by default on tagged PDFs, because the Widget annotations disappear and Form structure elements are left dangling (`allowBreakingTags: true` forces it, **and the file is no longer PDF/UA-conformant**).
+`flatten_form` refuses by default on tagged PDFs, because the Widget annotations disappear and Form structure elements are left dangling. `allowBreakingTags: true` forces it, and the file can no longer be measured as PDF/UA.
 
-`tag_form_fields` **repairs a tagged PDF's form to PDF/UA-1**: it encloses Widgets in Form structure elements (7.18.4-1), sets `/Tabs S` on the affected pages (7.18.3-1) and gives fields alternate names `/TU` (7.18.1-3). It is **idempotent**. Untagged documents are out of scope.
+`tag_form_fields` repairs a tagged PDF's form toward PDF/UA-1: it encloses Widgets in Form structure elements (7.18.4-1), sets `/Tabs S` on the affected pages (7.18.3-1) and gives fields alternate names `/TU` (7.18.1-3). Running it again does not change the result. Untagged documents are out of scope.
 
-### Declarations — whatever you declare, measure
+### Make the file claim PDF/A or PDF/UA
 
-::: danger Whatever you declare, measure
+::: danger Whatever you make the file claim, measure
 `ensure_tagged` / `ensure_pdfa` write pdfuaid / pdfaid into the XMP. That is a declaration the file makes about itself, not proof that it meets the standard. Applied to a non-conforming document they produce **a PDF claiming conformance it does not have** (a warning is always returned).
 
 After writing, always measure with pdf-verify's `validate_conformance`, passing the same flavour string you gave `ensure_pdfa` (`pdfua-1` / `pdfa-3b` / `pdfa-4` / `pdfa-4f`). **If you cannot measure it, do not write the declaration.**

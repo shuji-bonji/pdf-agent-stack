@@ -125,11 +125,11 @@ Parameters, types and defaults are in the [tools reference](/reference/mcp/pdf-r
 
 ## How to use it
 
-Decide which detailed tool to use only after measuring the document with [`summarize`](/reference/mcp/pdf-reader#summarize). If all you need is the page count, [`get_page_count`](/reference/mcp/pdf-reader#get-page-count) is lighter. Prompt → parameters → returned JSON for each tool is in the accordion at the end of that tool on the [tools reference](/reference/mcp/pdf-reader).
+Decide which tool reads the body only after calling [`summarize`](/reference/mcp/pdf-reader#summarize). If all you need is the page count, [`get_page_count`](/reference/mcp/pdf-reader#get-page-count) is lighter. Prompt → parameters → returned JSON for each tool is at the end of that tool on the [tools reference](/reference/mcp/pdf-reader).
 
-### Pick the path
+### Decide which tool to read with
 
-`summarize` returns `metadata.isTagged` and `textExtractability`; those two fields pick the body-text path. `next` is a suggestion derived from the observations. It is not enforced.
+`summarize` returns `metadata.isTagged` and `textExtractability`. Those two fields pick the body-text path. `next` is a suggestion from the observations, not an instruction you must follow.
 
 ```mermaid
 flowchart TD
@@ -143,7 +143,7 @@ flowchart TD
   X -->|"no_text_layer or not_extractable"| RP["render_page"]
 ```
 
-Position is a separate path from the body text. The tool depends on whether you are pointing at a paragraph or at an object number.
+Position on the page is a separate path from the body text. The tool depends on whether you are pointing at a paragraph or at an object number.
 
 ```mermaid
 flowchart TD
@@ -152,7 +152,7 @@ flowchart TD
   Q -->|object number| LOC["locate_objects"]
 ```
 
-### Body text — three paths
+### Get the body text
 
 | Document | Tool | Why |
 |---|---|---|
@@ -177,9 +177,9 @@ Four things to know about `extract_structured_text` output:
 - `alt` is returned separately rather than mixed into `text` (§14.9.3), and `Lbl` (list bullets) goes to `label`
 - Artifacts (page numbers, running heads) are excluded
 
-### Position — two paths
+### Get a location on the page
 
-`locate_objects` and `extract_structured_text` (`include_bbox: true`) attach a **`basis`** to every rectangle, distinguishing whether it was measured, is the file's declaration, or merely points at the whole page. Values of differing evidential strength are not mixed in the same undifferentiated form.
+`locate_objects` and `extract_structured_text` (`include_bbox: true`) attach a **`basis`** to every rectangle. Each looks like `{x1, y1, x2, y2}`, but they are not the same kind of evidence. Do not treat a text measurement, a `/BBox` the file declared, and a box that only names the whole page as equally precise coordinates. The distinction is in each rectangle's `basis`.
 
 `basis` in `extract_structured_text`:
 
@@ -211,10 +211,10 @@ The 166 measured rectangles of *Well-Tagged PDF 1.0*'s `Link` structure elements
 For content streams, `locate_objects` can only say "the whole page". To point at a paragraph or heading, use `extract_structured_text` with `include_bbox`.
 :::
 
-### Signatures: structure only
+### Check the signature fields
 
-[`inspect_signatures`](/reference/mcp/pdf-reader#inspect-signatures) returns the signature-field count, signed/unsigned breakdown and each field's details (signer name, reason, location, signing time, filter/subFilter). **No cryptographic verification is performed.** Whether a signature is mathematically valid is pdf-verify-mcp's answer (`verify_signatures` / `verify_integrity`).
+[`inspect_signatures`](/reference/mcp/pdf-reader#inspect-signatures) returns the signature-field count, signed/unsigned breakdown and each field's details (signer name, reason, location, signing time, filter/subFilter). It does not verify cryptography. Whether a signature is mathematically valid is pdf-verify-mcp's `verify_signatures` / `verify_integrity`.
 
-### The two deprecated tools
+### Two tools not to use
 
-`validate_metadata` and `validate_tagged` will be removed in the next major version; pdf-verify-mcp's `validate_conformance` supersedes both. If you need structure-tree **facts**, use [`inspect_tags`](/reference/mcp/pdf-reader#inspect-tags) (which is NOT deprecated); to just read metadata, use [`get_metadata`](/reference/mcp/pdf-reader#get-metadata).
+`validate_metadata` and `validate_tagged` will be removed in the next major version. pdf-verify-mcp's `validate_conformance` supersedes both. If you need structure-tree facts, use [`inspect_tags`](/reference/mcp/pdf-reader#inspect-tags) (which is not deprecated); to just read metadata, use [`get_metadata`](/reference/mcp/pdf-reader#get-metadata).
