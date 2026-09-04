@@ -4,7 +4,8 @@ description: The MCP that observes what is inside a PDF and where it is (19 tool
 
 # pdf-reader-mcp
 
-**The server that reports what a PDF says and where on the page it says it.** It extracts text, tables, the structure tree, fonts, annotations and signature fields, and returns the coordinates at which each of them is drawn. Everything it returns is an observed fact; it never judges whether that fact is correct.
+**The server that reports what a PDF says and where on the page it says it.**
+It extracts text, tables, the structure tree, fonts, annotations and signature fields, and returns the coordinates at which each of them is drawn. Everything it returns is an observed fact; it never judges whether that fact is correct.
 
 - npm: [`@shuji-bonji/pdf-reader-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-reader-mcp) / current v0.15.0 / [GitHub](https://github.com/shuji-bonji/pdf-reader-mcp)
 - This page is the guide — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-reader) (generated from `tools/list`)
@@ -12,9 +13,15 @@ description: The MCP that observes what is inside a PDF and where it is (19 tool
 
 ## What this one server gives you
 
-**If all you need is to read PDFs, this server alone is enough.** "Summarize this PDF", "turn this table into CSV", "which fonts are embedded?" — all of it finishes here. Unlike plain text extraction, a tagged PDF can be read in **logical reading order**, so multi-column layouts and tables do not come out scrambled.
+**If all you need is to read PDFs, this server alone is enough.**
+"Summarize this PDF", "turn this table into CSV", "which fonts are embedded?" — all of it finishes here.
 
-Beyond "what is inside", it also reports **where it is drawn on the page**. Rectangles come back in the coordinate space [pdf-writer-mcp](/mcp/pdf-writer)'s `add_annotation` uses directly (PDF default user space, origin bottom-left, pt, normalised), so no coordinate system has to be reinterpreted in between.
+::: info
+Unlike plain text extraction, this MCP server can read a tagged PDF in **logical reading order**, so multi-column layouts and tables do not come out scrambled.
+:::
+
+Beyond "what is inside", it also reports **where it is drawn on the page**.
+Rectangles come back in the coordinate space [pdf-writer-mcp](/mcp/pdf-writer)'s `add_annotation` uses directly (PDF default user space, origin bottom-left, pt, normalised), so no coordinate system has to be reinterpreted in between.
 
 | Question | Tool |
 |---|---|
@@ -23,14 +30,15 @@ Beyond "what is inside", it also reports **where it is drawn on the page**. Rect
 
 ## What it gives you together with a Skill
 
-This server sits in the **fact** layer of the four (fact = what was observed): it returns observations and nothing else. How far to read, and how to declare what could not be read, is a Skill's job.
+This MCP server sits in the **fact** layer of the four (fact = what was observed): it returns observations and nothing else.
+How far to read, and how to report what could not be read, is a Skill's job.
 
 ```mermaid
 graph LR
   TARGET[/"the PDF to read"/] --> READER
 
-  subgraph SELF["this page"]
-    READER[["pdf-reader-mcp<br>fact — what is inside, and where"]]
+  subgraph SELF["this MCP server"]
+    READER[["pdf-reader-mcp<br>fact — the content, and where it is drawn"]]
   end
 
   VERIFY[["pdf-verify-mcp<br>judgment"]] -->|changed object numbers| READER

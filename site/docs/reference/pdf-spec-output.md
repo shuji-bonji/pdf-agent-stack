@@ -32,7 +32,7 @@ Returns the body of a section as a **sequence of elements**, not as the original
 }
 ```
 
-How to read it: `content` is in document order. **NOTE / EXAMPLE come back as `note` elements, separate from `paragraph` (body text)** — in ISO drafting a NOTE is informative, not a normative requirement, so this distinction matters whenever you cite something as grounds. Tables come back structured as `table` elements, which keeps an LLM from misreading the correspondence of key, type and meaning.
+How to read it: `content` is in document order. **NOTE / EXAMPLE come back as `note` elements, separate from `paragraph` (body text).** In ISO drafting a NOTE is informative, not a normative requirement, so this distinction is required whenever you cite something as grounds. Tables come back structured as `table` elements, which keeps an LLM from misreading the correspondence of key, type and meaning.
 
 ## Requirements (`get_requirements` output)
 
@@ -84,7 +84,7 @@ Returns term definitions from Section 3 (Terms and definitions).
 }
 ```
 
-How to read it: an ISO definition is **a normative sentence that fixes what the term means inside that standard**. The further a term drifts from everyday usage (conforming reader / interactive form / artifact), the more it pays to settle it here before arguing. `notes` are supplements (Note to entry), kept separate from the definition text.
+How to read it: an ISO definition is **a normative sentence that fixes what the term means inside that standard**. For terms whose meaning in the standard differs from everyday usage (conforming reader / interactive form / artifact), check the definition here before arguing. `notes` are supplements (Note to entry), kept separate from the definition text.
 
 ## Related
 

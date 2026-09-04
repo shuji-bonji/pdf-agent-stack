@@ -82,14 +82,14 @@ Most tools accept these.
 | `outputPath` | string | Where to save (absolute). **Omitting it returns base64, which makes the response enormous and is likely to break the conversation — always set it** |
 | `returnBase64` | boolean | Also return base64 in addition to saving. Default false |
 | `fontPath` | string | Font to embed (.ttf/.otf; .ttc unsupported). Required for CJK. Env `PDF_WRITER_FONT` works too |
-| `allowBreakingSignatures` | boolean | A signed PDF (detected via /ByteRange) errors by default. true = proceed **knowing the signatures break** |
+| `allowBreakingSignatures` | boolean | A signed PDF (detected via /ByteRange) errors by default. true = proceed **knowing the signatures will be invalidated** |
 | `preserveSignatures` | boolean | Edit via **incremental update (appending)** without invalidating signatures. Original bytes are untouched, so /ByteRange holds. Changes beyond the DocMDP permission level are refused (supported tools only) |
 
 ### Handling signed PDFs (decision flow)
 
 The decision when editing a signed PDF goes like this.
 
-- The default is an error (signatures are not broken)
+- The default is an error (signatures are not invalidated)
 - To keep the signatures, use `preserveSignatures` (incremental update)
 - Only when breaking them is acceptable, use `allowBreakingSignatures`
 
@@ -98,7 +98,7 @@ graph TD
   A[Editing a signed PDF] --> B{Keep the signatures?}
   B -->|Yes| C[preserveSignatures: true<br>incremental update, supported tools only<br>within the DocMDP permission level]
   B -->|No / unavoidable| D[allowBreakingSignatures: true<br>signatures are invalidated]
-  B -->|Neither| E[Error SIGNED_PDF<br>nothing breaks unless stated]
+  B -->|Neither| E[Error SIGNED_PDF<br>not invalidated unless stated]
 ```
 
 ## Tools (20)
@@ -124,7 +124,9 @@ Parameters, types and defaults are in the [tools reference](/reference/mcp/pdf-w
 - Building the structure right from the start beats applying `ensure_tagged` to an existing PDF afterwards
 - What happens to characters the font lacks is decided by `onMissingGlyph`; the default is `error` (which lists the missing characters)
 
-`pdfVersion` defaults to `"1.7"`. Setting `"2.0"` (ISO 32000-2) adds, beyond the version claim, a **trailer `/ID`** (Required per Table 15) and **trims the Info dictionary to CreationDate / ModDate**, moving title/author/Producer to XMP (§14.3.3). **It cannot be combined with `tagged: true`** — the only declaration this server can write is PDF/UA-1 (built on PDF 1.7), and putting it on a 2.0 vessel would make a declaration nobody can measure.
+`pdfVersion` defaults to `"1.7"`. Setting `"2.0"` (ISO 32000-2) adds, beyond the version claim, a **trailer `/ID`** (Required per Table 15) and **trims the Info dictionary to CreationDate / ModDate**, moving title/author/Producer to XMP (§14.3.3).
+
+**It cannot be combined with `tagged: true`.** The only conformance declaration this server can write is PDF/UA-1 (built on PDF 1.7), and putting it on a PDF 2.0 document would make a declaration nobody can measure.
 
 ### Page operations do not carry document-level information
 
@@ -144,7 +146,7 @@ Parameters, types and defaults are in the [tools reference](/reference/mcp/pdf-w
 
 With `fill_form`, **passing a nonexistent field name makes the error list every field name and type**. XFA is unsupported.
 
-`flatten_form` refuses by default on tagged PDFs, because the Widget annotations disappear and Form structure elements are left dangling (`allowBreakingTags: true` forces it, **breaking PDF/UA conformance**).
+`flatten_form` refuses by default on tagged PDFs, because the Widget annotations disappear and Form structure elements are left dangling (`allowBreakingTags: true` forces it, **and the file is no longer PDF/UA-conformant**).
 
 `tag_form_fields` **repairs a tagged PDF's form to PDF/UA-1**: it encloses Widgets in Form structure elements (7.18.4-1), sets `/Tabs S` on the affected pages (7.18.3-1) and gives fields alternate names `/TU` (7.18.1-3). It is **idempotent**. Untagged documents are out of scope.
 
@@ -166,7 +168,7 @@ After writing, always measure with pdf-verify's `validate_conformance`, passing 
 Plain `"pdfa-4"` requires **every attachment to be PDF/A itself** (`6.9-3`). That breaks the e-bookkeeping-law pattern of bundling CSV or JSON — use **`"pdfa-4f"`**. Measured: the same document scored 108/109 under `pdfa-4` and **109/109 COMPLIANT** under `pdfa-4f`.
 :::
 
-Combining with `preserveSignatures` is **refused for the PDF/A-4 flavours unless the input is already PDF 2.0**: an incremental update cannot rewrite the file header, and rewriting it would break the very signatures being preserved.
+Combining with `preserveSignatures` is **refused for the PDF/A-4 flavours unless the input is already PDF 2.0**: an incremental update cannot rewrite the file header. Rewriting it would invalidate the very signatures being preserved.
 
 In the e-bookkeeping-law context, apply it **after** attaching the machine-readable data with `attach_file`. `attach_file` declares the relationship to the body with `relationship` (`Source` / `Data` / `Alternative` / `Supplement` / `Unspecified`) — **PDF/A-3 requires a meaningful value** (§6.8; omitting it warns).
 
@@ -177,6 +179,6 @@ Errors are structured (`code` / `next_actions` / `retryable`). **Do not parse th
 | Common code | What to do |
 |---|---|
 | `SIGNED_PDF` | State `preserveSignatures` or `allowBreakingSignatures` explicitly |
-| `TAGGED_PDF` | State `allowBreakingTags` explicitly (knowing PDF/UA breaks) |
+| `TAGGED_PDF` | State `allowBreakingTags` explicitly (knowing the file will no longer be PDF/UA-conformant) |
 | `FONT_REQUIRED` | Set `fontPath` / `PDF_WRITER_FONT` |
 | `MISSING_GLYPH` | Choose behaviour with `onMissingGlyph` |

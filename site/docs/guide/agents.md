@@ -4,15 +4,15 @@ description: Three levels of building a PDF-specialist agent — connecting MCPs
 
 # Building PDF Agents
 
-Three levels of assembling PDF Agent Stack into a "PDF-specialist agent".
+To assemble PDF Agent Stack as a "PDF-specialist agent", there are three levels.
 
 ## Lv1 — Just connect the MCPs
 
-Registering the four servers is enough for each server's self-declared **MCP instructions** (its statement of responsibility boundaries) to take effect. The reader says "I observe, I do not judge"; verify says "I can find broken rules, never prove the file meets the standard"; the writer says "I can write a label, cannot make the file meet the standard" — the servers are designed so that an agent naturally stays inside these boundaries.
+Registering the four servers puts each server's **MCP instructions** (its statement of responsibility boundaries) onto the host. pdf-reader-mcp declares "observation, not judgment"; pdf-verify-mcp declares "I can find broken rules, never prove the file meets the standard"; pdf-writer-mcp declares "I can write a label, cannot make the file meet the standard". A large model tends to stay inside those boundaries after reading the MCP instructions. Registering the servers does not by itself fix the call order.
 
 ## Lv2 — Orchestrate with Skills
 
-With [pdf-trust](/skills/pdf-trust) / [pdf-publish](/skills/pdf-publish) installed, requests like "Can I trust this PDF?" or "Deliver this as PDF/UA" get a fixed choreography: which MCPs to call in which order, how to read the verdicts, and what the report looks like.
+With [pdf-trust](/skills/pdf-trust) / [pdf-publish](/skills/pdf-publish) in place, requests like "Can I trust this PDF?" or "Deliver this as PDF/UA" get a fixed call order, a fixed way to read the verdicts, and a fixed report shape.
 
 ## Lv3 — Focused subagents
 
@@ -38,27 +38,27 @@ You are a PDF intake-audit specialist.
 - T3 (PAdES): report as structural observation; never write "conforms"
 ```
 
-Key points:
+The points are as follows.
 
-- **Restrict tools** — an audit agent gets no writer. Limiting capability is what buys reliability
-- **Keep judgment logic out of the prompt** — the judge is code (evaluate_policy), the narrative is the LLM
-- **Put assertion strength in the prompt** — it becomes the calibration standard for output
+- **Restrict which tools you pass** — do not give an audit agent `pdf-writer`. If it cannot edit, it cannot change the file during the audit
+- **Keep judgment logic out of the prompt** — the verdict is what `evaluate_policy` returns. The LLM writes the explanation only
+- **Put assertion strength in the prompt** — it becomes the standard for checking output against T1 / T2 / T3
 
 ## Applying this with local LLMs
 
-Of the three levels, **the principles are model-independent, but Lv1's premise inverts**.
+Placing the verdict in `evaluate_policy`'s return value, not passing `pdf-writer` to an audit, and keeping assertions at T1 / T2 / T3 is the same for a large cloud model and a small local model. Only Lv1 has a different premise. The premise that a large model honours MCP instructions does not hold for a small local model.
 
-- What carries over unchanged — "the judge is code, the narrative is the LLM", restricting tools, assertion strength. Delegating verdicts to `evaluate_policy` becomes *more* valuable as the model gets smaller
-- What breaks down — Lv1's "the agent naturally honors MCP instructions" depends on a large model that respects instructions. Small models often garble the tool-call format itself
-- What needs re-reading — Skills / subagent definitions are Claude Code vessels. Locally, substitute a system prompt plus a **deterministic pipeline that fixes the call order in code** instead of trusting the LLM with it
+- Placing the verdict in `evaluate_policy`, restricting tools, keeping T1 / T2 / T3 — the smaller the model, the more it matters to copy `evaluate_policy`'s return value as the verdict
+- Lv1's "stay inside the boundaries after reading MCP instructions" assumes Claude Code plus a large model. On a small local model the tool-call JSON itself breaks. Instructions alone cannot stop the model crossing into pdf-reader-mcp / pdf-writer-mcp
+- Skill files and subagent definitions are the format Claude Code reads. A local LLM runtime does not read those files as Skills. Locally, write a system prompt and code that fixes the call order (same input, same result; e.g. [`pdf-agent-pipeline`](https://github.com/shuji-bonji/pdf-agent-pipeline))
 
-In practice, a local setup starts not from Lv1 but from a Lv3-like construction: restrict, fix, and judge in code.
+Locally you write what an Lv3 subagent definition already does (restrict tools, fix call order, put the verdict in code) into a system prompt and pipeline code. Only the place you fix them differs.
 
 ## Operational lessons
 
-- **A label ≠ meeting the standard**: after writing a label with `ensure_pdfa`, always measure with `validate_conformance`
-- **Green tests can be vacuous**: always check *what range* a passing verification actually covered (missing fixtures, guard clauses that skip the judgment)
-- **Check signatures before editing**: editing a signed PDF breaks its signature. The writer refuses unless `preserveSignatures` / `allowBreakingSignatures` is explicit
+- **`ensure_pdfa` writes an XMP label.** Whether the file meets the standard is measured with `validate_conformance`
+- **Tests can pass without the judgment having run.** Check the range that actually ran (missing fixtures, guard clauses that skip the judgment)
+- **Check signatures before editing.** Editing a signed PDF invalidates the signature. pdf-writer-mcp does not proceed unless `preserveSignatures` / `allowBreakingSignatures` is explicit
 
 ## Distributing as a plugin
 

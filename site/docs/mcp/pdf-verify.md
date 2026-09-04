@@ -29,7 +29,7 @@ description: The MCP that judges authenticity and conformance (7 tools) — sign
 
 ## What it gives you together with a Skill
 
-This server sits in the **judgment** layer of the four (judgment = pass or fail over observed facts): it decides pass or fail over the facts observed. What to measure in which order, how to explain the verdict and which legal grounds to attach are a Skill's job.
+This MCP server sits in the **judgment** layer of the four (judgment = pass or fail over observed facts): it decides pass or fail over the facts observed. What to measure in which order, how to explain the verdict and which legal grounds to attach are a Skill's job.
 
 ```mermaid
 graph LR
