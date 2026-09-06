@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://shuji-bonji.github.io/pdf-agent-stack/sitemap.xml

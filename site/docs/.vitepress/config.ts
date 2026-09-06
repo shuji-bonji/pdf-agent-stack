@@ -6,6 +6,10 @@ import { withMermaid } from 'vitepress-plugin-mermaid';
 const BASE = '/pdf-agent-stack/';
 const SITE = `https://shuji-bonji.github.io${BASE}`;
 
+/** cleanUrls に合わせたページパス。index.md はディレクトリ、それ以外は拡張子なし。先頭スラッシュ無し。 */
+const pageUrlPath = (relativePath: string) =>
+  relativePath.replace(/(^|\/)index\.md$/, '$1').replace(/\.md$/, '');
+
 const mcpSidebar = (prefix: string, labels: Record<string, string>) => [
   {
     text: labels.mcp,
@@ -122,6 +126,9 @@ export default withMermaid(
     description:
       'Read, verify, write and reason about PDFs — a family of MCP servers and skills for AI agents',
     base: BASE,
+    // GitHub Pages は /foo を /foo.html にリダイレクトなしで出す。既定の .html URL だと
+    // 拡張子なし 200 と本文が二重になり、Google がサイトマップ URL を正規にしない。
+    cleanUrls: true,
     lastUpdated: true,
     // markdown-it-attrs を無効化する。生成リファレンスの例示行
     // 「- 全文抽出: { file_path: "/doc.pdf" }」の行末 {...} を attrs が属性として
@@ -168,7 +175,11 @@ export default withMermaid(
     ],
     transformPageData(pageData) {
       const isJa = pageData.relativePath.startsWith('ja/');
-      const path = pageData.relativePath.replace(/(^|\/)index\.md$/, '$1').replace(/\.md$/, '.html');
+      const rest = isJa ? pageData.relativePath.slice(3) : pageData.relativePath;
+      const path = pageUrlPath(rest);
+      const enUrl = `${SITE}${path}`;
+      const jaUrl = `${SITE}ja/${path}`;
+      const url = isJa ? jaUrl : enUrl;
       // layout: home のページは title を持たない（h1 が無いため）。
       // その場合サイト名だけを使う — " | PDF Agent Stack" の頭が空になるのを防ぐ。
       const pageTitle = (pageData.frontmatter.title ?? pageData.title ?? '').trim();
@@ -177,12 +188,16 @@ export default withMermaid(
         pageData.frontmatter.description ??
         (isJa
           ? 'AI エージェントのための PDF ツール群 — 4 つの MCP サーバーと 3 つの Skill'
-          : 'PDF tooling for AI agents — four MCP servers and two Skills');
+          : 'PDF tooling for AI agents — four MCP servers and three skills');
       const image = `${SITE}${isJa ? 'images/og-image-ja.png' : 'images/og-image.png'}`;
 
       pageData.frontmatter.head ??= [];
       pageData.frontmatter.head.push(
-        ['meta', { property: 'og:url', content: `${SITE}${path}` }],
+        ['link', { rel: 'canonical', href: url }],
+        ['link', { rel: 'alternate', hreflang: 'en', href: enUrl }],
+        ['link', { rel: 'alternate', hreflang: 'ja', href: jaUrl }],
+        ['link', { rel: 'alternate', hreflang: 'x-default', href: enUrl }],
+        ['meta', { property: 'og:url', content: url }],
         ['meta', { property: 'og:title', content: title }],
         ['meta', { property: 'og:description', content: description }],
         ['meta', { property: 'og:image', content: image }],
