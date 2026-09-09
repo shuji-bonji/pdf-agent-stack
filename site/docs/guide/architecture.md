@@ -85,6 +85,36 @@ This distinction runs through the whole of PDF Agent Stack.
 
 That is why the writer's `ensure_pdfa` is a tool that *writes a label*, and the rule across PDF Agent Stack is: whatever you label, you measure with verify's `validate_conformance`.
 
+### A validator's output is a verdict, not evidence
+
+Outside writing on this subject sometimes lists "validator output" and "signature verification" as examples of *evidence* — of what was seen. PDF Agent Stack keeps the two apart.
+
+| | Who produces it | Example |
+| --- | --- | --- |
+| Observation (evidence) | reader | XMP carries a `pdfaid` declaration. Two incremental updates are present. No revocation information is embedded in the document |
+| Verdict | verify | `use_with_caution`, fired by `POL-CAUTION-REVOCATION-UNKNOWN` |
+
+A veraPDF result is not an observation either. "veraPDF reported no violation under this profile" is the observation; turning it into a value against an acceptance profile is what `evaluate_policy` does.
+
+These three lines say different things. Collapse them and only the last survives.
+
+- **Observation**: XMP declares PDF/A and veraPDF reported no violation under that profile
+- **Verdict**: this inspection did not fail (`use_with_caution`; whatever the checks do not cover was not measured)
+- **Wrong summary**: the file conforms to PDF/A
+
+### What disappears when four values are collapsed into three
+
+`evaluate_policy` returns four values. Mapping them onto yes / no / unknown loses two rows.
+
+| Four values | Collapsed to three | What is lost |
+| --- | --- | --- |
+| `trust_and_use` | yes | — |
+| `use_with_caution` | yes | The use restriction. "Usable with caveats" becomes "usable as is" |
+| `human_review_required` | unknown | The difference between "no evidence" and "unwritable criteria". The latter stops reaching a human |
+| `reject` | no | — |
+
+The third row is the point. `human_review_required` covers both "a fact needed for judgment is missing" and "the criteria cannot be written". Collapsed into a single unknown, the latter is filed as something that more evidence would resolve, and never reaches review. **Four values cannot be recovered from three.**
+
 ## Two gates: intake and exit
 
 Two of the three inputs in the diagram above (an incoming PDF, a PDF to produce) each pass through their own gate.

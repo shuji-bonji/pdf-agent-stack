@@ -200,6 +200,19 @@ B-LT と B-LTA は、DSS の失効データが署名者証明書を実際に覆�
 
 返るのは `verdict`、`firedRules`（発火したルールの ID と理由）、`advisories`（判定を動かさない推奨）、事実の要約です。この判定を軸に監査全体を組むのが [pdf-trust Skill](/ja/skills/pdf-trust) です。
 
+#### 3 値のシートに写すとき
+
+外部のチェックシートは yes / no / unknown の 3 値であることがあります。写すと 2 つ消えます。
+
+| `verdict` | 3 値 | 消えるもの |
+| --- | --- | --- |
+| `trust_and_use` | yes | — |
+| `use_with_caution` | yes | 用途制限。`firedRules` を併記しないと「そのまま使える」と読めます |
+| `human_review_required` | unknown | 「事実が欠けている」と「基準が書けない」の区別 |
+| `reject` | no | — |
+
+**3 値から 4 値には戻せません。** 写すなら `verdict` の原値と `firedRules` を併せて残してください。
+
 ## 言い切り強度
 
 判定の強さは規範文書の有無で変わります → [T1/T2/T3 ルール](/ja/guide/architecture#言い切り強度-t1-t2-t3)。ETSI PAdES（T3）は構造の観測のみ、PDF/A（T2）は「veraPDF がこう判定した」まで、ISO 32000 / PDF/UA（T1）は条文を引いて言い切れます。

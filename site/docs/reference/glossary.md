@@ -17,6 +17,7 @@ Keeping these three apart is the design philosophy of the whole of PDF Agent Sta
 | Validation | What a validator (veraPDF and the like) reports against the checks it implements. A pass means "this inspection did not fail", not "the file conforms to the standard" |
 | Observation | A fact about what the file contains. Carries no pass/fail (everything the reader returns) |
 | Verdict | Pass/fail against a standard or policy (what verify returns). **It does not follow automatically from observations** |
+| Evidence | The **observations** cited as grounds for a verdict. Validator output is a verdict, not an observation, so it does not count as evidence. Calling "the signature verification result" evidence folds the verdict inside the evidence |
 
 ### Assertion strength — T1 / T2 / T3
 

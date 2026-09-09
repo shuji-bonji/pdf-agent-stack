@@ -191,6 +191,19 @@ Choose `profile` from `general` / `contract` (signature required, identity-focus
 
 It returns `verdict`, `firedRules` (fired rule IDs and reasons), `advisories` (recommendations that do not move the verdict) and a facts summary. The Skill that builds a whole audit around this verdict is [pdf-trust](/skills/pdf-trust).
 
+#### Mapping onto a three-value sheet
+
+External checklists are often yes / no / unknown. Two things are lost in the mapping.
+
+| `verdict` | Three values | What is lost |
+| --- | --- | --- |
+| `trust_and_use` | yes | — |
+| `use_with_caution` | yes | The use restriction. Without `firedRules` alongside, it reads as "usable as is" |
+| `human_review_required` | unknown | The difference between "a fact is missing" and "the criteria cannot be written" |
+| `reject` | no | — |
+
+**Four values cannot be recovered from three.** If you must map, keep the original `verdict` and `firedRules` next to it.
+
 ## Assertion strength
 
 How strongly a verdict may be stated depends on whether the normative text is at hand → the [T1/T2/T3 rule](/guide/architecture#assertion-strength-t1-t2-t3). ETSI PAdES (T3) stays a structural observation, PDF/A (T2) goes as far as "veraPDF judged it", ISO 32000 / PDF/UA (T1) can quote the clause and state it plainly.
