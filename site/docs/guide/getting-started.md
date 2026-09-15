@@ -55,6 +55,26 @@ Put the downloaded PDFs in one directory and point `PDF_SPEC_DIR` at it in the p
 `PDF_SPEC_DIR` is required. This corpus is the very ground of PDF Agent Stack's **normative knowledge** — clauses can be quoted with full force (T1) precisely because the original text is at hand. ISO 19005 (PDF/A) and ETSI PAdES are outside the corpus — check `coverage.gaps` in `list_specs` to see what cannot be looked up.
 :::
 
+### `/plugin` and where each host writes the path
+
+Even after `/plugin install pdf-spec-mcp@shuji-bonji`, write `PDF_SPEC_DIR` as an absolute path in the host's own config. The plugin's `plugin.json` has `"PDF_SPEC_DIR": "${PDF_SPEC_DIR}"`.
+
+| Host | `${PDF_SPEC_DIR}` | Where to write it |
+| --- | --- | --- |
+| Claude Code | Expanded from settings.json or the shell | The `env` of Claude's MCP / plugin config |
+| Grok Build 1.0.30 | Not expanded in plugin env. Passing the literal fails startup (measured: `REGISTRY_ERROR`) | `[mcp_servers.pdf-spec]` in `~/.grok/config.toml` |
+
+Grok Build does expand `${VAR}` of the same key in `config.toml`. Plugin env and a direct `config.toml` entry are treated differently. After writing an absolute path in `config.toml`, `grok inspect` reported the source as `config` and `list_specs` returned 17 documents.
+
+```toml
+[mcp_servers.pdf-spec]
+command = "npx"
+args = ["-y", "@shuji-bonji/pdf-spec-mcp@latest"]
+env = { PDF_SPEC_DIR = "/absolute/path/to/pdf-specs" }
+```
+
+`PDF_WRITER_FONT` has the same gap. A value in Claude Code's `settings.json` does not reach the pdf-writer process Grok Build spawns. On Grok Build, put an absolute path in `[mcp_servers.pdf-writer]` `env`, or pass `fontPath` on every call. Japanese output without a font is `FONT_REQUIRED`.
+
 ## Step 3 — pdf-verify (veraPDF and trust anchors)
 
 Works out of the box (a built-in subset of ~15 PDF/A rules + 12 PDF/UA rules). For serious use, install veraPDF.

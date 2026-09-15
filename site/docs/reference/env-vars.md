@@ -21,4 +21,6 @@ Development only: `TEST_FONT_PATH` (enables pdf-writer's font-dependent tests)
 
 ::: tip Where these go
 Each variable belongs in the `env` block of its own server's entry in the MCP configuration — see [Getting Started](/guide/getting-started) for a worked configuration per server.
+
+With `/plugin`, expansion differs by host. Claude Code expands `${PDF_SPEC_DIR}` in `plugin.json`. Grok Build 1.0.30 does not expand plugin env; write an absolute path under `[mcp_servers.pdf-spec]` in `~/.grok/config.toml`. The same applies to `PDF_WRITER_FONT`. See Getting Started, "/plugin and where each host writes the path".
 :::

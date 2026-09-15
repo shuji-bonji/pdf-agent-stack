@@ -21,4 +21,6 @@ description: 各 MCP サーバーの環境変数一覧 — PDF_SPEC_DIR / PDF_SP
 
 ::: tip どこに書くか
 各変数は、その変数を使うサーバー自身の MCP 設定の `env` ブロックに書きます。サーバーごとの設定例は [導入手順](/ja/guide/getting-started) にあります。
+
+`/plugin` で入れた場合、ホストによって展開が違います。Claude Code は `plugin.json` の `${PDF_SPEC_DIR}` を展開します。Grok Build 1.0.30 はプラグイン env では展開せず、`~/.grok/config.toml` の `[mcp_servers.pdf-spec]` に絶対パスを書きます。`PDF_WRITER_FONT` も同じです。詳細は導入手順の「`/plugin` とホストごとの書き場所」を見てください。
 :::
