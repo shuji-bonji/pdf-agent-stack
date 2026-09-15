@@ -6,7 +6,7 @@
     "layer = 役割 / form = 配布形態（誰が起動するか）。2 軸で見ると、同じ役割を違う形態で",
     "実装したもの（pdf-specialist = plugin / pdf-agent-pipeline = app）が並べて見える。"
   ],
-  "generatedAt": "2026-09-01T07:14:51.977Z",
+  "generatedAt": "2026-09-15T01:24:28.278Z",
   "generatedBy": "scripts/generate-stack.mjs",
   "npmScope": "@shuji-bonji",
   "repos": [
@@ -36,16 +36,16 @@
       "layer": "structure",
       "form": "mcp-server",
       "public": true,
-      "published": "0.15.0",
+      "published": "0.15.1",
       "local": {
-        "version": "0.15.0",
-        "tag": "v0.15.0",
+        "version": "0.15.1",
+        "tag": "v0.15.1",
         "dirty": false,
         "unpushedCommits": 0
       },
       "consistency": {
         "status": "match",
-        "detail": "0.15.0"
+        "detail": "0.15.1"
       }
     },
     {
@@ -173,8 +173,8 @@
       "note": "読み取り。前提 = pdf-reader-mcp（v0.14.0+ 推奨。scope で「行われなかった読み」を読み分ける）",
       "published": null,
       "local": {
-        "version": "0.2.0",
-        "tag": null,
+        "version": "0.2.1",
+        "tag": "v0.2.1",
         "dirty": false,
         "unpushedCommits": null
       },
@@ -235,7 +235,7 @@
         "version": null,
         "tag": null,
         "dirty": true,
-        "unpushedCommits": 1
+        "unpushedCommits": 0
       },
       "consistency": {
         "status": "not_published",
