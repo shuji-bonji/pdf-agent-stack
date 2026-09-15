@@ -25,16 +25,28 @@
  * 🔴 検体はここにバイト列で持つ。外部のコーパスや qpdf を要求すると、
  * それが無い環境で**検査が飛ばされる**（飛ばされた検査は「通った」ではない）。
  *
+ * 🔴 **応答が `isError` かどうかも契約の一部である。** 同じツールでも、成功応答と
+ * エラー応答は別の形の本文を返す。`expectError: true` の契約はエラー本文に対する主張で、
+ * 取り違えたら `expect` を見る前に落とす —— エラー本文を「フィールドが欠けた成功応答」として
+ * 報告すると、**「呼べなかった」と「呼べたが分岐材料が無い」が同じ顔になる**。
+ *
+ * 🔴 **測れない契約は、通った契約に混ぜない。** `unmeasurable` を持つ契約は、規約は生きているが
+ * それを起こす検体が作れないもので、`—` で出して件数を別に数える。消して 0 件にすると、
+ * 何を測っていないのかが分からなくなる。
+ *
  * ## この検査自体を壊して確かめた（T-3）
  *
  * 壊す先が無い検査は何も測っていない。ここは版を下げることで壊せる。
+ * 数字は reader 0.15.0 に合わせ直したあとの実測（2026-09-15 JST）。
  *
- *   node scripts/skill-contract-probe.mjs                    → 30 件とも実在した（reader 0.14.0）
- *   node scripts/skill-contract-probe.mjs --published 0.13.0 → 🔴 16 件が実在しない（30 件中）
+ *   node scripts/skill-contract-probe.mjs --published        → 29 件とも実在した（0.15.0。ほかに測れない 1 件）
+ *   node scripts/skill-contract-probe.mjs --published 0.14.0 → 🔴 5 件が実在しない（25 件中）
+ *   node scripts/skill-contract-probe.mjs --published 0.13.0 → 🔴 10 件が実在しない（29 件中）
  *
- * 0.13.0 で落ちた 16 件は、`scope` を持たない版で pdf-read / pdf-publish の
- * どの段が成り立たなくなるかをそのまま名指しする。逆に言えば、0.14.0 で
- * 直した箇所と 1 対 1 で対応している。
+ * 0.14.0 で落ちる 5 件は、pdf-lib を撤去した 0.15.0 で変わった箇所と 1 対 1 で対応する
+ * —— 鍵が導けない暗号化文書がエラーで返るようになったこと（3 件）と、空パスワードの
+ * 文書を復号して §9.10.1 を観測できるようになったこと（2 件）。0.13.0 で落ちる 10 件は、
+ * `scope` を持たない版で pdf-read / pdf-publish のどの段が成り立たなくなるかを名指しする。
  *
  * ## 使い方
  *
@@ -85,17 +97,33 @@ const SPECIMENS = {
   },
   okFail: {
     name: 'halves-ok-fail-header.pdf',
-    note: 'ヘッダが "%PDF-" で版が無い。抽出はできるが観測が止まる',
+    note: 'ヘッダが "%PDF-" で版が無い。pdf-lib はここで止まったが、0.15.0 の recover は読む（ok/ok になった）',
     sha256: '1ea2bc609416ad1875f13b841bb919fa',
     base64:
       'JVBERi0KJeLjz9MKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMiAwIFIgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzIC9LaWRzIFszIDAgUl0gL0NvdW50IDEgPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UgL1BhcmVudCAyIDAgUiAvTWVkaWFCb3ggWzAgMCA1OTUgODQyXSAvUmVzb3VyY2VzIDw8IC9Gb250IDw8IC9GMSA1IDAgUiA+PiA+PiAvQ29udGVudHMgNCAwIFIgPj4KZW5kb2JqCjQgMCBvYmoKPDwgL0xlbmd0aCA1OSA+PgpzdHJlYW0KQlQgL0YxIDEyIFRmIDcyIDcyMCBUZCAoT25lIHBhZ2Ugd2l0aCByZWFkYWJsZSB0ZXh0KSBUaiBFVAoKZW5kc3RyZWFtCmVuZG9iago1IDAgb2JqCjw8IC9UeXBlIC9Gb250IC9TdWJ0eXBlIC9UeXBlMSAvQmFzZUZvbnQgL0hlbHZldGljYSA+PgplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDEyIDAwMDAwIG4gCjAwMDAwMDAwNjEgMDAwMDAgbiAKMDAwMDAwMDExOCAwMDAwMCBuIAowMDAwMDAwMjQ0IDAwMDAwIG4gCjAwMDAwMDAzNTMgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA2IC9Sb290IDEgMCBSID4+CnN0YXJ0eHJlZgo0MjMKJSVFT0YK',
   },
   failOk: {
     name: 'halves-fail-ok-password.pdf',
-    note: '空でない利用者パスワード付き（§7.6.4.3.2 で鍵が導けない）。抽出は止まるが観測はできる',
+    note: '空でない利用者パスワード付き（§7.6.4.3.2 で鍵が導けない）。0.14.0 は観測だけできたが、0.15.0 は両方止まり isError になる',
     sha256: '600979071ac725c14ce803bad7b17430',
     base64:
       'JVBERi0xLjcKJb/3ov4KMSAwIG9iago8PCAvUGFnZXMgMiAwIFIgL1R5cGUgL0NhdGFsb2cgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL0NvdW50IDEgL0tpZHMgWyAzIDAgUiBdIC9UeXBlIC9QYWdlcyA+PgplbmRvYmoKMyAwIG9iago8PCAvQ29udGVudHMgNCAwIFIgL01lZGlhQm94IFsgMCAwIDU5NSA4NDIgXSAvUGFyZW50IDIgMCBSIC9SZXNvdXJjZXMgPDwgL0ZvbnQgPDwgL0YxIDUgMCBSID4+ID4+IC9UeXBlIC9QYWdlID4+CmVuZG9iago0IDAgb2JqCjw8IC9MZW5ndGggNjUgL0ZpbHRlciAvRmxhdGVEZWNvZGUgPj4Kc3RyZWFtCrce4tXxLn+U0PwplZNqM42P0db8GIKBO/oVNVJECOZhpjVD0ay8x2y1FwNMvvBW/kIVeO2ndXVJTJmYwMXX02udZW5kc3RyZWFtCmVuZG9iago1IDAgb2JqCjw8IC9CYXNlRm9udCAvSGVsdmV0aWNhIC9TdWJ0eXBlIC9UeXBlMSAvVHlwZSAvRm9udCA+PgplbmRvYmoKNiAwIG9iago8PCAvRmlsdGVyIC9TdGFuZGFyZCAvTGVuZ3RoIDEyOCAvTyA8Mzg0YTE2ZGJjNDIyMTYzZTE3NGEyNjhhOGMwODNjOTg3YTlkNWY0ZTQ5NWQwMzUyMzYzOTBiZDYxOTlmOGQzND4gL1AgLTQgL1IgMyAvVSA8MDYyOTFmNjZmOTcyM2ViMGU3ODM5M2RhODJiNmQwOWYwMTIyNDU2YTkxYmFlNTEzNDI3M2E2ZGIxMzRjODdjND4gL1YgMiA+PgplbmRvYmoKeHJlZgowIDcKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDE1IDAwMDAwIG4gCjAwMDAwMDAwNjQgMDAwMDAgbiAKMDAwMDAwMDEyMyAwMDAwMCBuIAowMDAwMDAwMjUxIDAwMDAwIG4gCjAwMDAwMDAzODYgMDAwMDAgbiAKMDAwMDAwMDQ1NiAwMDAwMCBuIAp0cmFpbGVyIDw8IC9Sb290IDEgMCBSIC9TaXplIDcgL0lEIFs8MzE0MTU5MjY1MzU4OTc5MzIzODQ2MjY0MzM4MzI3OTU+PDMxNDE1OTI2NTM1ODk3OTMyMzg0NjI2NDMzODMyNzk1Pl0gL0VuY3J5cHQgNiAwIFIgPj4Kc3RhcnR4cmVmCjY2MwolJUVPRgo=',
+  },
+  encEmpty: {
+    name: 'encrypted-empty-user-password.pdf',
+    note:
+      '利用者パスワードが空（RC4 128・/V 2 /R 3）。§7.6.4.3.2 のとおり空パスワードから鍵が導けるので、' +
+      '0.15.0 は復号して読む（0.14.0 は本文だけ読め、§9.10.1 の観測は not_observed になった）',
+    /**
+     * okOk を qpdf で暗号化したもの。バイト列はこれで再現する:
+     *   qpdf --allow-weak-crypto --static-id --encrypt --user-password= \
+     *        --owner-password=owner --bits=128 -- halves-ok-ok-page2-unobserved.pdf out.pdf
+     * RC4 を選ぶのは golden-specimens-halves.mjs と同じ理由 —— AES-256（/R 6）は鍵の生成に
+     * 乱数が入るので、同じ入力から同じバイト列が出ない。強度の話ではない。
+     */
+    sha256: '329af8b7a68720a13f09cffa37557907',
+    base64:
+      'JVBERi0xLjcKJb/3ov4KMSAwIG9iago8PCAvUGFnZXMgMiAwIFIgL1R5cGUgL0NhdGFsb2cgPj4KZW5kb2JqCjIgMCBvYmoKPDwgL0NvdW50IDIgL0tpZHMgWyAzIDAgUiA0IDAgUiBdIC9UeXBlIC9QYWdlcyA+PgplbmRvYmoKMyAwIG9iago8PCAvQ29udGVudHMgNSAwIFIgL01lZGlhQm94IFsgMCAwIDU5NSA4NDIgXSAvUGFyZW50IDIgMCBSIC9SZXNvdXJjZXMgPDwgL0ZvbnQgPDwgL0YxIDYgMCBSID4+ID4+IC9UeXBlIC9QYWdlID4+CmVuZG9iago0IDAgb2JqCjw8IC9Db250ZW50cyA3IDAgUiAvTWVkaWFCb3ggWyAwIDAgNTk1IDg0MiBdIC9QYXJlbnQgMiAwIFIgL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNiAwIFIgPj4gPj4gL1R5cGUgL1BhZ2UgPj4KZW5kb2JqCjUgMCBvYmoKPDwgL0xlbmd0aCA1NSAvRmlsdGVyIC9GbGF0ZURlY29kZSA+PgpzdHJlYW0K4VVHU2Ku9s7BI/mLv3I4c2yA0JqQWow7tVSDV9UZIGr7HbVnsmyfe/VXriWZffH9v9E2JS8bLWVuZHN0cmVhbQplbmRvYmoKNiAwIG9iago8PCAvQmFzZUZvbnQgL0hlbHZldGljYSAvU3VidHlwZSAvVHlwZTEgL1R5cGUgL0ZvbnQgPj4KZW5kb2JqCjcgMCBvYmoKPDwgL0ZpbHRlciAvRmxhdGVEZWNvZGUgL0xlbmd0aCAyMyA+PgpzdHJlYW0K9H5Mb/uNxx0IHEpHVUHb4JTJdml3lVllbmRzdHJlYW0KZW5kb2JqCjggMCBvYmoKPDwgL0ZpbHRlciAvU3RhbmRhcmQgL0xlbmd0aCAxMjggL08gPDU2NmZhODczZWUzM2M3OTdjZDNiOTA0ZmRhZGY4MTRhZmEzNGRmOWEzOGY2ZWQ0MWI5ODRlMmM2ZGEyYWE2ZjU+IC9QIC00IC9SIDMgL1UgPGUyMWNjM2QxM2IwZmFhOTkzNGRiN2QyMGYxMWUzMzNlMDEyMjQ1NmE5MWJhZTUxMzQyNzNhNmRiMTM0Yzg3YzQ+IC9WIDIgPj4KZW5kb2JqCnhyZWYKMCA5CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDAxNSAwMDAwMCBuIAowMDAwMDAwMDY0IDAwMDAwIG4gCjAwMDAwMDAxMjkgMDAwMDAgbiAKMDAwMDAwMDI1NyAwMDAwMCBuIAowMDAwMDAwMzg1IDAwMDAwIG4gCjAwMDAwMDA1MTAgMDAwMDAgbiAKMDAwMDAwMDU4MCAwMDAwMCBuIAowMDAwMDAwNjczIDAwMDAwIG4gCnRyYWlsZXIgPDwgL1Jvb3QgMSAwIFIgL1NpemUgOSAvSUQgWzwzMTQxNTkyNjUzNTg5NzkzMjM4NDYyNjQzMzgzMjc5NT48MzE0MTU5MjY1MzU4OTc5MzIzODQ2MjY0MzM4MzI3OTU+XSAvRW5jcnlwdCA4IDAgUiA+PgpzdGFydHhyZWYKODgwCiUlRU9GCg==',
   },
   failFail: {
     name: 'halves-fail-fail-no-objects.pdf',
@@ -148,14 +176,45 @@ const CONTRACTS = [
   },
   {
     skill: 'pdf-read',
-    where: 'SKILL.md Phase 1「isEncrypted: true、または scope.metadata.code が ENCRYPTED_PDF」',
-    why: '暗号化文書で停止する。🔴 2026-08-31: metadata が null になり、isEncrypted だけを見ていた版はここを素通りしていた',
+    where: 'SKILL.md Phase 1「利用者パスワードが空でない → isError + code が ENCRYPTED_PDF」',
+    why:
+      '鍵が導けない文書で停止する。🔴 2026-08-31: metadata が null になり、isEncrypted だけを' +
+      '見ていた版はここを素通りしていた。0.15.0 では 2 つの読みが両方失敗するので、部分応答ではなく' +
+      'エラーが返る —— 停止の根拠は scope ではなく本文の code である',
     server: 'pdf-reader-mcp',
     specimen: 'failOk',
     call: { tool: 'summarize', args: { response_format: 'json' } },
+    expectError: true,
     expect: [
-      { path: 'metadata', kind: 'null' },
-      { path: 'scope.metadata.code', equals: 'ENCRYPTED_PDF' },
+      { path: 'code', equals: 'ENCRYPTED_PDF' },
+      { path: 'detail.cause', kind: 'string' },
+    ],
+  },
+  {
+    skill: 'pdf-read',
+    where: 'SKILL.md Phase 1「利用者パスワードが空 → 停止しない」',
+    why:
+      '読める文書の前で止まらない。§7.6.4.3.2 のとおり空パスワードから鍵が導ければ reader は復号する。' +
+      'isEncrypted だけで停止すると、全文が読める文書を未読のまま返すことになる',
+    server: 'pdf-reader-mcp',
+    specimen: 'encEmpty',
+    call: { tool: 'summarize', args: { response_format: 'json' } },
+    expect: [
+      { path: 'metadata.isEncrypted', equals: true },
+      { path: 'scope.extractabilityObservation.status', equals: 'read' },
+      { path: 'textExtractability', equals: 'extracted' },
+    ],
+  },
+  {
+    skill: 'pdf-read',
+    where: 'SKILL.md Phase 1「利用者パスワードが空 → 停止しない」の本文側',
+    why: '復号できた文書は本文もページごとの状態も返る（停止しない判断の裏付け）',
+    server: 'pdf-reader-mcp',
+    specimen: 'encEmpty',
+    call: { tool: 'read_text', args: { pages: '1', response_format: 'json' } },
+    expect: [
+      { path: 'pages.0.text', kind: 'string' },
+      { path: 'pages.0.extractability.state', equals: 'extracted' },
     ],
   },
   {
@@ -165,6 +224,18 @@ const CONTRACTS = [
     server: 'pdf-reader-mcp',
     specimen: 'okFail',
     call: { tool: 'summarize', args: { response_format: 'json' } },
+    /**
+     * 🔴 規約は生きているが、**実ファイルでは作れない**。0.15.0 で観測側が pdf-lib から
+     * `@normativepdf/recover` に替わり、抽出だけ成功して観測だけ失敗する（ok/fail）検体が
+     * 作れなくなった。reader 側が候補 3 つ（ヘッダ無し・/Count 不一致・版の無いヘッダ）を
+     * 実測して 3 つとも両方成功している（pdf-reader-mcp の
+     * tests/e2e/15-reading-scope.test.ts 冒頭）。この分岐は同リポジトリの
+     * tests/tier1/reading-scope.test.ts が stub で固定している。
+     * 🔴 **検体が無いことは、規約が要らなくなったことではない。** 消すと、何を測っていないのかが
+     * 分からなくなる。expect はそのまま残し、測れないことだけを申告する。
+     */
+    unmeasurable:
+      '抽出だけ成功して観測だけ失敗する検体が 0.15.0 では作れない（pdf-reader-mcp の tests/tier1/reading-scope.test.ts が stub で固定している）',
     expect: [
       { path: 'scope.extractabilityObservation.status', equals: 'failed' },
       { path: 'textExtractability', kind: 'null' },
@@ -174,24 +245,22 @@ const CONTRACTS = [
   {
     skill: 'pdf-read',
     where: 'SKILL.md Phase 3「read_text に明示の pages を渡して読む」',
-    why: '本文を読む。text が null か空文字かで「取り出せなかった」と「0 字だった」を分ける',
+    why: '鍵が導けない文書では本文を返せない。0.15.0 はそれをエラーで言う（空の pages を返さない）',
     server: 'pdf-reader-mcp',
     specimen: 'failOk',
     call: { tool: 'read_text', args: { response_format: 'json' } },
-    expect: [
-      { path: 'scope.textExtraction.status', equals: 'failed' },
-      { path: 'pages.0.text', kind: 'null' },
-      { path: 'pages.0.extractability.state', kind: 'string' },
-    ],
+    expectError: true,
+    expect: [{ path: 'code', equals: 'ENCRYPTED_PDF' }],
   },
   {
     skill: 'pdf-read',
     where: 'SKILL.md Phase 3「search_text が 0 件のときは unsearchablePages / note を読む」',
-    why: '探せなかったことを 0 件と混同しない',
+    why: '探せなかったことを 0 件と混同しない。0.15.0 は 0 件ではなくエラーを返す',
     server: 'pdf-reader-mcp',
     specimen: 'failOk',
     call: { tool: 'search_text', args: { query: 'a', response_format: 'json' } },
-    expect: [{ path: 'totalMatches', kind: 'null' }, { path: 'matches', kind: 'null' }],
+    expectError: true,
+    expect: [{ path: 'code', equals: 'ENCRYPTED_PDF' }],
   },
   {
     skill: 'pdf-read',
@@ -392,6 +461,9 @@ async function serverFor(name) {
 console.log('Skill の契約 probe');
 let failures = 0;
 let checked = 0;
+/** 🔴 測れなかった契約。**通った件数に混ぜない。** 混ぜた瞬間に、この probe 自身が
+ *  「行われなかった観測」を「行われて通った観測」として報告することになる。 */
+let unmeasured = 0;
 let lastSkill = '';
 
 for (const c of CONTRACTS) {
@@ -400,14 +472,26 @@ for (const c of CONTRACTS) {
     console.log(`\n[${c.skill}]`);
     lastSkill = c.skill;
   }
+  if (c.unmeasurable) {
+    unmeasured++;
+    console.log(`  —   ${c.call.tool}(${c.specimen})  ${c.where}`);
+    console.log(`      測れない: ${c.unmeasurable}`);
+    continue;
+  }
+
   let body;
   let blocks = [];
+  let isError = false;
   try {
     const res = await server.call(c.call.tool, {
       file_path: files[c.specimen],
       ...c.call.args,
     });
     blocks = (res.content ?? []).map((b) => b.type);
+    /** 🔴 **エラー応答を成功応答として読まない。** ここを見ないと、エラー本文を
+     *  「フィールドが欠けた成功応答」として報告することになり、「呼べなかった」と
+     *  「呼べたが分岐材料が無い」が同じ顔になる。 */
+    isError = res.isError === true;
     const text = res.content?.find((b) => b.type === 'text')?.text ?? '';
     body = c.call.text ? { _text: text } : JSON.parse(text);
   } catch (error) {
@@ -417,6 +501,22 @@ for (const c of CONTRACTS) {
     continue;
   }
   body._blocks = blocks;
+
+  /** エラーで返るはずの契約と、成功で返るはずの契約を取り違えたら、expect を見る前に止める
+   *  —— 両者は別の形の本文で、片方の path をもう片方に当てても何も分からない。 */
+  const wantError = c.expectError === true;
+  if (isError !== wantError) {
+    failures++;
+    console.log(`  🔴 ${c.call.tool}(${c.specimen})`);
+    console.log(`     ${c.where}`);
+    console.log(`     ${c.why}`);
+    console.log(
+      wantError
+        ? '     - isError が立たなかった。この検体ではエラー応答になるはずで、下の expect はエラー本文への主張である'
+        : `     - isError が立った。本文は成功応答ではない: ${JSON.stringify(body).slice(0, 200)}`,
+    );
+    continue;
+  }
 
   const bad = [];
   for (const e of c.expect) {
@@ -443,9 +543,10 @@ for (const c of CONTRACTS) {
 
 for (const s of servers.values()) s.close();
 
+const tail = unmeasured ? `。ほかに ${unmeasured} 件は検体が作れず測れていない（上の「測れない」）` : '';
 console.log(
   failures
-    ? `\n🔴 ${failures} 件の分岐材料が実在しない（${checked} 件中）。上の「where」の箇所が成り立たなくなっている`
-    : `\n${checked} 件とも実在した`,
+    ? `\n🔴 ${failures} 件の分岐材料が実在しない（${checked} 件中）。上の「where」の箇所が成り立たなくなっている${tail}`
+    : `\n${checked} 件とも実在した${tail}`,
 );
 process.exit(failures ? 1 : 0);
