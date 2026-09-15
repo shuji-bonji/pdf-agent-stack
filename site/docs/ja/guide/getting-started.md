@@ -126,7 +126,7 @@ env = { PDF_SPEC_DIR = "/absolute/path/to/pdf-specs" }
 | pdf-reader | 「この PDF のページ数とメタデータを見せて」                |
 | pdf-spec   | 「ISO 32000-2 で注釈の /Contents は何を要求されている？」  |
 | pdf-verify | 「この PDF の完全性を検証して」                            |
-| pdf-writer | 「\"Hello 日本語\" と書いた PDF を ~/tmp/test.pdf に作って」 |
+| pdf-writer | 「"Hello 日本語" と書いた PDF を ~/tmp/test.pdf に作って」 |
 
 ## Step 6 — Skill の導入
 
