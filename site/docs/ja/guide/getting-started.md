@@ -55,6 +55,26 @@ sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出�
 `PDF_SPEC_DIR` は必須です。このコーパスは PDF Agent Stack の**規範知識の根拠そのもの** — 条文を引用して言い切れる（T1）のは、手元に原文があるからです。ISO 19005 (PDF/A) と ETSI PAdES はコーパス外です — 何が引けないかは `list_specs` の `coverage.gaps` を確認してください。
 :::
 
+### `/plugin` とホストごとの書き場所
+
+`/plugin install pdf-spec-mcp@shuji-bonji` で入れた場合も、`PDF_SPEC_DIR` はホストの設定に絶対パスで書きます。プラグインの `plugin.json` は `"PDF_SPEC_DIR": "${PDF_SPEC_DIR}"` です。
+
+| ホスト | `${PDF_SPEC_DIR}` | 書く場所 |
+| --- | --- | --- |
+| Claude Code | settings.json やシェルの値に展開する | Claude の MCP / プラグイン設定の `env` |
+| Grok Build 1.0.30 | プラグイン env では展開しない。リテラルのまま渡ると起動に失敗する（実測: `REGISTRY_ERROR`） | `~/.grok/config.toml` の `[mcp_servers.pdf-spec]` |
+
+Grok Build の `config.toml` では、同じキーの `${VAR}` は展開します。プラグイン経由と、`config.toml` 直書きでは扱いが違います。実測では `config.toml` に絶対パスを書いたあと、`grok inspect` の出典が `config` になり、`list_specs` が 17 文書を返しました。
+
+```toml
+[mcp_servers.pdf-spec]
+command = "npx"
+args = ["-y", "@shuji-bonji/pdf-spec-mcp@latest"]
+env = { PDF_SPEC_DIR = "/absolute/path/to/pdf-specs" }
+```
+
+`PDF_WRITER_FONT` も同じ差があります。Claude Code の `settings.json` に書いた値は、Grok Build が起動した pdf-writer プロセスには乗りません。Grok Build では `[mcp_servers.pdf-writer]` の `env` に絶対パスを書くか、呼び出しのたびに `fontPath` を付けます。未設定の日本語生成は `FONT_REQUIRED` です。
+
 ## Step 3 — pdf-verify（veraPDF と信頼アンカー）
 
 そのままでも動きます（内蔵 ~15 ルールの PDF/A サブセット + PDF/UA 12 ルール）。本格運用では veraPDF を導入してください。
@@ -106,7 +126,7 @@ sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出�
 | pdf-reader | 「この PDF のページ数とメタデータを見せて」                |
 | pdf-spec   | 「ISO 32000-2 で注釈の /Contents は何を要求されている？」  |
 | pdf-verify | 「この PDF の完全性を検証して」                            |
-| pdf-writer | 「"Hello 日本語" と書いた PDF を ~/tmp/test.pdf に作って」 |
+| pdf-writer | 「\"Hello 日本語\" と書いた PDF を ~/tmp/test.pdf に作って」 |
 
 ## Step 6 — Skill の導入
 
