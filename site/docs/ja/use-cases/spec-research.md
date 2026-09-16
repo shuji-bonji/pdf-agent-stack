@@ -102,3 +102,7 @@ sequenceDiagram
 - 条文を読んで分かるのは**仕様が何を要求するか**までです。目の前のファイルが満たすかは
   `validate_clauses` / `validate_conformance`（pdf-verify）で測ります
 - 宣言・適合・検証は別物です — 条文の「shall」を引用しても、目の前のファイルが規格どおりであることは証明できません
+
+## 別ホストでの再走（2026-09-15、Grok Build 1.0.30）
+
+pdf-spec-mcp v0.6.0 で `list_specs` は 17 文書を返し、`coverage.gaps` に ISO 19005-1..4 と ETSI EN 319 142-1/2 が入っていました。受入監査で見た増分更新を `get_requirements`（§7.5.6）で条文に落とし（shall 8 件・may 2 件、R-7.5.6-1）、`search_spec` の「document timestamp」は §12.8.4.2 / §12.8.4.3 / §12.8.1 を先頭に 10 件でした。`ISO 19005` の検索は 0 件で、「要求が無い」ではなく「このコーパスは答えられない」と書いています。検証対象の PDF のパスは pdf-spec に渡していません。Grok Build ではプラグインの `env` にある `${PDF_SPEC_DIR}` が展開されず、`~/.grok/config.toml` に絶対パスを書いて通しました（→ [環境変数](/ja/reference/env-vars)）。報告書: [UC05.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC05.md)

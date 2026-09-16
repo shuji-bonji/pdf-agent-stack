@@ -84,6 +84,26 @@ Passing side:
 The failing side uses the same arguments with the gazette path: `compliant: false`, `failedRules: 10`.
 :::
 
+## Measured example — the `ensure_tagged` warning (2026-09-16, second host)
+
+Since pdf-writer-mcp v0.21.1, `ensure_tagged` returns the same kind of warning as `ensure_pdfa`, separating "a label was written" from "the score passed"
+(host Grok Build 1.0.30; pdf-verify-mcp v0.26.1 / veraPDF 1.30.0).
+
+Running `ensure_tagged` on a Japanese report generated with tagging gave `wasTagged: true`, `createdStructure: false` (the structure tree already existed and was left alone), additions limited to Lang / DisplayDocTitle / XMP pdfuaid, and this as `warnings[0]`:
+
+```
+This file now CLAIMS PDF/UA-1 (pdfuaid:part=1), but conformance was NOT checked here. Only document-level
+tagging requirements were supplied; reading order, alternative text, and similar PDF/UA rules are left as they are.
+```
+
+`validate_conformance` (pdfua-1) on the same file: veraPDF 106/106, with the note that the meaning of alt text and reading order cannot be judged by machine.
+The untagged control file scored 99/106, failing 7.1-3, 7.2-34, 7.1-10, 7.1-11, 7.21.4.1-1, 6.2-1 and 7.1-8.
+`pdf-spec`'s `get_requirements` (pdfua1, §7.1, shall) returned 10 clauses; R-7.1-3 (semantically appropriate tags and logical order) is the clause behind the failure.
+
+Still open: `create_markdown_pdf` (tagged) produces two H1 elements when the title and the first heading are the same string. veraPDF passes it, but the heading appears twice in `extract_structured_text`.
+
+Full report: [eval/grok-eval/reports/UC04.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC04.md) (Japanese)
+
 ## How to read the results
 
 - **PDF/UA-1 is T1** — a violation can be stated as "ISO 14289-1 7.1-3 requires…", one step

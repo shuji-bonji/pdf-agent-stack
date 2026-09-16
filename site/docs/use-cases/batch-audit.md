@@ -91,3 +91,7 @@ Returned `verdict` values match the table. The same file and the same `profile` 
 - Profiles can vary per file type (invoices = financial, contracts = contract)
 - When everything clusters at `use_with_caution`, missing trust anchors are the usual cause —
   obtain the CA certificate once and the whole batch gains identity evaluation
+
+## Re-run on a second host (2026-09-15, Grok Build 1.0.30)
+
+With pdf-verify-mcp v0.26.0, `evaluate_policy` ran over 5 specimens (unsigned contract / unsigned invoice / unsigned report / gazette / tampered specimen) and produced all four verdicts: 1 `human_review_required`, 3 `use_with_caution` (`POL-CAUTION-UNSIGNED`, or TRUST-NOT-EVALUATED + REVOCATION-UNKNOWN) and 1 `reject` (`POL-REJECT-INVALID`). Per-file sheets were written for the review and reject files only. Report: [UC06.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC06.md) (Japanese)

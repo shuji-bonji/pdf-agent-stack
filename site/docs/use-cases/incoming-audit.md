@@ -143,6 +143,29 @@ Take object numbers from `verify_integrity`'s `revisions[1].changes` and pass th
 The file is encrypted, so coordinates and types come back but field names are `null` (ISO 32000-1 §7.6.2).
 :::
 
+## Measured example — an encrypted PDF: what was measured vs. "not performed" (2026-09-16, second host)
+
+The same gazette was audited from another host (Grok Build 1.0.30) with pdf-verify-mcp **v0.26.1**. In v0.26.0, `validate_conformance` on an encrypted PDF returned `INTERNAL_ERROR`; in v0.26.1 it returns `ENCRYPTED_PDF`, which reads as "not scored".
+
+**What could be measured**
+
+| Tool | Measured |
+|---|---|
+| `summarize` | `isEncrypted: true`; the key was derived from the empty user password. `textExtractability: "not_extractable"` (font `DFHSMinchoRPro6N-W3-Identity-V`, no ToUnicode) |
+| `evaluate_policy` (government) | `use_with_caution`. `scope.encrypted: true`, `scope.authenticated: true`. `facts.conformance: null`. Advisory: PDF/A conformance could not be completed — **record it as "not performed", not as passed** |
+| `validate_conformance` (pdfa-3b, default engine auto) | `code: "ENCRYPTED_PDF"`. Message: Document is encrypted; veraPDF cannot validate PDF/A against the file as received. No `compliant` field is returned |
+| `validate_conformance` (same, `engine: "native"`) | `authoritativeValidation.performed: false` (reason `native_engine_requested`). `compliant: false`, 3 failed rules (no-encryption / xmp-declaration / output-intent). An observation by the built-in subset, not a veraPDF verdict |
+| `set_metadata` (writer) | `code: "SIGNED_PDF"` (/ByteRange present). next_actions: preserveSignatures / allowBreakingSignatures. No file was written |
+
+**Not performed (never recorded as passed)**
+
+- The veraPDF PDF/A-3b score. It was refused with `ENCRYPTED_PDF`, so veraPDF did not run
+- Unicode extraction of the body text: `not_extractable`. An empty extraction is not reported as "no text"
+
+`facts.conformance: null` and `compliant: false` are different things. The former is "not observed"; the latter is "observed and failed".
+
+Full report: [eval/grok-eval/reports/UC10.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC10.md) (Japanese)
+
 ## How to read the results
 
 - **Code decides the verdict.** `use_with_caution` does not mean "suspicious" — integrity is
@@ -153,3 +176,7 @@ The file is encrypted, so coordinates and types come back but field names are `n
   could not be measured is recorded as "not performed" — never as passed
 - A PAdES level is a **structural observation** (T3): "the structure matches B-B", never "PAdES-conformant"
 - Statutory grounds are quoted from the houki MCPs' **original text**, never from memory
+
+## Re-run on a second host (2026-09-15, Grok Build 1.0.30)
+
+With pdf-verify-mcp v0.26.0 / pdf-reader-mcp v0.15.1, three specimens were audited: an unsigned contract (`human_review_required`, `POL-REVIEW-UNSIGNED-REQUIRED`), a self-signed PAdES specimen (`use_with_caution`, structure B-T) and the gazette above (`use_with_caution`, structure B-B). Calling the same file with the same profile twice returned identical `verdict` and `firedRules`. Report: [UC01.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC01.md) (Japanese)

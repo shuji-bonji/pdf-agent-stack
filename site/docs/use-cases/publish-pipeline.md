@@ -102,3 +102,7 @@ the machine keeps saying that **writing a label makes verification non-optional*
   the report names what remains for human review
 - The fix loop caps at 3; the same violation twice in a row goes straight to human review
   ([cutoff conditions](/skills/pdf-publish#loop-cutoff-conditions))
+
+## Re-run on a second host (2026-09-15, Grok Build 1.0.30)
+
+With pdf-writer-mcp v0.21.0 / pdf-verify-mcp v0.26.0 / veraPDF 1.30.0, a Japanese invoice went through write → read-back → verify. veraPDF judged PDF/A-3b COMPLIANT (146/146) and PDF/UA-1 106/106. Two observations: `PDF_WRITER_FONT` set in Claude Code's `settings.json` does not reach a writer process started by Grok Build, so `fontPath` was passed per call instead (→ [Getting Started](/guide/getting-started)); and `create_markdown_pdf` (tagged) produces two H1 elements when the title and the first heading are the same string. Report: [UC02.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC02.md) (Japanese)

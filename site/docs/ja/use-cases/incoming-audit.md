@@ -141,6 +141,29 @@ housekeeping の 3 行は、認められた変更が必然的に引きずるも�
 暗号化文書なので、座標と型は取れますがフィールド名は `null` です（ISO 32000-1 §7.6.2）。
 :::
 
+## 実測例 — 暗号化 PDF で「測れたこと」と「未実施」を分ける（2026-09-16、別ホスト）
+
+同じ官報を、pdf-verify-mcp **v0.26.1** で別のホスト（Grok Build 1.0.30）から監査しました。v0.26.0 では暗号化 PDF の `validate_conformance` が `INTERNAL_ERROR` を返していましたが、v0.26.1 では `ENCRYPTED_PDF` になり、「採点していない」と読めます。
+
+**測れたこと**
+
+| ツール | 実測 |
+|---|---|
+| `summarize` | `isEncrypted: true`。空のユーザーパスワードで鍵は導けた。`textExtractability: "not_extractable"`（フォント `DFHSMinchoRPro6N-W3-Identity-V`、ToUnicode なし） |
+| `evaluate_policy`（government） | `use_with_caution`。`scope.encrypted: true`、`scope.authenticated: true`。`facts.conformance: null`。advisory: PDF/A conformance could not be completed — **record it as "not performed", not as passed** |
+| `validate_conformance`（pdfa-3b、engine 既定 auto） | `code: "ENCRYPTED_PDF"`。message: Document is encrypted; veraPDF cannot validate PDF/A against the file as received。`compliant` は返らない |
+| `validate_conformance`（同、`engine: "native"`） | `authoritativeValidation.performed: false`（reason `native_engine_requested`）。`compliant: false`、failedRules 3（no-encryption / xmp-declaration / output-intent）。内蔵サブセットの観察であって、veraPDF の判定ではない |
+| `set_metadata`（writer） | `code: "SIGNED_PDF"`（/ByteRange あり）。next_actions は preserveSignatures / allowBreakingSignatures。ファイルは書いていない |
+
+**未実施（passed にしない）**
+
+- PDF/A-3b の veraPDF 採点。`ENCRYPTED_PDF` で拒否されたので、veraPDF は走っていません
+- 本文の Unicode 抽出。`not_extractable` です。空の抽出を「テキストが無い」とはしません
+
+`facts.conformance` が `null` であることと、`compliant: false` であることは別です。前者は「観測していない」、後者は「観測して落ちた」です。
+
+報告書の全文: [eval/grok-eval/reports/UC10.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC10.md)
+
 ## 結果の読み方
 
 - **判定はコードが下します。** `use_with_caution` は「疑わしい」ではありません — 完全性は確認済みで、
@@ -150,3 +173,7 @@ housekeeping の 3 行は、認められた変更が必然的に引きずるも�
   PDF/A が測れなかった検査は「未実施」と明記されます — passed ではありません
 - PAdES レベルは**構造の観測**です（T3）。「B-B に一致する」とは言えますが「PAdES 準拠」とは言いません
 - 法令根拠は houki 系 MCP の**原文**から引きます（記憶からの条文引用はしません）
+
+## 別ホストでの再走（2026-09-15、Grok Build 1.0.30）
+
+pdf-verify-mcp v0.26.0 / pdf-reader-mcp v0.15.1 で、未署名の契約書（`human_review_required`、`POL-REVIEW-UNSIGNED-REQUIRED`）、自己署名の PAdES 検体（`use_with_caution`、構造 B-T）、上の官報（`use_with_caution`、構造 B-B）の 3 検体を監査しました。同じファイルと同じプロファイルを 2 回呼ぶと、`verdict` と `firedRules` は同一でした。報告書: [UC01.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC01.md)

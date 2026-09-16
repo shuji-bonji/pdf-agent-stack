@@ -91,3 +91,7 @@ CRL 同梱検体は `selfmade-ca.pem` では `untrusted` のままです。`trus
 - プロファイルはファイル種別ごとに変えてかまいません（請求書 = financial・契約書 = contract）
 - 全件 `use_with_caution` に寄るときは、trust_anchors 未指定が原因のことが多いです —
   CA 証明書を一度入手すれば全件が identity 評価付きに変わります
+
+## 別ホストでの再走（2026-09-15、Grok Build 1.0.30）
+
+pdf-verify-mcp v0.26.0 で 5 検体（未署名契約 / 未署名請求書 / 未署名レポート / 官報 / 改ざん検体）に `evaluate_policy` を回し、4 値がすべて出ました。`human_review_required` 1 件、`use_with_caution` 3 件（`POL-CAUTION-UNSIGNED` または TRUST-NOT-EVALUATED + REVOCATION-UNKNOWN）、`reject` 1 件（`POL-REJECT-INVALID`）。個票を付けたのは review と reject の 2 件だけです。報告書: [UC06.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC06.md)

@@ -57,7 +57,9 @@ const sidebar = (prefix: string, l: Record<string, string>) => ({
         { text: l.ucPdfa, link: `${prefix}/use-cases/pdfa-archive` },
         { text: l.ucA11y, link: `${prefix}/use-cases/accessibility` },
         { text: l.ucSpec, link: `${prefix}/use-cases/spec-research` },
-        { text: l.ucBatch, link: `${prefix}/use-cases/batch-audit` }
+        { text: l.ucBatch, link: `${prefix}/use-cases/batch-audit` },
+        { text: l.ucRead, link: `${prefix}/use-cases/pdf-read` },
+        { text: l.ucDenchoho, link: `${prefix}/use-cases/denchoho-invoice` }
       ]
     }
   ],
@@ -95,6 +97,7 @@ const en = {
   useCases: 'Use Cases', ucIndex: 'Overview', ucIncoming: 'Incoming PDF Audit',
   ucPublish: 'Publish Pipeline', ucPdfa: 'PDF/A Archiving', ucA11y: 'Accessibility (PDF/UA)',
   ucSpec: 'Spec Research', ucBatch: 'Batch Audit',
+  ucRead: 'Large or Unreadable PDFs', ucDenchoho: 'e-Bookkeeping Invoice (Denchōhō)',
   envVars: 'Environment Variables', errorCodes: 'Error Codes', glossary: 'Glossary',
   isoPrimer: 'How to Read ISO Specs', mcpTools: 'MCP Tools Reference', library: 'Library',
   specOutput: 'Reading pdf-spec Output'
@@ -107,6 +110,7 @@ const ja = {
   useCases: 'ユースケース', ucIndex: '一覧', ucIncoming: '受入監査',
   ucPublish: '納品パイプライン', ucPdfa: '長期保存 (PDF/A)', ucA11y: 'アクセシビリティ (PDF/UA)',
   ucSpec: '仕様調査', ucBatch: '一括監査',
+  ucRead: '大きい PDF・読めない PDF', ucDenchoho: '電帳法を意識した請求書',
   envVars: '環境変数', errorCodes: 'エラーコード', glossary: '用語集',
   isoPrimer: 'ISO 仕様書の読み方', mcpTools: 'MCP ツールリファレンス', library: 'ライブラリ',
   specOutput: 'pdf-spec の出力の読み方'

@@ -98,3 +98,7 @@ sequenceDiagram
 - 機械検証は alt テキストや読み順の**意味的**な適切さまでは判定できません。人手レビューの残る範囲を
   Report に明記してください
 - 修正ループは上限 3 回・同じ違反が 2 回続いたら即人手へ（[打ち切り条件](/ja/skills/pdf-publish#ループ打ち切り条件)）
+
+## 別ホストでの再走（2026-09-15、Grok Build 1.0.30）
+
+pdf-writer-mcp v0.21.0 / pdf-verify-mcp v0.26.0 / veraPDF 1.30.0 で、日本語の請求書を write → 読み戻し → verify まで回しました。PDF/A-3b は veraPDF が COMPLIANT（146/146）、PDF/UA-1 は 106/106 です。観察が 2 つあります。Claude Code の `settings.json` に書いた `PDF_WRITER_FONT` は Grok Build が起動した writer プロセスには渡らず、呼び出しの `fontPath` で回避しました（→ [導入手順](/ja/guide/getting-started)）。`create_markdown_pdf`（tagged）は title と本文見出しが同じ文字列のとき H1 が 2 つできます。報告書: [UC02.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC02.md)

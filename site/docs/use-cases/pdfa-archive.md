@@ -104,6 +104,23 @@ sequenceDiagram
 ```
 :::
 
+## Measured example — a file whose label and score disagree (2026-09-15, second host)
+
+To confirm that the label `ensure_pdfa` writes is never read as conformance, a deliberately non-conformant file was put through the same gate
+(pdf-writer-mcp v0.21.0 / pdf-verify-mcp v0.26.0 / veraPDF 1.30.0; host Grok Build 1.0.30).
+
+| Step | Tool | Measured |
+|---|---|---|
+| 1 | `create_text_pdf` (English, no fontPath) | font is Helvetica (not embedded) |
+| 2 | `ensure_pdfa` (pdfa-3b) only | `declarationRisks: FONT_NOT_EMBEDDED (Helvetica)`; warning: **CLAIMS PDF/A-3b … conformance was NOT checked** |
+| 3 | `identify_conformance` | declared `pdfA: { part: "3", conformance: "B" }`; notes: identifies declared conformance only |
+| 4 | `validate_conformance` (pdfa-3b) | engine `verapdf`, **`compliant: false`**, 145/146; failing rule `ISO 19005-3:2012 6.2.11.4.1-1` (font not embedded) |
+
+The summary written right after step 3 was: "The file claims PDF/A-3b. ensure_pdfa only added /ID, an OutputIntent and XMP pdfaid; conformance was not examined."
+It did not say "it is now PDF/A". The correct report is three sentences: **it claims** (identify) / **veraPDF's verdict is** non-COMPLIANT, 145/146, 6.2.11.4.1-1 (validate) / **the warning says** CLAIMS … NOT checked (ensure_pdfa).
+
+Full report: [eval/grok-eval/reports/UC09.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC09.md) (Japanese)
+
 ## How to read the results
 
 - **veraPDF is the judge for PDF/A** (T2): write "veraPDF judged it COMPLIANT (146/146)",
@@ -115,3 +132,7 @@ sequenceDiagram
   about itself
 - veraPDF may return no PDF/A result for an encrypted PDF (measured with the gazette). That check
   is recorded as "not performed" — never as passed
+
+## Re-run on a second host (2026-09-15, Grok Build 1.0.30)
+
+For the request "save as PDF/A-4, keep the CSV", the flavour chosen was **`pdfa-4f`**, and veraPDF judged it COMPLIANT (109/109). `detect_pades_level` on the three specimens (gazette B-B / no CRL B-T / CRL in DSS B-LTA) matched the measurements above. The specimen whose label and score disagree is in the section above. Report: [UC03.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC03.md) (Japanese)

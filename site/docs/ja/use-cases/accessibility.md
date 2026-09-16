@@ -83,6 +83,26 @@ sequenceDiagram
 不合格側は同じ引数で `file_path` を官報にし、`compliant: false`、`failedRules: 10` です。
 :::
 
+## 実測例 — `ensure_tagged` の warning（2026-09-16、別ホスト）
+
+pdf-writer-mcp v0.21.1 から、`ensure_tagged` も `ensure_pdfa` と同じく、ラベルを書いたことと採点に通ったことを分ける warning を返します
+（ホストは Grok Build 1.0.30。pdf-verify-mcp v0.26.1 / veraPDF 1.30.0）。
+
+タグ付きで生成した日本語レポートに `ensure_tagged` を掛けると、`wasTagged: true`、`createdStructure: false`（構造木は既にあるので触らない）、追加は Lang / DisplayDocTitle / XMP pdfuaid だけで、`warnings[0]` は次の文でした。
+
+```
+This file now CLAIMS PDF/UA-1 (pdfuaid:part=1), but conformance was NOT checked here. Only document-level
+tagging requirements were supplied; reading order, alternative text, and similar PDF/UA rules are left as they are.
+```
+
+同じファイルの `validate_conformance`（pdfua-1）は veraPDF 106/106 で、notes に「alt テキストと読み順の意味は機械では判定できない」が付きます。
+タグ無しの対照ファイルは 99/106 で、7.1-3、7.2-34、7.1-10、7.1-11、7.21.4.1-1、6.2-1、7.1-8 が落ちました。
+`pdf-spec` の `get_requirements`（pdfua1、§7.1、shall）は 10 件を返し、R-7.1-3（意味的に適切なタグと論理順）が違反の条文です。
+
+残っている観察: `create_markdown_pdf`（tagged）は title と本文見出しが同じ文字列のとき H1 が 2 つできます。veraPDF は通りますが、`extract_structured_text` で見出しが二重に見えます。
+
+報告書の全文: [eval/grok-eval/reports/UC04.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC04.md)
+
 ## 結果の読み方
 
 - **PDF/UA-1 は T1** — 違反は「ISO 14289-1 7.1-3 が要求する」と条文を引いて断定できます
