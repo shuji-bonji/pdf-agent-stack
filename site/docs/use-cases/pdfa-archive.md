@@ -119,7 +119,7 @@ To confirm that the label `ensure_pdfa` writes is never read as conformance, a d
 The summary written right after step 3 was: "The file claims PDF/A-3b. ensure_pdfa only added /ID, an OutputIntent and XMP pdfaid; conformance was not examined."
 It did not say "it is now PDF/A". The correct report is three sentences: **it claims** (identify) / **veraPDF's verdict is** non-COMPLIANT, 145/146, 6.2.11.4.1-1 (validate) / **the warning says** CLAIMS … NOT checked (ensure_pdfa).
 
-Full report: [eval/grok-eval/reports/UC09.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC09.md) (Japanese)
+Full report: [eval/hosts/grok-build/reports/UC09.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/hosts/grok-build/reports/UC09.md) (Japanese)
 
 ## How to read the results
 
@@ -135,4 +135,4 @@ Full report: [eval/grok-eval/reports/UC09.md](https://github.com/shuji-bonji/pdf
 
 ## Re-run on a second host (2026-09-15, Grok Build 1.0.30)
 
-For the request "save as PDF/A-4, keep the CSV", the flavour chosen was **`pdfa-4f`**, and veraPDF judged it COMPLIANT (109/109). `detect_pades_level` on the three specimens (gazette B-B / no CRL B-T / CRL in DSS B-LTA) matched the measurements above. The specimen whose label and score disagree is in the section above. Report: [UC03.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC03.md) (Japanese)
+For the request "save as PDF/A-4, keep the CSV", the flavour chosen was **`pdfa-4f`**, and veraPDF judged it COMPLIANT (109/109). `detect_pades_level` on the three specimens (gazette B-B / no CRL B-T / CRL in DSS B-LTA) matched the measurements above. The specimen whose label and score disagree is in the section above. Report: [UC03.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/hosts/grok-build/reports/UC03.md) (Japanese)

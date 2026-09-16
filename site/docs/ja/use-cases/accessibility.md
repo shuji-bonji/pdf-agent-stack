@@ -101,7 +101,7 @@ tagging requirements were supplied; reading order, alternative text, and similar
 
 残っている観察: `create_markdown_pdf`（tagged）は title と本文見出しが同じ文字列のとき H1 が 2 つできます。veraPDF は通りますが、`extract_structured_text` で見出しが二重に見えます。
 
-報告書の全文: [eval/grok-eval/reports/UC04.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC04.md)
+報告書の全文: [eval/hosts/grok-build/reports/UC04.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/hosts/grok-build/reports/UC04.md)
 
 ## 結果の読み方
 

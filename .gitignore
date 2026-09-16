@@ -4,6 +4,13 @@
 /skill/ 
 /docs/
 .DS_Store
-# 官報 PDF は再配布しない。各自インターネット官報から取得する（eval/grok-eval/README.md）
-/eval/grok-eval/fixtures/incoming/gazette-or-gov.pdf
-/eval/grok-eval/fixtures/incoming/batch-gov.pdf
+# 官報 PDF は再配布しない。各自インターネット官報から取得する（eval/hosts/grok-build/README.md）
+/eval/hosts/grok-build/fixtures/incoming/gazette-or-gov.pdf
+/eval/hosts/grok-build/fixtures/incoming/batch-gov.pdf
+
+# 境界遵守 eval の実行記録。装置は eval/boundary、記録は commit しない
+/eval/boundary/results/
+/reviews/
+# ケース定義と検体は非公開（eval/boundary/README.md §6）。docs 側から手元に複製しても commit しない
+/eval/boundary/cases/
+/eval/boundary/specimens/

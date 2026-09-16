@@ -117,7 +117,7 @@ sequenceDiagram
 ステップ 3 の直後の要約は「ファイルは PDF/A-3b を名乗っている。ensure_pdfa は /ID・OutputIntent・XMP pdfaid を足しただけで、適合は見ていない」でした。
 「PDF/A になった」とは書いていません。正しい報告文は 3 文です: **名乗っている**（identify）／ **veraPDF の判定は**非 COMPLIANT、145/146、6.2.11.4.1-1（validate）／ **warning は** CLAIMS … NOT checked（ensure_pdfa）。
 
-報告書の全文: [eval/grok-eval/reports/UC09.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC09.md)
+報告書の全文: [eval/hosts/grok-build/reports/UC09.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/hosts/grok-build/reports/UC09.md)
 
 ## 結果の読み方
 
@@ -131,4 +131,4 @@ sequenceDiagram
 
 ## 別ホストでの再走（2026-09-15、Grok Build 1.0.30）
 
-「PDF/A-4 で保存して。CSV は付けたまま」という依頼に対して flavour は **`pdfa-4f`** が選ばれ、veraPDF は 109/109 で COMPLIANT でした。`detect_pades_level` の 3 検体（官報 B-B / CRL なし B-T / CRL 同梱 B-LTA）は上の実測と同じ観測です。ラベルと採点が食い違う検体は上の節のとおりです。報告書: [UC03.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC03.md)
+「PDF/A-4 で保存して。CSV は付けたまま」という依頼に対して flavour は **`pdfa-4f`** が選ばれ、veraPDF は 109/109 で COMPLIANT でした。`detect_pades_level` の 3 検体（官報 B-B / CRL なし B-T / CRL 同梱 B-LTA）は上の実測と同じ観測です。ラベルと採点が食い違う検体は上の節のとおりです。報告書: [UC03.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/hosts/grok-build/reports/UC03.md)

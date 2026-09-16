@@ -101,4 +101,4 @@ sequenceDiagram
 - A request that says "ten years" does not license adding signatures or LTV on your own. `detect_pades_level` is not called on an unsigned file
 - With an attachment, PDF/A-4 means **`pdfa-4f`**. Plain `pdfa-4` requires the attachment itself to be PDF/A
 
-Evaluation kit and full report: [eval/grok-eval/reports/UC08.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC08.md) (Japanese)
+Evaluation kit and full report: [eval/hosts/grok-build/reports/UC08.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/hosts/grok-build/reports/UC08.md) (Japanese)

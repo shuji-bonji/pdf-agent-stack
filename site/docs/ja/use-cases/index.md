@@ -21,5 +21,5 @@ description: 8 つのユースケース — 受入監査・納品パイプライ
 
 上の 8 件はすべて、Claude Code とは別のホスト（Grok Build 1.0.30）でも同じ手順で実行し、判定が一致することを確かめました。
 各ページの末尾に、そのときの報告書へのリンクがあります。評価キット（指示書・検体の作り方・報告書の型）は
-[eval/grok-eval](https://github.com/shuji-bonji/pdf-agent-stack/tree/main/eval/grok-eval) にあり、横断のまとめは
-[reports/SUMMARY.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/SUMMARY.md) です。
+[eval/hosts/grok-build](https://github.com/shuji-bonji/pdf-agent-stack/tree/main/eval/hosts/grok-build) にあり、横断のまとめは
+[reports/SUMMARY.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/hosts/grok-build/reports/SUMMARY.md) です。

@@ -126,4 +126,4 @@ sequenceDiagram
 - `render_page` からの読み取りは OCR ではありません。Read Report には「画像経路」と書き、OCR したとは書きません
 - reader の `next` が `search_text` を案内するのは 50 ページ超のときです。それ未満でも、箇所抽出の依頼なら Skill が `search_text` に入ります
 
-評価キットと報告書の全文: [eval/grok-eval/reports/UC07.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC07.md)
+評価キットと報告書の全文: [eval/hosts/grok-build/reports/UC07.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/hosts/grok-build/reports/UC07.md)

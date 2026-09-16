@@ -102,4 +102,4 @@ sequenceDiagram
 - 「10 年残せる」という依頼文から、署名や LTV の作業を勝手に足しません。署名が無いファイルでは `detect_pades_level` は呼びません
 - 添付があるときの PDF/A-4 は **`pdfa-4f`** です。素の `pdfa-4` は添付自身が PDF/A であることを要求します
 
-評価キットと報告書の全文: [eval/grok-eval/reports/UC08.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC08.md)
+評価キットと報告書の全文: [eval/hosts/grok-build/reports/UC08.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/hosts/grok-build/reports/UC08.md)

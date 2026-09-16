@@ -100,6 +100,7 @@ pdf-agent-stack/
 ├── site/       ドキュメントサイト（VitePress）
 ├── scripts/    stack.json の生成・照合
 ├── stack.json  構成の正典（実測値）
+├── eval/       公開版を外から測る装置と手順（hosts/grok-build = 別ホストでの再走、boundary = 境界遵守 eval）
 ├── mcp/ lib/ agent/ skill/   ← 各リポジトリの作業コピー（.gitignore 済み）
 └── docs/       設計・評価の記録（非公開・.gitignore 済み）
 ```

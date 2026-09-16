@@ -102,7 +102,7 @@ The untagged control file scored 99/106, failing 7.1-3, 7.2-34, 7.1-10, 7.1-11, 
 
 Still open: `create_markdown_pdf` (tagged) produces two H1 elements when the title and the first heading are the same string. veraPDF passes it, but the heading appears twice in `extract_structured_text`.
 
-Full report: [eval/grok-eval/reports/UC04.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC04.md) (Japanese)
+Full report: [eval/hosts/grok-build/reports/UC04.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/hosts/grok-build/reports/UC04.md) (Japanese)
 
 ## How to read the results
 

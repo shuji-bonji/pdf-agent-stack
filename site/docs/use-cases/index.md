@@ -21,5 +21,5 @@ Every use case follows the same shape: **scenario → MCPs/Skills involved → s
 
 All eight use cases were also run, with the same steps, on a host other than Claude Code (Grok Build 1.0.30), and the verdicts matched.
 Each page links to the report from that run at the bottom. The evaluation kit (instructions, how the specimens are made, the report template) lives in
-[eval/grok-eval](https://github.com/shuji-bonji/pdf-agent-stack/tree/main/eval/grok-eval), with the cross-cutting summary in
-[reports/SUMMARY.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/SUMMARY.md) (Japanese).
+[eval/hosts/grok-build](https://github.com/shuji-bonji/pdf-agent-stack/tree/main/eval/hosts/grok-build), with the cross-cutting summary in
+[reports/SUMMARY.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/hosts/grok-build/reports/SUMMARY.md) (Japanese).

@@ -162,7 +162,7 @@ housekeeping の 3 行は、認められた変更が必然的に引きずるも�
 
 `facts.conformance` が `null` であることと、`compliant: false` であることは別です。前者は「観測していない」、後者は「観測して落ちた」です。
 
-報告書の全文: [eval/grok-eval/reports/UC10.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC10.md)
+報告書の全文: [eval/hosts/grok-build/reports/UC10.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/hosts/grok-build/reports/UC10.md)
 
 ## 結果の読み方
 
@@ -176,4 +176,4 @@ housekeeping の 3 行は、認められた変更が必然的に引きずるも�
 
 ## 別ホストでの再走（2026-09-15、Grok Build 1.0.30）
 
-pdf-verify-mcp v0.26.0 / pdf-reader-mcp v0.15.1 で、未署名の契約書（`human_review_required`、`POL-REVIEW-UNSIGNED-REQUIRED`）、自己署名の PAdES 検体（`use_with_caution`、構造 B-T）、上の官報（`use_with_caution`、構造 B-B）の 3 検体を監査しました。同じファイルと同じプロファイルを 2 回呼ぶと、`verdict` と `firedRules` は同一でした。報告書: [UC01.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC01.md)
+pdf-verify-mcp v0.26.0 / pdf-reader-mcp v0.15.1 で、未署名の契約書（`human_review_required`、`POL-REVIEW-UNSIGNED-REQUIRED`）、自己署名の PAdES 検体（`use_with_caution`、構造 B-T）、上の官報（`use_with_caution`、構造 B-B）の 3 検体を監査しました。同じファイルと同じプロファイルを 2 回呼ぶと、`verdict` と `firedRules` は同一でした。報告書: [UC01.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/hosts/grok-build/reports/UC01.md)

@@ -31,8 +31,8 @@ OCR はしないでください。画像ページは render_page で視覚読み
 `scan-no-text-layer.pdf` の作り方（作業場で 1 回）:
 
 ```bash
-python3 eval/grok-eval/scripts/make-scan-no-text-layer.py
-# -> eval/grok-eval/fixtures/incoming/scan-no-text-layer.pdf
+python3 eval/hosts/grok-build/scripts/make-scan-no-text-layer.py
+# -> eval/hosts/grok-build/fixtures/incoming/scan-no-text-layer.pdf
 ```
 
 Pillow と CJK フォントが要る。コンテンツは `/Im0 Do` だけ。`Tj` / `TJ` / `BT` は入れない。

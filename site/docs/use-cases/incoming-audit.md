@@ -164,7 +164,7 @@ The same gazette was audited from another host (Grok Build 1.0.30) with pdf-veri
 
 `facts.conformance: null` and `compliant: false` are different things. The former is "not observed"; the latter is "observed and failed".
 
-Full report: [eval/grok-eval/reports/UC10.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC10.md) (Japanese)
+Full report: [eval/hosts/grok-build/reports/UC10.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/hosts/grok-build/reports/UC10.md) (Japanese)
 
 ## How to read the results
 
@@ -179,4 +179,4 @@ Full report: [eval/grok-eval/reports/UC10.md](https://github.com/shuji-bonji/pdf
 
 ## Re-run on a second host (2026-09-15, Grok Build 1.0.30)
 
-With pdf-verify-mcp v0.26.0 / pdf-reader-mcp v0.15.1, three specimens were audited: an unsigned contract (`human_review_required`, `POL-REVIEW-UNSIGNED-REQUIRED`), a self-signed PAdES specimen (`use_with_caution`, structure B-T) and the gazette above (`use_with_caution`, structure B-B). Calling the same file with the same profile twice returned identical `verdict` and `firedRules`. Report: [UC01.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC01.md) (Japanese)
+With pdf-verify-mcp v0.26.0 / pdf-reader-mcp v0.15.1, three specimens were audited: an unsigned contract (`human_review_required`, `POL-REVIEW-UNSIGNED-REQUIRED`), a self-signed PAdES specimen (`use_with_caution`, structure B-T) and the gazette above (`use_with_caution`, structure B-B). Calling the same file with the same profile twice returned identical `verdict` and `firedRules`. Report: [UC01.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/hosts/grok-build/reports/UC01.md) (Japanese)

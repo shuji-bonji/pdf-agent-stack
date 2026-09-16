@@ -127,4 +127,4 @@ sequenceDiagram
 - Reading from `render_page` is not OCR. The Read Report says "image route" and never claims OCR
 - The reader's `next` suggests `search_text` only above 50 pages. Below that, the Skill enters `search_text` on its own when the request is passage extraction
 
-Evaluation kit and full report: [eval/grok-eval/reports/UC07.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/grok-eval/reports/UC07.md) (Japanese)
+Evaluation kit and full report: [eval/hosts/grok-build/reports/UC07.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/hosts/grok-build/reports/UC07.md) (Japanese)
