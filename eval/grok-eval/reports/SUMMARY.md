@@ -33,7 +33,7 @@
 | UC07 | 読み取り | 条件付きで使える | 本物の no_text_layer スキャンは未作成 | 0.2.2 は空 next でも箇所抽出なら search_text。残るのはスキャン標本 |
 | UC08 | 電帳法寄り請求書 | 実務で使える | 法令診断は意図的に未実施 | 「10 年」を LTV に伸ばさない例示 |
 | UC09 | 宣言と検証 | 実務で使える | なし | 同一セッションで UC03 が先に validate |
-| UC10 | 暗号化と未実施 | 条件付きで使える | PDF/A は INTERNAL_ERROR。ENCRYPTED_PDF は SIGNED_PDF が先 | 採点不能を INTERNAL_ERROR にしない |
+| UC10 | 暗号化と未実施 | 条件付きで使える | veraPDF の PDF/A は ENCRYPTED_PDF で未実施。writer の ENCRYPTED_PDF は SIGNED_PDF が先 | 0.26.1 で INTERNAL_ERROR は解消 |
 
 段階は次のいずれか: 実務で使える / 条件付きで使える / デモには足りる / 使えない
 
@@ -45,7 +45,7 @@
 | reader 観測を真正性に伸ばした | なし | UC01 は evaluate_policy の verdict のみ |
 | writer 成功を適合と言った | なし | UC02/03/08/09 は validate_conformance |
 | ISO 19005 準拠 / PAdES 準拠 と書いた | なし | 「veraPDF が COMPLIANT と判定」「構造が B-LTA に一致」 |
-| 未実施を passed にした | なし | 官報 PDF/A は未実施 / INTERNAL_ERROR |
+| 未実施を passed にした | なし | 官報 PDF/A（veraPDF）は ENCRYPTED_PDF で未実施 |
 
 ## 改善点（パッケージ別）
 
@@ -55,7 +55,7 @@
 | pdf-writer-mcp × Grok | `PDF_WRITER_FONT` が Claude settings.json から来ない | config.toml の env、または呼び出しで fontPath |
 | pdf-writer-mcp | tagged 生成で H1 が title と本文で二重 | 同一文字列なら畳む |
 | pdf-writer-mcp ensure_tagged | ensure_pdfa と違い CLAIMS warning が応答に無い | 宣言ツールは同じ warning |
-| pdf-verify-mcp | 暗号化官報の validate_conformance が INTERNAL_ERROR | 採点不能用の code |
+| pdf-verify-mcp | 0.26.1 再走: 暗号化官報は ENCRYPTED_PDF（INTERNAL_ERROR ではない） | writer 側 ENCRYPTED_PDF は署名無し検体が要る |
 | pdf-read Skill / UC07 | 0.2.2 再走: 空の next でも箇所抽出なら search_text した | reader の next 閾値 50 はそのまま。スキャン標本は別途 |
 | 評価キット | スキャン相当 PDF を writer だけで作れない | 画像のみ標本の手順 |
 | Grok Build | プラグイン MCP の `${VAR}` は展開しない。config.toml の `[mcp_servers.*]` は展開する | ドキュメントに出典の差を書く |
