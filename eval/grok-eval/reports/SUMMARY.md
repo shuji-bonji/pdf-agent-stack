@@ -1,6 +1,6 @@
 # 横断サマリ（評価後に埋める）
 
-- 実施期間（JST）: 2026-09-15 23:05–23:32（初回）。UC07 再走 2026-09-16 12:48。UC10 再走 15:03（verify 0.26.1）。UC04 再走 15:36（writer 0.21.1）
+- 実施期間（JST）: 2026-09-15 23:05–23:32（初回）。UC07 再走 2026-09-16 12:48 と 19:42（scan-no-text-layer）。UC10 再走 15:03（verify 0.26.1）。UC04 再走 15:36（writer 0.21.1）
 - ホスト: Grok Build 1.0.30 (04b7ffed98c6) [stable] / macOS 26.6.2 arm64 / Node v24.16.0
 
 登録経路は `00-grok-build-setup.md` の手動 npx ではなく、Claude 互換プラグイン。`pdf-spec` だけ `~/.grok/config.toml` で `PDF_SPEC_DIR` を絶対パス指定。
@@ -30,7 +30,7 @@
 | UC04 | アクセシビリティ | 実務で使える | なし | 0.21.1 で CLAIMS warning あり。H1 二重は残る |
 | UC05 | 仕様調査 | 実務で使える | なし | プラグイン env の `${VAR}` |
 | UC06 | 一括監査 | 実務で使える | caution 3 件は個票なし（指示どおり） | サマリに conformance 列 |
-| UC07 | 読み取り | 条件付きで使える | 本物の no_text_layer スキャンは未作成 | 0.2.2 は空 next でも箇所抽出なら search_text。残るのはスキャン標本 |
+| UC07 | 読み取り | 実務で使える | なし（no_text_layer は committed 標本で測った） | reader の next は 50 超のみ。Skill が空 next を補う |
 | UC08 | 電帳法寄り請求書 | 実務で使える | 法令診断は意図的に未実施 | 「10 年」を LTV に伸ばさない例示 |
 | UC09 | 宣言と検証 | 実務で使える | なし | 同一セッションで UC03 が先に validate |
 | UC10 | 暗号化と未実施 | 条件付きで使える | veraPDF の PDF/A は ENCRYPTED_PDF で未実施。writer の ENCRYPTED_PDF は SIGNED_PDF が先 | 0.26.1 で INTERNAL_ERROR は解消 |
@@ -56,6 +56,6 @@
 | pdf-writer-mcp | tagged 生成で H1 が title と本文で二重 | 同一文字列なら畳む |
 | pdf-writer-mcp ensure_tagged | 0.21.1 再走: CLAIMS / NOT checked が warnings に入った | H1 二重は create_markdown_pdf tagged 側 |
 | pdf-verify-mcp | 0.26.1 再走: 暗号化官報は ENCRYPTED_PDF（INTERNAL_ERROR ではない） | writer 側 ENCRYPTED_PDF は署名無し検体が要る |
-| pdf-read Skill / UC07 | 0.2.2 再走: 空の next でも箇所抽出なら search_text した | reader の next 閾値 50 はそのまま。スキャン標本は別途 |
-| 評価キット | スキャン相当 PDF を writer だけで作れない | 画像のみ標本の手順 |
+| pdf-read Skill / UC07 | 0.2.2: 空 next でも search_text。scan-no-text-layer は no_text_layer → 視覚読み | reader の next 閾値 50 はそのまま |
+| 評価キット | scan-no-text-layer は committed 標本（writer では作らない） | 手順は指示書どおり動いた |
 | Grok Build | プラグイン MCP の `${VAR}` は展開しない。config.toml の `[mcp_servers.*]` は展開する | ドキュメントに出典の差を書く |
