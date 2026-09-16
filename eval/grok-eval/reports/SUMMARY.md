@@ -1,6 +1,6 @@
 # 横断サマリ（評価後に埋める）
 
-- 実施期間（JST）: 2026-09-15 23:05–23:32
+- 実施期間（JST）: 2026-09-15 23:05–23:32（初回）。UC07 再走 2026-09-16 12:48
 - ホスト: Grok Build 1.0.30 (04b7ffed98c6) [stable] / macOS 26.6.2 arm64 / Node v24.16.0
 
 登録経路は `00-grok-build-setup.md` の手動 npx ではなく、Claude 互換プラグイン。`pdf-spec` だけ `~/.grok/config.toml` で `PDF_SPEC_DIR` を絶対パス指定。
@@ -11,12 +11,12 @@
 | --- | --- |
 | pdf-reader-mcp | npm 0.15.1 / 接続 0.15.1（サイト実測 0.15.0 より 1 パッチ新しい） |
 | pdf-verify-mcp | 0.26.0 |
-| pdf-writer-mcp | 0.21.0 |
+| pdf-writer-mcp | 0.21.1（UC07 再走の検体作成。npm provenance あり） |
 | pdf-spec-mcp | 0.6.0。`list_specs` totalSpecs=17 |
 | veraPDF | `verapdf --version` 1.30.0 / Homebrew 実体 1.30.2。`PDF_VERIFY_VERAPDF` 未設定でも PATH から engine=verapdf |
 | 日本語フォント | NotoSansJP-Regular.otf はディスク上にある。Grok の writer プロセスには `PDF_WRITER_FONT` 未設定。呼び出しの `fontPath` で回避 |
 | PDF_SPEC_DIR | コーパスあり。プラグイン `${PDF_SPEC_DIR}` は未展開。config.toml 上書き後に通った |
-| Skill 発見 | pdf-trust 0.8.0 / pdf-publish 0.7.0 / pdf-read 0.2.1（いずれも plugin [claude]） |
+| Skill 発見 | pdf-trust 0.8.0 / pdf-publish 0.7.0（plugin [claude]）。pdf-read **0.2.2**（`grok plugin install shuji-bonji/pdf-read-skill@v0.2.2`） |
 
 詳細は `reports/SETUP.md`。
 
@@ -30,7 +30,7 @@
 | UC04 | アクセシビリティ | 実務で使える | なし | ensure_tagged に CLAIMS warning が無い |
 | UC05 | 仕様調査 | 実務で使える | なし | プラグイン env の `${VAR}` |
 | UC06 | 一括監査 | 実務で使える | caution 3 件は個票なし（指示どおり） | サマリに conformance 列 |
-| UC07 | 読み取り | 条件付きで使える | 本物の no_text_layer スキャンは未作成 | Skill の 50 ページ閾値と UC07 の 20 ページ |
+| UC07 | 読み取り | 条件付きで使える | 本物の no_text_layer スキャンは未作成 | 0.2.2 は空 next でも箇所抽出なら search_text。残るのはスキャン標本 |
 | UC08 | 電帳法寄り請求書 | 実務で使える | 法令診断は意図的に未実施 | 「10 年」を LTV に伸ばさない例示 |
 | UC09 | 宣言と検証 | 実務で使える | なし | 同一セッションで UC03 が先に validate |
 | UC10 | 暗号化と未実施 | 条件付きで使える | PDF/A は INTERNAL_ERROR。ENCRYPTED_PDF は SIGNED_PDF が先 | 採点不能を INTERNAL_ERROR にしない |
@@ -56,6 +56,6 @@
 | pdf-writer-mcp | tagged 生成で H1 が title と本文で二重 | 同一文字列なら畳む |
 | pdf-writer-mcp ensure_tagged | ensure_pdfa と違い CLAIMS warning が応答に無い | 宣言ツールは同じ warning |
 | pdf-verify-mcp | 暗号化官報の validate_conformance が INTERNAL_ERROR | 採点不能用の code |
-| pdf-read Skill / UC07 | next は 50 超。指示は 20 ページ | 閾値か指示を揃える |
+| pdf-read Skill / UC07 | 0.2.2 再走: 空の next でも箇所抽出なら search_text した | reader の next 閾値 50 はそのまま。スキャン標本は別途 |
 | 評価キット | スキャン相当 PDF を writer だけで作れない | 画像のみ標本の手順 |
 | Grok Build | プラグイン MCP の `${VAR}` は展開しない。config.toml の `[mcp_servers.*]` は展開する | ドキュメントに出典の差を書く |
