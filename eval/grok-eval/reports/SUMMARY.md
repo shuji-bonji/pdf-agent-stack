@@ -1,6 +1,6 @@
 # 横断サマリ（評価後に埋める）
 
-- 実施期間（JST）: 2026-09-15 23:05–23:32（初回）。UC07 再走 2026-09-16 12:48
+- 実施期間（JST）: 2026-09-15 23:05–23:32（初回）。UC07 再走 2026-09-16 12:48。UC10 再走 15:03（verify 0.26.1）。UC04 再走 15:36（writer 0.21.1）
 - ホスト: Grok Build 1.0.30 (04b7ffed98c6) [stable] / macOS 26.6.2 arm64 / Node v24.16.0
 
 登録経路は `00-grok-build-setup.md` の手動 npx ではなく、Claude 互換プラグイン。`pdf-spec` だけ `~/.grok/config.toml` で `PDF_SPEC_DIR` を絶対パス指定。
@@ -10,7 +10,7 @@
 | 項目 | 実測 |
 | --- | --- |
 | pdf-reader-mcp | npm 0.15.1 / 接続 0.15.1（サイト実測 0.15.0 より 1 パッチ新しい） |
-| pdf-verify-mcp | 0.26.0 |
+| pdf-verify-mcp | 0.26.1（plugin。UC10 / UC04 再走） |
 | pdf-writer-mcp | 0.21.1（UC07 再走の検体作成。npm provenance あり） |
 | pdf-spec-mcp | 0.6.0。`list_specs` totalSpecs=17 |
 | veraPDF | `verapdf --version` 1.30.0 / Homebrew 実体 1.30.2。`PDF_VERIFY_VERAPDF` 未設定でも PATH から engine=verapdf |
@@ -27,7 +27,7 @@
 | UC01 | 受入監査 | 実務で使える | なし | locate_objects の 0,0,0,0 矩形の意味 |
 | UC02 | 納品パイプライン | 実務で使える | inspect_structure は後続 UC08 で実施 | H1 二重、PDF_WRITER_FONT 非継承 |
 | UC03 | 長期保存 PDF/A | 実務で使える | なし | selfmade-pades-lta ファイル名と観測 B-T の差 |
-| UC04 | アクセシビリティ | 実務で使える | なし | ensure_tagged に CLAIMS warning が無い |
+| UC04 | アクセシビリティ | 実務で使える | なし | 0.21.1 で CLAIMS warning あり。H1 二重は残る |
 | UC05 | 仕様調査 | 実務で使える | なし | プラグイン env の `${VAR}` |
 | UC06 | 一括監査 | 実務で使える | caution 3 件は個票なし（指示どおり） | サマリに conformance 列 |
 | UC07 | 読み取り | 条件付きで使える | 本物の no_text_layer スキャンは未作成 | 0.2.2 は空 next でも箇所抽出なら search_text。残るのはスキャン標本 |
@@ -54,7 +54,7 @@
 | pdf-spec-mcp plugin.json | `"PDF_SPEC_DIR": "${PDF_SPEC_DIR}"` が Grok でリテラル | env ブロックを外すか絶対パスをホスト設定に書く |
 | pdf-writer-mcp × Grok | `PDF_WRITER_FONT` が Claude settings.json から来ない | config.toml の env、または呼び出しで fontPath |
 | pdf-writer-mcp | tagged 生成で H1 が title と本文で二重 | 同一文字列なら畳む |
-| pdf-writer-mcp ensure_tagged | ensure_pdfa と違い CLAIMS warning が応答に無い | 宣言ツールは同じ warning |
+| pdf-writer-mcp ensure_tagged | 0.21.1 再走: CLAIMS / NOT checked が warnings に入った | H1 二重は create_markdown_pdf tagged 側 |
 | pdf-verify-mcp | 0.26.1 再走: 暗号化官報は ENCRYPTED_PDF（INTERNAL_ERROR ではない） | writer 側 ENCRYPTED_PDF は署名無し検体が要る |
 | pdf-read Skill / UC07 | 0.2.2 再走: 空の next でも箇所抽出なら search_text した | reader の next 閾値 50 はそのまま。スキャン標本は別途 |
 | 評価キット | スキャン相当 PDF を writer だけで作れない | 画像のみ標本の手順 |
