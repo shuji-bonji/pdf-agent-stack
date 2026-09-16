@@ -25,7 +25,7 @@ MCP: pdf-verify
 | `batch-unsigned-contract.pdf` | 未署名の契約ダミー | `contract` |
 | `batch-plain-invoice.pdf` | 請求ダミー | `financial` |
 | `batch-ua-report.pdf` | UC04 の成果をコピーして可 | `general` |
-| `batch-gov.pdf` | 官報など。無ければプレーン PDF | `government` または `general` |
+| `batch-gov.pdf` | 官報など（`gazette-or-gov.pdf` の複製でよい。同梱しない）。無ければプレーン PDF | `government` または `general` |
 
 改ざん標本や署名無効標本があれば 5 件目にする。サイト実測では `selfmade-tampered.pdf` が `reject` 側だった。
 

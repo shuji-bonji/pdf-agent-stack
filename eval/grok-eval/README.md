@@ -81,6 +81,7 @@ grok
 | 成果物 | 置き場 |
 | --- | --- |
 | 検体 PDF | `fixtures/`（生成物） / `fixtures/incoming/`（受領想定） |
+| 官報 PDF | 同梱しない。`00-grok-build-setup.md` の「検体の用意」にある入手先から各自で取得する |
 | 納品 PDF | `out/` |
 | 各 UC の報告書 | `reports/UC01.md` など |
 | 横断サマリ | `reports/SUMMARY.md` |

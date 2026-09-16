@@ -4,3 +4,6 @@
 /skill/ 
 /docs/
 .DS_Store
+# 官報 PDF は再配布しない。各自インターネット官報から取得する（eval/grok-eval/README.md）
+/eval/grok-eval/fixtures/incoming/gazette-or-gov.pdf
+/eval/grok-eval/fixtures/incoming/batch-gov.pdf

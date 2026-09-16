@@ -53,7 +53,7 @@ def rebuild(dest: Path) -> None:
         "/System/Library/Fonts/ヒラギノ明朝 ProN.ttc",
         "/System/Library/Fonts/Hiragino Serif.ttc",
         "/Library/Fonts/NotoSerifCJKjp-Regular.otf",
-        "/Users/bonji/workspace/shuji-bonji/pdf-agent-stack/mcp/pdf-writer-mcp/NotoSansJP-Regular.otf",
+        str(Path.home() / "workspace/shuji-bonji/pdf-agent-stack/mcp/pdf-writer-mcp/NotoSansJP-Regular.otf"),
     ]
 
     def pick_font(size: int):

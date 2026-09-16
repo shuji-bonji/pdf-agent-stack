@@ -25,7 +25,7 @@ AGENTS.md の言い切り強度を守ってください。
 | --- | --- | --- |
 | `contract-unsigned.pdf` | writer の `create_markdown_pdf` で、件名「業務委託契約書（ダミー）」、甲乙は架空名、署名欄はテキストのみ | `contract` プロファイルで署名必須が効くか |
 | `contract-like-signed.pdf` | 署名付き公開標本。無ければ「署名フィールドがあるが暗号検証できない自作」と明記してスキップ可 | `verify_signatures` の応答形 |
-| `gazette-or-gov.pdf` | 公開の官報 PDF をローカルへ。使えなければ政府系の公開 PDF 1 件 | `government`、暗号化、文書タイムスタンプ |
+| `gazette-or-gov.pdf` | 公開の官報 PDF をローカルへ（入手先は `00-grok-build-setup.md` の「検体の用意」。キットには同梱しない）。使えなければ政府系の公開 PDF 1 件 | `government`、暗号化、文書タイムスタンプ |
 
 官報を使えない場合は、`contract-unsigned.pdf` と、writer で作った請求書ダミー `invoice-plain.pdf` の 2 件に減らす。減らした理由を報告書に書く。
 

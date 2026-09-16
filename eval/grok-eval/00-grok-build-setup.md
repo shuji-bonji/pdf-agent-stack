@@ -140,6 +140,23 @@ Skill が読めない場合でも MCP は直接呼べます。そのときは「
 - 自作ダミー請求書・契約書・議事録（実在の取引先名を使わない）
 - インターネット官報の公開 PDF（利用条件を守り、再配布しない。評価作業場のローカルに置く）
 
+官報 PDF はこのキットに同梱していません。UC01 / UC06 / UC10 で使う `fixtures/incoming/gazette-or-gov.pdf` と `batch-gov.pdf` は、次の 1 件を各自で取得して置きます。サイト実測と同じ検体です。
+
+| 項目 | 値 |
+| --- | --- |
+| 号 | 令和 8 年 8 月 10 日 本紙 第 1765 号 1 ページ |
+| 入手先 | https://www.kanpo.go.jp/20260810/20260810h01765/20260810h017650001f.html |
+| PDF | https://www.kanpo.go.jp/20260810/20260810h01765/pdf/20260810h017650001.pdf |
+| md5 | `3fa16c47132a88dbdea774b445c881d7`（139,503 バイト） |
+
+```bash
+curl -o fixtures/incoming/gazette-or-gov.pdf \
+  https://www.kanpo.go.jp/20260810/20260810h01765/pdf/20260810h017650001.pdf
+cp fixtures/incoming/gazette-or-gov.pdf fixtures/incoming/batch-gov.pdf
+```
+
+md5 が違う場合は、公開側で差し替わった可能性があります。報告書にその md5 を書き、サイト実測との差は所見にします。
+
 使ってはいけないもの:
 
 - 本番の契約・請求・診療文書
