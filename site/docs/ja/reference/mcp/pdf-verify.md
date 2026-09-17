@@ -1,5 +1,5 @@
 ---
-description: "pdf-verify-mcp v0.26.1 の全 7 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-verify-mcp v0.27.0 の全 7 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-verify-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-verify-mcp v0.26.1 の全 7 ツールの引数・型・既定�
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-**v0.26.1** の `tools/list` ハンドシェイクから自動生成（7 ツール・2026-09-16）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.27.0** の `tools/list` ハンドシェイクから自動生成（7 ツール・2026-09-17）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-verify)へ。
@@ -56,14 +56,9 @@ PDF 文書の電子署名を暗号学的に検証する。各署名について�
 
 返るのは `{ scope, signatures: [...] }` の形の辞書である。**v0.21.0 で最上位が配列から辞書に変わった** —— 一覧は `.signatures` にある。
 
-3 つの状態は独立である。
+署名ごとの判定（'valid' / 'invalid' / 'indeterminate'）、信頼状態（'trusted' / 'untrusted' / 'not_evaluated'・証明書パス付き）、失効状態（'good' / 'revoked' / 'revoked_after_validation_time' / 'unknown' / 'not_checked'。check_revocation が 'none' のときは 'not_checked'）とその取得元（source）・置き場所（origin: 'dss' / 'cms_signed_data' / 'cms_revocation_info_archival'）・失効日時（revocationTime）、検証時刻（validationTime: { time, source: 'signature_timestamp' | 'document_timestamp' | 'current_time' }）、署名タイムスタンプの検証結果。
 
-| フィールド | 値 | 意味 |
-| --- | --- | --- |
-| `verdict` | `valid` / `invalid` / `indeterminate` | 暗号計算の一致 |
-| `trust.status` | `trusted` / `untrusted` / `not_evaluated` | 証明書チェーン（パス付き）。アンカー無しは `not_evaluated` |
-| `revocation.status` | `good` / `revoked` / `unknown` / `not_checked` | 失効確認（OCSP / CRL） |
-| 署名タイムスタンプ | （検証結果） | RFC 3161 |
+検証時刻: 検証できたタイムスタンプ（署名自身のもの。無ければ、その署名を覆う文書タイムスタンプのうち最も早いもの）の時刻。どちらも無ければ現在時刻。CMS の signingTime 属性は署名者が書く値なので使わない。署名者証明書が失効している場合、判定は 'indeterminate' になる。ただし、タイムスタンプが失効より前の署名であることを示していれば、失効状態は 'revoked_after_validation_time' になり、判定は変わらない。署名を検証できない CRL と OCSP 応答は 'unknown' になる。
 
 注意: trust_anchors（または環境変数）なしでは trust は not_evaluated と報告される —— そのときの 'valid' は暗号学的完全性を意味し、署名者の本人性を保証しない。
 

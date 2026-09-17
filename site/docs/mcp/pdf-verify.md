@@ -6,7 +6,7 @@ description: The MCP that judges authenticity and conformance (7 tools) — sign
 
 **The server that judges whether a signature is cryptographically valid and whether the file meets the standard.** It verifies electronic signatures cryptographically, detects changes made after signing, and scores conformance to PDF/A (archiving) and PDF/UA (accessibility).
 
-- npm: [`@shuji-bonji/pdf-verify-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) / current v0.26.1 / [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp)
+- npm: [`@shuji-bonji/pdf-verify-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) / current v0.27.0 / [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp)
 - This page is the guide — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-verify) (generated from `tools/list`)
 
 ## What this one server gives you
@@ -127,7 +127,7 @@ Per-tool cautions and prompt → parameters → returned JSON are at the end of 
 | --- | --- | --- |
 | `verdict` | `valid` / `invalid` / `indeterminate` | whether the cryptography matched |
 | `trust` | `trusted` / `untrusted` / `not_evaluated` | the certificate chain |
-| revocation | `good` / `revoked` / `unknown` / `not_checked` | OCSP / CRL |
+| revocation | `good` / `revoked` / `revoked_after_validation_time` / `unknown` / `not_checked` | OCSP / CRL |
 
 Without trust anchors (`trust_anchors` or `PDF_VERIFY_TRUST_ANCHORS`), `trust` stays `not_evaluated`. That `valid` means the digest matched; it does not prove the signer is who they claim to be. `evaluate_policy` then stops at `use_with_caution`.
 
@@ -140,16 +140,18 @@ Without trust anchors (`trust_anchors` or `PDF_VERIFY_TRUST_ANCHORS`), `trust` s
 | ① Integrity | The hash of the bytes named by `/ByteRange` matches the CMS `messageDigest` attribute | The PDF itself | none | `cms.digestMatches` |
 | ② Signature value | The CMS signature value verifies with the signer certificate's public key | Signer certificate in the CMS | none | `cms.signatureVerified` |
 | ③ Certificate chain | The signer certificate chains up to a trust anchor | Certificates in the CMS and DSS, trust anchors | `online` only: missing issuer certificates are fetched via AIA caIssuers | `trust` |
-| ④ Revocation | The signer certificate has not been revoked | See "Revocation modes" below | see below | `revocation.status` / `revocation.source` |
+| ④ Revocation | The signer certificate has not been revoked | See "Revocation modes" below | see below | `revocation.status` / `revocation.source` / `revocation.origin` / `revocation.revocationTime` |
 | ⑤ Timestamp | The RFC 3161 token's messageImprint matches the signature value and the TSA signature verifies; with trust anchors, the TSA chain is evaluated too | Unsigned attributes of the CMS | none | `cms.signatureTimestamp` |
 
-`verdict: valid` ("cryptographically valid") means ① and ② passed: the signed bytes have not changed since signing, and they were signed with the private key matching that certificate. Who issued the certificate (③) and whether it is revoked (④) are reported in separate fields. The one exception: if ④ returns `revoked`, `verdict` becomes `invalid`.
+`verdict: valid` ("cryptographically valid") means ① and ② passed: the signed bytes have not changed since signing, and they were signed with the private key matching that certificate. Who issued the certificate (③) and whether it is revoked (④) are reported in separate fields. The one exception: if ④ returns `revoked`, `verdict` becomes `indeterminate` (see "Signatures with a revoked certificate" below).
 
-The reference time for certificate validity in ③ is chosen in this order:
+The time used for ③ and ④ (the validation time) is chosen in this order and reported as `validationTime` (`{ time, source }`):
 
-1. The CMS `signingTime` attribute (written by the signer)
-2. If absent, the signature timestamp's `genTime`
-3. If neither exists, the time the verification runs
+1. The `genTime` of a verified signature timestamp (`source: signature_timestamp`)
+2. Otherwise, the earliest `genTime` among verified document timestamps covering this signature (`source: document_timestamp`)
+3. Otherwise, the time the verification runs (`source: current_time`)
+
+When trust anchors are given, only timestamps whose TSA chain is `trusted` count. The CMS `signingTime` attribute is written by the signer, so it is never used (ISO 32000-2 §12.8.3.4.5 b)).
 
 ##### Revocation modes
 
@@ -157,18 +159,31 @@ OCSP asks the CA's responder for the status of one certificate (RFC 6960). A CRL
 
 | `check_revocation` | Order of lookup | Network |
 | --- | --- | --- |
-| `none` | not checked (`revocation` is `null`) | none |
-| `embedded` (default) | 1. OCSP responses in the DSS　2. CRLs in the CMS and DSS | none |
+| `none` | not checked (`revocation.status` is `not_checked`) | none |
+| `embedded` (default) | 1. OCSP responses in the DSS and the CMS signed attribute `adbe-revocationInfoArchival`　2. CRLs in CMS `SignedData.crls`, `adbe-revocationInfoArchival` and the DSS | none |
 | `online` | if 1–2 give no answer: 3. the OCSP responder named in the certificate's AIA　4. the certificate's CRL distribution points | HTTP (each fetch times out after 10 s) |
 
-`revocation.source` tells you where the answer came from (`ocsp_embedded` / `crl_embedded` / `ocsp_online` / `crl_online`). If no source answered, `status` is `unknown` and `source` is `null`.
+`revocation.source` tells you where the answer came from (`ocsp_embedded` / `crl_embedded` / `ocsp_online` / `crl_online`). `revocation.origin` tells you where embedded data sat (`dss` / `cms_signed_data` / `cms_revocation_info_archival`). If no source answered, `status` is `unknown` and `source` is `null`.
+
+Only CRLs and OCSP responses whose signatures verify are used: a CRL against the issuing CA's certificate, an OCSP response against the issuing CA itself or a delegated responder signed by that CA (with `id-kp-OCSPSigning`). Unverifiable data, and data whose `nextUpdate` is before the validation time, give `unknown`.
+
+##### Signatures with a revoked certificate
+
+A timestamp shows that the signature already existed at that time; it does not show how much earlier it was made. A revoked signer certificate is therefore judged as follows.
+
+| Condition | `revocation.status` | `verdict` |
+| --- | --- | --- |
+| The validation time comes from a timestamp and the revocation is later | `revoked_after_validation_time` | unchanged |
+| Anything else (no timestamp, revocation at or before the timestamp, revocation time unreadable) | `revoked` | `indeterminate` |
+
+Nothing shows the signature was made after the revocation, so `invalid` is not claimed. `evaluate_policy` treats `revoked_after_validation_time` as `use_with_caution` and `revoked` as `reject`.
 
 ::: warning Before choosing a mode
 - **The same PDF can give different results in different modes.** A PDF without revocation data in its DSS returns `unknown` under `embedded`, but may return `good` or `revoked` under `online`
 - **`online` reflects the CA's state at the moment of the query.** Verifying the same PDF on another day can give a different result. If you keep the result as a record, keep the time of the run with it
 - **Under `online`, the OCSP responder and CRL host learn which certificate you are checking**
-- `revocation` reports the signer certificate only
-- The revocation date is not compared with the signing time. A certificate revoked after signing is still `revoked`, and `verdict` becomes `invalid`
+- `revocation` reports the signer certificate only. Intermediate CAs are checked against embedded data; a revoked one makes `trust` `untrusted`
+- The `thisUpdate` of CRLs / OCSP responses is not yet compared with the validation time
 :::
 
 For the general background — public-key cryptography, certificates, PKI — see the author's notes, [Notes about Digital Signatures and Timestamps](https://github.com/shuji-bonji/Notes-about-Digital-Signatures-and-Timestamps/blob/main/DigitalSignature.md) (Japanese).

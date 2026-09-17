@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-verify-mcp v0.26.1 — parameters, types, defaults and returns of all 7 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-verify-mcp v0.27.0 — parameters, types, defaults and returns of all 7 tools, generated from the server's tools/list."
 ---
 
 # pdf-verify-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-verify-mcp v0.26.1 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.26.1** (7 tools, 2026-09-16). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.27.0** (7 tools, 2026-09-17). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-verify).
@@ -58,14 +58,9 @@ When `scope.reconstructed` is true, a signature the rebuild did not reach is abs
 
 An object of the form { scope, signatures: [...] }. The top level changed from an array to an object in v0.21.0 - read .signatures for the list.
 
-The three statuses are independent.
+Per-signature verdict ('valid' / 'invalid' / 'indeterminate'), trust status ('trusted' / 'untrusted' / 'not_evaluated' with certificate path), revocation status ('good' / 'revoked' / 'revoked_after_validation_time' / 'unknown' / 'not_checked'; 'not_checked' when check_revocation is 'none') with source, origin ('dss' / 'cms_signed_data' / 'cms_revocation_info_archival') and revocationTime, validationTime ({ time, source: 'signature_timestamp' | 'document_timestamp' | 'current_time' }), and signature timestamp verification.
 
-| Field | Values | Meaning |
-| --- | --- | --- |
-| `verdict` | `valid` / `invalid` / `indeterminate` | Cryptographic match |
-| `trust.status` | `trusted` / `untrusted` / `not_evaluated` | Certificate chain (path included). Without anchors: `not_evaluated` |
-| `revocation.status` | `good` / `revoked` / `unknown` / `not_checked` | OCSP / CRL |
-| timestamp | (verification result) | RFC 3161 signature timestamp |
+Validation time: a verified timestamp (the signature's own, else the earliest document timestamp covering it) or, without one, the current time. The CMS signingTime attribute is written by the signer and is never used. A revoked signer certificate makes the verdict 'indeterminate' unless a timestamp proves the signature predates the revocation (then the status is 'revoked_after_validation_time' and the verdict is unchanged). CRLs and OCSP responses whose signatures cannot be verified give 'unknown'.
 
 Note: without trust_anchors (or the env var), trust is reported as not_evaluated — a 'valid' verdict then means cryptographic integrity, not signer identity assurance.
 

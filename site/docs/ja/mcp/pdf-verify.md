@@ -7,7 +7,7 @@ description: 真正性・準拠性を判定する MCP（7 ツール） — 署�
 **署名が暗号学的に有効か、規格に適っているかを判定するサーバーです。**  
 電子署名を暗号学的に検証し、署名後の改ざんを検知し、PDF/A（長期保存）や PDF/UA（アクセシビリティ）への適合を採点します。
 
-- npm: [`@shuji-bonji/pdf-verify-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) / 現行 v0.26.1 / [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp)
+- npm: [`@shuji-bonji/pdf-verify-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) / 現行 v0.27.0 / [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp)
 - このページは責務と使いどころの解説です。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-verify)（`tools/list` から自動生成）へ
 
 ## これ 1 台でできること
@@ -136,7 +136,7 @@ graph LR
 | --- | --- | --- |
 | `verdict` | `valid` / `invalid` / `indeterminate` | 暗号計算が一致したか |
 | `trust` | `trusted` / `untrusted` / `not_evaluated` | 証明書チェーン |
-| 失効 | `good` / `revoked` / `unknown` / `not_checked` | OCSP / CRL |
+| 失効 | `good` / `revoked` / `revoked_after_validation_time` / `unknown` / `not_checked` | OCSP / CRL |
 
 信頼アンカー（`trust_anchors` または `PDF_VERIFY_TRUST_ANCHORS`）を渡さないと、`trust` は `not_evaluated` のままです。そのときの `valid` は、ダイジェストが一致したという意味であって、署名者が本人であることの証明ではありません。`evaluate_policy` の判定も `use_with_caution` までです。
 
@@ -149,16 +149,18 @@ graph LR
 | ① 完全性 | `/ByteRange` が指すバイト列のハッシュを計算し、CMS の `messageDigest` 属性と一致するか | PDF 本体 | なし | `cms.digestMatches` |
 | ② 署名値 | 署名者証明書の公開鍵で、CMS の署名値を検証できるか | CMS の中の署名者証明書 | なし | `cms.signatureVerified` |
 | ③ 証明書チェーン | 署名者証明書から発行者をたどり、トラストアンカーに行き着くか | CMS と DSS の証明書、トラストアンカー | `online` のときだけ、足りない発行者証明書を AIA caIssuers から取得 | `trust` |
-| ④ 失効 | 署名者証明書が失効していないか | 下の「失効確認のモード」を参照 | 同左 | `revocation.status` / `revocation.source` |
+| ④ 失効 | 署名者証明書が失効していないか | 下の「失効確認のモード」を参照 | 同左 | `revocation.status` / `revocation.source` / `revocation.origin` / `revocation.revocationTime` |
 | ⑤ タイムスタンプ | RFC 3161 トークンの messageImprint が署名値と一致するか、TSA の署名を検証できるか。トラストアンカーがあれば TSA の証明書チェーンも評価 | CMS の非署名属性 | なし | `cms.signatureTimestamp` |
 
-`verdict: valid`（暗号学的に有効）は、① と ② が通ったことを表します。署名のあとで対象のバイト列が変わっていないこと、そしてその証明書に対応する秘密鍵で署名されたことまでは言えます。その証明書を誰が発行したか（③）と、失効していないか（④）は別のフィールドに出ます。ただし ④ で `revoked` になった場合は、`verdict` も `invalid` になります。
+`verdict: valid`（暗号学的に有効）は、① と ② が通ったことを表します。署名のあとで対象のバイト列が変わっていないこと、そしてその証明書に対応する秘密鍵で署名されたことまでは言えます。その証明書を誰が発行したか（③）と、失効していないか（④）は別のフィールドに出ます。ただし ④ で `revoked` になった場合は、`verdict` が `indeterminate` になります（下の「失効した証明書の署名」を参照）。
 
-③ で証明書の有効期間を判定する基準時刻は、次の順で決まります。
+③ と ④ の判定に使う時刻（検証時刻）は、次の順で決まります。選んだ時刻と出所は `validationTime`（`{ time, source }`）に出ます。
 
-1. CMS の `signingTime` 属性（署名者が書いた時刻）
-2. 1 が無ければ、署名タイムスタンプの `genTime`
-3. どちらも無ければ、検証を実行した時刻
+1. 検証できた署名タイムスタンプの `genTime`（`source: signature_timestamp`）
+2. 1 が無ければ、この署名を覆う文書タイムスタンプのうち、最も早い `genTime`（`source: document_timestamp`）
+3. どちらも無ければ、検証を実行した時刻（`source: current_time`）
+
+トラストアンカーを渡したときは、TSA の証明書チェーンが `trusted` のタイムスタンプだけを使います。CMS の `signingTime` 属性は署名者が自分で書く値なので、検証時刻には使いません（ISO 32000-2 §12.8.3.4.5 b)）。
 
 ##### 失効確認のモード
 
@@ -166,18 +168,31 @@ OCSP は、証明書 1 枚の状態を CA のレスポンダに問い合わせ�
 
 | `check_revocation` | 調べる順 | 通信 |
 | --- | --- | --- |
-| `none` | 調べません（`revocation` は `null`） | なし |
-| `embedded`（既定） | 1. DSS の OCSP 応答　2. CMS と DSS の CRL | なし |
+| `none` | 調べません（`revocation.status` は `not_checked`） | なし |
+| `embedded`（既定） | 1. DSS と CMS 署名属性 `adbe-revocationInfoArchival` の OCSP 応答　2. CMS の `SignedData.crls`、`adbe-revocationInfoArchival`、DSS の CRL | なし |
 | `online` | 1・2 で答えが出なければ、3. 証明書の AIA に書かれた OCSP レスポンダ　4. 証明書の CRL 配布点 | HTTP（1 回の取得は 10 秒で打ち切り） |
 
-答えをどこから得たかは `revocation.source`（`ocsp_embedded` / `crl_embedded` / `ocsp_online` / `crl_online`）に出ます。どこからも得られなければ `status` は `unknown`、`source` は `null` です。
+答えをどこから得たかは `revocation.source`（`ocsp_embedded` / `crl_embedded` / `ocsp_online` / `crl_online`）に出ます。埋め込み失効情報の置き場所は `revocation.origin`（`dss` / `cms_signed_data` / `cms_revocation_info_archival`）に出ます。どこからも得られなければ `status` は `unknown`、`source` は `null` です。
+
+CRL と OCSP 応答は、署名を検証できたものだけを使います。CRL は発行 CA の証明書で、OCSP 応答は発行 CA 自身、または発行 CA が署名した委任応答者（`id-kp-OCSPSigning` 付き）の証明書で検証します。検証できなかったもの、`nextUpdate` が検証時刻より前のものは `unknown` になります。
+
+##### 失効した証明書の署名
+
+タイムスタンプは「その時刻にはすでに署名があった」ことを示しますが、署名した時刻がそれより前のいつだったかは示しません。そのため、失効した証明書の署名は次のように判定します。
+
+| 条件 | `revocation.status` | `verdict` |
+| --- | --- | --- |
+| 検証時刻がタイムスタンプで、失効日時がそれより後 | `revoked_after_validation_time` | 変わらない |
+| それ以外（タイムスタンプが無い、失効日時がタイムスタンプ以前、失効日時が読めない） | `revoked` | `indeterminate` |
+
+失効の後に署名したことを示す材料は無いので、`invalid` にはしません。`evaluate_policy` は、`revoked_after_validation_time` を `use_with_caution`、`revoked` を `reject` にします。
 
 ::: warning モードを選ぶ前に
 - **同じ PDF でも、モードによって結果が変わります。** DSS に失効情報が無い PDF は、`embedded` では `unknown`、`online` では `good` や `revoked` になることがあります
 - **`online` の結果は、問い合わせた時点の CA の状態です。** 日をおいて同じ PDF を検証すると、結果が変わることがあります。結果を記録に残すときは、実行日時も残してください
 - **`online` では、どの証明書を検証しようとしているかが OCSP レスポンダと CRL の配布元に伝わります**
-- `revocation` に出るのは、署名者証明書の結果だけです
-- 失効した日時と署名時刻の前後は比べていません。署名のあとで失効した証明書でも `revoked` になり、`verdict` は `invalid` になります
+- `revocation` に出るのは、署名者証明書の結果だけです。中間 CA の失効は埋め込みデータで確認し、失効していれば `trust` が `untrusted` になります
+- CRL / OCSP の `thisUpdate` と検証時刻の前後関係は、まだ見ていません
 :::
 
 公開鍵暗号・証明書・PKI など、電子署名とタイムスタンプの一般的な仕組みは、作者のノート [Notes about Digital Signatures and Timestamps](https://github.com/shuji-bonji/Notes-about-Digital-Signatures-and-Timestamps/blob/main/DigitalSignature.md) にまとめています。
