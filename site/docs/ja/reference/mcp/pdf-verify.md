@@ -1,5 +1,5 @@
 ---
-description: "pdf-verify-mcp v0.27.0 の全 7 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-verify-mcp v0.28.0 の全 7 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-verify-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-verify-mcp v0.27.0 の全 7 ツールの引数・型・既定�
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-**v0.27.0** の `tools/list` ハンドシェイクから自動生成（7 ツール・2026-09-17）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.28.0** の `tools/list` ハンドシェイクから自動生成（7 ツール・2026-09-17）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-verify)へ。
@@ -48,21 +48,23 @@ PDF 文書の電子署名を暗号学的に検証する。各署名について�
 | `response_format` | `"markdown"` \| `"json"` | 任意 | `"markdown"` | 出力形式: "markdown" は人が読む用、"json" は構造化データ |
 | `trust_anchors` | string[] | 任意 |  | 信頼アンカー証明書（PEM または DER）への絶対パス。PDF_VERIFY_TRUST_ANCHORS 環境変数（*.pem/*.crt/*.cer/*.der のディレクトリ）とマージされる。両方とも無い場合、trust は not_evaluated と報告される。 |
 | `check_revocation` | `"none"` \| `"embedded"` \| `"online"` | 任意 | `"embedded"` | 失効確認: "none"、"embedded"（PDF/CMS 内の OCSP/CRL データ。既定）、"online"（さらに OCSP レスポンダと CRL 配布点へ HTTP で問い合わせる）。 |
+| `revocation_freshness` | integer (0–9007199254740991) | 任意 | `86400` | Seconds before the validation time that a CRL / OCSP response may have been issued (thisUpdate) and still support "good". Default 86400 (24 h); 0 accepts only data issued at or after the validation time. Older data gives "unknown". |
+| `trusted_ocsp_responders` | string[] | 任意 |  | Absolute paths to certificates (PEM or DER) of locally trusted OCSP responders (RFC 6960 §4.2.2.2). A response signed by one of them is accepted even when the responder is not the issuing CA or its delegate. |
 | `password` | string | 任意 |  | 暗号化 PDF のパスワード。権限のみの暗号化 PDF では省略可（空のユーザーパスワードを自動で試す）。 |
 
 ### 戻り値
 
-`scope.reconstructed` が true のとき、組み直しが届かなかった署名は一覧に出ない。短い一覧や空の一覧は「ファイルにほかの署名が無い」ことの証明にならない。
+An object of the form { scope, signatures: [...] }. The top level changed from an array to an object in v0.21.0 - read .signatures for the list.
 
-返るのは `{ scope, signatures: [...] }` の形の辞書である。**v0.21.0 で最上位が配列から辞書に変わった** —— 一覧は `.signatures` にある。
+Every report begins with a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table. For this tool it matters most: when scope.reconstructed is true, a signature the rebuild did not reach is absent from the list, so a short or empty list is not proof that the file carries no other signatures.
 
-署名ごとの判定（'valid' / 'invalid' / 'indeterminate'）、信頼状態（'trusted' / 'untrusted' / 'not_evaluated'・証明書パス付き）、失効状態（'good' / 'revoked' / 'revoked_after_validation_time' / 'unknown' / 'not_checked'。check_revocation が 'none' のときは 'not_checked'）とその取得元（source）・置き場所（origin: 'dss' / 'cms_signed_data' / 'cms_revocation_info_archival'）・失効日時（revocationTime）、検証時刻（validationTime: { time, source: 'signature_timestamp' | 'document_timestamp' | 'current_time' }）、署名タイムスタンプの検証結果。
+Per-signature verdict ('valid' / 'invalid' / 'indeterminate'), trust status ('trusted' / 'untrusted' / 'not_evaluated' with certificate path), revocation status ('good' / 'revoked' / 'revoked_after_validation_time' / 'unknown' / 'not_checked'; 'not_checked' when check_revocation is 'none') with source, origin ('dss' / 'cms_signed_data' / 'cms_revocation_info_archival'), revocationTime, thisUpdate and nextUpdate, per-intermediate-CA results in trust.chainRevocation, validationTime ({ time, source: 'signature_timestamp' | 'document_timestamp' | 'current_time' }), and signature timestamp verification.
 
-検証時刻: 検証できたタイムスタンプ（署名自身のもの。無ければ、その署名を覆う文書タイムスタンプのうち最も早いもの）の時刻。どちらも無ければ現在時刻。CMS の signingTime 属性は署名者が書く値なので使わない。署名者証明書が失効している場合、判定は 'indeterminate' になる。ただし、タイムスタンプが失効より前の署名であることを示していれば、失効状態は 'revoked_after_validation_time' になり、判定は変わらない。署名を検証できない CRL と OCSP 応答は 'unknown' になる。
+Validation time: a verified timestamp (the signature's own, else the earliest document timestamp covering it) or, without one, the current time. The CMS signingTime attribute is written by the signer and is never used. A revoked signer certificate makes the verdict 'indeterminate' unless a timestamp proves the signature predates the revocation (then the status is 'revoked_after_validation_time' and the verdict is unchanged). CRLs and OCSP responses whose signatures cannot be verified, that expired before the validation time, or that were issued more than revocation_freshness seconds before it give 'unknown'.
 
-注意: trust_anchors（または環境変数）なしでは trust は not_evaluated と報告される —— そのときの 'valid' は暗号学的完全性を意味し、署名者の本人性を保証しない。
+Note: without trust_anchors (or the env var), trust is reported as not_evaluated — a 'valid' verdict then means cryptographic integrity, not signer identity assurance.
 
-構造だけを調べる pdf-reader-mcp の inspect_signatures を補完する。
+Complements pdf-reader-mcp's inspect_signatures, which inspects structure only.
 
 ::: warning `valid` は本人ではない
 `verdict`（暗号計算の一致）と `trust`（証明書チェーン）と失効状態は独立です。`trust_anchors`（または `PDF_VERIFY_TRUST_ANCHORS`）を渡さなければ `trust` は `not_evaluated` のままです。そのときの `valid` はダイジェストが一致した、という意味であって、署名者が本人であることの証明ではありません。
@@ -547,6 +549,8 @@ PDF に対する決定論的な 4 値信頼判定を下す。
 | `profile` | `"general"` \| `"contract"` \| `"financial"` \| `"legal"` \| `"medical"` \| `"government"` | 任意 | `"general"` | 判定プロファイル: "general"（既定の閾値）、"contract"（署名必須・本人性重視）、"financial"（長期保存の検査）、"legal"、"medical"（最も保守的。caution は review に格上げ）、"government"（長期保存の検査・無署名は許容）。 |
 | `trust_anchors` | string[] | 任意 |  | 信頼アンカー証明書（PEM または DER）への絶対パス。PDF_VERIFY_TRUST_ANCHORS 環境変数とマージされる。アンカーなしでは、有効な署名でも use_with_caution に頭打ちされる（本人性が未評価のため）。 |
 | `check_revocation` | `"none"` \| `"embedded"` \| `"online"` | 任意 | `"embedded"` | 失効確認: "none"、"embedded"（既定）、"online"（OCSP/CRL エンドポイントへ HTTP で問い合わせる）。 |
+| `revocation_freshness` | integer (0–9007199254740991) | 任意 | `86400` | Seconds before the validation time that a CRL / OCSP response may have been issued (thisUpdate) and still support "good". Default 86400 (24 h); 0 accepts only data issued at or after the validation time. Older data gives "unknown". |
+| `trusted_ocsp_responders` | string[] | 任意 |  | Absolute paths to certificates (PEM or DER) of locally trusted OCSP responders (RFC 6960 §4.2.2.2). A response signed by one of them is accepted even when the responder is not the issuing CA or its delegate. |
 | `password` | string | 任意 |  | 暗号化 PDF のパスワード。権限のみの暗号化 PDF では省略可（空のユーザーパスワードを自動で試す）。 |
 
 ### 戻り値

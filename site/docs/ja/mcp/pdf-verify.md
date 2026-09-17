@@ -7,7 +7,7 @@ description: 真正性・準拠性を判定する MCP（7 ツール） — 署�
 **署名が暗号学的に有効か、規格に適っているかを判定するサーバーです。**  
 電子署名を暗号学的に検証し、署名後の改ざんを検知し、PDF/A（長期保存）や PDF/UA（アクセシビリティ）への適合を採点します。
 
-- npm: [`@shuji-bonji/pdf-verify-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) / 現行 v0.27.0 / [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp)
+- npm: [`@shuji-bonji/pdf-verify-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) / 現行 v0.28.0 / [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp)
 - このページは責務と使いどころの解説です。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-verify)（`tools/list` から自動生成）へ
 
 ## これ 1 台でできること
@@ -174,7 +174,7 @@ OCSP は、証明書 1 枚の状態を CA のレスポンダに問い合わせ�
 
 答えをどこから得たかは `revocation.source`（`ocsp_embedded` / `crl_embedded` / `ocsp_online` / `crl_online`）に出ます。埋め込み失効情報の置き場所は `revocation.origin`（`dss` / `cms_signed_data` / `cms_revocation_info_archival`）に出ます。どこからも得られなければ `status` は `unknown`、`source` は `null` です。
 
-CRL と OCSP 応答は、署名を検証できたものだけを使います。CRL は発行 CA の証明書で、OCSP 応答は発行 CA 自身、または発行 CA が署名した委任応答者（`id-kp-OCSPSigning` 付き）の証明書で検証します。検証できなかったもの、`nextUpdate` が検証時刻より前のものは `unknown` になります。
+CRL と OCSP 応答は、署名を検証できたものだけを使います。CRL は発行 CA の証明書で、OCSP 応答は発行 CA 自身、または発行 CA が署名した委任応答者（`id-kp-OCSPSigning` 付き）の証明書で検証します。検証できなかったもの、`nextUpdate` が検証時刻より前のもの、`thisUpdate` が検証時刻より `revocation_freshness` 秒（既定 86400 = 24 時間）以上前のものは `unknown` になります。CRL の発行者証明書と OCSP の委任応答者の証明書は、失効情報を発行した時点で有効期間内である必要があります。発行 CA とは別の CA が発行した OCSP 応答者を信頼するときは、`trusted_ocsp_responders` にその証明書を渡します。
 
 ##### 失効した証明書の署名
 
@@ -191,8 +191,8 @@ CRL と OCSP 応答は、署名を検証できたものだけを使います。C
 - **同じ PDF でも、モードによって結果が変わります。** DSS に失効情報が無い PDF は、`embedded` では `unknown`、`online` では `good` や `revoked` になることがあります
 - **`online` の結果は、問い合わせた時点の CA の状態です。** 日をおいて同じ PDF を検証すると、結果が変わることがあります。結果を記録に残すときは、実行日時も残してください
 - **`online` では、どの証明書を検証しようとしているかが OCSP レスポンダと CRL の配布元に伝わります**
-- `revocation` に出るのは、署名者証明書の結果だけです。中間 CA の失効は埋め込みデータで確認し、失効していれば `trust` が `untrusted` になります
-- CRL / OCSP の `thisUpdate` と検証時刻の前後関係は、まだ見ていません
+- `revocation` に出るのは、署名者証明書の結果だけです。中間 CA ごとの結果は `trust.chainRevocation` に出ます。中間 CA が失効していれば、`trust` が `untrusted` になります
+- **`revocation_freshness` を小さくすると `unknown` が増えます。** 署名の直前に取得した OCSP 応答は、`thisUpdate` が署名タイムスタンプより数分〜1 時間早いのが普通です
 :::
 
 公開鍵暗号・証明書・PKI など、電子署名とタイムスタンプの一般的な仕組みは、作者のノート [Notes about Digital Signatures and Timestamps](https://github.com/shuji-bonji/Notes-about-Digital-Signatures-and-Timestamps/blob/main/DigitalSignature.md) にまとめています。

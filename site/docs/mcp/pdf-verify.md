@@ -6,7 +6,7 @@ description: The MCP that judges authenticity and conformance (7 tools) — sign
 
 **The server that judges whether a signature is cryptographically valid and whether the file meets the standard.** It verifies electronic signatures cryptographically, detects changes made after signing, and scores conformance to PDF/A (archiving) and PDF/UA (accessibility).
 
-- npm: [`@shuji-bonji/pdf-verify-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) / current v0.27.0 / [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp)
+- npm: [`@shuji-bonji/pdf-verify-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) / current v0.28.0 / [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp)
 - This page is the guide — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-verify) (generated from `tools/list`)
 
 ## What this one server gives you
@@ -165,7 +165,7 @@ OCSP asks the CA's responder for the status of one certificate (RFC 6960). A CRL
 
 `revocation.source` tells you where the answer came from (`ocsp_embedded` / `crl_embedded` / `ocsp_online` / `crl_online`). `revocation.origin` tells you where embedded data sat (`dss` / `cms_signed_data` / `cms_revocation_info_archival`). If no source answered, `status` is `unknown` and `source` is `null`.
 
-Only CRLs and OCSP responses whose signatures verify are used: a CRL against the issuing CA's certificate, an OCSP response against the issuing CA itself or a delegated responder signed by that CA (with `id-kp-OCSPSigning`). Unverifiable data, and data whose `nextUpdate` is before the validation time, give `unknown`.
+Only CRLs and OCSP responses whose signatures verify are used: a CRL against the issuing CA's certificate, an OCSP response against the issuing CA itself or a delegated responder signed by that CA (with `id-kp-OCSPSigning`). Unverifiable data, data whose `nextUpdate` is before the validation time, and data whose `thisUpdate` is more than `revocation_freshness` seconds (default 86400 = 24 h) before it give `unknown`. The CRL issuer's certificate and a delegated OCSP responder's certificate must be valid when the data was issued. To trust an OCSP responder issued by another CA, pass its certificate in `trusted_ocsp_responders`.
 
 ##### Signatures with a revoked certificate
 
@@ -182,8 +182,8 @@ Nothing shows the signature was made after the revocation, so `invalid` is not c
 - **The same PDF can give different results in different modes.** A PDF without revocation data in its DSS returns `unknown` under `embedded`, but may return `good` or `revoked` under `online`
 - **`online` reflects the CA's state at the moment of the query.** Verifying the same PDF on another day can give a different result. If you keep the result as a record, keep the time of the run with it
 - **Under `online`, the OCSP responder and CRL host learn which certificate you are checking**
-- `revocation` reports the signer certificate only. Intermediate CAs are checked against embedded data; a revoked one makes `trust` `untrusted`
-- The `thisUpdate` of CRLs / OCSP responses is not yet compared with the validation time
+- `revocation` reports the signer certificate only. Each intermediate CA's result is in `trust.chainRevocation`; a revoked one makes `trust` `untrusted`
+- **A smaller `revocation_freshness` gives more `unknown`.** An OCSP response fetched just before signing usually has a `thisUpdate` minutes to an hour before the signature timestamp
 :::
 
 For the general background — public-key cryptography, certificates, PKI — see the author's notes, [Notes about Digital Signatures and Timestamps](https://github.com/shuji-bonji/Notes-about-Digital-Signatures-and-Timestamps/blob/main/DigitalSignature.md) (Japanese).
