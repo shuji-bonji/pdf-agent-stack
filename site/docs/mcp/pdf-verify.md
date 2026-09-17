@@ -131,7 +131,47 @@ Per-tool cautions and prompt → parameters → returned JSON are at the end of 
 
 Without trust anchors (`trust_anchors` or `PDF_VERIFY_TRUST_ANCHORS`), `trust` stays `not_evaluated`. That `valid` means the digest matched; it does not prove the signer is who they claim to be. `evaluate_policy` then stops at `use_with_caution`.
 
-Revocation checking defaults to `embedded` (data inside the PDF and CMS). `online` queries OCSP and CRL over HTTP.
+#### What signature verification checks
+
+`verify_signatures` checks each signature in the order below. The only steps that reach outside the PDF are ③ and ④, and only with `check_revocation: "online"`. Everything else is decided from data inside the PDF and the trust anchors you supply.
+
+| Step | What is checked | Data used | Network | Result field |
+| --- | --- | --- | --- | --- |
+| ① Integrity | The hash of the bytes named by `/ByteRange` matches the CMS `messageDigest` attribute | The PDF itself | none | `cms.digestMatches` |
+| ② Signature value | The CMS signature value verifies with the signer certificate's public key | Signer certificate in the CMS | none | `cms.signatureVerified` |
+| ③ Certificate chain | The signer certificate chains up to a trust anchor | Certificates in the CMS and DSS, trust anchors | `online` only: missing issuer certificates are fetched via AIA caIssuers | `trust` |
+| ④ Revocation | The signer certificate has not been revoked | See "Revocation modes" below | see below | `revocation.status` / `revocation.source` |
+| ⑤ Timestamp | The RFC 3161 token's messageImprint matches the signature value and the TSA signature verifies; with trust anchors, the TSA chain is evaluated too | Unsigned attributes of the CMS | none | `cms.signatureTimestamp` |
+
+`verdict: valid` ("cryptographically valid") means ① and ② passed: the signed bytes have not changed since signing, and they were signed with the private key matching that certificate. Who issued the certificate (③) and whether it is revoked (④) are reported in separate fields. The one exception: if ④ returns `revoked`, `verdict` becomes `invalid`.
+
+The reference time for certificate validity in ③ is chosen in this order:
+
+1. The CMS `signingTime` attribute (written by the signer)
+2. If absent, the signature timestamp's `genTime`
+3. If neither exists, the time the verification runs
+
+##### Revocation modes
+
+OCSP asks the CA's responder for the status of one certificate (RFC 6960). A CRL is the CA's list of revoked certificates (RFC 5280). Both are signed by the CA, so once stored in the PDF's DSS they can be verified later without any network access. That is the idea behind [LTV](/reference/glossary#standards-and-technical-terms).
+
+| `check_revocation` | Order of lookup | Network |
+| --- | --- | --- |
+| `none` | not checked (`revocation` is `null`) | none |
+| `embedded` (default) | 1. OCSP responses in the DSS　2. CRLs in the CMS and DSS | none |
+| `online` | if 1–2 give no answer: 3. the OCSP responder named in the certificate's AIA　4. the certificate's CRL distribution points | HTTP (each fetch times out after 10 s) |
+
+`revocation.source` tells you where the answer came from (`ocsp_embedded` / `crl_embedded` / `ocsp_online` / `crl_online`). If no source answered, `status` is `unknown` and `source` is `null`.
+
+::: warning Before choosing a mode
+- **The same PDF can give different results in different modes.** A PDF without revocation data in its DSS returns `unknown` under `embedded`, but may return `good` or `revoked` under `online`
+- **`online` reflects the CA's state at the moment of the query.** Verifying the same PDF on another day can give a different result. If you keep the result as a record, keep the time of the run with it
+- **Under `online`, the OCSP responder and CRL host learn which certificate you are checking**
+- `revocation` reports the signer certificate only
+- The revocation date is not compared with the signing time. A certificate revoked after signing is still `revoked`, and `verdict` becomes `invalid`
+:::
+
+For the general background — public-key cryptography, certificates, PKI — see the author's notes, [Notes about Digital Signatures and Timestamps](https://github.com/shuji-bonji/Notes-about-Digital-Signatures-and-Timestamps/blob/main/DigitalSignature.md) (Japanese).
 
 ### When the file grew after signing
 

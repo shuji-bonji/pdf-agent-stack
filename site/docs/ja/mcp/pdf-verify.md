@@ -140,7 +140,47 @@ graph LR
 
 信頼アンカー（`trust_anchors` または `PDF_VERIFY_TRUST_ANCHORS`）を渡さないと、`trust` は `not_evaluated` のままです。そのときの `valid` は、ダイジェストが一致したという意味であって、署名者が本人であることの証明ではありません。`evaluate_policy` の判定も `use_with_caution` までです。
 
-失効確認の既定は `embedded`（PDF と CMS の中のデータ）です。`online` にすると、OCSP と CRL へ HTTP で問い合わせます。
+#### 署名の検証で確かめること
+
+`verify_signatures` は、署名 1 つについて次の順に確かめます。PDF の外と通信するのは、`check_revocation: "online"` を指定したときの ③ と ④ だけです。それ以外は、PDF の中のデータと、利用者が渡したトラストアンカーだけで判定します。
+
+| 段 | 確かめること | 使うデータ | 通信 | 結果が入るフィールド |
+| --- | --- | --- | --- | --- |
+| ① 完全性 | `/ByteRange` が指すバイト列のハッシュを計算し、CMS の `messageDigest` 属性と一致するか | PDF 本体 | なし | `cms.digestMatches` |
+| ② 署名値 | 署名者証明書の公開鍵で、CMS の署名値を検証できるか | CMS の中の署名者証明書 | なし | `cms.signatureVerified` |
+| ③ 証明書チェーン | 署名者証明書から発行者をたどり、トラストアンカーに行き着くか | CMS と DSS の証明書、トラストアンカー | `online` のときだけ、足りない発行者証明書を AIA caIssuers から取得 | `trust` |
+| ④ 失効 | 署名者証明書が失効していないか | 下の「失効確認のモード」を参照 | 同左 | `revocation.status` / `revocation.source` |
+| ⑤ タイムスタンプ | RFC 3161 トークンの messageImprint が署名値と一致するか、TSA の署名を検証できるか。トラストアンカーがあれば TSA の証明書チェーンも評価 | CMS の非署名属性 | なし | `cms.signatureTimestamp` |
+
+`verdict: valid`（暗号学的に有効）は、① と ② が通ったことを表します。署名のあとで対象のバイト列が変わっていないこと、そしてその証明書に対応する秘密鍵で署名されたことまでは言えます。その証明書を誰が発行したか（③）と、失効していないか（④）は別のフィールドに出ます。ただし ④ で `revoked` になった場合は、`verdict` も `invalid` になります。
+
+③ で証明書の有効期間を判定する基準時刻は、次の順で決まります。
+
+1. CMS の `signingTime` 属性（署名者が書いた時刻）
+2. 1 が無ければ、署名タイムスタンプの `genTime`
+3. どちらも無ければ、検証を実行した時刻
+
+##### 失効確認のモード
+
+OCSP は、証明書 1 枚の状態を CA のレスポンダに問い合わせる仕組みです（RFC 6960）。CRL は、CA が発行する失効済み証明書の一覧です（RFC 5280）。どちらも CA が署名したデータなので、PDF の DSS に入れておけば、あとから通信せずに検証できます。これが [LTV](/ja/reference/glossary#規格・技術用語) の考え方です。
+
+| `check_revocation` | 調べる順 | 通信 |
+| --- | --- | --- |
+| `none` | 調べません（`revocation` は `null`） | なし |
+| `embedded`（既定） | 1. DSS の OCSP 応答　2. CMS と DSS の CRL | なし |
+| `online` | 1・2 で答えが出なければ、3. 証明書の AIA に書かれた OCSP レスポンダ　4. 証明書の CRL 配布点 | HTTP（1 回の取得は 10 秒で打ち切り） |
+
+答えをどこから得たかは `revocation.source`（`ocsp_embedded` / `crl_embedded` / `ocsp_online` / `crl_online`）に出ます。どこからも得られなければ `status` は `unknown`、`source` は `null` です。
+
+::: warning モードを選ぶ前に
+- **同じ PDF でも、モードによって結果が変わります。** DSS に失効情報が無い PDF は、`embedded` では `unknown`、`online` では `good` や `revoked` になることがあります
+- **`online` の結果は、問い合わせた時点の CA の状態です。** 日をおいて同じ PDF を検証すると、結果が変わることがあります。結果を記録に残すときは、実行日時も残してください
+- **`online` では、どの証明書を検証しようとしているかが OCSP レスポンダと CRL の配布元に伝わります**
+- `revocation` に出るのは、署名者証明書の結果だけです
+- 失効した日時と署名時刻の前後は比べていません。署名のあとで失効した証明書でも `revoked` になり、`verdict` は `invalid` になります
+:::
+
+公開鍵暗号・証明書・PKI など、電子署名とタイムスタンプの一般的な仕組みは、作者のノート [Notes about Digital Signatures and Timestamps](https://github.com/shuji-bonji/Notes-about-Digital-Signatures-and-Timestamps/blob/main/DigitalSignature.md) にまとめています。
 
 ### 署名のあとにファイルが増えているとき
 
