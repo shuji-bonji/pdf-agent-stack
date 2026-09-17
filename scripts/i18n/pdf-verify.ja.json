@@ -28,8 +28,8 @@
     "text": "PDF に対する決定論的な 4 値信頼判定（trust_and_use / use_with_caution / human_review_required / reject）を下す。\n\n内部で verify_signatures・verify_integrity・detect_pades_level を実行し（長期保存プロファイルでは validate_conformance も）、得られた事実を固定のルール表に通す。同じ事実と同じプロファイルからは常に同じ判定が出る。判定は完全にコードが下す。返される firedRules / advisories は結果の説明に使い、判定の上書きには使わないこと。判定の対象は真正性と完全性のみで、文書の内容の真偽は判定しない。"
   },
   "verify_signatures|returns": {
-    "src": "e74fcd9ee7ad628beede9adf5c80db8e",
-    "text": "返るのは `{ scope, signatures: [...] }` の形の辞書である。**v0.21.0 で最上位が配列から辞書に変わった** —— 一覧は `.signatures` にある。\n\nどの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。 このツールでは、これがいちばん問題になる: scope.reconstructed が true のとき、組み直しが届かなかった署名は一覧に出ない。短い一覧や空の一覧は「ファイルにほかの署名が無い」ことの証明にならない。\n\n署名ごとの判定（'valid' / 'invalid' / 'indeterminate'）、信頼状態（'trusted' / 'untrusted' / 'not_evaluated'・証明書パス付き）、失効状態（'good' / 'revoked' / 'revoked_after_validation_time' / 'unknown' / 'not_checked'。check_revocation が 'none' のときは 'not_checked'）とその取得元（source）・置き場所（origin: 'dss' / 'cms_signed_data' / 'cms_revocation_info_archival'）・失効日時（revocationTime）、検証時刻（validationTime: { time, source: 'signature_timestamp' | 'document_timestamp' | 'current_time' }）、署名タイムスタンプの検証結果。\n\n検証時刻: 検証できたタイムスタンプ（署名自身のもの。無ければ、その署名を覆う文書タイムスタンプのうち最も早いもの）の時刻。どちらも無ければ現在時刻。CMS の signingTime 属性は署名者が書く値なので使わない。署名者証明書が失効している場合、判定は 'indeterminate' になる。ただし、タイムスタンプが失効より前の署名であることを示していれば、失効状態は 'revoked_after_validation_time' になり、判定は変わらない。署名を検証できない CRL と OCSP 応答は 'unknown' になる。\n\n注意: trust_anchors（または環境変数）なしでは trust は not_evaluated と報告される —— そのときの 'valid' は暗号学的完全性を意味し、署名者の本人性を保証しない。\n\n構造だけを調べる pdf-reader-mcp の inspect_signatures を補完する。\n\n例:\n- 署名済み契約書が署名後に変更されていないか検証\n- 自組織の CA に対して署名を検証（trust_anchors）\n- 署名者証明書が失効していないか確認（check_revocation: \"online\"）"
+    "src": "3e98cccf635c52dd864d396ec13001ab",
+    "text": "返るのは `{ scope, signatures: [...] }` の形の辞書である。**v0.21.0 で最上位が配列から辞書に変わった** —— 一覧は `.signatures` にある。\n\nどの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。 このツールでは、これがいちばん問題になる: scope.reconstructed が true のとき、組み直しが届かなかった署名は一覧に出ない。短い一覧や空の一覧は「ファイルにほかの署名が無い」ことの証明にならない。\n\n署名ごとの判定（'valid' / 'invalid' / 'indeterminate'）、信頼状態（'trusted' / 'untrusted' / 'not_evaluated'・証明書パス付き）、失効状態（'good' / 'revoked' / 'revoked_after_validation_time' / 'unknown' / 'not_checked'。check_revocation が 'none' のときは 'not_checked'）とその取得元（source）・置き場所（origin: 'dss' / 'cms_signed_data' / 'cms_revocation_info_archival'）・失効日時（revocationTime）・判定に使った失効情報の発行時刻と次回更新時刻（thisUpdate・nextUpdate）、中間 CA ごとの失効確認の結果（trust.chainRevocation）、検証時刻（validationTime: { time, source: 'signature_timestamp' | 'document_timestamp' | 'current_time' }）、署名タイムスタンプの検証結果。\n\n検証時刻: 検証できたタイムスタンプ（署名自身のもの。無ければ、その署名を覆う文書タイムスタンプのうち最も早いもの）の時刻。どちらも無ければ現在時刻。CMS の signingTime 属性は署名者が書く値なので使わない。署名者証明書が失効している場合、判定は 'indeterminate' になる。ただし、タイムスタンプが失効より前の署名であることを示していれば、失効状態は 'revoked_after_validation_time' になり、判定は変わらない。署名を検証できない CRL と OCSP 応答、検証時刻より前に期限が切れたもの、検証時刻より revocation_freshness 秒以上前に発行されたものは 'unknown' になる。\n\n注意: trust_anchors（または環境変数）なしでは trust は not_evaluated と報告される —— そのときの 'valid' は暗号学的完全性を意味し、署名者の本人性を保証しない。\n\n構造だけを調べる pdf-reader-mcp の inspect_signatures を補完する。\n\n例:\n- 署名済み契約書が署名後に変更されていないか検証\n- 自組織の CA に対して署名を検証（trust_anchors）\n- 署名者証明書が失効していないか確認（check_revocation: \"online\"）"
   },
   "verify_signatures|param:file_path": {
     "src": "1c06f136e55f5c125a42c9f2a76f12f6",
@@ -158,5 +158,21 @@
   "evaluate_policy|param:password": {
     "src": "b1f7953ab7b8fdc2ac225322b0d2262a",
     "text": "暗号化 PDF のパスワード。権限のみの暗号化 PDF では省略可（空のユーザーパスワードを自動で試す）。"
+  },
+  "verify_signatures|param:revocation_freshness": {
+    "src": "3c861bb1f8ad0a16dfa48954274c3418",
+    "text": "検証時刻からさかのぼって何秒前までに発行（thisUpdate）された CRL / OCSP 応答を「good」の根拠にするか。既定は 86400（24 時間）。0 にすると、検証時刻以降に発行された失効情報だけを使う。それより古い失効情報は「unknown」になる。"
+  },
+  "verify_signatures|param:trusted_ocsp_responders": {
+    "src": "0078582d43026c635e3b1a496731e2d3",
+    "text": "ローカルで信頼する OCSP 応答者の証明書（PEM または DER）への絶対パス（RFC 6960 §4.2.2.2）。ここに渡した証明書で署名された OCSP 応答は、応答者が発行 CA でもその委任先でもなくても受け入れる。"
+  },
+  "evaluate_policy|param:revocation_freshness": {
+    "src": "3c861bb1f8ad0a16dfa48954274c3418",
+    "text": "検証時刻からさかのぼって何秒前までに発行（thisUpdate）された CRL / OCSP 応答を「good」の根拠にするか。既定は 86400（24 時間）。0 にすると、検証時刻以降に発行された失効情報だけを使う。それより古い失効情報は「unknown」になる。"
+  },
+  "evaluate_policy|param:trusted_ocsp_responders": {
+    "src": "0078582d43026c635e3b1a496731e2d3",
+    "text": "ローカルで信頼する OCSP 応答者の証明書（PEM または DER）への絶対パス（RFC 6960 §4.2.2.2）。ここに渡した証明書で署名された OCSP 応答は、応答者が発行 CA でもその委任先でもなくても受け入れる。"
   }
 }
