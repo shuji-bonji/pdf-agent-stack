@@ -63,8 +63,8 @@ const LOCALES = [
     lang: 'en',
     t: {
       title: (name) => `${name} — Tools Reference`,
-      generated: (v, n, date) =>
-        `Auto-generated from the \`tools/list\` handshake of **v${v}** (${n} tools, ${date}). ` +
+      generated: (v, n) =>
+        `Auto-generated from the \`tools/list\` handshake of **v${v}** (${n} tools). ` +
         'Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.',
       toc: 'Tools',
       tool: 'Tool',
@@ -92,8 +92,8 @@ const LOCALES = [
     lang: 'ja',
     t: {
       title: (name) => `${name} — ツールリファレンス`,
-      generated: (v, n, date) =>
-        `**v${v}** の \`tools/list\` ハンドシェイクから自動生成（${n} ツール・${date}）。` +
+      generated: (v, n) =>
+        `**v${v}** の \`tools/list\` ハンドシェイクから自動生成（${n} ツール）。` +
         '手で編集しない — 再生成は `node scripts/generate-reference.mjs`。' +
         '日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。',
       toc: 'ツール一覧',
@@ -318,7 +318,9 @@ function firstSentence(prose) {
 }
 
 function renderPage(server, info, tools, t, lang, tr) {
-  const date = new Date().toISOString().slice(0, 10);
+  // No generation date in the page: the server version already says which
+  // handshake the page came from, and a date made every regeneration touch
+  // pages whose content had not changed (2026-09-18).
   // Scoped server names ("@shuji-bonji/pdf-spec-mcp") break YAML frontmatter
   // (a value starting with "@" is a reserved indicator) and read inconsistently
   // next to unscoped ones — display without the scope, and always quote.
@@ -335,7 +337,7 @@ function renderPage(server, info, tools, t, lang, tr) {
   );
   L.push('');
   L.push('::: info');
-  L.push(t.generated(info.version, tools.length, date));
+  L.push(t.generated(info.version, tools.length));
   L.push(':::');
   L.push('');
   L.push(t.roleNote(server));
