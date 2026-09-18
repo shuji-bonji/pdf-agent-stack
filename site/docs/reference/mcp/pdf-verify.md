@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-verify-mcp v0.28.0 — parameters, types, defaults and returns of all 7 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-verify-mcp v0.29.0 — parameters, types, defaults and returns of all 7 tools, generated from the server's tools/list."
 ---
 
 # pdf-verify-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-verify-mcp v0.28.0 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.28.0** (7 tools, 2026-09-17). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.29.0** (7 tools, 2026-09-18). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-verify).
@@ -59,6 +59,8 @@ For each signature this tool:
 When `scope.reconstructed` is true, a signature the rebuild did not reach is absent from the list. A short or empty list is not proof that the file carries no other signatures.
 
 An object of the form { scope, signatures: [...] }. The top level changed from an array to an object in v0.21.0 - read .signatures for the list.
+
+Size (v0.29.0): a JSON response is never cut by length. At most 32 signature fields are verified (file order); when the file has more, signaturesTruncated = { returned, total } is set and the remaining fields are NOT verified — evaluate_policy verifies every field. A markdown response is cut at 50,000 characters with a visible marker.
 
 Per-signature verdict ('valid' / 'invalid' / 'indeterminate'), trust status ('trusted' / 'untrusted' / 'not_evaluated' with certificate path), revocation status ('good' / 'revoked' / 'revoked_after_validation_time' / 'unknown' / 'not_checked'; 'not_checked' when check_revocation is 'none') with source, origin ('dss' / 'cms_signed_data' / 'cms_revocation_info_archival'), revocationTime, thisUpdate and nextUpdate, per-intermediate-CA results in trust.chainRevocation, validationTime ({ time, source: 'signature_timestamp' | 'document_timestamp' | 'current_time' }), and signature timestamp verification.
 
@@ -186,6 +188,8 @@ Limits of the diff — it is an observation, never a verdict:
 
 ### Returns
 
+Size (v0.29.0): revisions lists at most 32 revisions (newest first) and 25 changes per revision; revisionsTruncated / changesTruncated say when a list was cut. revisionCount and revisionChain cover the whole walk. JSON is never cut by length.
+
 Integrity report, including revisionChain: { status, missing } — read it before treating the revision list as the file's whole history — and revisionCountAgreement: { status, causes } — read it before quoting revisionCount as the number of times the file was saved. Note that incremental updates after signing are legal in PDF (adding signatures, DSS/LTV data) — findings indicate what to review, not automatically tampering.
 
 ::: warning An incremental update is not tampering
@@ -260,6 +264,8 @@ Legacy `adbe.pkcs7.detached` signatures are reported as non-PAdES.
 ### Returns
 
 An object of the form { scope, levels: [...] }. The top level changed from an array to an object in v0.21.0 - read .levels for the list.
+
+Size (v0.29.0): at most 32 signatures are listed; levelsTruncated = { returned, total } says when the list was cut. JSON is never cut by length.
 
 Per-signature level with evidence (signature timestamp, DSS, VRI, document timestamp presence).
 
@@ -391,6 +397,8 @@ Hybrid engine: veraPDF when installed (`PDF_VERIFY_VERAPDF` or PATH) for an auth
 
 ### Returns
 
+Size (v0.29.0): violations lists at most 200 entries; failedRules and compliant are computed over all of them and violationsTruncated = { returned, total } says when the list was cut. JSON is never cut by length.
+
 Per-rule results with ISO clause references.
 
 | Engine | `compliant` |
@@ -476,6 +484,8 @@ Bundled domains: font-embedding, document-metadata, annotation
 
 ### Returns
 
+Size (v0.29.0): results lists at most 200 entries (file order); violations and notDecided are counted over all of them and resultsTruncated = { returned, total } says when the list was cut. JSON is never cut by length.
+
 Per-constraint results with the clause IDs they come from.
 
 | Status | Meaning |
@@ -559,6 +569,8 @@ Runs verify_signatures, verify_integrity and detect_pades_level internally (plus
 | `password` | string | no |  | Password for an encrypted PDF. Omit for permission-encrypted PDFs (an empty user password is tried automatically). |
 
 ### Returns
+
+Size (v0.29.0): the verdict is computed over EVERY signature; facts.signatures lists at most 32 of them and facts.signaturesTruncated = { returned, total } says when it was cut. JSON is never cut by length.
 
 | Field | Content |
 | --- | --- |
