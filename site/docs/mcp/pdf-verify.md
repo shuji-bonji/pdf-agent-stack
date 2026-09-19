@@ -6,7 +6,7 @@ description: The MCP that judges authenticity and conformance (7 tools) — sign
 
 **The server that judges whether a signature is cryptographically valid and whether the file meets the standard.** It verifies electronic signatures cryptographically, detects changes made after signing, and scores conformance to PDF/A (archiving) and PDF/UA (accessibility).
 
-- npm: [`@shuji-bonji/pdf-verify-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) / current v0.29.0 / [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp)
+- npm: [`@shuji-bonji/pdf-verify-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) / current v0.29.1 / [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp)
 - This page is the guide — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-verify) (generated from `tools/list`)
 
 ## What this one server gives you

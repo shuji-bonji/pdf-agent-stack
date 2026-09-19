@@ -50,14 +50,14 @@ graph LR
 
 <!-- stack:begin — scripts/generate-stack.mjs が生成。手で編集しない -->
 
-> 版は実測（2026-09-18 時点の `npm view`）。
+> 版は実測（2026-09-19 時点の `npm view`）。
 
 | リポジトリ | 役割 | 配布形態 | 版 | npm |
 | --- | --- | --- | --- | --- |
-| [pdf-spec-mcp](https://github.com/shuji-bonji/pdf-spec-mcp) | canon | mcp-server | 0.6.0 | `@shuji-bonji/pdf-spec-mcp` |
-| [pdf-reader-mcp](https://github.com/shuji-bonji/pdf-reader-mcp) | structure | mcp-server | 0.15.1 | `@shuji-bonji/pdf-reader-mcp` |
-| [pdf-verify-mcp](https://github.com/shuji-bonji/pdf-verify-mcp) | judgment | mcp-server | 0.29.0 | `@shuji-bonji/pdf-verify-mcp` |
-| [pdf-writer-mcp](https://github.com/shuji-bonji/pdf-writer-mcp) | action | mcp-server | 0.21.1 | `@shuji-bonji/pdf-writer-mcp` |
+| [pdf-spec-mcp](https://github.com/shuji-bonji/pdf-spec-mcp) | canon | mcp-server | 0.6.1 | `@shuji-bonji/pdf-spec-mcp` |
+| [pdf-reader-mcp](https://github.com/shuji-bonji/pdf-reader-mcp) | structure | mcp-server | 0.15.5 | `@shuji-bonji/pdf-reader-mcp` |
+| [pdf-verify-mcp](https://github.com/shuji-bonji/pdf-verify-mcp) | judgment | mcp-server | 0.29.1 | `@shuji-bonji/pdf-verify-mcp` |
+| [pdf-writer-mcp](https://github.com/shuji-bonji/pdf-writer-mcp) | action | mcp-server | 0.21.2 | `@shuji-bonji/pdf-writer-mcp` |
 | [pdf-constraints](https://github.com/shuji-bonji/pdf-constraints) | judgment | library | 0.6.1 | `@shuji-bonji/pdf-constraints` |
 | [normativepdf](https://github.com/shuji-bonji/normativepdf) | action | library | 0.9.0 | `normativepdf` |
 | [pdf-trust-skill](https://github.com/shuji-bonji/pdf-trust-skill) | procedure | skill | 0.8.2 | — |

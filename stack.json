@@ -6,7 +6,7 @@
     "layer = 役割 / form = 配布形態（誰が起動するか）。2 軸で見ると、同じ役割を違う形態で",
     "実装したもの（pdf-specialist = plugin / pdf-agent-pipeline = app）が並べて見える。"
   ],
-  "generatedAt": "2026-09-18T03:01:10.300Z",
+  "generatedAt": "2026-09-19T01:42:49.889Z",
   "generatedBy": "scripts/generate-stack.mjs",
   "npmScope": "@shuji-bonji",
   "repos": [
@@ -17,16 +17,16 @@
       "layer": "canon",
       "form": "mcp-server",
       "public": true,
-      "published": "0.6.0",
+      "published": "0.6.1",
       "local": {
-        "version": "0.6.0",
-        "tag": "v0.6.0",
+        "version": "0.6.1",
+        "tag": "v0.6.1",
         "dirty": false,
         "unpushedCommits": 0
       },
       "consistency": {
         "status": "match",
-        "detail": "0.6.0"
+        "detail": "0.6.1"
       }
     },
     {
@@ -36,16 +36,16 @@
       "layer": "structure",
       "form": "mcp-server",
       "public": true,
-      "published": "0.15.1",
+      "published": "0.15.5",
       "local": {
-        "version": "0.15.1",
-        "tag": "v0.15.1",
+        "version": "0.15.5",
+        "tag": "v0.15.5",
         "dirty": false,
         "unpushedCommits": 0
       },
       "consistency": {
         "status": "match",
-        "detail": "0.15.1"
+        "detail": "0.15.5"
       }
     },
     {
@@ -55,16 +55,16 @@
       "layer": "judgment",
       "form": "mcp-server",
       "public": true,
-      "published": "0.29.0",
+      "published": "0.29.1",
       "local": {
-        "version": "0.29.0",
-        "tag": "v0.29.0",
+        "version": "0.29.1",
+        "tag": "v0.29.1",
         "dirty": false,
         "unpushedCommits": 0
       },
       "consistency": {
         "status": "match",
-        "detail": "0.29.0"
+        "detail": "0.29.1"
       }
     },
     {
@@ -74,16 +74,16 @@
       "layer": "action",
       "form": "mcp-server",
       "public": true,
-      "published": "0.21.1",
+      "published": "0.21.2",
       "local": {
-        "version": "0.21.1",
-        "tag": "v0.21.1",
+        "version": "0.21.2",
+        "tag": "v0.21.2",
         "dirty": false,
         "unpushedCommits": 0
       },
       "consistency": {
         "status": "match",
-        "detail": "0.21.1"
+        "detail": "0.21.2"
       }
     },
     {
@@ -235,7 +235,7 @@
         "version": null,
         "tag": null,
         "dirty": true,
-        "unpushedCommits": 2
+        "unpushedCommits": 0
       },
       "consistency": {
         "status": "not_published",

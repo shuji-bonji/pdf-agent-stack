@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-writer-mcp v0.21.1 — parameters, types, defaults and returns of all 20 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-writer-mcp v0.21.2 — parameters, types, defaults and returns of all 20 tools, generated from the server's tools/list."
 ---
 
 # pdf-writer-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-writer-mcp v0.21.1 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.21.1** (20 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.21.2** (20 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-writer).

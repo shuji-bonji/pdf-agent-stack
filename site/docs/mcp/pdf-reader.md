@@ -7,7 +7,7 @@ description: The MCP that observes what is inside a PDF and where it is (19 tool
 **The server that reports what a PDF says and where on the page it says it.**
 It extracts text, tables, the structure tree, fonts, annotations and signature fields, and returns the coordinates at which each of them is drawn. Everything it returns is an observed fact; it never judges whether that fact is correct.
 
-- npm: [`@shuji-bonji/pdf-reader-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-reader-mcp) / current v0.15.1 / [GitHub](https://github.com/shuji-bonji/pdf-reader-mcp)
+- npm: [`@shuji-bonji/pdf-reader-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-reader-mcp) / current v0.15.5 / [GitHub](https://github.com/shuji-bonji/pdf-reader-mcp)
 - This page is the guide — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-reader) (generated from `tools/list`)
 - Works with no environment variables
 
