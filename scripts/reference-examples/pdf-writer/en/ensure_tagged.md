@@ -11,7 +11,7 @@ Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an 
 :::
 
 ::: details Worked example — "Put an existing PDF onto the PDF/UA-1 vessel"
-- Measured: v0.21.0
+- Measured: v0.21.2
 - Specimen: `docs/specimens/selfmade-base.pdf` (pass an absolute path; already tagged)
 - `title`: `"Selfmade base"`
 - `lang`: `"en"`
@@ -41,6 +41,9 @@ Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an 
     "Lang",
     "ViewerPreferences/DisplayDocTitle",
     "XMP(pdfuaid:part, dc:title)"
+  ],
+  "warnings": [
+    "This file now CLAIMS PDF/UA-1 (pdfuaid:part=1), but conformance was NOT checked here. … Verify before relying on it: pdf-verify-mcp validate_conformance(flavour: \"pdfua-1\")."
   ]
 }
 ```

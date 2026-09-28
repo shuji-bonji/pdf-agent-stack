@@ -11,7 +11,7 @@ XMP に pdfuaid を書きます。適合していない文書に適用すると�
 :::
 
 ::: details 呼び出し例 — 「既存 PDF を PDF/UA-1 の器に載せて」
-- 実測: v0.21.0
+- 実測: v0.21.2
 - 標本: `docs/specimens/selfmade-base.pdf`（呼び出すときは絶対パス。既にタグ付き）
 - `title`: `"Selfmade base"`
 - `lang`: `"en"`
@@ -41,6 +41,9 @@ XMP に pdfuaid を書きます。適合していない文書に適用すると�
     "Lang",
     "ViewerPreferences/DisplayDocTitle",
     "XMP(pdfuaid:part, dc:title)"
+  ],
+  "warnings": [
+    "This file now CLAIMS PDF/UA-1 (pdfuaid:part=1), but conformance was NOT checked here. … Verify before relying on it: pdf-verify-mcp validate_conformance(flavour: \"pdfua-1\")."
   ]
 }
 ```

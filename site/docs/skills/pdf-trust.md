@@ -26,12 +26,12 @@ A Skill that audits whether an incoming PDF (contract, invoice, medical document
 
 | MCP | Required / optional | Role |
 |---|---|---|
-| pdf-verify (v0.7.0+, **v0.21.0+ recommended**) | **Required** | evaluate_policy, signature verification, tamper detection, PAdES, PDF/A (**v0.11.0+ adds PDF/A-4**: `pdfa-4` / `pdfa-4e` / `pdfa-4f` — **`pdfa-4b` does not exist**) |
+| pdf-verify (v0.7.0+, **v0.29.0+ recommended**) | **Required** | evaluate_policy, signature verification, tamper detection, PAdES, PDF/A (**v0.11.0+ adds PDF/A-4**: `pdfa-4` / `pdfa-4e` / `pdfa-4f` — **`pdfa-4b` does not exist**) |
 | pdf-reader | Optional | Observing signature-field structure, tags, metadata |
 | pdf-spec | Optional | Citing ISO 32000 grounds for deviations |
 | houki-egov / houki-nta / tax-law / labor-law | Optional | Statutory grounds required by the chosen profile |
 
-v0.7.0 is the floor because that is where `evaluate_policy` arrives at all; **v0.21.0+ is what the Skill recommends**, because that release moved the top level of `verify_signatures` / `detect_pades_level` JSON from an array to an object (`{ scope, signatures: [...] }` / `{ scope, levels: [...] }`) — reading only the list leaves you unable to notice that the list is incomplete.
+v0.7.0 is the floor because that is where `evaluate_policy` arrives at all. v0.21.0 is needed for the output shapes, because that release moved the top level of `verify_signatures` / `detect_pades_level` JSON from an array to an object (`{ scope, signatures: [...] }` / `{ scope, levels: [...] }`) — reading only the list leaves you unable to notice that the list is incomplete. **v0.29.0+ is what the Skill recommends.** v0.27.0 judges certificate validity and revocation at the time of a verified timestamp (ISO 32000-2 §12.8.3.4.5 / §12.8.3.4.6): a revoked signer certificate is `revoked_after_validation_time` (`use_with_caution`) only when a timestamp proves the signature predates the revocation, and `indeterminate` otherwise — earlier versions returned `invalid`. v0.28.0 stops using revocation information older than `revocation_freshness` (default 24 hours) as evidence for `good`. v0.29.0 stopped cutting JSON at 25,000 characters, which could leave a body that does not parse under `isError: false`; a capped list now carries `xxxTruncated: { returned, total }`. pdf-trust v0.8.1 reads the 0.27.0 / 0.28.0 changes and v0.8.2 the 0.29.0 fields.
 
 ## How an audit flows (Phases)
 

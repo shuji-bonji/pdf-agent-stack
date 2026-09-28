@@ -26,12 +26,12 @@ description: 受け取った PDF の信頼性監査を編成する Skill — eva
 
 | MCP | 必須/任意 | 役割 |
 |---|---|---|
-| pdf-verify（v0.7.0+、**v0.21.0+ 推奨**） | **必須** | evaluate_policy・署名検証・改ざん検知・PAdES・PDF/A（**v0.11.0+ は PDF/A-4 も**。`pdfa-4` / `pdfa-4e` / `pdfa-4f`。**`pdfa-4b` は存在しない**） |
+| pdf-verify（v0.7.0+、**v0.29.0+ 推奨**） | **必須** | evaluate_policy・署名検証・改ざん検知・PAdES・PDF/A（**v0.11.0+ は PDF/A-4 も**。`pdfa-4` / `pdfa-4e` / `pdfa-4f`。**`pdfa-4b` は存在しない**） |
 | pdf-reader | 任意 | 署名フィールド構造・タグ・メタデータの観測 |
 | pdf-spec | 任意 | 逸脱時の ISO 32000 根拠引用 |
 | houki-egov / houki-nta / tax-law / labor-law | 任意 | プロファイルが指定する法令根拠 |
 
-v0.7.0 が下限なのは、そこで初めて `evaluate_policy` が入るからです。**Skill が推奨するのは v0.21.0+** で、この版で `verify_signatures` / `detect_pades_level` の JSON 最上位が配列から辞書（`{ scope, signatures: [...] }` / `{ scope, levels: [...] }`）に変わりました。一覧だけを読んでいると、その一覧が不完全であることに気づけません。
+v0.7.0 が下限なのは、そこで初めて `evaluate_policy` が入るからです。出力の形は v0.21.0 以降が前提で、この版で `verify_signatures` / `detect_pades_level` の JSON 最上位が配列から辞書（`{ scope, signatures: [...] }` / `{ scope, levels: [...] }`）に変わりました。一覧だけを読んでいると、その一覧が不完全であることに気づけません。**Skill が推奨するのは v0.29.0+** です。v0.27.0 で、証明書の有効期間と失効を、検証できたタイムスタンプの時刻で判定するようになりました（ISO 32000-2 §12.8.3.4.5・§12.8.3.4.6）。失効した署名者証明書は、タイムスタンプが失効より前を示すときだけ `revoked_after_validation_time`（`use_with_caution`）になり、それ以外は `indeterminate` になります（それ以前の版は `invalid` を返していました）。v0.28.0 から、`revocation_freshness`（既定 24 時間）より古い失効情報を `good` の根拠にしません。v0.29.0 から JSON を 25,000 文字で切らなくなりました。それ以前の版は `isError: false` のまま `JSON.parse` できない本文を返すことがありました。代わりに、一覧が件数上限を超えると `xxxTruncated: { returned, total }` が付きます。pdf-trust は v0.8.1 から 0.27.0 / 0.28.0 の変更を、v0.8.2 から 0.29.0 の項目を読みます。
 
 ## 監査の流れ（Phase）
 

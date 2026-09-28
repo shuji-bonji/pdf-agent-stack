@@ -49,7 +49,7 @@ The "could not read" line is never left blank by default — it says "none" only
 
 ```sh
 /plugin marketplace add shuji-bonji/claude-plugins
-/plugin install pdf-reader-mcp@shuji-bonji   # required foundation (v0.14.0+ recommended)
+/plugin install pdf-reader-mcp@shuji-bonji   # required foundation (v0.15.1+ recommended)
 /plugin install pdf-read@shuji-bonji
 ```
 

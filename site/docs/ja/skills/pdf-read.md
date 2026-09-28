@@ -49,7 +49,7 @@ graph LR
 
 ```sh
 /plugin marketplace add shuji-bonji/claude-plugins
-/plugin install pdf-reader-mcp@shuji-bonji   # 必須基盤 (v0.14.0+ 推奨)
+/plugin install pdf-reader-mcp@shuji-bonji   # 必須基盤 (v0.15.1+ 推奨)
 /plugin install pdf-read@shuji-bonji
 ```
 

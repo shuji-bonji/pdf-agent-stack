@@ -54,7 +54,7 @@ Shapes carry meaning (→ [legend](/reference/glossary#how-to-read-the-diagrams-
 
 | Skill | What this server does there | Required? |
 |---|---|---|
-| [pdf-read](/skills/pdf-read) | The foundation. The Skill picks the reading path and makes the server report what it could not read | **Required** (v0.14.0+ recommended) |
+| [pdf-read](/skills/pdf-read) | The foundation. The Skill picks the reading path and makes the server report what it could not read | **Required** (v0.15.1+ recommended) |
 | [pdf-publish](/skills/pdf-publish) | The read-back stage of write → read-back → verify | Recommended |
 | [pdf-trust](/skills/pdf-trust) | Observation of signature-field structure, tags and metadata; locating changed objects | Optional |
 

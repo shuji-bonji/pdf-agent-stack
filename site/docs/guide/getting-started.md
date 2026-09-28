@@ -132,9 +132,9 @@ Hit one tool per server.
 
 Adding [pdf-trust](/skills/pdf-trust) (incoming audit), [pdf-publish](/skills/pdf-publish) (delivery) and [pdf-read](/skills/pdf-read) (reading) as Skills gives you a fixed choreography for multi-MCP workflows.
 
-- pdf-trust **requires pdf-verify** — v0.7.0+ for `evaluate_policy` at all, **v0.21.0+ recommended** (that release changed the top level of `verify_signatures` / `detect_pades_level` JSON from an array to an object)
+- pdf-trust **requires pdf-verify** — v0.7.0+ for `evaluate_policy` at all, **v0.29.0+ recommended** (v0.21.0 changed the top level of `verify_signatures` / `detect_pades_level` JSON from an array to an object; v0.27.0–v0.28.0 changed how revocation and validation time are judged; v0.29.0 stopped cutting JSON at a character count)
 - pdf-publish requires pdf-writer, and pdf-verify at the `conformance` gate level (**v0.20.0+ recommended** for the `scope` field)
-- pdf-read requires pdf-reader (**v0.14.0+ recommended**)
+- pdf-read requires pdf-reader (**v0.15.1+ recommended**; runs on v0.14.0+)
 
 ## Environment variables
 
