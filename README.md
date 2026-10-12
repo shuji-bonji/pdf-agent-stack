@@ -124,6 +124,10 @@ pdf-agent-stack/
 2026-08-31 に `pdf-read` の暗号化停止が発火しなくなっていたのは、
 reader 0.14.0 が `metadata` を `null` にしたためで、その時は手で気づいた。
 
+`version-mentions.mjs` の基準は `stack.json` の版である。部品を公開した直後は、先に
+`generate-stack.mjs --readme` で `stack.json` を npm に合わせてから回すこと。順序が逆だと、
+公開済みの版を「まだ存在しない版」として報告する（2026-10-13 に 7 件の誤報が出た）。
+
 `version-mentions.mjs` は**書き換えない**。過去の記述（「2026-08-27 のリリース
 （reader 0.13.0）」）は正しいので、未来の版を名乗る箇所だけを報告する。
 

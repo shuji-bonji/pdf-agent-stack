@@ -4,6 +4,8 @@
 /skill/ 
 /docs/
 .DS_Store
+# セッションから手元へ引き渡す git bundle の置き場。commit しない（2026-10-12 に誤って追跡した）
+/_to_delete/
 # 官報 PDF は再配布しない。各自インターネット官報から取得する（eval/hosts/grok-build/README.md）
 /eval/hosts/grok-build/fixtures/incoming/gazette-or-gov.pdf
 /eval/hosts/grok-build/fixtures/incoming/batch-gov.pdf
