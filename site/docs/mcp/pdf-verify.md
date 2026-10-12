@@ -54,9 +54,9 @@ Shapes carry meaning (→ [legend](/reference/glossary#how-to-read-the-diagrams-
 | Skill | What this server does there | Required? |
 |---|---|---|
 | [pdf-trust](/skills/pdf-trust) | The axis of the audit. `evaluate_policy` decides the 4-value verdict; the Skill explains firedRules, recommends actions and cites legal grounds | **Required** (v0.7.0+, **v0.21.0+ recommended**) |
-| [pdf-publish](/skills/pdf-publish) | The exit gate: machine-scores the produced PDF with veraPDF. At the `conformance` level the pipeline aborts without it | **Required** at `conformance` |
+| [pdf-publish](/skills/pdf-publish) | Scores the produced PDF with veraPDF and withholds delivery if it fails (quality gate). At the `conformance` level the pipeline aborts without it | **Required** at `conformance` |
 
-::: warning The judge is code, the narrative is the LLM
+::: warning The verdict comes from code; the LLM only explains it
 Use the returned `firedRules` / `advisories` **to explain the outcome, never to override it**. Do not read an advisory as a failure. Do not read the absence of advisories as a pass.
 :::
 

@@ -11,7 +11,7 @@ description: The four MCP servers and their layers — pdf-spec (canon) / pdf-re
 | [pdf-verify-mcp](/mcp/pdf-verify) | Authenticity & conformance | 0.31.0 | 7 | Is the signature valid, and does it meet the standard |
 | [pdf-writer-mcp](/mcp/pdf-writer) | Creation | 0.22.0 | 20 | Written the way the spec says |
 
-The layer names (canon, substance, authenticity/conformance, creation) are defined in [the four-layer model](/guide/architecture#the-four-layer-model-—-who-orchestrates-what).
+The layer names (canon, substance, authenticity/conformance, creation) are defined in [the four-layer model](/guide/architecture#the-four-layer-model-—-which-skill-calls-which-mcp).
 
 ## Which one do I use? (reverse lookup)
 

@@ -1,5 +1,5 @@
 ---
-description: The Skill that orchestrates trust audits of incoming PDFs — an intake gate returning a Trust Report built around evaluate_policy's 4-value verdict
+description: The Skill that audits incoming PDFs — returns a Trust Report built around evaluate_policy's 4-value verdict
 ---
 
 # pdf-trust — Incoming Audit
@@ -11,7 +11,7 @@ A Skill that audits whether an incoming PDF (contract, invoice, medical document
 1. Never judge the truth of the content — only authenticity (originality and integrity)
 2. Return verification results as technical facts; the final decision belongs to the user
 3. Always name the grounds for the verdict (which tool, which result)
-4. **The judge is code, the narrative is the LLM** — the 4-value verdict is decided by pdf-verify's `evaluate_policy`. The Skill's job is explaining firedRules, recommending actions and citing legal grounds — never overriding the verdict
+4. **The verdict comes from code; the LLM only writes the explanation** — the 4-value verdict is returned by pdf-verify's `evaluate_policy`. The Skill's job is explaining firedRules, recommending actions and citing legal grounds — never overriding the verdict
 
 ## The 4-value verdict
 

@@ -1,5 +1,5 @@
 ---
-description: The whole picture of PDF Agent Stack and each MCP's responsibility boundary — independent MCPs orchestrated by Skills, the four-layer model, a label ≠ meeting the standard, assertion strength T1/T2/T3, the judge is code and the narrative is the LLM
+description: The whole picture of PDF Agent Stack and each MCP's responsibility boundary — four independent MCPs and the Skills that decide the calling order, the four-layer model, declaration vs. conformance vs. validation, assertion strength T1/T2/T3, verdicts returned by code while the LLM writes only the explanation
 ---
 
 # Architecture & Responsibilities
@@ -44,13 +44,13 @@ An agent may call the MCPs directly, or leave the orchestration to a Skill. With
 
 There are only two external dependencies: pdf-spec needs the corpus of specification PDFs (not bundled, as they may not be redistributed), and pdf-verify delegates PDF/A and PDF/UA verdicts to veraPDF. The reader and the writer depend on nothing outside themselves.
 
-## The four-layer model — who orchestrates what
+## The four-layer model — which Skill calls which MCP
 
 ```mermaid
 graph TB
   subgraph Skills["Skill layer (orchestration)"]
-    TRUST{{"pdf-trust<br>incoming audit (intake gate)"}}
-    PUBLISH{{"pdf-publish<br>delivery pipeline (exit gate)"}}
+    TRUST{{"pdf-trust<br>incoming audit"}}
+    PUBLISH{{"pdf-publish<br>verify, then deliver"}}
     READ{{"pdf-read<br>reading pipeline"}}
   end
   subgraph MCPs["MCP layer (independent, self-contained)"]
@@ -115,18 +115,18 @@ These three lines say different things. Collapse them and only the last survives
 
 The third row is the point. `human_review_required` covers both "a fact needed for judgment is missing" and "the criteria cannot be written". Collapsed into a single unknown, the latter is filed as something that more evidence would resolve, and never reaches review. **Four values cannot be recovered from three.**
 
-## Two gates: intake and exit
+## Incoming and produced PDFs both go through verify
 
-Two of the three inputs in the diagram above (an incoming PDF, a PDF to produce) each pass through their own gate.
+Two of the three inputs in the diagram above (an incoming PDF, a PDF to produce) end with a verdict from pdf-verify.
 
-| Gate | Skill | Flow |
-|---|---|---|
-| Intake (audit) | [pdf-trust](/skills/pdf-trust) | incoming PDF → audit → use / archive |
-| Exit (delivery) | [pdf-publish](/skills/pdf-publish) | PDF to produce → write → read-back → verify → delivery |
+| Input | Skill | Flow | On `reject` |
+|---|---|---|---|
+| Incoming PDF | [pdf-trust](/skills/pdf-trust) | audit → four-value verdict → use / archive | Not used. The reason goes into the Trust Report |
+| PDF to produce | [pdf-publish](/skills/pdf-publish) | write → read-back → verify (quality gate) → delivery | Not delivered. The reason goes into the Publish Report |
 
-The third input — a PDF you only want to read — passes through no gate: [pdf-read](/skills/pdf-read) orchestrates the reading and closes with a Read Report saying what was read and what could not be. There is nothing to admit or ship, so there is nothing for verify to decide.
+The third input — a PDF you only want to read — does not go through verify. [pdf-read](/skills/pdf-read) picks how to read it and writes what was read and what could not be into a Read Report. It decides neither whether to accept nor whether to deliver, so no verdict from verify is needed.
 
-verify is the gatekeeper standing at both the intake (audit) and the exit (delivery). The 4-value verdict (trust_and_use / use_with_caution / human_review_required / reject) is decided by `evaluate_policy`'s deterministic rule engine; the LLM only supplies the explanation and recommended actions — **the judge is code, the narrative is the LLM**.
+The four-value verdict (trust_and_use / use_with_caution / human_review_required / reject) is returned by `evaluate_policy`'s rule engine. It is deterministic: the same input always gives the same result. The LLM writes only the explanation of that verdict and the recommended actions; it does not change the verdict.
 
 ## Assertion strength (T1/T2/T3)
 

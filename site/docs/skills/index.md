@@ -1,15 +1,15 @@
 ---
-description: The three Skills that orchestrate PDF Agent Stack — pdf-trust at the intake gate, pdf-publish at the exit gate, and pdf-read for the most frequent job of all, reading
+description: The three Skills that orchestrate PDF Agent Stack — pdf-trust (incoming audit), pdf-publish (verify, then deliver), and pdf-read for the most frequent job of all, reading
 ---
 
 # Skills
 
-Where the MCPs own deterministic computation and cryptography, the Skills own procedure, knowledge and orchestration. The judge is code, the narrative is the LLM — that division of labour is the design principle of PDF Agent Stack.
+Where the MCPs own deterministic computation and cryptography, the Skills own the procedure and knowledge: which MCP to call in which order, and how to read what comes back. The verdict is returned by `evaluate_policy`'s code; the LLM writes only the explanation.
 
 ```mermaid
 graph LR
-  IN[/"Incoming PDF"/] --> TRUST{{"pdf-trust<br>intake gate"}} --> USE(["use / archive"])
-  MAKE[/"PDF to produce"/] --> PUBLISH{{"pdf-publish<br>exit gate"}} --> OUT(["delivery"])
+  IN[/"Incoming PDF"/] --> TRUST{{"pdf-trust<br>incoming audit"}} --> USE(["use / archive"])
+  MAKE[/"PDF to produce"/] --> PUBLISH{{"pdf-publish<br>verify, then deliver"}} --> OUT(["delivery"])
   DOC[/"PDF to read"/] --> READ{{"pdf-read<br>reading pipeline"}} --> ANS(["content + Read Report"])
 ```
 
