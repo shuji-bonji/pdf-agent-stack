@@ -14,8 +14,8 @@ PDF Agent Stack は、AI エージェントに PDF の「読む・検証する�
 | MCP   | [pdf-reader-mcp](/ja/mcp/pdf-reader)  | PDF の内部状態を観測する（観測 20 ツール）                              | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-reader-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-reader-mcp) |
 | MCP   | [pdf-verify-mcp](/ja/mcp/pdf-verify)  | 真正性・準拠性を検証する（判定 7 ツール）                              | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp) |
 | MCP   | [pdf-writer-mcp](/ja/mcp/pdf-writer)  | 仕様に沿って PDF を生成する（生成・編集 20 ツール）                    | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-writer-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-writer-mcp) |
-| Skill | [pdf-trust](/ja/skills/pdf-trust)     | 受領した PDF を精査し、信頼性を確認する（Trust Report）                  | [GitHub](https://github.com/shuji-bonji/pdf-trust-skill)                                                                   |
-| Skill | [pdf-publish](/ja/skills/pdf-publish) | 品質管理（ゲート）を組み込んだパイプラインで生成する（Publish Report） | [GitHub](https://github.com/shuji-bonji/pdf-publish-skill)                                                                 |
+| Skill | [pdf-trust](/ja/skills/pdf-trust)     | 受け取った PDF の署名・改ざん・規格適合を調べ、4 値判定を返す（Trust Report）| [GitHub](https://github.com/shuji-bonji/pdf-trust-skill)                                                                   |
+| Skill | [pdf-publish](/ja/skills/pdf-publish) | 生成した PDF を読み戻して veraPDF で採点し、通ったものだけ納品する（Publish Report） | [GitHub](https://github.com/shuji-bonji/pdf-publish-skill)                                                                 |
 | Skill | [pdf-read](/ja/skills/pdf-read)       | 大きな PDF・読めない PDF から必要な箇所を取り出す（Read Report）        | [GitHub](https://github.com/shuji-bonji/pdf-read-skill)                                                                    |
 
 サーバー群の下には、単体でも公開しているライブラリが 2 つあります。
@@ -27,7 +27,7 @@ PDF Agent Stack は、AI エージェントに PDF の「読む・検証する�
 これらがどう繋がって動くか。詳しくは [全体構成と責務](/ja/guide/architecture) を参照してください。PDF を Markdown に変換せず MCP で構造を読む理由は、PDF Association の FAQ に照らした [AI が PDF を読むときに落とすもの](/ja/guide/ai-and-pdf) にまとめています。
 :::
 
-エージェントは MCP を直接呼んでもよいですし、Skill に編成を任せてもかまいません。Skill を入れると、複数 MCP の**呼び出し順序・判定の読み方・レポート形式**が定型化されます。
+エージェントは MCP を直接呼んでもよいですし、Skill を入れてもかまいません。Skill を入れると、複数の MCP を**どの順に呼び、返ってきた判定をどう読み、どの形式のレポートにまとめるか**が決まります。
 
 ## 5 分で試す
 

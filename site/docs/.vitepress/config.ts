@@ -107,7 +107,7 @@ const en = {
 
 const ja = {
   guide: 'ガイド', overview: 'PDF Agent Stack とは', architecture: '全体構成と責務',
-  aiAndPdf: 'AI が PDF を読むときに落とすもの',
+  aiAndPdf: 'AI が PDF を読むときに失われる情報',
   gettingStarted: '導入手順', agents: '専門エージェント構築',
   mcp: 'MCP サーバー', mcpIndex: '一覧', skillsIndex: '一覧',
   useCases: 'ユースケース', ucIndex: '一覧', ucIncoming: '受入監査',
