@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-verify-mcp v0.30.0 — parameters, types, defaults and returns of all 7 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-verify-mcp v0.31.0 — parameters, types, defaults and returns of all 7 tools, generated from the server's tools/list."
 ---
 
 # pdf-verify-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-verify-mcp v0.30.0 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.30.0** (7 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.31.0** (7 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-verify).
@@ -335,6 +335,8 @@ Identify declared PDF/A (pdfaid) and PDF/UA (pdfuaid) conformance in a PDF's XMP
 
 Declared PDF/A part/conformance level and PDF/UA part, plus the PDF version.
 
+xmpNamespaces (v0.31.0): every namespace the packet declares, each marked predefined (XMP Specification / ISO 19005), describedByExtensionSchema (a pdfaSchema:namespaceURI in the packet names it), and known (what this family can say it is — e.g. the W3C TDMRep namespace, or pdfuaid). A PDF/A declaration together with a namespace that is neither predefined nor described is what a PDF/A validator reports under ISO 19005-2 6.6.2.3 (19005-1 6.7.8); the note says so, as a declaration-level observation, not a validation result.
+
 IMPORTANT: This tool only IDENTIFIES the declared conformance — a declaration does not guarantee actual conformance. For real PDF/A rule checking use the validate_conformance tool (native rule subset, or veraPDF when installed).
 
 ::: warning A declaration is not evidence
@@ -578,6 +580,10 @@ Size (v0.29.0): the verdict is computed over EVERY signature; facts.signatures l
 | `firedRules` | rule IDs with per-rule verdict and reason |
 | `advisories` | recommendations that do not affect the verdict |
 | facts | underlying facts summary |
+
+Content inventory (v0.30.0): facts.content counts what the document carries that acts or is unfinished, the way ISO 32000-2 §12.8.7 Table 264 does — JavaScriptActions, LaunchActions, URIActions, GoToRemoteActions, HideAnnotationActions, MovieActions, SoundActions, plus SubmitFormActions — with the JavaScript byte total, URI hosts, whether /OpenAction or a document /AA is present, the annotation count, and the number of /Subtype /Redact annotations still in the file. Two rules read it: POL-CAUTION-REDACT-PENDING (a redaction annotation is still present, so per ISO 32000-2 §12.5.6.23 the content it marks was never removed) and POL-CAUTION-ACTIVE-CONTENT (ECMAScript, Launch, remote go-to or SubmitForm/ImportData actions present). Both are use_with_caution. URI actions never change the verdict; their hosts go to an advisory. facts.content is null when the inventory could not be taken, and the advisories then say "not counted" — never 0.
+
+PDF/A and XMP extension schemas (v0.31.0): when the long-term check finds the ISO 19005 extension-schema rule failing (19005-2/-3/-4 6.6.2.3, 19005-1 6.7.8), the violation detail and an advisory name the namespace behind it — e.g. the W3C TDMRep namespace, which PDF/A accepts only when pdfaExtension:schemas describes it.
 
 ::: warning The verdict is what `evaluate_policy` returns. The LLM writes the explanation only
 Use `firedRules` / `advisories` to explain the outcome, never to override it. Do not read an advisory as a failure. Do not read the absence of advisories as a pass.

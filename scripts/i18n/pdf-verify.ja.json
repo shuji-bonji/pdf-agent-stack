@@ -76,8 +76,8 @@
     "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
   },
   "identify_conformance|returns": {
-    "src": "cc6d2b42652eb05ce5d512e83998e44d",
-    "text": "どの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。\n\n書いてある PDF/A の part / conformance level と PDF/UA の part、および PDF バージョン。\n\n重要: 本ツールはラベルを**読むだけ**である —— 書いてあることは証拠にならない。規格どおりかどうかの検査は validate_conformance ツールを使うこと（ネイティブのルールサブセット、または veraPDF がインストールされていればそちら）。\n\n例:\n- 保管前に文書が PDF/A-2b を名乗っているか確認\n- アクセシビリティワークフロー向けに PDF/UA のラベルを検出"
+    "src": "4cc2e437313c8eaded0d88959facbfaa",
+    "text": "どの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。\n\n書いてある PDF/A の part / conformance level と PDF/UA の part、および PDF バージョン。\n\nxmpNamespaces（v0.31.0）: パケットが宣言するすべての名前空間。それぞれに predefined（XMP Specification / ISO 19005 が定義済み）、describedByExtensionSchema（パケット内の pdfaSchema:namespaceURI がその URI を挙げている）、known（この family が何であるか言えるもの —— 例: W3C TDMRep の名前空間、pdfuaid）を付ける。PDF/A を宣言しているのに、定義済みでも記述済みでもない名前空間があれば、PDF/A の検証器は ISO 19005-2 6.6.2.3（19005-1 では 6.7.8）の違反として報告する。note はその旨を書くが、これは宣言レベルの観測であり、検証結果ではない。\n\n重要: 本ツールはラベルを**読むだけ**である —— 書いてあることは証拠にならない。規格どおりかどうかの検査は validate_conformance ツールを使うこと（ネイティブのルールサブセット、または veraPDF がインストールされていればそちら）。\n\n例:\n- 保管前に文書が PDF/A-2b を名乗っているか確認\n- アクセシビリティワークフロー向けに PDF/UA のラベルを検出"
   },
   "identify_conformance|param:file_path": {
     "src": "1c06f136e55f5c125a42c9f2a76f12f6",
@@ -132,8 +132,8 @@
     "text": "ファイル内に無いが一部の条文の決定に必要な事実。例: { \"isSubset\": true }。欠けた事実に適用可否が依存する条文は needs_external_fact として報告される —— 合格に既定されることは決してない。"
   },
   "evaluate_policy|returns": {
-    "src": "68dd855500d9fb9cb383fb43c9432fd2",
-    "text": "どの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。\n\n大きさ（v0.29.0）: 判定は**すべての署名**で計算する。facts.signatures の一覧は最大 32 件で、切ったときは facts.signaturesTruncated = { returned, total } を出す。JSON は文字数では切らない。\n\nverdict、firedRules（ルール ID とルール別の判定・理由）、advisories（判定に影響しない推奨）、根拠となった事実の要約。\n\n例:\n- 受領した請求書をファイリング前にゲートする（profile: financial）\n- 相互署名された契約書に依拠できるか判断（profile: contract・相手方 CA を信頼アンカーに）\n- 受領 PDF のフォルダを、再現可能でモデル非依存の判定で一括監査"
+    "src": "090a189b1c341502607e638e841b49da",
+    "text": "どの報告も先頭に scope が付く。**判定ではなく、どこまで読んだか**である: 相互参照チェーンを最後まで歩けたか（chainStop）、相互参照表をこのツールが組み直したか（reconstructed —— true のとき、その表はこのツールが作ったものであって、ファイルが持っているものではない）、読めたオブジェクトと節の数、暗号化文書を開けたか。判定より先に読むこと —— 組み直した表の上での「違反なし」は、ファイル自身の表の上での「違反なし」と同じ文ではない。\n\n大きさ（v0.29.0）: 判定は**すべての署名**で計算する。facts.signatures の一覧は最大 32 件で、切ったときは facts.signaturesTruncated = { returned, total } を出す。JSON は文字数では切らない。\n\nverdict、firedRules（ルール ID とルール別の判定・理由）、advisories（判定に影響しない推奨）、根拠となった事実の要約。\n\n内容の棚卸し（v0.30.0）: facts.content は、文書が持つ「動作するもの」と「未完のもの」を ISO 32000-2 §12.8.7 Table 264 と同じ区分で数える —— JavaScriptActions・LaunchActions・URIActions・GoToRemoteActions・HideAnnotationActions・MovieActions・SoundActions、加えて SubmitFormActions。併せて JavaScript の総バイト数、URI のホスト、/OpenAction または文書の /AA の有無、注釈の数、ファイルに残っている /Subtype /Redact 注釈の数を返す。これを読むルールは 2 つ: POL-CAUTION-REDACT-PENDING（Redact 注釈が残っている。ISO 32000-2 §12.5.6.23 により、その注釈が指す内容は削除されていない）と POL-CAUTION-ACTIVE-CONTENT（ECMAScript・Launch・リモート GoTo・SubmitForm/ImportData のアクションがある）。どちらも use_with_caution。URI アクションは判定を変えず、ホストを advisory に出す。棚卸しができなかったときは facts.content が null になり、advisories に「not counted」と書く —— 0 にはしない。\n\nPDF/A と XMP 拡張スキーマ（v0.31.0）: 長期保存の検査で ISO 19005 の拡張スキーマ規則（19005-2/-3/-4 の 6.6.2.3、19005-1 の 6.7.8）に違反が出たとき、違反の detail と advisory に原因の名前空間を書く —— 例: W3C TDMRep の名前空間。PDF/A は pdfaExtension:schemas で記述されている場合に限りこれを受け入れる。\n\n例:\n- 受領した請求書をファイリング前にゲートする（profile: financial）\n- 相互署名された契約書に依拠できるか判断（profile: contract・相手方 CA を信頼アンカーに）\n- 受領 PDF のフォルダを、再現可能でモデル非依存の判定で一括監査"
   },
   "evaluate_policy|param:file_path": {
     "src": "1c06f136e55f5c125a42c9f2a76f12f6",

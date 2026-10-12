@@ -25,7 +25,7 @@ description: "pdf-reader-mcp v0.16.0 の全 20 ツールの引数・型・既定
 | [`render_page`](#render-page) | PDF のページを PNG または JPEG 画像にラスタライズし、MCP の image コンテンツブロックで返す。 |
 | [`summarize`](#summarize) | PDF 文書の概観レポートを手早く生成する。 |
 | [`inspect_structure`](#inspect-structure) | カタログのエントリ・ページツリー・オブジェクト統計など、PDF の内部オブジェクト構造を調べる。 |
-| [`inspect_catalog`](#inspect-catalog) | List the document-level components hanging off the catalog dictionary (ISO 32000-2 §7.7.2, Table 29) — the parts of a PDF that are not page content and that page-oriented readers drop: bookmarks, layers, attachments, the XMP packet, and the actions that run when the document is opened. |
+| [`inspect_catalog`](#inspect-catalog) | catalog 辞書（ISO 32000-2 §7.7.2、Table 29）に連なる文書レベルの構成要素を一覧する —— ページ内容ではなく、ページ単位で読むリーダーが落としてしまう部分: しおり、レイヤー、添付ファイル、XMP パケット、文書を開いたときに実行されるアクション。 |
 | [`inspect_tags`](#inspect-tags) | アクセシビリティ評価のために、タグ付き PDF の構造ツリーを分析する。 |
 | [`inspect_fonts`](#inspect-fonts) | PDF 文書で使われている全フォントをプロパティ付きで一覧する。 |
 | [`inspect_annotations`](#inspect-annotations) | PDF 文書内の全注釈を抽出して種類別に分類する。 |
@@ -396,13 +396,13 @@ PDF 文書の概観レポートを手早く生成する。
 
 ### 戻り値
 
-Summary including: page count, PDF version, file size, tagged/encrypted/signature flags, text presence, per-document text extractability, the pages that are not fully extractable, image count, a text preview from page 1, and the `next` suggestions.
+要約の内容: ページ数・PDF バージョン・ファイルサイズ・タグ付き/暗号化/署名フラグ・テキスト有無・文書全体のテキスト抽出可能性・完全には抽出できないページ一覧・画像数・1 ページ目のテキストプレビュー・`next` の提案。
 
-Five separate readings produce that summary — the document information, the text of page 1, the image count, the extractability observation, and the XMP declarations — and any of them can fail on its own. `scope` says which were done. A field whose reading did not happen is `null`, never `0`, `false` or `""`: "not read" and "read and found nothing" are different answers, and `next` stays silent about any premise that was not observed.
+この要約は 5 つの別々の読みから作られる —— 文書情報・1 ページ目のテキスト・画像数・抽出可能性の観測・XMP の宣言 —— で、どれも単独で失敗しうる。どれが行われたかは `scope` が言う。読みが行われなかった項目は `null` であり、`0` でも `false` でも `""` でもない。「読んでいない」と「読んで無かった」は別の答えである。`next` も、観測できなかった前提については何も述べない。
 
-Examples:
-- Quick overview: { file_path: "/path/to/doc.pdf" }
-- Machine-readable: { file_path: "/path/to/doc.pdf", response_format: "json" }
+例:
+- 概観を手早く: { file_path: "/path/to/doc.pdf" }
+- 機械可読で: { file_path: "/path/to/doc.pdf", response_format: "json" }
 
 ::: details 呼び出し例 — 「この PDF の概要を見せて」
 - 実測: v0.15.0
@@ -525,16 +525,16 @@ Examples:
 
 **Inspect PDF Catalog**
 
-List the document-level components hanging off the catalog dictionary (ISO 32000-2 §7.7.2, Table 29) — the parts of a PDF that are not page content and that page-oriented readers drop: bookmarks, layers, attachments, the XMP packet, and the actions that run when the document is opened.
+catalog 辞書（ISO 32000-2 §7.7.2、Table 29）に連なる文書レベルの構成要素を一覧する —— ページ内容ではなく、ページ単位で読むリーダーが落としてしまう部分: しおり、レイヤー、添付ファイル、XMP パケット、文書を開いたときに実行されるアクション。
 
 ### 引数
 
 | 引数 | 型 | 必須 | 既定値 | 説明 |
 |---|---|---|---|---|
-| `file_path` | string (minLength 1) | **必須** |  | Absolute path to a local PDF file (e.g., "/path/to/document.pdf") |
-| `max_outline_items` | integer (1–500) | 任意 | `50` | How many outline (bookmark) items to list. The count and depth are always computed over the whole tree. |
-| `include_xmp` | boolean | 任意 | `false` | Return the XMP packet text itself (capped at 64 KiB). Off by default: the declared values are extracted either way. |
-| `response_format` | `"markdown"` \| `"json"` | 任意 | `"markdown"` | Output format: "markdown" for human-readable, "json" for structured data |
+| `file_path` | string (minLength 1) | **必須** |  | ローカル PDF ファイルへの絶対パス（例: "/path/to/document.pdf"） |
+| `max_outline_items` | integer (1–500) | 任意 | `50` | 一覧に載せるアウトライン（しおり）項目の数。件数と深さは常にツリー全体で計算する。 |
+| `include_xmp` | boolean | 任意 | `false` | XMP パケットの本文そのものを返す（上限 64 KiB）。既定はオフ。宣言された値はどちらでも抽出する。 |
+| `response_format` | `"markdown"` \| `"json"` | 任意 | `"markdown"` | 出力形式: "markdown" は人が読む用、"json" は構造化データ |
 
 ## inspect_tags
 

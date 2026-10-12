@@ -1,5 +1,5 @@
 ---
-description: "pdf-verify-mcp v0.30.0 の全 7 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-verify-mcp v0.31.0 の全 7 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-verify-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-verify-mcp v0.30.0 の全 7 ツールの引数・型・既定�
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-**v0.30.0** の `tools/list` ハンドシェイクから自動生成（7 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.31.0** の `tools/list` ハンドシェイクから自動生成（7 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-verify)へ。
@@ -332,6 +332,8 @@ PDF の XMP メタデータに書いてある PDF/A（pdfaid）・PDF/UA（pdfua
 
 書いてある PDF/A の part / conformance level と PDF/UA の part、および PDF バージョン。
 
+xmpNamespaces（v0.31.0）: パケットが宣言するすべての名前空間。それぞれに predefined（XMP Specification / ISO 19005 が定義済み）、describedByExtensionSchema（パケット内の pdfaSchema:namespaceURI がその URI を挙げている）、known（この family が何であるか言えるもの —— 例: W3C TDMRep の名前空間、pdfuaid）を付ける。PDF/A を宣言しているのに、定義済みでも記述済みでもない名前空間があれば、PDF/A の検証器は ISO 19005-2 6.6.2.3（19005-1 では 6.7.8）の違反として報告する。note はその旨を書くが、これは宣言レベルの観測であり、検証結果ではない。
+
 重要: 本ツールはラベルを**読むだけ**である —— 書いてあることは証拠にならない。規格どおりかどうかの検査は validate_conformance ツールを使うこと（ネイティブのルールサブセット、または veraPDF がインストールされていればそちら）。
 
 ::: warning 宣言は証拠ではない
@@ -573,6 +575,10 @@ PDF に対する決定論的な 4 値信頼判定を下す。
 | `firedRules` | ルール ID とルール別の判定・理由 |
 | `advisories` | 判定に影響しない推奨 |
 | facts | 根拠となった事実の要約 |
+
+内容の棚卸し（v0.30.0）: facts.content は、文書が持つ「動作するもの」と「未完のもの」を ISO 32000-2 §12.8.7 Table 264 と同じ区分で数える —— JavaScriptActions・LaunchActions・URIActions・GoToRemoteActions・HideAnnotationActions・MovieActions・SoundActions、加えて SubmitFormActions。併せて JavaScript の総バイト数、URI のホスト、/OpenAction または文書の /AA の有無、注釈の数、ファイルに残っている /Subtype /Redact 注釈の数を返す。これを読むルールは 2 つ: POL-CAUTION-REDACT-PENDING（Redact 注釈が残っている。ISO 32000-2 §12.5.6.23 により、その注釈が指す内容は削除されていない）と POL-CAUTION-ACTIVE-CONTENT（ECMAScript・Launch・リモート GoTo・SubmitForm/ImportData のアクションがある）。どちらも use_with_caution。URI アクションは判定を変えず、ホストを advisory に出す。棚卸しができなかったときは facts.content が null になり、advisories に「not counted」と書く —— 0 にはしない。
+
+PDF/A と XMP 拡張スキーマ（v0.31.0）: 長期保存の検査で ISO 19005 の拡張スキーマ規則（19005-2/-3/-4 の 6.6.2.3、19005-1 の 6.7.8）に違反が出たとき、違反の detail と advisory に原因の名前空間を書く —— 例: W3C TDMRep の名前空間。PDF/A は pdfaExtension:schemas で記述されている場合に限りこれを受け入れる。
 
 ::: warning 判定は `evaluate_policy` が返す。LLM は説明文だけを書く
 `firedRules` / `advisories` は結果の説明に使います。判定の上書きには使いません。advisory を失敗と読まないでください。advisory が無いことを合格と読まないでください。

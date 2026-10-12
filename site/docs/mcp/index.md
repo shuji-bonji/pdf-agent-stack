@@ -8,8 +8,8 @@ description: The four MCP servers and their layers — pdf-spec (canon) / pdf-re
 |---|---|---|---|---|
 | [pdf-spec-mcp](/mcp/pdf-spec) | Canon | 0.6.1 | 8 | What the specification requires |
 | [pdf-reader-mcp](/mcp/pdf-reader) | Substance | 0.16.0 | 20 | The content, and **where it is drawn** |
-| [pdf-verify-mcp](/mcp/pdf-verify) | Authenticity & conformance | 0.30.0 | 7 | Is the signature valid, and does it meet the standard |
-| [pdf-writer-mcp](/mcp/pdf-writer) | Creation | 0.21.2 | 20 | Written the way the spec says |
+| [pdf-verify-mcp](/mcp/pdf-verify) | Authenticity & conformance | 0.31.0 | 7 | Is the signature valid, and does it meet the standard |
+| [pdf-writer-mcp](/mcp/pdf-writer) | Creation | 0.22.0 | 20 | Written the way the spec says |
 
 The layer names (canon, substance, authenticity/conformance, creation) are defined in [the four-layer model](/guide/architecture#the-four-layer-model-—-who-orchestrates-what).
 

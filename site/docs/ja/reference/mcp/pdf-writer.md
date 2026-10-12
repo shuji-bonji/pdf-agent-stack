@@ -1,5 +1,5 @@
 ---
-description: "pdf-writer-mcp v0.21.2 の全 20 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-writer-mcp v0.22.0 の全 20 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-writer-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-writer-mcp v0.21.2 の全 20 ツールの引数・型・既定
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-**v0.21.2** の `tools/list` ハンドシェイクから自動生成（20 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.22.0** の `tools/list` ハンドシェイクから自動生成（20 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-writer)へ。
@@ -190,7 +190,7 @@ Markdown から PDF を生成する。見出し・段落・箇条書き/番号�
 
 **Set PDF Metadata**
 
-既存 PDF のメタデータ(Info 辞書)を更新する。指定したフィールドのみ変更し、他は保持する。title / author / subject / keywords / creator のうち最低 1 つが必要。XMP(/Metadata)を持つ文書では dc:title 等も同期して不整合を防ぐ。署名済み PDF には preserveSignatures: true で署名を保持したまま更新できる。
+既存 PDF のメタデータ(Info 辞書)を更新する。指定したフィールドのみ変更し、他は保持する。title / author / subject / keywords / creator / tdmReservation のうち最低 1 つが必要。XMP(/Metadata)を持つ文書では dc:title 等も同期して不整合を防ぐ。tdmReservation（0 | 1）と tdmPolicy（URL）は W3C TDM Reservation Protocol の意思表示を XMP に書く（tdm:reservation / tdm:policy、名前空間 http://www.w3.org/ns/tdmrep/）。XMP を持たない文書には新しく作る。文書が PDF/A を宣言している場合は tdmrep スキーマを pdfaExtension:schemas にも記述するため、veraPDF が ISO 19005-2 6.6.2.3 で落とすことはない。署名済み PDF には preserveSignatures: true で署名を保持したまま更新できる。
 
 ### 引数
 
@@ -202,6 +202,8 @@ Markdown から PDF を生成する。見出し・段落・箇条書き/番号�
 | `subject` | string | 任意 |  | サブタイトル・件名。 |
 | `keywords` | string[] | 任意 |  | キーワードの配列。 |
 | `creator` | string | 任意 |  | 作成アプリケーション名。 |
+| `tdmReservation` | `0` \| `1` | 任意 |  | W3C TDM Reservation Protocol（TDMRep）の権利表示。XMP に tdm:reservation として書く。1 = テキスト・データマイニングの権利を留保する、0 = 留保しない。指定しなければ書かない。PDF/A 文書では tdmrep スキーマを pdfaExtension:schemas にも記述する（定義済みでない名前空間に対して ISO 19005 が要求する）。 |
+| `tdmPolicy` | string | 任意 |  | TDM ポリシーの URL（tdm:policy）。tdmReservation が必要。 |
 | `preserveSignatures` | boolean | 任意 |  | 署名済み PDF に対し、既存署名を無効化せず増分更新（末尾追記）で編集する。既定 false。元のバイト列には一切触れないため /ByteRange が保たれる。認証署名（DocMDP）の許可レベルに反する変更は拒否される。 |
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |

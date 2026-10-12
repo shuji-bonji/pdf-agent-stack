@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-writer-mcp v0.21.2 — parameters, types, defaults and returns of all 20 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-writer-mcp v0.22.0 — parameters, types, defaults and returns of all 20 tools, generated from the server's tools/list."
 ---
 
 # pdf-writer-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-writer-mcp v0.21.2 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.21.2** (20 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.22.0** (20 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-writer).
@@ -190,7 +190,7 @@ The call shape matches [`create_text_pdf`](#create-text-pdf) (`headers` and `row
 
 **Set PDF Metadata**
 
-Update an existing PDF's metadata (the Info dictionary). Only the given fields change; the rest are preserved. At least one of title / author / subject / keywords / creator is required. In documents with XMP (/Metadata), dc:title etc. are synchronized to prevent divergence. For signed PDFs, preserveSignatures: true updates while keeping the signatures intact.
+Update an existing PDF's metadata (the Info dictionary). Only the given fields change; the rest are preserved. At least one of title / author / subject / keywords / creator / tdmReservation is required. In documents with XMP (/Metadata), dc:title etc. are synchronized to prevent divergence. tdmReservation (0 | 1) and tdmPolicy (URL) write the W3C TDM Reservation Protocol statement to XMP (tdm:reservation / tdm:policy, namespace http://www.w3.org/ns/tdmrep/); a document without XMP gets one. When the document declares PDF/A, the tdmrep schema is also described in pdfaExtension:schemas, so veraPDF does not fail ISO 19005-2 6.6.2.3 on it. For signed PDFs, preserveSignatures: true updates while keeping the signatures intact.
 
 ### Parameters
 
@@ -202,6 +202,8 @@ Update an existing PDF's metadata (the Info dictionary). Only the given fields c
 | `subject` | string | no |  | Subject. |
 | `keywords` | string[] | no |  | Array of keywords. |
 | `creator` | string | no |  | Creating application name. |
+| `tdmReservation` | `0` \| `1` | no |  | W3C TDM Reservation Protocol (TDMRep) rights statement, written to XMP as tdm:reservation: 1 = text-and-data-mining rights are reserved, 0 = they are not. Not written unless given. In a PDF/A document the tdmrep schema is also described in pdfaExtension:schemas, which ISO 19005 requires for a non-predefined namespace. |
+| `tdmPolicy` | string | no |  | URL of the TDM policy (tdm:policy). Requires tdmReservation. |
 | `preserveSignatures` | boolean | no |  | Edit a signed PDF via an incremental update (appending) without invalidating existing signatures. Default false. The original bytes are untouched, so /ByteRange holds. Changes beyond the certification (DocMDP) permission level are refused. |
 | `outputPath` | string (minLength 1) | no |  | Destination file path (absolute). When omitted, a base64 string is returned instead. |
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
