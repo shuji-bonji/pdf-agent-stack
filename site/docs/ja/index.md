@@ -22,7 +22,7 @@ features:
     details: ISO 32000 ほか 17 文書の仕様リファレンス。仕様は何を要求するかに答える。検証対象の PDF は開かない。
     link: /ja/mcp/pdf-spec
   - title: pdf-reader-mcp（実体）
-    details: PDF の中身を観測する 19 ツール。テキスト・表・構造ツリー・署名フィールド、そして「それはどこに描かれているか」。合否は言わない。
+    details: PDF の中身を観測する 20 ツール。テキスト・表・構造ツリー・署名フィールド、そして「それはどこに描かれているか」。合否は言わない。
     link: /ja/mcp/pdf-reader
   - title: pdf-verify-mcp（真正性・準拠性）
     details: 暗号学的署名検証・改ざん検知・PAdES レベル・PDF/A / PDF/UA 検証・決定論的 4 値判定。

@@ -1,5 +1,5 @@
 ---
-description: "pdf-reader-mcp v0.16.0 の全 19 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-reader-mcp v0.16.0 の全 20 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-reader-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-reader-mcp v0.16.0 の全 19 ツールの引数・型・既定
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-**v0.16.0** の `tools/list` ハンドシェイクから自動生成（19 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.16.0** の `tools/list` ハンドシェイクから自動生成（20 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-reader)へ。
@@ -25,6 +25,7 @@ description: "pdf-reader-mcp v0.16.0 の全 19 ツールの引数・型・既定
 | [`render_page`](#render-page) | PDF のページを PNG または JPEG 画像にラスタライズし、MCP の image コンテンツブロックで返す。 |
 | [`summarize`](#summarize) | PDF 文書の概観レポートを手早く生成する。 |
 | [`inspect_structure`](#inspect-structure) | カタログのエントリ・ページツリー・オブジェクト統計など、PDF の内部オブジェクト構造を調べる。 |
+| [`inspect_catalog`](#inspect-catalog) | List the document-level components hanging off the catalog dictionary (ISO 32000-2 §7.7.2, Table 29) — the parts of a PDF that are not page content and that page-oriented readers drop: bookmarks, layers, attachments, the XMP packet, and the actions that run when the document is opened. |
 | [`inspect_tags`](#inspect-tags) | アクセシビリティ評価のために、タグ付き PDF の構造ツリーを分析する。 |
 | [`inspect_fonts`](#inspect-fonts) | PDF 文書で使われている全フォントをプロパティ付きで一覧する。 |
 | [`inspect_annotations`](#inspect-annotations) | PDF 文書内の全注釈を抽出して種類別に分類する。 |
@@ -395,13 +396,13 @@ PDF 文書の概観レポートを手早く生成する。
 
 ### 戻り値
 
-要約の内容: ページ数・PDF バージョン・ファイルサイズ・タグ付き/暗号化/署名フラグ・テキスト有無・文書全体のテキスト抽出可能性・完全には抽出できないページ一覧・画像数・1 ページ目のテキストプレビュー・`next` の提案。
+Summary including: page count, PDF version, file size, tagged/encrypted/signature flags, text presence, per-document text extractability, the pages that are not fully extractable, image count, a text preview from page 1, and the `next` suggestions.
 
-この要約は 4 つの別々の読みから作られる —— 文書情報・1 ページ目のテキスト・画像数・抽出可能性の観測 —— で、どれも単独で失敗しうる。どれが行われたかは `scope` が言う。読みが行われなかった項目は `null` であり、`0` でも `false` でも `""` でもない。「読んでいない」と「読んで無かった」は別の答えである。`next` も、観測できなかった前提については何も述べない。
+Five separate readings produce that summary — the document information, the text of page 1, the image count, the extractability observation, and the XMP declarations — and any of them can fail on its own. `scope` says which were done. A field whose reading did not happen is `null`, never `0`, `false` or `""`: "not read" and "read and found nothing" are different answers, and `next` stays silent about any premise that was not observed.
 
-例:
-- 概観を手早く: { file_path: "/path/to/doc.pdf" }
-- 機械可読で: { file_path: "/path/to/doc.pdf", response_format: "json" }
+Examples:
+- Quick overview: { file_path: "/path/to/doc.pdf" }
+- Machine-readable: { file_path: "/path/to/doc.pdf", response_format: "json" }
 
 ::: details 呼び出し例 — 「この PDF の概要を見せて」
 - 実測: v0.15.0
@@ -519,6 +520,21 @@ PDF 文書の概観レポートを手早く生成する。
 
 `unreadable: 0` は「全オブジェクトを読んだ」です。「何も調べていない」ではありません。
 :::
+
+## inspect_catalog
+
+**Inspect PDF Catalog**
+
+List the document-level components hanging off the catalog dictionary (ISO 32000-2 §7.7.2, Table 29) — the parts of a PDF that are not page content and that page-oriented readers drop: bookmarks, layers, attachments, the XMP packet, and the actions that run when the document is opened.
+
+### 引数
+
+| 引数 | 型 | 必須 | 既定値 | 説明 |
+|---|---|---|---|---|
+| `file_path` | string (minLength 1) | **必須** |  | Absolute path to a local PDF file (e.g., "/path/to/document.pdf") |
+| `max_outline_items` | integer (1–500) | 任意 | `50` | How many outline (bookmark) items to list. The count and depth are always computed over the whole tree. |
+| `include_xmp` | boolean | 任意 | `false` | Return the XMP packet text itself (capped at 64 KiB). Off by default: the declared values are extracted either way. |
+| `response_format` | `"markdown"` \| `"json"` | 任意 | `"markdown"` | Output format: "markdown" for human-readable, "json" for structured data |
 
 ## inspect_tags
 

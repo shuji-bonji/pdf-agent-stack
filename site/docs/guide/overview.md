@@ -11,7 +11,7 @@ PDF Agent Stack is the collective name for four independent [MCP](/reference/glo
 | Kind | Name | Role | Distribution |
 |---|---|---|---|
 | MCP | [pdf-spec-mcp](/mcp/pdf-spec) | Consult the PDF specification (ISO 32000 and 16 more documents) | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-spec-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-spec-mcp) |
-| MCP | [pdf-reader-mcp](/mcp/pdf-reader) | Observe a PDF's internal state (19 observation tools) | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-reader-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-reader-mcp) |
+| MCP | [pdf-reader-mcp](/mcp/pdf-reader) | Observe a PDF's internal state (20 observation tools) | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-reader-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-reader-mcp) |
 | MCP | [pdf-verify-mcp](/mcp/pdf-verify) | Verify authenticity and conformance (7 judgment tools) | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp) |
 | MCP | [pdf-writer-mcp](/mcp/pdf-writer) | Generate PDFs following the spec (20 creation/editing tools) | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-writer-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-writer-mcp) |
 | Skill | [pdf-trust](/skills/pdf-trust) | Vet incoming PDFs and confirm trust (Trust Report) | [GitHub](https://github.com/shuji-bonji/pdf-trust-skill) |
@@ -24,7 +24,7 @@ Two libraries sit under the servers and are published on their own:
 - [normativepdf](https://github.com/shuji-bonji/normativepdf) — the PDF library pdf-writer writes through, in which every behaviour is tied to an ISO 32000 clause
 
 ::: info On architecture and responsibilities
-How these fit together and run — see [Architecture & Responsibilities](/guide/architecture) for the details.
+How these fit together and run — see [Architecture & Responsibilities](/guide/architecture) for the details. Why the stack reads structure through MCP instead of converting a PDF to Markdown is set against the PDF Association's FAQ in [What an AI Drops When It Reads a PDF](/guide/ai-and-pdf).
 :::
 
 An agent may call the MCPs directly, or leave the orchestration to a Skill. With the Skills installed, the **call order, how to read the verdicts, and the report format** are all fixed for you.

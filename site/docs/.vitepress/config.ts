@@ -30,6 +30,7 @@ const sidebar = (prefix: string, l: Record<string, string>) => ({
       items: [
         { text: l.overview, link: `${prefix}/guide/overview` },
         { text: l.architecture, link: `${prefix}/guide/architecture` },
+        { text: l.aiAndPdf, link: `${prefix}/guide/ai-and-pdf` },
         { text: l.gettingStarted, link: `${prefix}/guide/getting-started` },
         { text: l.agents, link: `${prefix}/guide/agents` }
       ]
@@ -92,6 +93,7 @@ const sidebar = (prefix: string, l: Record<string, string>) => ({
 
 const en = {
   guide: 'Guide', overview: 'What is PDF Agent Stack?', architecture: 'Architecture & Responsibilities',
+  aiAndPdf: 'What an AI Drops When It Reads a PDF',
   gettingStarted: 'Getting Started', agents: 'Building PDF Agents',
   mcp: 'MCP Servers', mcpIndex: 'Overview', skillsIndex: 'Overview',
   useCases: 'Use Cases', ucIndex: 'Overview', ucIncoming: 'Incoming PDF Audit',
@@ -105,6 +107,7 @@ const en = {
 
 const ja = {
   guide: 'ガイド', overview: 'PDF Agent Stack とは', architecture: '全体構成と責務',
+  aiAndPdf: 'AI が PDF を読むときに落とすもの',
   gettingStarted: '導入手順', agents: '専門エージェント構築',
   mcp: 'MCP サーバー', mcpIndex: '一覧', skillsIndex: '一覧',
   useCases: 'ユースケース', ucIndex: '一覧', ucIncoming: '受入監査',

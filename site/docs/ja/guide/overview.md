@@ -11,7 +11,7 @@ PDF Agent Stack は、AI エージェントに PDF の「読む・検証する�
 | 種別  | 名前                                  | 役割                                                                   | 配布                                                                                                                       |
 | ----- | ------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | MCP   | [pdf-spec-mcp](/ja/mcp/pdf-spec)      | PDF 仕様を参照する（ISO 32000 ほか 17 文書）                            | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-spec-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-spec-mcp)     |
-| MCP   | [pdf-reader-mcp](/ja/mcp/pdf-reader)  | PDF の内部状態を観測する（観測 19 ツール）                              | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-reader-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-reader-mcp) |
+| MCP   | [pdf-reader-mcp](/ja/mcp/pdf-reader)  | PDF の内部状態を観測する（観測 20 ツール）                              | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-reader-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-reader-mcp) |
 | MCP   | [pdf-verify-mcp](/ja/mcp/pdf-verify)  | 真正性・準拠性を検証する（判定 7 ツール）                              | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-verify-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-verify-mcp) |
 | MCP   | [pdf-writer-mcp](/ja/mcp/pdf-writer)  | 仕様に沿って PDF を生成する（生成・編集 20 ツール）                    | [npm](https://www.npmjs.com/package/@shuji-bonji/pdf-writer-mcp) · [GitHub](https://github.com/shuji-bonji/pdf-writer-mcp) |
 | Skill | [pdf-trust](/ja/skills/pdf-trust)     | 受領した PDF を精査し、信頼性を確認する（Trust Report）                  | [GitHub](https://github.com/shuji-bonji/pdf-trust-skill)                                                                   |
@@ -24,7 +24,7 @@ PDF Agent Stack は、AI エージェントに PDF の「読む・検証する�
 - [normativepdf](https://github.com/shuji-bonji/normativepdf) — pdf-writer が PDF を書くときに通すライブラリ。振る舞いを ISO 32000 の条項に紐づけてあります
 
 ::: info 構成と責務について
-これらがどう繋がって動くか。詳しくは [全体構成と責務](/ja/guide/architecture) を参照してください。
+これらがどう繋がって動くか。詳しくは [全体構成と責務](/ja/guide/architecture) を参照してください。PDF を Markdown に変換せず MCP で構造を読む理由は、PDF Association の FAQ に照らした [AI が PDF を読むときに落とすもの](/ja/guide/ai-and-pdf) にまとめています。
 :::
 
 エージェントは MCP を直接呼んでもよいですし、Skill に編成を任せてもかまいません。Skill を入れると、複数 MCP の**呼び出し順序・判定の読み方・レポート形式**が定型化されます。

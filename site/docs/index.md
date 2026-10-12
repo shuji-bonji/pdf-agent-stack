@@ -22,7 +22,7 @@ features:
     details: Specification reference over ISO 32000 and 16 more documents. Answers what the spec requires. Never opens the PDF under examination.
     link: /mcp/pdf-spec
   - title: pdf-reader-mcp (fact)
-    details: 19 tools that observe what is inside a PDF — text, tables, structure tree, signature fields. Never passes judgment.
+    details: 20 tools that observe what is inside a PDF — text, tables, structure tree, signature fields. Never passes judgment.
     link: /mcp/pdf-reader
   - title: pdf-verify-mcp (judgment)
     details: Cryptographic signature verification, tamper detection, PAdES level, PDF/A & PDF/UA validation, deterministic policy verdicts.

@@ -1,5 +1,5 @@
 ---
-description: The MCP that observes what is inside a PDF and where it is (19 tools) — text, tables, tags, fonts, signature fields, bboxes. Observation, never judgment
+description: The MCP that observes what is inside a PDF and where it is (20 tools) — text, tables, tags, fonts, signature fields, bboxes. Observation, never judgment
 ---
 
 # pdf-reader-mcp
@@ -114,6 +114,7 @@ Parameters, types and defaults are in the [tools reference](/reference/mcp/pdf-r
 | 2 | [`extract_structured_text`](/reference/mcp/pdf-reader#extract-structured-text) | Text in logical content order (tagged PDFs) |
 | 2 | [`extract_tables`](/reference/mcp/pdf-reader#extract-tables) | Structured extraction of `<Table>` subtrees |
 | 2 | [`inspect_structure`](/reference/mcp/pdf-reader#inspect-structure) | Internal object structure |
+| 2 | [`inspect_catalog`](/reference/mcp/pdf-reader#inspect-catalog) | Document-level inventory from the catalog (bookmarks, layers, attachments, XMP declarations, OpenAction) |
 | 2 | [`inspect_tags`](/reference/mcp/pdf-reader#inspect-tags) | Observation of the structure tree |
 | 2 | [`inspect_fonts`](/reference/mcp/pdf-reader#inspect-fonts) | Fonts and embedding status |
 | 2 | [`inspect_annotations`](/reference/mcp/pdf-reader#inspect-annotations) | Annotation classification and inventory |

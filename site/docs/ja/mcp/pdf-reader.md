@@ -1,5 +1,5 @@
 ---
-description: PDF の中身と位置を観測する MCP（19 ツール） — テキスト・表・タグ・フォント・署名フィールド・bbox。観測であり判定ではない
+description: PDF の中身と位置を観測する MCP（20 ツール） — テキスト・表・タグ・フォント・署名フィールド・bbox。観測であり判定ではない
 ---
 
 # pdf-reader-mcp
@@ -120,6 +120,7 @@ pdf-verify の `verify_integrity` が返したオブジェクト番号を `locat
 | 2    | [`extract_structured_text`](/ja/reference/mcp/pdf-reader#extract-structured-text) | 論理コンテンツ順のテキスト（タグ付き PDF）                           |
 | 2    | [`extract_tables`](/ja/reference/mcp/pdf-reader#extract-tables)                   | `<Table>` サブツリーの構造化抽出                                     |
 | 2    | [`inspect_structure`](/ja/reference/mcp/pdf-reader#inspect-structure)             | 内部オブジェクト構造                                                 |
+| 2    | [`inspect_catalog`](/ja/reference/mcp/pdf-reader#inspect-catalog)                 | カタログ直下の目録（ブックマーク・レイヤー・添付・XMP 宣言・OpenAction） |
 | 2    | [`inspect_tags`](/ja/reference/mcp/pdf-reader#inspect-tags)                       | タグ構造ツリーの観測                                                 |
 | 2    | [`inspect_fonts`](/ja/reference/mcp/pdf-reader#inspect-fonts)                     | フォントと埋め込み状況                                               |
 | 2    | [`inspect_annotations`](/ja/reference/mcp/pdf-reader#inspect-annotations)         | 注釈の分類・棚卸し                                                   |

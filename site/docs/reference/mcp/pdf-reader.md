@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-reader-mcp v0.16.0 — parameters, types, defaults and returns of all 19 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-reader-mcp v0.16.0 — parameters, types, defaults and returns of all 20 tools, generated from the server's tools/list."
 ---
 
 # pdf-reader-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-reader-mcp v0.16.0 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.16.0** (19 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.16.0** (20 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-reader).
@@ -25,6 +25,7 @@ Auto-generated from the `tools/list` handshake of **v0.16.0** (19 tools). Do not
 | [`render_page`](#render-page) | Rasterise pages of a PDF to PNG or JPEG images, returned as MCP image content blocks. |
 | [`summarize`](#summarize) | Generate a quick overview report of a PDF document. |
 | [`inspect_structure`](#inspect-structure) | Examine PDF internal object structure including catalog entries, page tree, and object statistics. |
+| [`inspect_catalog`](#inspect-catalog) | List the document-level components hanging off the catalog dictionary (ISO 32000-2 §7.7.2, Table 29) — the parts of a PDF that are not page content and that page-oriented readers drop: bookmarks, layers, attachments, the XMP packet, and the actions that run when the document is opened. |
 | [`inspect_tags`](#inspect-tags) | Analyze the Tagged PDF structure tree for accessibility assessment. |
 | [`inspect_fonts`](#inspect-fonts) | List all fonts used in a PDF document with their properties. |
 | [`inspect_annotations`](#inspect-annotations) | Extract and categorize all annotations in a PDF document. |
@@ -397,7 +398,7 @@ Combines metadata, text presence check, image count, and a text preview from the
 
 Summary including: page count, PDF version, file size, tagged/encrypted/signature flags, text presence, per-document text extractability, the pages that are not fully extractable, image count, a text preview from page 1, and the `next` suggestions.
 
-Four separate readings produce that summary — the document information, the text of page 1, the image count, and the extractability observation — and any of them can fail on its own. `scope` says which were done. A field whose reading did not happen is `null`, never `0`, `false` or `""`: "not read" and "read and found nothing" are different answers, and `next` stays silent about any premise that was not observed.
+Five separate readings produce that summary — the document information, the text of page 1, the image count, the extractability observation, and the XMP declarations — and any of them can fail on its own. `scope` says which were done. A field whose reading did not happen is `null`, never `0`, `false` or `""`: "not read" and "read and found nothing" are different answers, and `next` stays silent about any premise that was not observed.
 
 Examples:
 - Quick overview: { file_path: "/path/to/doc.pdf" }
@@ -519,6 +520,21 @@ Examples:
 
 `unreadable: 0` means "every object was read", not "nothing was checked".
 :::
+
+## inspect_catalog
+
+**Inspect PDF Catalog**
+
+List the document-level components hanging off the catalog dictionary (ISO 32000-2 §7.7.2, Table 29) — the parts of a PDF that are not page content and that page-oriented readers drop: bookmarks, layers, attachments, the XMP packet, and the actions that run when the document is opened.
+
+### Parameters
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `file_path` | string (minLength 1) | **yes** |  | Absolute path to a local PDF file (e.g., "/path/to/document.pdf") |
+| `max_outline_items` | integer (1–500) | no | `50` | How many outline (bookmark) items to list. The count and depth are always computed over the whole tree. |
+| `include_xmp` | boolean | no | `false` | Return the XMP packet text itself (capped at 64 KiB). Off by default: the declared values are extracted either way. |
+| `response_format` | `"markdown"` \| `"json"` | no | `"markdown"` | Output format: "markdown" for human-readable, "json" for structured data |
 
 ## inspect_tags
 
