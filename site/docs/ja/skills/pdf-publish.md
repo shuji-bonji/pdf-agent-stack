@@ -1,10 +1,10 @@
 ---
-description: write → read-back → verify の品質ゲートを回し Publish Report 付きで納品する出口ゲートの Skill
+description: pdf-writer で書き、pdf-reader で読み戻し、pdf-verify（veraPDF）で採点する品質ゲートを通してから Publish Report 付きで納品する Skill
 ---
 
 # pdf-publish — 納品パイプライン
 
-PDF の生成・編集から納品までを品質ゲート付きで編成する Skill です。pdf-writer で書き、pdf-reader で読み戻し、pdf-verify（veraPDF）で機械採点する **write → read-back → verify ループ**を回し、**Publish Report** 付きで納品します。
+PDF の生成・編集から納品までを、品質ゲートを通して行う Skill です。pdf-writer で書き、pdf-reader で読み戻し、pdf-verify（veraPDF）で機械採点する **write → read-back → verify ループ**を回し、**Publish Report** 付きで納品します。
 
 ```mermaid
 graph LR

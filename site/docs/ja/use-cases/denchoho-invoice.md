@@ -23,7 +23,7 @@ veraPDF の判定を Publish Report に書きます。「10 年残せる」を P
 
 | 役者 | 役割 |
 |---|---|
-| [pdf-publish Skill](/ja/skills/pdf-publish) | write → read-back → verify の編成。Publish Report |
+| [pdf-publish Skill](/ja/skills/pdf-publish) | write → read-back → verify の手順。Publish Report |
 | [pdf-writer](/ja/mcp/pdf-writer) | `create_markdown_pdf`（tagged）→ `attach_file`（CSV、relationship: Data）→ `ensure_pdfa`（pdfa-3b、**必ず最後**） |
 | [pdf-reader](/ja/mcp/pdf-reader) | `inspect_structure` で catalog の `AF` / `Names` を読み戻す |
 | [pdf-verify](/ja/mcp/pdf-verify) | `identify_conformance`（宣言）→ `validate_conformance`（veraPDF の採点） |
@@ -64,7 +64,7 @@ sequenceDiagram
 |---|---|---|
 | 1 | `create_markdown_pdf`（tagged、fontPath 指定） | pageCount 1 |
 | 2 | `attach_file`（`relationship: "Data"`） | `text/csv`、151 バイト |
-| 3 | `ensure_pdfa`（pdfa-3b、最後） | warning: **CLAIMS PDF/A-3b … conformance was NOT checked**。flavour は 3b のまま（1b に落ちていない） |
+| 3 | `ensure_pdfa`（pdfa-3b、最後） | warning: **CLAIMS PDF/A-3b … conformance was NOT checked**。flavour は 3b のまま（1b に下がっていない） |
 | 4 | `inspect_structure` | catalog に `Names`（dict）、`AF`（Array[1]）。`EmbeddedFile` 1、`Filespec` 1 |
 | 5 | `identify_conformance` | 宣言は PDF/A part 3 conformance B、PDF/UA part 1（宣言であって合否ではない） |
 | 6 | `validate_conformance`（pdfa-3b） | engine `verapdf`、`compliant: true`、146/146 |

@@ -16,7 +16,7 @@ writer の正常終了は「要求どおり出力された」の証拠にしま�
 
 | 役者 | 役割 |
 |---|---|
-| [pdf-publish Skill](/ja/skills/pdf-publish) | 手順の編成・warnings の転記・Publish Report |
+| [pdf-publish Skill](/ja/skills/pdf-publish) | 呼び出し順の決定・warnings の転記・Publish Report |
 | [pdf-writer](/ja/mcp/pdf-writer)（必須） | 生成・添付・器付け（`ensure_pdfa`） |
 | [pdf-reader](/ja/mcp/pdf-reader)（推奨） | 読み戻し観測（合否は言わない） |
 | [pdf-verify](/ja/mcp/pdf-verify)（conformance 水準で必須） | `validate_conformance`（veraPDF 委譲） |
@@ -97,7 +97,7 @@ sequenceDiagram
   conformance 水準の判定は保留し veraPDF を入れてください
 - 機械検証は alt テキストや読み順の**意味的**な適切さまでは判定できません。人手レビューの残る範囲を
   Report に明記してください
-- 修正ループは上限 3 回・同じ違反が 2 回続いたら即人手へ（[打ち切り条件](/ja/skills/pdf-publish#ループ打ち切り条件)）
+- 修正ループは上限 3 回・同じ違反が 2 回続いたら即人手へ（[打ち切り条件](/ja/skills/pdf-publish#ループ打ち切り条件)）
 
 ## 別ホストでの再走（2026-09-15、Grok Build 1.0.30）
 

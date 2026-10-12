@@ -19,7 +19,7 @@ description: アクセシビリティ (PDF/UA) — タグ付き生成から vera
 | [pdf-writer](/ja/mcp/pdf-writer) | `tagged: true` での生成・`tag_form_fields`・`ensure_tagged`（宣言のみ） |
 | [pdf-verify](/ja/mcp/pdf-verify) | `validate_conformance(pdfua-1)` — veraPDF 委譲・条文 ID 付き違反 |
 | [pdf-reader](/ja/mcp/pdf-reader) | `inspect_tags`（構造木）・`extract_structured_text`（論理順の本文） |
-| [pdf-publish Skill](/ja/skills/pdf-publish) | 生成側の編成（`tagged` 指定時はゲート `pdfua-1` が既定） |
+| [pdf-publish Skill](/ja/skills/pdf-publish) | 生成から採点までの手順（`tagged` 指定時は品質ゲート `pdfua-1` が既定） |
 
 ## シーケンス図
 

@@ -30,8 +30,8 @@ PDF Agent Stack はこの 3 つをしません。pdf-reader-mcp はファイル�
 | 2 | Tagged PDF の構造ツリー（読み順・表・代替テキスト・言語）を先に使い、推論は後回しにする | `extract_structured_text` / `extract_tables` / `inspect_tags`。pdf-read Skill はタグ付き文書ではまず `extract_structured_text` で読みます |
 | 3 | XMP の PDF/UA 宣言を「タグ構造を信頼してよい合図」として使う | `summarize` が `declaredConformance.pdfuaid` を読み、宣言があれば `extract_structured_text` で読むことを先に勧めます。宣言と実態の照合は pdf-verify-mcp の `validate_conformance` です |
 | 4 | W3C TDMRep など権利表明メタデータを読み、著者の意思を尊重する | `inspect_catalog` と `summarize` が `tdm:reservation` / `tdm:policy` を書いてあるとおりに返します。従うかどうかの判断は呼び出し側に残します |
-| 5 | born-digital の文書はテキスト抽出、OCR は最後の手段 | `read_text` がページごとに `extracted` / `no_text_layer` / `not_extractable` / `not_observed` を申告します。空の結果を「文字が無い」とは読みません |
-| 6 | Markdown / HTML への事前変換をしない | 変換の経路がありません。各ツールが構造を保った JSON を返します |
+| 5 | born-digital の文書はテキスト抽出、OCR は最後の手段 | `read_text` がページごとに `extracted` / `no_text_layer` / `not_extractable` / `not_observed` のどれかを返します。空の結果を「文字が無い」とは読みません |
+| 6 | Markdown / HTML への事前変換をしない | 変換するツールがありません。各ツールが構造を保った JSON を返します |
 | 7 | ページ単位で切らない。出典のページ参照は保つ | `extract_tables` はページをまたぐ表を 1 つとして返します。pdf-read Skill は `search_text` で絞ったページの前後 1 ページを加えて読みます |
 | 8 | 注釈を種類ごとの意味で扱う。黒塗り（Redact）注釈が残っていれば黒塗りは未完了 | `inspect_annotations` が Subtype ごとに数えます。pdf-verify-mcp v0.30.0 の `evaluate_policy` は Redact 注釈が残っていると `POL-CAUTION-REDACT-PENDING` を `firedRules` に含め、[pdf-trust](/ja/skills/pdf-trust) が推奨アクションを書きます |
 | 9 | 破損した PDF から回復できるものは回復する。処理系ごとに回復結果が違うことに注意 | `@normativepdf/recover` が相互参照表を組み直して読みます。組み直したときは、すべての判定の先頭に `scope.reconstructed: true` が付きます |

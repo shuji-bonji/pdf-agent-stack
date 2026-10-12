@@ -16,7 +16,7 @@ description: 一括監査 — 複数 PDF に evaluate_policy を回して決定�
 
 | 役者 | 役割 |
 |---|---|
-| [pdf-trust Skill](/ja/skills/pdf-trust) | 一括の編成・サマリ表・個票は問題ファイルのみ |
+| [pdf-trust Skill](/ja/skills/pdf-trust) | 複数ファイルを順に監査する手順・サマリ表・個票は問題ファイルのみ |
 | [pdf-verify](/ja/mcp/pdf-verify) | `evaluate_policy` を全件に適用（決定論的 = 再現可能） |
 
 ## シーケンス図
@@ -48,7 +48,7 @@ sequenceDiagram
 
 | 検体 | プロファイル | 判定 |
 |---|---|---|
-| `selfmade-pades-crl.pdf` + `selfmade-ca2.pem` | general | `trust_and_use`（発火ルールなし。失効 `good`、構造は B-LTA） |
+| `selfmade-pades-crl.pdf` + `selfmade-ca2.pem` | general | `trust_and_use`（該当ルールなし。失効 `good`、構造は B-LTA） |
 | `kanpo-20260810-h01765-p1.pdf` | government | `use_with_caution` |
 | `selfmade-pades-lta.pdf` + `selfmade-ca.pem` | general | `use_with_caution`（`POL-CAUTION-REVOCATION-UNKNOWN`。構造は B-T） |
 | `publish-demo-invoice.pdf`（未署名） | contract | `human_review_required`（`POL-REVIEW-UNSIGNED-REQUIRED`） |

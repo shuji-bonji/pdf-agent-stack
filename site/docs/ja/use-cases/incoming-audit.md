@@ -17,9 +17,9 @@ pdf-verify の決定論的ルールエンジン（`evaluate_policy`）が下し�
 
 | 役者 | 役割 |
 |---|---|
-| [pdf-trust Skill](/ja/skills/pdf-trust) | 手順の編成・firedRules の解説・推奨アクション。**判定はしない** |
+| [pdf-trust Skill](/ja/skills/pdf-trust) | 呼び出し順の決定・firedRules の解説・推奨アクション。**判定はしない** |
 | [pdf-verify](/ja/mcp/pdf-verify)（必須） | `evaluate_policy`（4 値判定）・署名検証・改ざん検知・PAdES 観測 |
-| [pdf-reader](/ja/mcp/pdf-reader)（任意） | `locate_objects` — 変更されたオブジェクトを「ページ + 矩形」に落とす |
+| [pdf-reader](/ja/mcp/pdf-reader)（任意） | `locate_objects` — 変更されたオブジェクトを「ページ + 矩形」に変換する |
 | houki 系 MCP（任意） | プロファイルが指定する法令根拠の原文取得 |
 
 ## シーケンス図
@@ -53,9 +53,9 @@ sequenceDiagram
 
 ## 実測例 — インターネット官報（profile: government）
 
-`evaluate_policy` の判定は **use_with_caution** です。発火したのは 2 ルールです。
+`evaluate_policy` の判定は **use_with_caution** です。該当したのは 2 ルールです。
 
-| 発火ルール | 意味 |
+| 該当ルール | 意味 |
 |---|---|
 | POL-CAUTION-TRUST-NOT-EVALUATED | 暗号学的完全性は確認。**署名者の身元は未評価**（trust_anchors 未指定） |
 | POL-CAUTION-REVOCATION-UNKNOWN | 失効情報が文書内に無く「失効していない」とは言えない |

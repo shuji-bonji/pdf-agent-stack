@@ -1,5 +1,5 @@
 ---
-description: 受け取った PDF の信頼性監査を編成する Skill — evaluate_policy の 4 値判定を軸に Trust Report を返す入口ゲート
+description: 受け取った PDF の信頼性監査を行う Skill — evaluate_policy の 4 値判定を軸に Trust Report を返す Skill
 ---
 
 # pdf-trust — 受入監査
@@ -11,7 +11,7 @@ description: 受け取った PDF の信頼性監査を編成する Skill — eva
 1. 内容の真偽は判定しません — 判定するのは真正性（原本性・完全性）のみです
 2. 検証結果は技術的事実として返し、最終判断は利用者に委ねます
 3. 判定の根拠（どのツールの何の結果か）を必ず明示します
-4. **ジャッジはコード、ナラティブは LLM** — 4 値判定は pdf-verify の `evaluate_policy` が下します。Skill の仕事は firedRules の解説・推奨アクション・法令根拠の引用であり、判定の上書きではありません
+4. **判定はコードが返し、LLM は説明文だけを書く** — 4 値判定は pdf-verify の `evaluate_policy` が返します。Skill の仕事は firedRules の解説・推奨アクション・法令根拠の引用であり、判定の上書きではありません
 
 ## 4 値判定
 
@@ -39,7 +39,7 @@ v0.7.0 が下限なのは、そこで初めて `evaluate_policy` が入るから
 |---|---|
 | 0 | 目的の確認とプロファイルの選定 |
 | 1 | `evaluate_policy` で全ファイルを一括判定（4 値） |
-| 2 | 発火したルールの解釈・深掘り |
+| 2 | 該当したルール（`firedRules`）の解釈・深掘り |
 | 2.5 | 署名後の変更の特定 — 「何バイト増えた」を「何が・どのページのどこに書かれたか」まで下ろす |
 | 3 | プロファイル別チェック（PDF/A・PDF/UA・長期保存など） |
 | 4 | 法令根拠の取得（プロファイル指定時） |
@@ -60,7 +60,7 @@ v0.7.0 が下限なのは、そこで初めて `evaluate_policy` が入るから
 
 ## 実測例 — 4 値判定（2026-08-11・すべて実在検体）
 
-| 検体 | プロファイル | 判定 | 発火ルール |
+| 検体 | プロファイル | 判定 | 該当ルール |
 |---|---|---|---|
 | 自作 CA 署名 + **CRL を DSS に同梱** + trust_anchors 指定 | general | `trust_and_use` | なし（valid + trusted + revocation good） |
 | インターネット官報 2026-08-10 号本紙（内閣府署名 + AMANO タイムスタンプ） | government | `use_with_caution` | TRUST-NOT-EVALUATED / REVOCATION-UNKNOWN |
@@ -105,5 +105,5 @@ evaluate_policy の判定に加え、Phase 2.5（verify_integrity + locate_objec
 
 - pdf-verify 未接続 → 監査は成立しません。接続を案内して停止します
 - 旧 verify（v0.7.0 未満・evaluate_policy なし）→ 手動判定表にフォールバックし、レポートに「手動判定」と明記します
-- 任意 MCP の欠落 → 該当項目を「未実施（ツール未接続）」と明記します。黙って項目を落とすと「チェック済みで問題なし」と誤読されます
+- 任意 MCP の欠落 → 該当項目を「未実施（ツール未接続）」と明記します。項目を書かずに省くと「チェック済みで問題なし」と誤読されます
 - 測れなかった検査（例: 暗号化 PDF の PDF/A を veraPDF が採点できない）→ 未実施として記録します。判定不能は無罪ではありません

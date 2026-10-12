@@ -18,7 +18,7 @@ description: 長期保存 (PDF/A) — 作る側は attach_file → ensure_pdfa �
 |---|---|
 | [pdf-writer](/ja/mcp/pdf-writer) | `attach_file`（機械可読データ同梱）→ `ensure_pdfa`（器付け・**ラベルを書くだけ**） |
 | [pdf-verify](/ja/mcp/pdf-verify) | `validate_conformance`（veraPDF 委譲）・`detect_pades_level`（LTV 構造の観測） |
-| [pdf-trust](/ja/skills/pdf-trust) / [pdf-publish](/ja/skills/pdf-publish) | 受入側 / 送り出し側の編成 |
+| [pdf-trust](/ja/skills/pdf-trust) / [pdf-publish](/ja/skills/pdf-publish) | 受け取る側 / 納品する側の手順 |
 
 ## シーケンス図
 
@@ -114,8 +114,8 @@ sequenceDiagram
 | 3 | `identify_conformance` | 宣言は `pdfA: { part: "3", conformance: "B" }`。notes: identifies declared conformance only |
 | 4 | `validate_conformance`（pdfa-3b） | engine `verapdf`、**`compliant: false`**、145/146。違反は `ISO 19005-3:2012 6.2.11.4.1-1`（フォント未埋め込み） |
 
-ステップ 3 の直後の要約は「ファイルは PDF/A-3b を名乗っている。ensure_pdfa は /ID・OutputIntent・XMP pdfaid を足しただけで、適合は見ていない」でした。
-「PDF/A になった」とは書いていません。正しい報告文は 3 文です: **名乗っている**（identify）／ **veraPDF の判定は**非 COMPLIANT、145/146、6.2.11.4.1-1（validate）／ **warning は** CLAIMS … NOT checked（ensure_pdfa）。
+ステップ 3 の直後の要約は「ファイルの XMP には PDF/A-3b の宣言がある。ensure_pdfa は /ID・OutputIntent・XMP pdfaid を足しただけで、適合は見ていない」でした。
+「PDF/A になった」とは書いていません。正しい報告文は 3 文です: **XMP に宣言がある**（identify）／ **veraPDF の判定は**非 COMPLIANT、145/146、6.2.11.4.1-1（validate）／ **warning は** CLAIMS … NOT checked（ensure_pdfa）。
 
 報告書の全文: [eval/hosts/grok-build/reports/UC09.md](https://github.com/shuji-bonji/pdf-agent-stack/blob/main/eval/hosts/grok-build/reports/UC09.md)
 

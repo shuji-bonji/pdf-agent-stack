@@ -130,7 +130,7 @@ env = { PDF_SPEC_DIR = "/absolute/path/to/pdf-specs" }
 
 ## Step 6 — Skill の導入
 
-[pdf-trust](/ja/skills/pdf-trust)（受入監査）・[pdf-publish](/ja/skills/pdf-publish)（納品）・[pdf-read](/ja/skills/pdf-read)（読み取り）を Skill として追加すると、複数 MCP の編成が定型化されます。
+[pdf-trust](/ja/skills/pdf-trust)（受入監査）・[pdf-publish](/ja/skills/pdf-publish)（納品）・[pdf-read](/ja/skills/pdf-read)（読み取り）を Skill として追加すると、複数の MCP をどの順に呼び、判定をどう読み、どの形式のレポートにまとめるかが決まります。
 
 - pdf-trust は pdf-verify が**必須**。`evaluate_policy` を使うので最低 v0.7.0+、**v0.29.0+ 推奨**（v0.21.0 で `verify_signatures` / `detect_pades_level` の JSON 最上位が配列から辞書に変わり、v0.27.0〜v0.28.0 で失効と検証時刻の判定が変わり、v0.29.0 で JSON を文字数で切らなくなった）
 - pdf-publish は pdf-writer が必須。品質ゲート水準 `conformance` では pdf-verify も必須（`scope` が入った **v0.20.0+ 推奨**）

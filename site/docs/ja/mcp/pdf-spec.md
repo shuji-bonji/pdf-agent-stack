@@ -39,8 +39,8 @@ graph LR
   VERIFY[["pdf-verify-mcp<br>判定"]]
   WRITER[["pdf-writer-mcp<br>生成"]]
 
-  TRUST{{"pdf-trust<br>受入監査"}} -.->|編成| SPEC & VERIFY & READER
-  PUBLISH{{"pdf-publish<br>納品パイプライン"}} -.->|編成| SPEC & VERIFY & WRITER
+  TRUST{{"pdf-trust<br>受入監査"}} -.->|呼ぶ| SPEC & VERIFY & READER
+  PUBLISH{{"pdf-publish<br>納品パイプライン"}} -.->|呼ぶ| SPEC & VERIFY & WRITER
 ```
 
 図中の形は要素の種別を表します（→ [図の読み方](/ja/reference/glossary#図の読み方-形の凡例)）  

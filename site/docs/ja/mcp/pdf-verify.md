@@ -1,5 +1,5 @@
 ---
-description: 真正性・準拠性を判定する MCP（7 ツール） — 署名検証・改ざん検知・PAdES 観測・PDF/A / PDF/UA 検証・条文検査・決定論的 4 値判定。規格破りは見つけられるが、規格どおりであることは証明しない
+description: 真正性・準拠性を判定する MCP（7 ツール） — 署名検証・改ざん検知・PAdES 観測・PDF/A / PDF/UA 検証・条文検査・決定論的 4 値判定。条文に反する箇所は見つけられるが、規格どおりであることは証明しない
 ---
 
 # pdf-verify-mcp
@@ -25,7 +25,7 @@ description: 真正性・準拠性を判定する MCP（7 ツール） — 署�
 | PDF/UA（アクセシビリティ）に適合しているか | ISO 14289。veraPDF 委譲、または内蔵 12 ルール                                                       | `validate_conformance`                      | T1                                                           |
 | PDF/A（長期保存）に適合しているか          | ISO 19005。veraPDF 委譲、または内蔵 15 ルール                                                       | `validate_conformance`                      | T2                                                           |
 | 長期保存の構造を備えているか               | PAdES B-B / B-T / B-LT / B-LTA 相当の構造                                                           | `detect_pades_level`                        | T3（観測のみ）                                               |
-| PDF/A・PDF/UA を**名乗っている**か         | XMP の pdfaid / pdfuaid 宣言                                                                        | `identify_conformance`                      | 宣言の読取                                                   |
+| PDF/A・PDF/UA の**宣言が XMP にある**か   | XMP の pdfaid / pdfuaid 宣言                                                                        | `identify_conformance`                      | 宣言の読取                                                   |
 | 業務に載せてよいか                         | 上記の事実を固定ルールに当てはめて集約した 4 値判定                                                 | `evaluate_policy`                           | 事実の集約                                                   |
 
 ## Skill 連携でできること
@@ -46,8 +46,8 @@ graph LR
   READER -->|ページ + 矩形| WRITER[["pdf-writer-mcp<br>生成"]]
   SPEC[["pdf-spec-mcp<br>正典"]]
 
-  TRUST{{"pdf-trust<br>受入監査"}} -.->|編成| VERIFY & READER & SPEC
-  PUBLISH{{"pdf-publish<br>納品"}} -.->|編成| WRITER & READER & VERIFY
+  TRUST{{"pdf-trust<br>受入監査"}} -.->|呼ぶ| VERIFY & READER & SPEC
+  PUBLISH{{"pdf-publish<br>納品"}} -.->|呼ぶ| WRITER & READER & VERIFY
 ```
 
 図中の形は要素の種別を表します（→ [図の読み方](/ja/reference/glossary#図の読み方-形の凡例)）。
@@ -55,7 +55,7 @@ graph LR
 | Skill                                 | このサーバーの役割                                                                                        | 必須か                       |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------- |
 | [pdf-trust](/ja/skills/pdf-trust)     | 監査の軸。4 値判定は `evaluate_policy` が下し、Skill は firedRules の解説・推奨アクション・法令根拠を担う | **必須**（v0.7.0+、**v0.21.0+ 推奨**） |
-| [pdf-publish](/ja/skills/pdf-publish) | 出口ゲート。書いた PDF を veraPDF で機械採点する。`conformance` 水準では未接続なら中止                    | **必須**（conformance 水準） |
+| [pdf-publish](/ja/skills/pdf-publish) | 書いた PDF を veraPDF で採点し、通らなければ納品しない（品質ゲート）。`conformance` 水準では未接続なら中止                    | **必須**（conformance 水準） |
 
 ::: warning 判定はプログラム、文章生成はAI（LLM）が行います
 結果に含まれる firedRules（適用されたルール）や advisories（助言）は、あくまで「結果の理由を説明するため」のものであり、判定そのものを上書きするために使うものではありません。  
@@ -119,7 +119,7 @@ graph LR
 | [`verify_signatures`](/ja/reference/mcp/pdf-verify#verify-signatures)       | 電子署名の暗号学的検証（チェーン・失効・タイムスタンプ） |
 | [`verify_integrity`](/ja/reference/mcp/pdf-verify#verify-integrity)         | 署名後の変更の分析（増分更新・カバレッジ・DocMDP）       |
 | [`detect_pades_level`](/ja/reference/mcp/pdf-verify#detect-pades-level)     | PAdES B-B / B-T / B-LT / B-LTA 相当構造の**観測**        |
-| [`identify_conformance`](/ja/reference/mcp/pdf-verify#identify-conformance) | XMP 宣言（pdfaid / pdfuaid）の読取 — 判定の入口          |
+| [`identify_conformance`](/ja/reference/mcp/pdf-verify#identify-conformance) | XMP 宣言（pdfaid / pdfuaid）の読取 — どの規格で検証するかを決める最初の 1 手          |
 | [`validate_conformance`](/ja/reference/mcp/pdf-verify#validate-conformance) | PDF/A / PDF/UA 検証。veraPDF 委譲 or 内蔵ルール          |
 | [`validate_clauses`](/ja/reference/mcp/pdf-verify#validate-clauses)         | ISO 32000 **本体条文**の制約検査（veraPDF が見ない領域） |
 | [`evaluate_policy`](/ja/reference/mcp/pdf-verify#evaluate-policy)           | 事実からの決定論的 4 値判定                              |
@@ -213,7 +213,7 @@ v0.10.0 からは、リビジョン単位に加えて、署名のあとにどの
 いずれも、実測を見て対処済みです。
 :::
 
-### 名乗っていることと、測った結果は別です
+### XMP に書いてある宣言と、測った結果は別です
 
 `identify_conformance` は、XMP に「私は PDF/A です」と書いてあるかを**読むだけ**です。書いてあることは証拠になりません。ルールで測るのは `validate_conformance` です。
 
@@ -227,8 +227,8 @@ v0.10.0 からは、リビジョン単位に加えて、署名のあとにどの
 
 | 状態 | 意味 |
 | --- | --- |
-| `pass` | この制約では、規格破りは見つからなかった |
-| `fail` | 規格破りが見つかった。根拠となる事実と実測値が付く |
+| `pass` | この制約では、条文に反する箇所は見つからなかった |
+| `fail` | 条文に反する箇所が見つかった。根拠となる事実と実測値が付く |
 | `not_applicable` | この文書には、その条文が当たらない |
 | `needs_external_fact` | ファイルの外の事実が無く、判定しなかった（pass にはしません） |
 
@@ -253,7 +253,7 @@ B-LT と B-LTA は、DSS の失効データが署名者証明書を実際に覆�
 
 `profile` は次から選びます。`general` / `contract`（署名必須、本人性を重視）/ `financial` と `government`（長期保存の検査）/ `legal` / `medical`（いちばん保守的。caution が review に上がる）。
 
-返るのは `verdict`、`firedRules`（発火したルールの ID と理由）、`advisories`（判定を動かさない推奨）、事実の要約です。この判定を軸に監査全体を組むのが [pdf-trust Skill](/ja/skills/pdf-trust) です。
+返るのは `verdict`、`firedRules`（該当したルールの ID と理由）、`advisories`（判定を動かさない推奨）、事実の要約です。この判定を軸に監査全体を組むのが [pdf-trust Skill](/ja/skills/pdf-trust) です。
 
 #### 3 値のシートに写すとき
 
@@ -270,4 +270,4 @@ B-LT と B-LTA は、DSS の失効データが署名者証明書を実際に覆�
 
 ## 言い切り強度
 
-判定の強さは規範文書の有無で変わります → [T1/T2/T3 ルール](/ja/guide/architecture#言い切り強度-t1-t2-t3)。ETSI PAdES（T3）は構造の観測のみ、PDF/A（T2）は「veraPDF がこう判定した」まで、ISO 32000 / PDF/UA（T1）は条文を引いて言い切れます。
+「準拠している」と断定できるか、検証器の判定文を引くだけにとどめるかは、規格の原文が手元にあるかで変わります → [T1/T2/T3 ルール](/ja/guide/architecture#言い切り強度-t1-t2-t3)。ETSI PAdES（T3）は構造の観測のみ、PDF/A（T2）は「veraPDF がこう判定した」まで、ISO 32000 / PDF/UA（T1）は条文を引いて言い切れます。

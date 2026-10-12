@@ -1,5 +1,5 @@
 ---
-description: PDF 専門エージェント構築の 3 レベル — MCP 接続・Skill 編成・専門サブエージェント定義、ローカル LLM 適用時の注意
+description: PDF 専門エージェント構築の 3 レベル — MCP 接続・Skill の追加・専門サブエージェント定義、ローカル LLM 適用時の注意
 ---
 
 # 専門エージェントの構築方法
@@ -8,9 +8,9 @@ PDF Agent Stack を「PDF 専門エージェント」として組むには、次
 
 ## Lv1 — MCP を繋ぐだけ
 
-4 サーバーを登録すると、各サーバーの **MCP instructions**（責務境界の宣言）がホストに渡ります。pdf-reader-mcp は「観測であり判定ではない」、pdf-verify-mcp は「規格破りは見つけられるが、規格どおりであることは証明しない」、pdf-writer-mcp は「ラベルは書けるが、規格どおりにはできない」と宣言します。大型モデルは、この MCP instructions を読んで境界の内側に留まりやすいです。登録しただけで呼び出し順まで固定されるわけではありません。
+4 サーバーを登録すると、各サーバーの **MCP instructions**（責務境界の宣言）がホストに渡ります。pdf-reader-mcp は「観測であり判定ではない」、pdf-verify-mcp は「条文に反する箇所は見つけられるが、規格どおりであることは証明しない」、pdf-writer-mcp は「ラベルは書けるが、規格どおりにはできない」と宣言します。大型モデルは、この MCP instructions を読んで境界の内側に留まりやすいです。登録しただけで呼び出し順まで固定されるわけではありません。
 
-## Lv2 — Skill で編成
+## Lv2 — Skill で呼び出し順を決める
 
 [pdf-trust](/ja/skills/pdf-trust) / [pdf-publish](/ja/skills/pdf-publish) を入れると、「この PDF は信用できる？」「PDF/UA で納品して」といった依頼に対し、複数 MCP の呼び出し順序・判定の読み方・レポートの形が固定されます。
 

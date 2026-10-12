@@ -20,7 +20,7 @@ description: PDF の中身と位置を観測する MCP（20 ツール） — テ
 このMCPサーバーは単純なテキスト抽出と違い、タグ付き PDF なら**論理的な読み順**で本文を取り出せるため、段組みや表が混じった文書でも順序が崩れません。
 :::
 
-さらに「中身に何があるか」だけでなく、**それがページのどこに描かれているか**も返します。  
+さらに、ファイルに入っているものだけでなく、**それがページのどこに描かれているか**も返します。  
 矩形は [pdf-writer-mcp](/ja/mcp/pdf-writer) の `add_annotation` が**そのまま使える座標系**（PDF default user space・左下原点・pt・正規化済み）で返るため、受け渡しの途中で座標系を解釈し直す必要がありません。
 
 | 問い                                   | ツール                                      |
@@ -45,16 +45,16 @@ graph LR
   READER -->|ページ + 矩形| WRITER[["pdf-writer-mcp<br>生成"]]
   SPEC[["pdf-spec-mcp<br>正典"]]
 
-  READ{{"pdf-read<br>読み取り"}} -.->|編成| READER
-  TRUST{{"pdf-trust<br>受入監査"}} -.->|編成| READER & VERIFY & SPEC
-  PUBLISH{{"pdf-publish<br>納品"}} -.->|編成| WRITER & READER & VERIFY
+  READ{{"pdf-read<br>読み取り"}} -.->|呼ぶ| READER
+  TRUST{{"pdf-trust<br>受入監査"}} -.->|呼ぶ| READER & VERIFY & SPEC
+  PUBLISH{{"pdf-publish<br>納品"}} -.->|呼ぶ| WRITER & READER & VERIFY
 ```
 
 図中の形は要素の種別を表します（→ [図の読み方](/ja/reference/glossary#図の読み方-形の凡例)）。
 
 | Skill                                 | このサーバーの役割                                                              | 必須か                    |
 | ------------------------------------- | ------------------------------------------------------------------------------- | ------------------------- |
-| [pdf-read](/ja/skills/pdf-read)       | 読み取りの基盤。どの経路で読むかを Skill が決め、読めなかった箇所を報告させます | **必須**（v0.15.1+ 推奨） |
+| [pdf-read](/ja/skills/pdf-read)       | 読み取りの基盤。構造ツリーで読むか、検索して絞ってから読むか、画像にして読むかを Skill が決め、読めなかった箇所を報告させます | **必須**（v0.15.1+ 推奨） |
 | [pdf-publish](/ja/skills/pdf-publish) | 書いた PDF の読み戻し（write → read-back → verify の中段）                      | 推奨                      |
 | [pdf-trust](/ja/skills/pdf-trust)     | 署名フィールド構造・タグ・メタデータの観測。変更されたオブジェクトの位置特定    | 任意                      |
 
@@ -68,7 +68,7 @@ pdf-verify の `verify_integrity` が返したオブジェクト番号を `locat
 - **規格に適合しているかは言えません。**  
   合否を返すのは pdf-verify です。
 - **OCR しません。** 画素として描かれた文字は読めません。  
-  テキストが取り出せないページは空文字ではなく、その理由（テキスト層が無い / Unicode への経路を持たないフォントがある / 読めなかった）を報告します。
+  テキストが取り出せないページは空文字ではなく、その理由（テキスト層が無い / Unicode への対応表（ToUnicode）を持たないフォントがある / 読めなかった）を報告します。
 - **タグ無し PDF の論理読み順は座標から推測しません。**  
   `extract_structured_text` は `isTagged: false` を返すだけです。論理読み順が必要なら、先に pdf-writer の `ensure_tagged` でタグを付与してください。
 - 鍵が導けない暗号化文書は開けません。  
@@ -136,7 +136,7 @@ pdf-verify の `verify_integrity` が返したオブジェクト番号を `locat
 
 ### どのツールで読むかを決める
 
-`summarize` が返すのは `metadata.isTagged` と `textExtractability` です。本文を取得する経路は、この 2 つで決まります。`next` は観測から出した提案であって、必ず従う指示ではありません。
+`summarize` が返すのは `metadata.isTagged` と `textExtractability` です。本文をどのツールで取得するかは、この 2 つで決まります。`next` は観測から出した提案であって、必ず従う指示ではありません。
 
 ```mermaid
 flowchart TD
@@ -150,7 +150,7 @@ flowchart TD
   X -->|"no_text_layer または not_extractable"| RP["render_page"]
 ```
 
-ページ上の位置は、本文とは別の経路です。指したいものが段落なのか、オブジェクト番号なのかで、使うツールが分かれます。
+ページ上の位置は、本文とは別のツールで取ります。指したいものが段落なのか、オブジェクト番号なのかで、使うツールが分かれます。
 
 ```mermaid
 flowchart TD
@@ -214,7 +214,7 @@ flowchart TD
 _Well-Tagged PDF 1.0_ の `Link` 構造要素 166 件の実測矩形を、生成者が同じリンクに置いた `Link` **注釈**の `/Rect` 173 件と比較した結果、IoU 中央値は **0.972** で、完全に外れたものは 0 件でした。
 :::
 
-::: warning 「この段落はどこか」と「オブジェクト 27 はどこか」は別の経路
+::: warning 「この段落はどこか」と「オブジェクト 27 はどこか」は別のツール
 `locate_objects` はコンテンツストリームについて「ページ全体」までしか言えません。段落・見出し単位で指したいときは `extract_structured_text` の `include_bbox` を使ってください。
 :::
 

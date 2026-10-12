@@ -92,7 +92,7 @@ PDF Agent Stack のすべてのツールと Skill が、この 3 つを区別し
 | | 誰が出すか | 例 |
 | --- | --- | --- |
 | 観測 (証拠) | reader | XMP に `pdfaid` の宣言がある。増分更新が 2 回ある。文書内に失効情報が無い |
-| 判定 | verify | `use_with_caution`。発火したのは `POL-CAUTION-REVOCATION-UNKNOWN` |
+| 判定 | verify | `use_with_caution`。`firedRules` は `POL-CAUTION-REVOCATION-UNKNOWN` |
 
 veraPDF の結果も観測ではありません。「veraPDF がこのプロファイルで違反を報告しなかった」は観測ですが、それを受入プロファイルに照らして値にするのは `evaluate_policy` です。
 
