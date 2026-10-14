@@ -50,7 +50,7 @@ graph LR
 
 <!-- stack:begin — scripts/generate-stack.mjs が生成。手で編集しない -->
 
-> 版は実測（2026-10-12 時点の `npm view`）。
+> 版は実測（2026-10-14 時点の `npm view`）。
 
 | リポジトリ | 役割 | 配布形態 | 版 | npm |
 | --- | --- | --- | --- | --- |
