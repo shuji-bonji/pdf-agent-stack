@@ -1,5 +1,5 @@
 ---
-description: "pdf-reader-mcp v0.16.1 の全 20 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-reader-mcp v0.17.0 の全 18 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-reader-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-reader-mcp v0.16.1 の全 20 ツールの引数・型・既定
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-**v0.16.1** の `tools/list` ハンドシェイクから自動生成（20 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.17.0** の `tools/list` ハンドシェイクから自動生成（18 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-reader)へ。
@@ -33,8 +33,6 @@ description: "pdf-reader-mcp v0.16.1 の全 20 ツールの引数・型・既定
 | [`extract_tables`](#extract-tables) | タグ付き PDF の全 `<Table>` サブツリーを、構造化された行/セルのリストとして抽出する。 |
 | [`extract_structured_text`](#extract-structured-text) | タグ付き PDF のテキストを論理コンテンツ順で抽出し、各断片に構造タイプのラベルを付ける。 |
 | [`locate_objects`](#locate-objects) | 指定したオブジェクトがページ上のどこにあるかを報告する。 |
-| [`validate_tagged`](#validate-tagged) | [非推奨 — 次のメジャーバージョンで削除予定] |
-| [`validate_metadata`](#validate-metadata) | [非推奨 — 次のメジャーバージョンで削除予定] |
 | [`compare_structure`](#compare-structure) | 2 つの PDF 文書の内部構造を比較し、差分を特定する。 |
 
 ## get_page_count
@@ -1081,95 +1079,6 @@ pdf-verify-mcp の `verify_integrity` が返した番号を渡す想定です。
 
 `page-content-stream` の矩形はページ全体です。段落を指すなら [`extract_structured_text`](#extract-structured-text) の `include_bbox` です。
 :::
-
-## validate_tagged
-
-**Validate Tagged PDF (deprecated)**
-
-::: warning 非推奨
-:::
-
-[非推奨 — 次のメジャーバージョンで削除予定]
-
-pdf-verify-mcp の `validate_conformance`（`flavour: "pdfua-1"` または `"pdfua-2"`）を推奨する。
-単なる置き換えではなく上位互換である: Figure タグの `/Alt`・`/ActualText` の実値を検証し（本ツールは Figure を数えるだけ）、Link の `/Contents` を確認し、カタログから StructTreeRoot を直接検査し（本ツールはページごとに合成する）、ISO 14289 の条文を引用し、利用可能なら veraPDF に委譲する。
-
-理由: family の境界は「ISO 規格に対する合否は pdf-verify-mcp、観測の報告は pdf-reader-mcp」である。本ツールは pdf-verify-mcp より前からあり、例外だった。構造ツリーの事実が要るなら `inspect_tags` を使うこと — そちらは非推奨ではない。
-
-本ツールは手早い事前チェックとしては今も機能する。実行されるのは以下の検査のみで、ここで合格しても PDF/UA 準拠を意味しない。
-
-PDF/UA のタグ付き構造要件を検証する。
-
-### 引数
-
-| 引数 | 型 | 必須 | 既定値 | 説明 |
-|---|---|---|---|---|
-| `file_path` | string (minLength 1) | **必須** |  | ローカル PDF ファイルへの絶対パス（例: "/path/to/document.pdf"） |
-| `response_format` | `"markdown"` \| `"json"` | 任意 | `"markdown"` | 出力形式: "markdown" は人が読む用、"json" は構造化データ |
-
-### 戻り値
-
-検証結果: タグ付きかどうか・実施した検査数・合否件数・重要度（error/warning/info）付きの詳細・要約。
-
-`totalChecks` が数えるのは、実際に判定できた検査だけである。前提を観測できずに回らなかった検査はそこに入らず、理由とともに `notChecked` に出る —— TAG-005 は Figure タグをページが描く画像の数に照らして判定するので、その数が分からないまま回すと「画像は 0 枚」と仮定することになり、誰も見ていないものについて合格を報告してしまう。
-
-実施される検査:
-- 文書がタグ付きとしてマークされているか
-- 構造ツリーのルートの存在
-- 文書ルートタグの有無
-- 見出し階層（H1-H6）の順序
-- 画像の Figure タグ
-- 段落タグの有無
-- 構造要素数
-- 表タグの構造（TR/TH/TD）
-
-例:
-- PDF が PDF/UA のアクセシビリティ要件を満たすか確認
-- 欠落・不正なタグ構造の特定
-- 文書のアクセシビリティ品質の評価
-
-## validate_metadata
-
-**Validate PDF Metadata (deprecated)**
-
-::: warning 非推奨
-:::
-
-[非推奨 — 次のメジャーバージョンで削除予定]
-
-規格準拠の判定には pdf-verify-mcp の `validate_conformance`（`flavour: "pdfua-1"` / `"pdfa-*"`）を推奨する。ISO の本文に照らして判定し、利用可能なら veraPDF に委譲する。メタデータのフィールドを読むだけなら `get_metadata` を使うこと。
-
-理由: family の境界は「ISO 規格に対する合否は pdf-verify-mcp、観測の報告は pdf-reader-mcp」である。本ツールは pdf-verify-mcp より前からある。
-
-既知の制限（修正予定なし — 上位互換に置き換え）: 検査対象は文書情報辞書（Info）のみである。PDF/UA-1 §7.1 は XMP メタデータストリームの `dc:title` を要求し、適合リーダーは Info 辞書を「無視しなければならない」と定める。さらに `ViewerPreferences/DisplayDocTitle = true` と `Suspects = false` も要求されるが、ここではいずれも検査しない。ISO 32000-2 §14.3.3 は CreationDate/ModDate を除き Info 辞書を非推奨としている。以下の結果は一般的なベストプラクティスの示唆として扱い、PDF/UA・PDF/A の根拠にしないこと。
-
-メタデータをベストプラクティスと仕様要件に照らして検証する。
-
-### 引数
-
-| 引数 | 型 | 必須 | 既定値 | 説明 |
-|---|---|---|---|---|
-| `file_path` | string (minLength 1) | **必須** |  | ローカル PDF ファイルへの絶対パス（例: "/path/to/document.pdf"） |
-| `response_format` | `"markdown"` \| `"json"` | 任意 | `"markdown"` | 出力形式: "markdown" は人が読む用、"json" は構造化データ |
-
-### 戻り値
-
-検証結果: 検査総数・合否件数・重要度付きの詳細・メタデータフィールド有無の要約・全体要約。
-
-実施される検査（すべて Info 辞書に対して — 上記の制限を参照）:
-- タイトルの有無（ベストプラクティス。PDF/UA の根拠は XMP の dc:title であり、これではない）
-- 作成者の有無
-- 作成日の形式検証
-- 更新日の有無
-- 生成アプリの特定
-- PDF バージョンの検出
-- タグ付きフラグの状態
-- 件名・キーワードの有無
-- 暗号化とアクセシビリティへの影響
-
-例:
-- 公開基準に向けたメタデータ充足の簡易チェック
-- （PDF/A 長期保存・PDF/UA 準拠の判定は pdf-verify-mcp の validate_conformance を使うこと）
 
 ## compare_structure
 

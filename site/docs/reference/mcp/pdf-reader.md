@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-reader-mcp v0.16.1 — parameters, types, defaults and returns of all 20 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-reader-mcp v0.17.0 — parameters, types, defaults and returns of all 18 tools, generated from the server's tools/list."
 ---
 
 # pdf-reader-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-reader-mcp v0.16.1 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.16.1** (20 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.17.0** (18 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-reader).
@@ -33,8 +33,6 @@ Auto-generated from the `tools/list` handshake of **v0.16.1** (20 tools). Do not
 | [`extract_tables`](#extract-tables) | Extract every `<Table>` subtree from a Tagged PDF as a structured row/cell list, optionally rendered as Markdown tables. |
 | [`extract_structured_text`](#extract-structured-text) | Extract a tagged PDF's text in logical content order, with each piece labelled by its structure type. |
 | [`locate_objects`](#locate-objects) | Report where the given objects sit on the page. |
-| [`validate_tagged`](#validate-tagged) | [DEPRECATED — will be removed in the next major version] |
-| [`validate_metadata`](#validate-metadata) | [DEPRECATED — will be removed in the next major version] |
 | [`compare_structure`](#compare-structure) | Compare the internal structures of two PDF documents and identify differences. |
 
 ## get_page_count
@@ -1116,109 +1114,6 @@ Typical input is the object numbers pdf-verify-mcp's `verify_integrity` returned
 
 A `page-content-stream` rectangle is the whole page. To point at a paragraph, use [`extract_structured_text`](#extract-structured-text) with `include_bbox`.
 :::
-
-## validate_tagged
-
-**Validate Tagged PDF (deprecated)**
-
-::: warning Deprecated
-:::
-
-[DEPRECATED — will be removed in the next major version]
-
-Prefer pdf-verify-mcp's `validate_conformance` with `flavour: "pdfua-1"` (or `"pdfua-2"`).
-It supersedes this tool rather than merely replacing it: it verifies the actual `/Alt` and
-`/ActualText` values of Figure tags (this tool only counts Figures), checks Link `/Contents`,
-inspects StructTreeRoot from the catalog directly (this tool synthesises it per page), cites
-ISO 14289 clauses, and delegates to veraPDF when available.
-
-Reason: the family boundary is "pass/fail against an ISO standard belongs to pdf-verify-mcp;
-reporting observations belongs to pdf-reader-mcp". This tool predates pdf-verify-mcp and was
-the exception. Use `inspect_tags` here for structure-tree facts — that tool is NOT deprecated.
-
-This tool remains a quick preflight and still works. Only the checks below are performed;
-a pass here does not imply PDF/UA conformance.
-
-Validate PDF/UA tagged structure requirements.
-
-### Parameters
-
-| Parameter | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `file_path` | string (minLength 1) | **yes** |  | Absolute path to a local PDF file (e.g., "/path/to/document.pdf") |
-| `response_format` | `"markdown"` \| `"json"` | no | `"markdown"` | Output format: "markdown" for human-readable, "json" for structured data |
-
-### Returns
-
-Validation results including: whether the PDF is tagged, total checks performed, pass/fail counts, detailed issues with severity levels (error/warning/info), and a summary.
-
-`totalChecks` counts the checks that were actually decided. A check whose premise could not be observed is not counted there and appears in `notChecked` with the reason — TAG-005 judges Figure tags against the number of images the page draws, so without that number it would have to assume zero images and would report a pass for something nobody looked at.
-
-Checks performed:
-- Document marked as tagged
-- Structure tree root existence
-- Document root tag presence
-- Heading hierarchy (H1-H6) sequential order
-- Figure tags for images
-- Paragraph tag presence
-- Structure element count
-- Table tag structure (TR/TH/TD)
-
-Examples:
-- Check if a PDF meets PDF/UA accessibility requirements
-- Identify missing or incorrect tag structure
-- Assess document accessibility quality
-
-## validate_metadata
-
-**Validate PDF Metadata (deprecated)**
-
-::: warning Deprecated
-:::
-
-[DEPRECATED — will be removed in the next major version]
-
-For standards conformance, prefer pdf-verify-mcp's `validate_conformance`
-(`flavour: "pdfua-1"` / `"pdfa-*"`), which judges against the ISO text and delegates to
-veraPDF when available. Use `get_metadata` here if you just want to read metadata fields.
-
-Reason: the family boundary is "pass/fail against an ISO standard belongs to pdf-verify-mcp;
-reporting observations belongs to pdf-reader-mcp". This tool predates pdf-verify-mcp.
-
-Known limitation (not being fixed — superseded): the checks read the document information
-dictionary only. PDF/UA-1 §7.1 requires `dc:title` in the XMP metadata stream and states a
-conforming reader "shall ignore" the Info dictionary; it also requires
-`ViewerPreferences/DisplayDocTitle = true` and `Suspects = false`, none of which are checked
-here. ISO 32000-2 §14.3.3 deprecates the Info dictionary except CreationDate/ModDate.
-Treat the results below as general best-practice hints, not PDF/UA or PDF/A grounds.
-
-Validate PDF metadata conformance against best practices and specification requirements.
-
-### Parameters
-
-| Parameter | Type | Required | Default | Description |
-|---|---|---|---|---|
-| `file_path` | string (minLength 1) | **yes** |  | Absolute path to a local PDF file (e.g., "/path/to/document.pdf") |
-| `response_format` | `"markdown"` \| `"json"` | no | `"markdown"` | Output format: "markdown" for human-readable, "json" for structured data |
-
-### Returns
-
-Validation results including: total checks, pass/fail counts, detailed issues with severity, metadata field presence summary, and an overall summary.
-
-Checks performed (all against the Info dictionary — see the limitation above):
-- Title presence (best practice; NOT the PDF/UA basis, which is XMP dc:title)
-- Author presence
-- Creation date format validation
-- Modification date presence
-- Producer identification
-- PDF version detection
-- Tagged flag status
-- Subject and Keywords presence
-- Encryption and accessibility impact
-
-Examples:
-- Quick check of document metadata completeness for publishing standards
-- (For PDF/A archival or PDF/UA compliance, use pdf-verify-mcp validate_conformance instead)
 
 ## compare_structure
 
