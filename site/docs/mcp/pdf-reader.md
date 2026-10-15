@@ -1,5 +1,5 @@
 ---
-description: The MCP that observes what is inside a PDF and where it is (20 tools) — text, tables, tags, fonts, signature fields, bboxes. Observation, never judgment
+description: The MCP that observes what is inside a PDF and where it is (18 tools) — text, tables, tags, fonts, signature fields, bboxes. Observation, never judgment
 ---
 
 # pdf-reader-mcp
@@ -121,8 +121,6 @@ Parameters, types and defaults are in the [tools reference](/reference/mcp/pdf-r
 | 2 | [`inspect_signatures`](/reference/mcp/pdf-reader#inspect-signatures) | **Structural** observation of signature fields |
 | 2 | [`locate_objects`](/reference/mcp/pdf-reader#locate-objects) | Object number → page + rectangle |
 | 3 | [`compare_structure`](/reference/mcp/pdf-reader#compare-structure) | Structural comparison of two PDFs |
-| 3 | [`validate_metadata`](/reference/mcp/pdf-reader#validate-metadata) | **deprecated** |
-| 3 | [`validate_tagged`](/reference/mcp/pdf-reader#validate-tagged) | **deprecated** |
 
 ## How to use it
 
@@ -216,6 +214,6 @@ For content streams, `locate_objects` can only say "the whole page". To point at
 
 [`inspect_signatures`](/reference/mcp/pdf-reader#inspect-signatures) returns the signature-field count, signed/unsigned breakdown and each field's details (signer name, reason, location, signing time, filter/subFilter). It does not verify cryptography. Whether a signature is mathematically valid is pdf-verify-mcp's `verify_signatures` / `verify_integrity`.
 
-### Two tools not to use
+### Tools removed in 0.17.0
 
-`validate_metadata` and `validate_tagged` will be removed in the next major version. pdf-verify-mcp's `validate_conformance` supersedes both. If you need structure-tree facts, use [`inspect_tags`](/reference/mcp/pdf-reader#inspect-tags) (which is not deprecated); to just read metadata, use [`get_metadata`](/reference/mcp/pdf-reader#get-metadata).
+`validate_metadata` and `validate_tagged` were removed in 0.17.0. Both returned pass/fail against PDF/UA, and pass/fail against a standard is pdf-verify-mcp's answer. To check conformance, use pdf-verify-mcp's `validate_conformance` (`flavour: "pdfua-1"` and others). If you need structure-tree facts, use [`inspect_tags`](/reference/mcp/pdf-reader#inspect-tags); to just read metadata, use [`get_metadata`](/reference/mcp/pdf-reader#get-metadata).

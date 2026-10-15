@@ -59,14 +59,6 @@
     "src": "61fbe5ac42dc112bff192c54dc139220",
     "text": "指定したオブジェクトがページ上のどこにあるかを報告する。\n\n「どのオブジェクトか」を「どの座標か」へ橋渡しする: pdf-verify-mcp の verify_integrity は増分更新が変更したオブジェクトを名指しし、pdf-writer-mcp の add_annotation はページ番号と矩形を要求する。矩形は PDF ユーザー空間（原点は左下・pt・x1 < x2 かつ y1 < y2 — ISO 32000-1 §7.9.5 の正規化形）で返り、これはまさに add_annotation が受け取る形である。"
   },
-  "validate_tagged|prose": {
-    "src": "62b2324bba2bd789e622f72a129351ae",
-    "text": "[非推奨 — 次のメジャーバージョンで削除予定]\n\npdf-verify-mcp の `validate_conformance`（`flavour: \"pdfua-1\"` または `\"pdfua-2\"`）を推奨する。\n単なる置き換えではなく上位互換である: Figure タグの `/Alt`・`/ActualText` の実値を検証し（本ツールは Figure を数えるだけ）、Link の `/Contents` を確認し、カタログから StructTreeRoot を直接検査し（本ツールはページごとに合成する）、ISO 14289 の条文を引用し、利用可能なら veraPDF に委譲する。\n\n理由: family の境界は「ISO 規格に対する合否は pdf-verify-mcp、観測の報告は pdf-reader-mcp」である。本ツールは pdf-verify-mcp より前からあり、例外だった。構造ツリーの事実が要るなら `inspect_tags` を使うこと — そちらは非推奨ではない。\n\n本ツールは手早い事前チェックとしては今も機能する。実行されるのは以下の検査のみで、ここで合格しても PDF/UA 準拠を意味しない。\n\nPDF/UA のタグ付き構造要件を検証する。"
-  },
-  "validate_metadata|prose": {
-    "src": "48fef6e9a0ad1fabd2c04f9ea12ca61d",
-    "text": "[非推奨 — 次のメジャーバージョンで削除予定]\n\n規格準拠の判定には pdf-verify-mcp の `validate_conformance`（`flavour: \"pdfua-1\"` / `\"pdfa-*\"`）を推奨する。ISO の本文に照らして判定し、利用可能なら veraPDF に委譲する。メタデータのフィールドを読むだけなら `get_metadata` を使うこと。\n\n理由: family の境界は「ISO 規格に対する合否は pdf-verify-mcp、観測の報告は pdf-reader-mcp」である。本ツールは pdf-verify-mcp より前からある。\n\n既知の制限（修正予定なし — 上位互換に置き換え）: 検査対象は文書情報辞書（Info）のみである。PDF/UA-1 §7.1 は XMP メタデータストリームの `dc:title` を要求し、適合リーダーは Info 辞書を「無視しなければならない」と定める。さらに `ViewerPreferences/DisplayDocTitle = true` と `Suspects = false` も要求されるが、ここではいずれも検査しない。ISO 32000-2 §14.3.3 は CreationDate/ModDate を除き Info 辞書を非推奨としている。以下の結果は一般的なベストプラクティスの示唆として扱い、PDF/UA・PDF/A の根拠にしないこと。\n\nメタデータをベストプラクティスと仕様要件に照らして検証する。"
-  },
   "compare_structure|prose": {
     "src": "d0fed1c0809585a3e10e7af88c2e563f",
     "text": "2 つの PDF 文書の内部構造を比較し、差分を特定する。"
@@ -308,30 +300,6 @@
     "text": "位置を特定するオブジェクト番号。例: [25, 27]。通常は pdf-verify-mcp の verify_integrity が「変更された」と報告したオブジェクト。"
   },
   "locate_objects|param:response_format": {
-    "src": "c7a8f32a1936716e2c56515f7cab88d9",
-    "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
-  },
-  "validate_tagged|returns": {
-    "src": "c1cfbd76fcd57e2b09f3c8d9df2bbc32",
-    "text": "検証結果: タグ付きかどうか・実施した検査数・合否件数・重要度（error/warning/info）付きの詳細・要約。\n\n`totalChecks` が数えるのは、実際に判定できた検査だけである。前提を観測できずに回らなかった検査はそこに入らず、理由とともに `notChecked` に出る —— TAG-005 は Figure タグをページが描く画像の数に照らして判定するので、その数が分からないまま回すと「画像は 0 枚」と仮定することになり、誰も見ていないものについて合格を報告してしまう。\n\n実施される検査:\n- 文書がタグ付きとしてマークされているか\n- 構造ツリーのルートの存在\n- 文書ルートタグの有無\n- 見出し階層（H1-H6）の順序\n- 画像の Figure タグ\n- 段落タグの有無\n- 構造要素数\n- 表タグの構造（TR/TH/TD）\n\n例:\n- PDF が PDF/UA のアクセシビリティ要件を満たすか確認\n- 欠落・不正なタグ構造の特定\n- 文書のアクセシビリティ品質の評価"
-  },
-  "validate_tagged|param:file_path": {
-    "src": "1c06f136e55f5c125a42c9f2a76f12f6",
-    "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
-  },
-  "validate_tagged|param:response_format": {
-    "src": "c7a8f32a1936716e2c56515f7cab88d9",
-    "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
-  },
-  "validate_metadata|returns": {
-    "src": "b8b54df7363bec075d278e9db8fe7ef9",
-    "text": "検証結果: 検査総数・合否件数・重要度付きの詳細・メタデータフィールド有無の要約・全体要約。\n\n実施される検査（すべて Info 辞書に対して — 上記の制限を参照）:\n- タイトルの有無（ベストプラクティス。PDF/UA の根拠は XMP の dc:title であり、これではない）\n- 作成者の有無\n- 作成日の形式検証\n- 更新日の有無\n- 生成アプリの特定\n- PDF バージョンの検出\n- タグ付きフラグの状態\n- 件名・キーワードの有無\n- 暗号化とアクセシビリティへの影響\n\n例:\n- 公開基準に向けたメタデータ充足の簡易チェック\n- （PDF/A 長期保存・PDF/UA 準拠の判定は pdf-verify-mcp の validate_conformance を使うこと）"
-  },
-  "validate_metadata|param:file_path": {
-    "src": "1c06f136e55f5c125a42c9f2a76f12f6",
-    "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
-  },
-  "validate_metadata|param:response_format": {
     "src": "c7a8f32a1936716e2c56515f7cab88d9",
     "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
   },

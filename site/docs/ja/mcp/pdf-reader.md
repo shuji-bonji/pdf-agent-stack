@@ -1,5 +1,5 @@
 ---
-description: PDF の中身と位置を観測する MCP（20 ツール） — テキスト・表・タグ・フォント・署名フィールド・bbox。観測であり判定ではない
+description: PDF の中身と位置を観測する MCP（18 ツール） — テキスト・表・タグ・フォント・署名フィールド・bbox。観測であり判定ではない
 ---
 
 # pdf-reader-mcp
@@ -127,8 +127,6 @@ pdf-verify の `verify_integrity` が返したオブジェクト番号を `locat
 | 2    | [`inspect_signatures`](/ja/reference/mcp/pdf-reader#inspect-signatures)           | 署名フィールドの**構造**観測                                         |
 | 2    | [`locate_objects`](/ja/reference/mcp/pdf-reader#locate-objects)                   | オブジェクト番号 → ページ + 矩形                                     |
 | 3    | [`compare_structure`](/ja/reference/mcp/pdf-reader#compare-structure)             | 2 PDF の構造比較                                                     |
-| 3    | [`validate_metadata`](/ja/reference/mcp/pdf-reader#validate-metadata)             | **deprecated**                                                       |
-| 3    | [`validate_tagged`](/ja/reference/mcp/pdf-reader#validate-tagged)                 | **deprecated**                                                       |
 
 ## 使い方の要点
 
@@ -222,6 +220,6 @@ _Well-Tagged PDF 1.0_ の `Link` 構造要素 166 件の実測矩形を、生成
 
 [`inspect_signatures`](/ja/reference/mcp/pdf-reader#inspect-signatures) は、署名フィールドの数、署名済みと未署名の内訳、各フィールドの詳細（署名者名、理由、場所、署名日時、filter / subFilter）を返します。暗号の検証はしません。署名が数学的に有効かどうかは、pdf-verify-mcp の `verify_signatures` と `verify_integrity` が答えます。
 
-### 使わない 2 つのツール
+### 0.17.0 で削除した 2 つのツール
 
-`validate_metadata` と `validate_tagged` は、次のメジャーバージョンで削除する予定です。どちらも pdf-verify-mcp の `validate_conformance` が上位互換です。構造ツリーの事実が必要なら [`inspect_tags`](/ja/reference/mcp/pdf-reader#inspect-tags)（こちらは deprecated ではありません）、メタデータを読むだけなら [`get_metadata`](/ja/reference/mcp/pdf-reader#get-metadata) を使ってください。
+`validate_metadata` と `validate_tagged` は 0.17.0 で削除しました。どちらも PDF/UA に照らした合否を返すツールで、規格に照らした合否は pdf-verify-mcp が返します。規格への適合は、pdf-verify-mcp の `validate_conformance`（`flavour: "pdfua-1"` など）で確かめてください。構造ツリーの事実が必要なら [`inspect_tags`](/ja/reference/mcp/pdf-reader#inspect-tags)、メタデータを読むだけなら [`get_metadata`](/ja/reference/mcp/pdf-reader#get-metadata) を使ってください。
