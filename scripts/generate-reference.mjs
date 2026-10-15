@@ -21,6 +21,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { checkDistFreshness } from './dist-freshness.mjs';
 import { humanizeParam, humanizeTool, pageIntro } from './reference-humanize.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -562,6 +563,27 @@ for (const name of names) {
   if (!existsSync(cfg.args[0])) {
     console.warn(`⚠ skip ${name}: server dist not found (${cfg.args[0]}) — using committed pages`);
     continue;
+  }
+  // 🔴 The page's version comes from serverInfo, which the servers read from
+  // package.json at start-up — a dist built before the last pull still says the
+  // new version. Refuse to write pages from a dist that is not the src.
+  // (pdf-reader-mcp 0.17.0: "v0.17.0 (20 tools)" from a 3-day-old dist.)
+  const serverDir = dirname(dirname(cfg.args[0]));
+  const fresh = checkDistFreshness(serverDir);
+  if (fresh.missing.length || fresh.stale.length) {
+    const rel = serverDir.replace(ROOT + '/', '');
+    console.error(`✗ ${name}: ${rel}/dist is not built from the current src — run \`npm run build\` in ${rel}`);
+    for (const f of fresh.missing.slice(0, 5)) console.error(`    not built: ${f}`);
+    for (const f of fresh.stale.slice(0, 5)) console.error(`    newer than its build: ${f}`);
+    const more = fresh.missing.length + fresh.stale.length - Math.min(5, fresh.missing.length) - Math.min(5, fresh.stale.length);
+    if (more > 0) console.error(`    … and ${more} more`);
+    process.exit(1);
+  }
+  if (fresh.orphans.length) {
+    console.warn(
+      `  ⚠ ${name}: ${fresh.orphans.length} file(s) in dist have no source (left by tsc after a source was removed;` +
+        ` not loaded unless imported): ${fresh.orphans.slice(0, 3).join(', ')}${fresh.orphans.length > 3 ? ', …' : ''}`
+    );
   }
   const { serverInfo, tools } = await handshake(cfg);
   console.log(`${serverInfo.name} v${serverInfo.version} — ${tools.length} tools`);
