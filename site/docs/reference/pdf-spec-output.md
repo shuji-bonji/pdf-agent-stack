@@ -17,11 +17,12 @@ NOTEs are not normative, only shall is a condition of conformance, definitions o
 Returns the body of a section as a **sequence of elements**, not as the original layout.
 
 ```jsonc
-// get_section({ section: "14.9.4" }) — measured, pdf-spec-mcp v0.6.0
+// get_section({ section: "14.9.4" }) — measured, pdf-spec-mcp v0.8.0
 {
   "sectionNumber": "14.9.4",
   "title": "Replacement text",
   "pageRange": { "start": 815, "end": 816 },
+  "boundary": { "start": "heading", "end": "heading" },   // how each end was cut — see below
   "content": [
     { "type": "heading",   "level": 3, "text": "14.9.4 Replacement text" },
     { "type": "paragraph", "text": "Replacement text may be specified for the following items:" },
@@ -39,16 +40,34 @@ Returns the body of a section as a **sequence of elements**, not as the original
 
 How to read it: `content` is in document order. **NOTE / EXAMPLE come back as `note` elements, separate from `paragraph` (body text).** In ISO drafting a NOTE is informative, not a normative requirement, so this distinction is required whenever you cite something as grounds. Tables come back structured as `table` elements, which keeps an LLM from misreading the correspondence of key, type and meaning.
 
+`boundary` says where the content was cut (v0.8.0). The server cuts at headings when it finds them; when a heading is not found, the cut falls on a page edge, and the content may then carry a neighbour's text or miss its own tail — nothing in `content` or `pageRange` shows which.
+
+| `boundary.start` | Meaning |
+|---|---|
+| `heading` | The section's own heading was found; text before it on the first page was dropped |
+| `page` | The heading was not found; content starts at the top of the first page and may include the tail of the previous section |
+
+| `boundary.end` | Meaning |
+|---|---|
+| `heading` | Cut at the next section's heading |
+| `page` | Content ends with its last page; the next section starts on a later page |
+| `page_shared` | The next section starts on the last page but its heading was not found — content may include the next section's text |
+| `next_page_unclaimed` | The next section starts on the following page and its heading was not found there — any tail of this section on that page is not included |
+| `document` | Last section of the document |
+
+`heading` / `heading`, `heading` / `page` and `heading` / `document` are exact cuts. Anything else fell on a page edge: read the neighbouring section too before citing. In the corpus this happens only in front and back matter (cover, contents, errata, bibliography entries) — every body clause of ISO 32000-1 and ISO 32000-2 is cut at headings. For a parent section, `start` is the parent's own and `end` is its last descendant's. `get_tables` carries the same `boundary` plus `pageRange`: `totalTables: 0` means no Table element was seen in those pages, which under a page-cut boundary is not the same as "the section has no table".
+
 ## Requirements (`get_requirements` output)
 
 Extracts only the normative sentences containing **shall / shall not / should / should not / may**, one sentence = one requirement.
 
 ```jsonc
-// get_requirements({ section: "12.5.6.10" }) — measured, pdf-spec-mcp v0.6.0
+// get_requirements({ section: "12.5.6.10" }) — measured, pdf-spec-mcp v0.8.0
 {
   "filter": { "section": "12.5.6.10", "level": "all" },
   "totalRequirements": 6,
   "statistics": { "shall": 6 },            // counts per level; a level with no hits is absent
+  "sectionsCutByPage": [],                 // sections in scope cut at a page edge (see `boundary` above); empty = all cut at headings
   "requirements": [
     {
       "id": "R-12.5.6.10-1",                // R-<section>-<n>: stable for citation and tracking
@@ -71,7 +90,7 @@ Extracts only the normative sentences containing **shall / shall not / should / 
 }
 ```
 
-How to read it: the 5 levels are requirement (shall), prohibition (shall not), recommendation (should), discouragement (should not) and permission (may) — **only shall is a condition of conformance**. `text` is verbatim and can be quoted as-is (line breaks come from the standard's own layout). A requirement with `source: "table"` was lifted from a table cell and is meaningless on its own, so `table` / `key` (which table, which entry it binds) come attached — quote that context along with it. `statistics` counts only the levels that occurred, so a missing key means zero, not an error.
+How to read it: the 5 levels are requirement (shall), prohibition (shall not), recommendation (should), discouragement (should not) and permission (may) — **only shall is a condition of conformance**. `text` is verbatim and can be quoted as-is (line breaks come from the standard's own layout). A requirement with `source: "table"` was lifted from a table cell and is meaningless on its own, so `table` / `key` (which table, which entry it binds) come attached — quote that context along with it. `statistics` counts only the levels that occurred, so a missing key means zero, not an error. `sectionsCutByPage` lists the sections in scope whose content was cut at a page edge, each with its `boundary`; their requirements may include a neighbour's sentences or miss the tail, so check those sections by `get_section` before citing.
 
 ::: warning Requirement ≠ verdict
 A requirement is what the standard demands; whether a particular PDF satisfies it is a different question. File inspection belongs to [pdf-verify](/mcp/pdf-verify). Extraction is also limited to the corpus (ISO 32000-2 etc.) — PDF/A requirements not appearing here does not mean they do not exist.

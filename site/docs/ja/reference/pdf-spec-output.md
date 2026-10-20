@@ -17,11 +17,12 @@ NOTE は規範ではない・shall だけが適合の必要条件・定義は日
 節の本文を、原文の見た目ではなく**要素の列**として返します。
 
 ```jsonc
-// get_section({ section: "14.9.4" }) — 実測 pdf-spec-mcp v0.6.0
+// get_section({ section: "14.9.4" }) — 実測 pdf-spec-mcp v0.8.0
 {
   "sectionNumber": "14.9.4",
   "title": "Replacement text",
   "pageRange": { "start": 815, "end": 816 },
+  "boundary": { "start": "heading", "end": "heading" },   // 両端をどこで切ったか — 下で説明
   "content": [
     { "type": "heading",   "level": 3, "text": "14.9.4 Replacement text" },
     { "type": "paragraph", "text": "Replacement text may be specified for the following items:" },
@@ -39,16 +40,34 @@ NOTE は規範ではない・shall だけが適合の必要条件・定義は日
 
 読み方のポイント: `content` は文書順です。**NOTE / EXAMPLE は `note` 要素として本文（paragraph）と区別されます。** ISO では NOTE は参考情報であって規範的要求ではないため、根拠として引用するときはこの区別が必要になります。表は `table` 要素として構造のまま返るので、値の対応（キー・型・意味）を LLM が読み違えにくくなっています。
 
+`boundary` は、内容をどこで切ったかを示します（v0.8.0）。サーバーは見出しが見つかればそこで切りますが、見つからないときはページの端で切るため、隣の節の文を含んだり、自分の末尾を欠いたりすることがあります。それは `content` や `pageRange` を見ても分かりません。
+
+| `boundary.start` | 意味 |
+|---|---|
+| `heading` | 自節の見出しが見つかり、先頭ページのそれより前の文字を捨てた |
+| `page` | 見出しが見つからず、先頭ページの先頭から返している。前の節の末尾を含む可能性がある |
+
+| `boundary.end` | 意味 |
+|---|---|
+| `heading` | 次の節の見出しで切った |
+| `page` | 最終ページの末尾で終わり、次の節はそれより後のページから始まる |
+| `page_shared` | 次の節が最終ページで始まるが、その見出しが見つからなかった。次の節の文を含む可能性がある |
+| `next_page_unclaimed` | 次の節が翌ページで始まるが、その見出しが翌ページで見つからなかった。この節の末尾が翌ページにあっても含まれていない |
+| `document` | 文書の最後の節 |
+
+`heading` / `heading`、`heading` / `page`、`heading` / `document` は見出しで切れた正確な範囲です。それ以外はページの端で切れているので、引用する前に隣の節も読んでください。コーパスでこれが起きるのは前付・後付（表紙・目次・正誤表・参考文献の項目）だけで、ISO 32000-1 と ISO 32000-2 の本文の節はすべて見出しで切れています。親節では `start` が親自身の値、`end` が最後の子孫の値です。`get_tables` にも同じ `boundary` と `pageRange` が付きます。`totalTables: 0` は「そのページに Table 要素が無かった」という意味で、`boundary` がページ切りのときは「その節に表が無い」とは限りません。
+
 ## 要件（`get_requirements` の出力）
 
 条文の中から **shall / shall not / should / should not / may** を含む規範文だけを抽出し、1 文 = 1 要件で返します。
 
 ```jsonc
-// get_requirements({ section: "12.5.6.10" }) — 実測 pdf-spec-mcp v0.6.0
+// get_requirements({ section: "12.5.6.10" }) — 実測 pdf-spec-mcp v0.8.0
 {
   "filter": { "section": "12.5.6.10", "level": "all" },
   "totalRequirements": 6,
   "statistics": { "shall": 6 },            // レベル別の件数。0 件のレベルはキー自体が出ない
+  "sectionsCutByPage": [],                 // 対象範囲のうちページの端で切れた節（上の `boundary` を参照）。空ならすべて見出しで切れている
   "requirements": [
     {
       "id": "R-12.5.6.10-1",                // R-<節番号>-<連番>。引用・追跡用の安定 ID
@@ -71,7 +90,7 @@ NOTE は規範ではない・shall だけが適合の必要条件・定義は日
 }
 ```
 
-読み方のポイント: `level` の 5 段階は義務（shall）・禁止（shall not）・推奨（should）・非推奨（should not）・許容（may）で、**shall だけが適合の必要条件**です。`text` は原文のまま返るのでそのまま引用できます（改行は規格の組版由来です）。`source: "table"` 付きの要件は表のセルから持ち上げた文で、単独では意味が取れないため `table` / `key`（どの表のどのエントリを縛る要件か）が併記されます — 引用時はこの文脈ごと示してください。`statistics` は出現したレベルだけを数えるので、キーが無いのは 0 件であってエラーではありません。
+読み方のポイント: `level` の 5 段階は義務（shall）・禁止（shall not）・推奨（should）・非推奨（should not）・許容（may）で、**shall だけが適合の必要条件**です。`text` は原文のまま返るのでそのまま引用できます（改行は規格の組版由来です）。`source: "table"` 付きの要件は表のセルから持ち上げた文で、単独では意味が取れないため `table` / `key`（どの表のどのエントリを縛る要件か）が併記されます — 引用時はこの文脈ごと示してください。`statistics` は出現したレベルだけを数えるので、キーが無いのは 0 件であってエラーではありません。`sectionsCutByPage` は、対象範囲のうちページの端で切れた節を `boundary` 付きで列挙します。その節の要件は隣の節の文を含むか末尾を欠いている可能性があるので、引用する前に `get_section` でその節を確かめてください。
 
 ::: warning 要件 ≠ 判定
 要件は「規格の要求」であって、特定の PDF がそれを満たすかは別問題です。ファイルの検査は [pdf-verify](/ja/mcp/pdf-verify) へ。また、抽出は ISO 32000-2 等のコーパス内に限られます — PDF/A の要件がここに出ないのは「存在しない」からではありません。
