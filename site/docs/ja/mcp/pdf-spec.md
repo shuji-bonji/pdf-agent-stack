@@ -6,7 +6,7 @@ description: ISO 32000 系仕様書の構造化参照 MCP — 条文・要件（
 
 **PDF の仕様書を AI が引けるようにするサーバーです。** ISO 32000-1/-2、ISO TS 32001〜32005、PDF/UA-1/-2、Tagged PDF ガイドなど 17 文書を横断検索し、条文・要求事項（shall/should/may）・定義・表を構造化して返します。
 
-- npm: [`@shuji-bonji/pdf-spec-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-spec-mcp) / 現行 v0.6.2 / [GitHub](https://github.com/shuji-bonji/pdf-spec-mcp)
+- npm: [`@shuji-bonji/pdf-spec-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-spec-mcp) / 現行 v0.7.0 / [GitHub](https://github.com/shuji-bonji/pdf-spec-mcp)
 - このページは責務と使いどころの解説です。全ツールの引数・戻り値は[ツールリファレンス](/ja/reference/mcp/pdf-spec)（`tools/list` から自動生成）へ
 
 ::: warning 仕様 PDF は同梱していません
@@ -125,7 +125,7 @@ ID の一覧は `list_specs` で得られます。
 | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | **仕様条文**（`get_section` / `get_tables`） | 節の本文を、見出し・段落・リスト・表・注記の**要素の列**として返します。NOTE / EXAMPLE は本文と別の要素になります                 |
 | **要件**（`get_requirements`）               | 条文中の shall / shall not / should / should not / may を含む規範文を 1 文 = 1 要件で返します。**shall だけが適合の必要条件**です |
-| **定義**（`get_definitions`）                | 第 3 節（Terms and definitions）の用語定義を返します。規格上の意味が日常語と違う用語は、議論の前にここで定義を確認してください    |
+| **定義**（`get_definitions`）                | 「用語と定義」の節（ISO 32000-2 は第 3 節、ISO 32000-1 は第 4 節）の用語定義を返します。規格上の意味が日常語と違う用語は、議論の前にここで定義を確認してください |
 
 どれも「規格が何と書いているか」の構造化であり、あなたのファイルについて何かを言うものではありません。JSON の形と読み違えやすい箇所は [pdf-spec の出力の読み方](/ja/reference/pdf-spec-output) にまとめてあります。
 

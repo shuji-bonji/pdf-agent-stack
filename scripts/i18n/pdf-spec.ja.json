@@ -20,8 +20,8 @@
   "text": "あなたのファイルではなく**規格**を読む。PDF 仕様（ISO 32000-2）から規範的要求（shall/must/may）を抽出する。文の文脈・節・要求レベル付きの構造化要求を返す。仕様が何を要求するかを教えるだけで、特定の PDF がそれを満たすかは決して答えない — ファイルの検査は pdf-verify-mcp（validate_conformance / evaluate_policy）へ。"
  },
  "get_definitions|prose": {
-  "src": "d1181e28d4bc5c4b95290db21df82fc8",
-  "text": "PDF 仕様（ISO 32000-2）の第 3 節から用語定義を取得する。用語・定義文・注記・出典付きの構造化定義を返す。"
+  "src": "e8f44c2497c2410ea4f21cf449a4f950",
+  "text": "PDF 仕様の「用語と定義」の節（ISO 32000-2 は第 3 節、ISO 32000-1 / pdf17 は第 4 節）から用語定義を取得する。用語・定義文・注記・出典付きの構造化定義を返す。"
  },
  "get_tables|prose": {
   "src": "c28dbe37661a793327485ffbe3e2e9d5",

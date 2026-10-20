@@ -1,5 +1,5 @@
 ---
-description: "pdf-spec-mcp v0.6.2 の全 8 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-spec-mcp v0.7.0 の全 8 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-spec-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-spec-mcp v0.6.2 の全 8 ツールの引数・型・既定値�
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-**v0.6.2** の `tools/list` ハンドシェイクから自動生成（8 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.7.0** の `tools/list` ハンドシェイクから自動生成（8 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-spec)へ。
@@ -21,7 +21,7 @@ description: "pdf-spec-mcp v0.6.2 の全 8 ツールの引数・型・既定値�
 | [`get_section`](#get-section) | PDF 仕様（ISO 32000-2）の指定節の本文を取得する。 |
 | [`search_spec`](#search-spec) | PDF 仕様（ISO 32000-2）をキーワード・フレーズで検索する。 |
 | [`get_requirements`](#get-requirements) | あなたのファイルではなく**規格**を読む。 |
-| [`get_definitions`](#get-definitions) | PDF 仕様（ISO 32000-2）の第 3 節から用語定義を取得する。 |
+| [`get_definitions`](#get-definitions) | PDF 仕様の「用語と定義」の節（ISO 32000-2 は第 3 節、ISO 32000-1 / pdf17 は第 4 節）から用語定義を取得する。 |
 | [`get_tables`](#get-tables) | PDF 仕様（ISO 32000-2）の指定節から表構造を抽出する。 |
 | [`compare_versions`](#compare-versions) | PDF 1.7（ISO 32000-1）と PDF 2.0（ISO 32000-2）の節を比較する。 |
 
@@ -320,7 +320,7 @@ PDF 仕様（ISO 32000-2）をキーワード・フレーズで検索する。�
 
 **Get term definitions**
 
-PDF 仕様（ISO 32000-2）の第 3 節から用語定義を取得する。用語・定義文・注記・出典付きの構造化定義を返す。
+PDF 仕様の「用語と定義」の節（ISO 32000-2 は第 3 節、ISO 32000-1 / pdf17 は第 4 節）から用語定義を取得する。用語・定義文・注記・出典付きの構造化定義を返す。
 
 ### 引数
 

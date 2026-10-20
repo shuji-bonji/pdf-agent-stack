@@ -6,7 +6,7 @@ description: The structured reference MCP for the ISO 32000 family — clauses, 
 
 **The server that lets an AI look things up in the PDF specification.** ISO 32000-1/-2, ISO TS 32001–32005, PDF/UA-1/-2, the Tagged PDF guide and more — 17 documents — are cross-searched, and clauses, requirements (shall/should/may), definitions and tables come back in structured form.
 
-- npm: [`@shuji-bonji/pdf-spec-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-spec-mcp) / current v0.6.2 / [GitHub](https://github.com/shuji-bonji/pdf-spec-mcp)
+- npm: [`@shuji-bonji/pdf-spec-mcp`](https://www.npmjs.com/package/@shuji-bonji/pdf-spec-mcp) / current v0.7.0 / [GitHub](https://github.com/shuji-bonji/pdf-spec-mcp)
 - This page is the guide — responsibilities and boundaries. For every tool's parameters and returns, see the [tools reference](/reference/mcp/pdf-spec) (generated from `tools/list`)
 
 ::: warning The specification PDFs are not bundled
@@ -125,7 +125,7 @@ The output falls into three kinds: **clauses**, **requirements**, and **definiti
 |---|---|
 | **Clauses** (`get_section` / `get_tables`) | A section's body as a **sequence of elements**: headings, paragraphs, lists, tables, notes. NOTE / EXAMPLE are separate elements, not body text |
 | **Requirements** (`get_requirements`) | The normative sentences containing shall / shall not / should / should not / may, one sentence = one requirement. **Only shall is a condition of conformance** |
-| **Definitions** (`get_definitions`) | Term definitions from Section 3 (Terms and definitions). Terms whose meaning in the standard differs from everyday usage should be settled here before arguing |
+| **Definitions** (`get_definitions`) | Term definitions from the "Terms and definitions" clause (clause 3 of ISO 32000-2, clause 4 of ISO 32000-1). Terms whose meaning in the standard differs from everyday usage should be settled here before arguing |
 
 All of them are structured renderings of *what the standard says* — none of them say anything about your file. The JSON shape of each, and where each is easy to misread, is in [Reading pdf-spec Output](/reference/pdf-spec-output).
 
