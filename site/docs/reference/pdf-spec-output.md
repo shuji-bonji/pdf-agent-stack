@@ -57,6 +57,35 @@ How to read it: `content` is in document order. **NOTE / EXAMPLE come back as `n
 
 `heading` / `heading`, `heading` / `page` and `heading` / `document` are exact cuts. Anything else fell on a page edge: read the neighbouring section too before citing. In the corpus this happens only in front and back matter (cover, contents, errata, bibliography entries) — every body clause of ISO 32000-1 and ISO 32000-2 is cut at headings. For a parent section, `start` is the parent's own and `end` is its last descendant's. `get_tables` carries the same `boundary` plus `pageRange`: `totalTables: 0` means no Table element was seen in those pages, which under a page-cut boundary is not the same as "the section has no table".
 
+### Tables (`get_tables` output)
+
+`get_tables` returns the `table` elements of a section (and of its subtree) as `headers` / `rows`, each with the `caption` the standard prints above it — the "Table N — title" line. That line is what you cite, so a table without one is harder to point at.
+
+```jsonc
+// get_tables({ section: "Annex F", spec: "pdf17" }) — measured, pdf-spec-mcp v0.9.0
+{
+  "section": "Annex F",
+  "sectionTitle": "Linearized PDF",
+  "pageRange": { "start": 683, "end": 702 },
+  "boundary": { "start": "heading", "end": "page" },
+  "totalTables": 12,
+  "tables": [
+    {
+      "index": 0,
+      "caption": "Table F.1 – Entries in the linearization parameter dictionary",
+      "headers": ["Parameter", "Type", "Value"],
+      "rows": [
+        ["Linearized", "number", "(Required) A version identification for the linearized format."],
+        // …
+      ]
+    },
+    // … Table F.2 to Table F.12
+  ]
+}
+```
+
+Tables in an annex are numbered by the annex letter (`Table F.5`; ISO 32000-2 writes `Table Annex O.3` in Annexes L and O). Up to v0.8.0 the server recognised only `Table 182`-style numbers, so every annex table came back `caption: null`, and consecutive annex tables sharing a header row were merged into one — Annex F of ISO 32000-1 returned 7 tables for its 12. From v0.9.0 they carry their caption and stay apart. A `caption: null` that remains is a table the standard itself prints without one — the operator lists in Annex B, the errata pages, the mesh and patch figures of 8.7.4.5.
+
 ## Requirements (`get_requirements` output)
 
 Extracts only the normative sentences containing **shall / shall not / should / should not / may**, one sentence = one requirement.

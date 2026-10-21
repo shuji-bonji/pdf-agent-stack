@@ -57,6 +57,35 @@ NOTE は規範ではない・shall だけが適合の必要条件・定義は日
 
 `heading` / `heading`、`heading` / `page`、`heading` / `document` は見出しで切れた正確な範囲です。それ以外はページの端で切れているので、引用する前に隣の節も読んでください。コーパスでこれが起きるのは前付・後付（表紙・目次・正誤表・参考文献の項目）だけで、ISO 32000-1 と ISO 32000-2 の本文の節はすべて見出しで切れています。親節では `start` が親自身の値、`end` が最後の子孫の値です。`get_tables` にも同じ `boundary` と `pageRange` が付きます。`totalTables: 0` は「そのページに Table 要素が無かった」という意味で、`boundary` がページ切りのときは「その節に表が無い」とは限りません。
 
+### 表（`get_tables` の出力）
+
+`get_tables` は節（とその下位節）の `table` 要素を `headers` / `rows` で返し、それぞれに規格が表の上に刷っている「Table N — 題名」の行を `caption` として付けます。引用するときに指すのはこの行なので、これが無い表は指しにくくなります。
+
+```jsonc
+// get_tables({ section: "Annex F", spec: "pdf17" }) — 実測 pdf-spec-mcp v0.9.0
+{
+  "section": "Annex F",
+  "sectionTitle": "Linearized PDF",
+  "pageRange": { "start": 683, "end": 702 },
+  "boundary": { "start": "heading", "end": "page" },
+  "totalTables": 12,
+  "tables": [
+    {
+      "index": 0,
+      "caption": "Table F.1 – Entries in the linearization parameter dictionary",
+      "headers": ["Parameter", "Type", "Value"],
+      "rows": [
+        ["Linearized", "number", "(Required) A version identification for the linearized format."],
+        // …
+      ]
+    },
+    // … Table F.2 〜 Table F.12
+  ]
+}
+```
+
+Annex の表は Annex の英字で番号が付きます（`Table F.5`。ISO 32000-2 の Annex L / O は `Table Annex O.3` と書きます）。v0.8.0 までサーバーは `Table 182` の形の番号しか見ていなかったので、Annex の表はすべて `caption: null` になり、さらにヘッダ行が同じ表が続くと 1 つに連結されていました（ISO 32000-1 の Annex F は 12 表あるのに 7 表で返っていました）。v0.9.0 からはキャプションが付き、表は別々のまま返ります。それでも残る `caption: null` は、規格自体がキャプション無しで刷っている表です（Annex B の演算子一覧・正誤表のページ・8.7.4.5 のメッシュとパッチの図）。
+
 ## 要件（`get_requirements` の出力）
 
 条文の中から **shall / shall not / should / should not / may** を含む規範文だけを抽出し、1 文 = 1 要件で返します。
