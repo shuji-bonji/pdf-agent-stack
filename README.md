@@ -50,11 +50,11 @@ graph LR
 
 <!-- stack:begin — scripts/generate-stack.mjs が生成。手で編集しない -->
 
-> 版は実測（2026-10-21 時点の `npm view`）。
+> 版は実測（2026-10-25 時点の `npm view`）。
 
 | リポジトリ | 役割 | 配布形態 | 版 | npm |
 | --- | --- | --- | --- | --- |
-| [pdf-spec-mcp](https://github.com/shuji-bonji/pdf-spec-mcp) | canon | mcp-server | 0.9.0 | `@shuji-bonji/pdf-spec-mcp` |
+| [pdf-spec-mcp](https://github.com/shuji-bonji/pdf-spec-mcp) | canon | mcp-server | 0.10.0 | `@shuji-bonji/pdf-spec-mcp` |
 | [pdf-reader-mcp](https://github.com/shuji-bonji/pdf-reader-mcp) | structure | mcp-server | 0.17.0 | `@shuji-bonji/pdf-reader-mcp` |
 | [pdf-verify-mcp](https://github.com/shuji-bonji/pdf-verify-mcp) | judgment | mcp-server | 0.31.0 | `@shuji-bonji/pdf-verify-mcp` |
 | [pdf-writer-mcp](https://github.com/shuji-bonji/pdf-writer-mcp) | action | mcp-server | 0.22.0 | `@shuji-bonji/pdf-writer-mcp` |
