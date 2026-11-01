@@ -1,0 +1,16 @@
+{
+  "name": "pdf-agent-stack-e2e",
+  "private": true,
+  "type": "module",
+  "description": "Cross-server E2E for the PDF Agent Stack: write-then-read and change-while-running scenarios over stdio",
+  "scripts": {
+    "setup": "node setup.mjs",
+    "test": "node --test --test-concurrency=1 --test-timeout=180000 tests/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0"
+  }
+}

@@ -1,0 +1,28 @@
+name: E2E (write-then-read)
+
+# 4 サーバーを stdio で起動し、「書いてから読む」と「起動中に環境を変える」を確かめる（#44）。
+# 起動するのは stack.json の公開版（eval/e2e/setup.mjs が入れる）。
+# 期待値は緩めない。直っていない不具合は、落ちるテストのまま残す。
+
+on:
+  schedule:
+    - cron: '0 21 * * 1' # 毎週月曜 06:00 JST（stack-check.yml と同じ）
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: eval/e2e
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run setup
+      - run: npm test
