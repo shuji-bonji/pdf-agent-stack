@@ -54,8 +54,8 @@ description: "pdf-writer-mcp v0.23.0 の全 20 ツールの引数・型・既定
 | `fontSize` | number (4–96) | 任意 |  | 本文フォントサイズ(pt)。既定 11。範囲 4〜96。 |
 | `pageSize` | `"A4"` \| `"A3"` \| `"A5"` \| `"LETTER"` \| `"LEGAL"` | 任意 |  | ページサイズ。既定 A4。 |
 | `margin` | number (0–300) | 任意 |  | 上下左右マージン(pt)。既定 56(≒20mm)。範囲 0〜300。 |
-| `title` | string | 任意 |  | PDF title. Always set in the metadata, and drawn as a heading at the top of the body unless drawTitle is false. |
-| `drawTitle` | boolean | 任意 |  | Whether to draw title as a heading at the top of the body. Default true. Pass false when the body already starts with its own heading (e.g. a Markdown "# ..." line): the title then goes into the metadata only (Info /Title, and XMP dc:title when tagged), so tagged output keeps the dc:title PDF/UA-1 (ISO 14289-1, 7.1) requires without a duplicated H1. |
+| `title` | string | 任意 |  | PDF のタイトル。常にメタデータに書き、drawTitle が false でなければ本文の冒頭にも見出しとして描く。 |
+| `drawTitle` | boolean | 任意 |  | title を本文の冒頭に見出しとして描くか。既定 true。本文が自前の見出し（Markdown の「# ...」の行など）で始まるときは false を渡す。タイトルはメタデータ（Info /Title、tagged のときは XMP の dc:title）にだけ入るので、タグ付きの出力は PDF/UA-1（ISO 14289-1 7.1）が求める dc:title を保ったまま、H1 が重複しない。 |
 | `author` | string | 任意 |  | PDF 作成者(メタデータ)。 |
 | `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | 任意 |  | フォントに存在しない文字(例: Noto Sans JP に無い ✔ U+2714)の扱い。error(既定)=欠落文字を列挙してエラー / replace=〓 に置換して警告 / ignore=空白のまま描画して警告。 |
 | `tagged` | boolean | 任意 |  | タグ付き PDF(PDF/UA-1・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。 |
@@ -127,8 +127,8 @@ Markdown から PDF を生成する。見出し・段落・箇条書き/番号�
 | `fontSize` | number (4–96) | 任意 |  | 本文フォントサイズ(pt)。既定 11。範囲 4〜96。 |
 | `pageSize` | `"A4"` \| `"A3"` \| `"A5"` \| `"LETTER"` \| `"LEGAL"` | 任意 |  | ページサイズ。既定 A4。 |
 | `margin` | number (0–300) | 任意 |  | 上下左右マージン(pt)。既定 56(≒20mm)。範囲 0〜300。 |
-| `title` | string | 任意 |  | PDF title. Always set in the metadata, and drawn as a heading at the top of the body unless drawTitle is false. |
-| `drawTitle` | boolean | 任意 |  | Whether to draw title as a heading at the top of the body. Default true. Pass false when the body already starts with its own heading (e.g. a Markdown "# ..." line): the title then goes into the metadata only (Info /Title, and XMP dc:title when tagged), so tagged output keeps the dc:title PDF/UA-1 (ISO 14289-1, 7.1) requires without a duplicated H1. |
+| `title` | string | 任意 |  | PDF のタイトル。常にメタデータに書き、drawTitle が false でなければ本文の冒頭にも見出しとして描く。 |
+| `drawTitle` | boolean | 任意 |  | title を本文の冒頭に見出しとして描くか。既定 true。本文が自前の見出し（Markdown の「# ...」の行など）で始まるときは false を渡す。タイトルはメタデータ（Info /Title、tagged のときは XMP の dc:title）にだけ入るので、タグ付きの出力は PDF/UA-1（ISO 14289-1 7.1）が求める dc:title を保ったまま、H1 が重複しない。 |
 | `author` | string | 任意 |  | PDF 作成者(メタデータ)。 |
 | `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | 任意 |  | フォントに存在しない文字(例: Noto Sans JP に無い ✔ U+2714)の扱い。error(既定)=欠落文字を列挙してエラー / replace=〓 に置換して警告 / ignore=空白のまま描画して警告。 |
 | `tagged` | boolean | 任意 |  | タグ付き PDF(PDF/UA-1・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。 |
@@ -167,8 +167,8 @@ Markdown から PDF を生成する。見出し・段落・箇条書き/番号�
 | `fontSize` | number (4–96) | 任意 |  | 本文フォントサイズ(pt)。既定 11。範囲 4〜96。 |
 | `pageSize` | `"A4"` \| `"A3"` \| `"A5"` \| `"LETTER"` \| `"LEGAL"` | 任意 |  | ページサイズ。既定 A4。 |
 | `margin` | number (0–300) | 任意 |  | 上下左右マージン(pt)。既定 56(≒20mm)。範囲 0〜300。 |
-| `title` | string | 任意 |  | PDF title. Always set in the metadata, and drawn as a heading at the top of the body unless drawTitle is false. |
-| `drawTitle` | boolean | 任意 |  | Whether to draw title as a heading at the top of the body. Default true. Pass false when the body already starts with its own heading (e.g. a Markdown "# ..." line): the title then goes into the metadata only (Info /Title, and XMP dc:title when tagged), so tagged output keeps the dc:title PDF/UA-1 (ISO 14289-1, 7.1) requires without a duplicated H1. |
+| `title` | string | 任意 |  | PDF のタイトル。常にメタデータに書き、drawTitle が false でなければ本文の冒頭にも見出しとして描く。 |
+| `drawTitle` | boolean | 任意 |  | title を本文の冒頭に見出しとして描くか。既定 true。本文が自前の見出し（Markdown の「# ...」の行など）で始まるときは false を渡す。タイトルはメタデータ（Info /Title、tagged のときは XMP の dc:title）にだけ入るので、タグ付きの出力は PDF/UA-1（ISO 14289-1 7.1）が求める dc:title を保ったまま、H1 が重複しない。 |
 | `author` | string | 任意 |  | PDF 作成者(メタデータ)。 |
 | `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | 任意 |  | フォントに存在しない文字(例: Noto Sans JP に無い ✔ U+2714)の扱い。error(既定)=欠落文字を列挙してエラー / replace=〓 に置換して警告 / ignore=空白のまま描画して警告。 |
 | `tagged` | boolean | 任意 |  | タグ付き PDF(PDF/UA-1・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。 |

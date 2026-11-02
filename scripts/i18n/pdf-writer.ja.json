@@ -108,8 +108,8 @@
     "text": "上下左右マージン(pt)。既定 56(≒20mm)。範囲 0〜300。"
   },
   "create_text_pdf|param:title": {
-    "src": "005f0e3194b63bf9847b54699c81b0e9",
-    "text": "PDF タイトル。メタデータに設定し、本文冒頭にも見出しとして描画する。"
+    "src": "88ad064e689ef3a1e8b3808b5aa2601f",
+    "text": "PDF のタイトル。常にメタデータに書き、drawTitle が false でなければ本文の冒頭にも見出しとして描く。"
   },
   "create_text_pdf|param:author": {
     "src": "b44821049a159f2b04a174d66a070d9c",
@@ -160,8 +160,8 @@
     "text": "上下左右マージン(pt)。既定 56(≒20mm)。範囲 0〜300。"
   },
   "create_markdown_pdf|param:title": {
-    "src": "005f0e3194b63bf9847b54699c81b0e9",
-    "text": "PDF タイトル。メタデータに設定し、本文冒頭にも見出しとして描画する。"
+    "src": "88ad064e689ef3a1e8b3808b5aa2601f",
+    "text": "PDF のタイトル。常にメタデータに書き、drawTitle が false でなければ本文の冒頭にも見出しとして描く。"
   },
   "create_markdown_pdf|param:author": {
     "src": "b44821049a159f2b04a174d66a070d9c",
@@ -216,8 +216,8 @@
     "text": "上下左右マージン(pt)。既定 56(≒20mm)。範囲 0〜300。"
   },
   "create_table_pdf|param:title": {
-    "src": "005f0e3194b63bf9847b54699c81b0e9",
-    "text": "PDF タイトル。メタデータに設定し、本文冒頭にも見出しとして描画する。"
+    "src": "88ad064e689ef3a1e8b3808b5aa2601f",
+    "text": "PDF のタイトル。常にメタデータに書き、drawTitle が false でなければ本文の冒頭にも見出しとして描く。"
   },
   "create_table_pdf|param:author": {
     "src": "b44821049a159f2b04a174d66a070d9c",
@@ -766,5 +766,17 @@
   "set_metadata|param:tdmPolicy": {
     "src": "7ebb897450c73e92ead7ddaff8a00caf",
     "text": "TDM ポリシーの URL（tdm:policy）。tdmReservation が必要。"
+  },
+  "create_text_pdf|param:drawTitle": {
+    "src": "2b9536fe74074f33c1b5250f200cdb8f",
+    "text": "title を本文の冒頭に見出しとして描くか。既定 true。本文が自前の見出し（Markdown の「# ...」の行など）で始まるときは false を渡す。タイトルはメタデータ（Info /Title、tagged のときは XMP の dc:title）にだけ入るので、タグ付きの出力は PDF/UA-1（ISO 14289-1 7.1）が求める dc:title を保ったまま、H1 が重複しない。"
+  },
+  "create_markdown_pdf|param:drawTitle": {
+    "src": "2b9536fe74074f33c1b5250f200cdb8f",
+    "text": "title を本文の冒頭に見出しとして描くか。既定 true。本文が自前の見出し（Markdown の「# ...」の行など）で始まるときは false を渡す。タイトルはメタデータ（Info /Title、tagged のときは XMP の dc:title）にだけ入るので、タグ付きの出力は PDF/UA-1（ISO 14289-1 7.1）が求める dc:title を保ったまま、H1 が重複しない。"
+  },
+  "create_table_pdf|param:drawTitle": {
+    "src": "2b9536fe74074f33c1b5250f200cdb8f",
+    "text": "title を本文の冒頭に見出しとして描くか。既定 true。本文が自前の見出し（Markdown の「# ...」の行など）で始まるときは false を渡す。タイトルはメタデータ（Info /Title、tagged のときは XMP の dc:title）にだけ入るので、タグ付きの出力は PDF/UA-1（ISO 14289-1 7.1）が求める dc:title を保ったまま、H1 が重複しない。"
   }
 }
