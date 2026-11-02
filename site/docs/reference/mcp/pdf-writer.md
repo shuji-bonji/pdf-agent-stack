@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-writer-mcp v0.22.0 — parameters, types, defaults and returns of all 20 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-writer-mcp v0.23.0 — parameters, types, defaults and returns of all 20 tools, generated from the server's tools/list."
 ---
 
 # pdf-writer-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-writer-mcp v0.22.0 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.22.0** (20 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.23.0** (20 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-writer).
@@ -54,7 +54,8 @@ Create a PDF from plain text. Honours line breaks (\n) and treats blank lines as
 | `fontSize` | number (4–96) | no |  | Body font size (pt). Default 11. Range 4-96. |
 | `pageSize` | `"A4"` \| `"A3"` \| `"A5"` \| `"LETTER"` \| `"LEGAL"` | no |  | Page size. Default A4. |
 | `margin` | number (0–300) | no |  | Margin on all sides (pt). Default 56 (about 20 mm). Range 0-300. |
-| `title` | string | no |  | PDF title. Set in the metadata and also drawn as a heading at the top of the body. |
+| `title` | string | no |  | PDF title. Always set in the metadata, and drawn as a heading at the top of the body unless drawTitle is false. |
+| `drawTitle` | boolean | no |  | Whether to draw title as a heading at the top of the body. Default true. Pass false when the body already starts with its own heading (e.g. a Markdown "# ..." line): the title then goes into the metadata only (Info /Title, and XMP dc:title when tagged), so tagged output keeps the dc:title PDF/UA-1 (ISO 14289-1, 7.1) requires without a duplicated H1. |
 | `author` | string | no |  | PDF author (metadata). |
 | `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | no |  | What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning / ignore = render as blanks with a warning. |
 | `tagged` | boolean | no |  | Generate as a tagged PDF (PDF/UA-1, ISO 14289). Default false. When true, a structure tree, the PDF/UA declaration, /Lang and DisplayDocTitle are added, making the document readable by screen readers. PDF/UA requires a title, so title becomes required. |
@@ -126,7 +127,8 @@ Create a PDF from Markdown. Supports headings, paragraphs, bullet/numbered lists
 | `fontSize` | number (4–96) | no |  | Body font size (pt). Default 11. Range 4-96. |
 | `pageSize` | `"A4"` \| `"A3"` \| `"A5"` \| `"LETTER"` \| `"LEGAL"` | no |  | Page size. Default A4. |
 | `margin` | number (0–300) | no |  | Margin on all sides (pt). Default 56 (about 20 mm). Range 0-300. |
-| `title` | string | no |  | PDF title. Set in the metadata and also drawn as a heading at the top of the body. |
+| `title` | string | no |  | PDF title. Always set in the metadata, and drawn as a heading at the top of the body unless drawTitle is false. |
+| `drawTitle` | boolean | no |  | Whether to draw title as a heading at the top of the body. Default true. Pass false when the body already starts with its own heading (e.g. a Markdown "# ..." line): the title then goes into the metadata only (Info /Title, and XMP dc:title when tagged), so tagged output keeps the dc:title PDF/UA-1 (ISO 14289-1, 7.1) requires without a duplicated H1. |
 | `author` | string | no |  | PDF author (metadata). |
 | `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | no |  | What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning / ignore = render as blanks with a warning. |
 | `tagged` | boolean | no |  | Generate as a tagged PDF (PDF/UA-1, ISO 14289). Default false. When true, a structure tree, the PDF/UA declaration, /Lang and DisplayDocTitle are added, making the document readable by screen readers. PDF/UA requires a title, so title becomes required. |
@@ -165,7 +167,8 @@ Create a ruled table PDF from headers and row data. Column widths are computed f
 | `fontSize` | number (4–96) | no |  | Body font size (pt). Default 11. Range 4-96. |
 | `pageSize` | `"A4"` \| `"A3"` \| `"A5"` \| `"LETTER"` \| `"LEGAL"` | no |  | Page size. Default A4. |
 | `margin` | number (0–300) | no |  | Margin on all sides (pt). Default 56 (about 20 mm). Range 0-300. |
-| `title` | string | no |  | PDF title. Set in the metadata and also drawn as a heading at the top of the body. |
+| `title` | string | no |  | PDF title. Always set in the metadata, and drawn as a heading at the top of the body unless drawTitle is false. |
+| `drawTitle` | boolean | no |  | Whether to draw title as a heading at the top of the body. Default true. Pass false when the body already starts with its own heading (e.g. a Markdown "# ..." line): the title then goes into the metadata only (Info /Title, and XMP dc:title when tagged), so tagged output keeps the dc:title PDF/UA-1 (ISO 14289-1, 7.1) requires without a duplicated H1. |
 | `author` | string | no |  | PDF author (metadata). |
 | `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | no |  | What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning / ignore = render as blanks with a warning. |
 | `tagged` | boolean | no |  | Generate as a tagged PDF (PDF/UA-1, ISO 14289). Default false. When true, a structure tree, the PDF/UA declaration, /Lang and DisplayDocTitle are added, making the document readable by screen readers. PDF/UA requires a title, so title becomes required. |
