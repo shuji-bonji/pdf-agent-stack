@@ -63,10 +63,22 @@ arm64 と Intel の macOS のランナーが使えない場合、そのジョブ
 
 ## F-13 を直した後
 
-`setup.mjs` を直し、2 段の setup をワークフローから外しました（FINDINGS の F-13）。クラウドのコンテナ（Linux x64・Node.js 22.23.4）で、`npm run setup` が `npm_execpath` の分岐を通ること、`node setup.mjs` を直接起動しても入ること、その後テストが 13 件通ることを確かめました。Windows で止まらないことは、push の後に行列をもう一度回して確かめます。
+`setup.mjs` を直し、2 段の setup をワークフローから外しました（FINDINGS の F-13）。push する前に、クラウドのコンテナ（Linux x64・Node.js 22.23.4）で次の 3 点を確かめました。
 
-| ランナー | setup | テスト |
-| --- | --- | --- |
-| `windows-latest` | | |
-| `windows-11-arm` | | |
-| ほかの 4 本 | | |
+- `npm run setup` が `npm_execpath` の分岐を通る
+- `node setup.mjs` を直接起動しても 4 パッケージが入る
+- その後、テストが 13 件通る
+
+push の後の run 41672194551（commit `8f7e235`、2026-11-04 01:14 JST に起動）では、6 本すべてが成功しました。
+
+| ランナー | setup | テスト | 待ち時間 |
+| --- | --- | --- | --- |
+| `ubuntu-latest` | 通る | 13 件通る | 2 秒 |
+| `ubuntu-24.04-arm` | 通る | 13 件通る | 5 秒 |
+| `macos-latest` | 通る | 13 件通る | 10 分 5 秒 |
+| `macos-15-intel` | 通る | 13 件通る | 5 秒 |
+| `windows-latest` | 通る | 12 件通る・S4 を飛ばす | 3 秒 |
+| `windows-11-arm` | 通る | 12 件通る・S4 を飛ばす | 3 秒 |
+
+- Windows の 2 本は、`npm run setup` が `spawnSync npm.cmd EINVAL` を出さずに 33 パッケージを入れました。Annotations の `Process completed with exit code 1.` も出なくなりました。
+- 待ち時間は、ジョブが作られてから実行マシンが割り当てられるまでの時間です。`macos-latest`（arm64）だけ、3 回の run とも割り当てに時間がかかりました（1 回目は割り当てられず、2 回目は約 5 分、今回は約 10 分）。GitHub は Annotations で「Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.」と知らせています。
