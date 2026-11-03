@@ -29,6 +29,18 @@
 | F-13 | E2（E5 に関係） | `eval/e2e`（試用の装置） | — | Windows でも動く | `setup.mjs` は Windows で `npm.cmd` を `execFileSync` で起動する。Node.js 20.12 以降、`.cmd` を `shell` 指定なしで起動するとエラーになるため、Windows では `npm run setup` が止まる見込み。S4 も Windows では飛ばしている。E5 で確かめる | 未定（装置の修正） | |
 | F-14 | E2・E1 | pdf-writer-mcp 0.23.1 `create_markdown_pdf`（`tagged: true`） | 箇条書きを含む Markdown | 記号「•」は `Lbl`、本文は `LBody` に入る（ISO 32000-1 Table 336：`LI` の子は `Lbl` か `LBody`、`Lbl` は箇条書きの記号を持つ。どちらも may/should の水準） | `LI` の下に `LBody` だけがあり、`LBody` の本文が「• 項目1」になる。reader の `extract_structured_text` も記号を本文として返す。veraPDF の PDF/UA-1 検査は通る | 未定 | |
 | F-15 | E1 | pdf-spec-mcp 0.11.0 `compare_versions` | `section: "7.6"` | 題名が変わっただけの節は「移動」として対応づける | PDF 1.7 の 7.6.3.3「Encryption Key Algorithm」を「削除」、PDF 2.0 の 7.6.4.3「File encryption key algorithm」を「追加」に分けた。ツール説明に「題名で自動照合する」とあるので説明どおりの動作 | 未定（文書か対応しないか） | |
+| F-16 | E3 | pdf-specialist-plugin 0.7.0 の subagent（`agents/pdf-specialist`） | クラウドのセッションを Claude Desktop 経由で Mac に接続し、subagent に `get_page_count` を依頼 | subagent が plugin の MCP を呼ぶ | subagent に見えたツールは `Read`・`Glob`・`Skill` だけ。定義が許可する `mcp__plugin_pdf-*` に対し、このセッションでの名前は `mcp__remote-devices__plugin_pdf-*` で、合うツールが無い。手元の Claude Code で直接起動した場合に呼べるかは未確認 | 未定 | |
+| F-17 | E3 | pdf-verify-mcp 0.32.2 `evaluate_policy`・`verify_integrity` | 署名 1 本と文書タイムスタンプ 1 本を持つ PDF（`contract-like-signed.pdf`） | 同じ名前の項目は同じものを数える | `evaluate_policy` の `facts.signatureCount` は 1（`facts.signatures[]` は 2 件）、`verify_integrity` の `signatureCount` は 2。前者は文書タイムスタンプを数えず、後者は数える | 未定 | |
+| F-18 | E3 | pdf-publish Skill 0.7.1 | 本文が `# 題名` で始まる Markdown を、Skill の手順どおり `title` 付き・`tagged: true` で生成 | Skill が `drawTitle: false` を案内し、H1 は 1 つ | Skill は `drawTitle` に触れておらず（前提の版も writer 0.21.1）、H1 が 2 つ並ぶ。Skill は読み戻しで H1 の二重を確かめるよう書いているが、防ぎ方は書いていない。veraPDF の PDF/UA-1 は通る | 未定（文書） | |
+| F-19 | E3 | pdf-writer-mcp 0.23.1 `ensure_pdfa`（`pdfa-4`・`pdfa-4f`） | PDF/UA-1 を宣言したタグ付きの PDF（`create_markdown_pdf` の `tagged: true` → `attach_file`） | 作成系が `tagged` と PDF 2.0 の組み合わせを拒否するのと同じく、拒否するか、`declarationRisks` で知らせる | ヘッダーを 2.0 にし、XMP の `pdfuaid:part=1` は残す。`identify_conformance` は PDF/A-4f と PDF/UA-1 の両方の宣言を返し、veraPDF は PDF/A-4f で適合、PDF/UA-1 で非適合（ISO 14289-1 6.1：ヘッダーは `%PDF-1.n`）。warning は PDF/A の CLAIMS だけで、`declarationRisks` は無い | OpenSpec | [pdf-writer-mcp#9](https://github.com/shuji-bonji/pdf-writer-mcp/issues/9) |
+| F-20 | E3 | pdf-writer-mcp 0.23.1 `ensure_tagged` | `tagged: true` で作った PDF（すでに Lang・DisplayDocTitle・pdfuaid がある） | 足したものだけを `addedRequirements` に返す | `addedRequirements: ["Lang", "ViewerPreferences/DisplayDocTitle", "XMP(pdfuaid:part, dc:title)"]` を返す。入力の `identify_conformance` はすでに PDF/UA-1 を宣言していた。ファイルの中身は書き換わっている（md5 が違う） | 未定 | |
+| F-21 | E3 | pdf-writer-mcp 0.23.1 の編集系 | 署名付きで、空パスワードで暗号化された官報 PDF に `set_metadata` | 編集できない理由を 1 回で返す | 1 回目は `SIGNED_PDF` で、`next_actions` が「`preserveSignatures: true` で再試行」と案内する。案内どおりに再試行すると `ENCRYPTED_PDF`。署名の確認が暗号化の確認より先にある | 未定 | |
+| F-22 | E3 | Claude Desktop の plugin（pdf-writer・pdf-spec） | plugin から起動した writer と spec | 環境変数がサーバーに届く | writer には `PDF_WRITER_FONT` が届かず `FONT_REQUIRED`（`fontPath` で回避できる）。spec には `PDF_SPEC_DIR` が `${PDF_SPEC_DIR}` のまま届き `REGISTRY_ERROR`。2026-10-21 時点の記録と同じで、Grok Build（#37）と同じ形 | 未定（文書） | |
+
+## E3 で見つからなかったもの
+
+- UC01〜UC10 で境界違反は 0 件（spec に検証対象を渡す、reader の観測を真正性に伸ばす、writer の成功を適合と言う、「準拠」と書く、未実施を passed にする、のいずれも無し）
+- writer の `ENCRYPTED_PDF` を、署名付きの官報で初めて観測できた（ただし F-21 の 2 回目）
 
 ## E2 で見つからなかったもの
 
