@@ -4,12 +4,11 @@ name: E2E OS matrix (trial 2026-11 E5)
 # 確かめること: 4 サーバーの起動と tools/list（S0）、空白・日本語・`C:/` 形式のパス（S0-paths）、S1〜S5。
 # 期待値は e2e.yml と同じく緩めない。落ちたジョブは落ちたまま残す（fail-fast: false）。
 #
-# setup は 2 段にしている。1 段目は eval/e2e/setup.mjs をそのまま回し、止まるかどうかを観測する
-# （F-13: Windows で npm.cmd を shell なしで execFileSync すると Node 20.12 以降は止まる見込み）。
-# 止まったら、2 段目で同じ版（setup.mjs --print）を npm install で入れてテストを続ける。
-# どちらで入れたかはジョブの Summary に書く。
+# F-13（Windows で setup.mjs が spawnSync npm.cmd EINVAL で止まる）は、run 41661871087・41667260819 で
+# 再現したのを確かめてから、setup.mjs を npm_execpath を node で実行する形に直した。
 #
-# ARM64 と Intel の macOS のランナーは、使えない場合ジョブが待ち続ける。そのときは手で取り消す。
+# 実行マシンに空きが無いと、ジョブは割り当てを待ち続ける（run 41661871087 では macos-latest（arm64）が
+# 割り当てられないまま終わった）。そのときは取り消して、後で再実行する。
 
 on:
   workflow_dispatch:
@@ -43,16 +42,9 @@ jobs:
           node-version: 22
       - run: npm ci --no-audit --no-fund
 
-      - name: setup（そのまま。F-13 の観測）
-        id: setup
-        continue-on-error: true
-        run: npm run setup
+      - run: npm run setup
 
-      - name: setup（1 段目が止まったときの代わり）
-        if: steps.setup.outcome == 'failure'
-        run: npm install --no-save --no-audit --no-fund $(node setup.mjs --print)
-
-      - name: Summary（環境と setup の結果）
+      - name: Summary（環境と起動した版）
         run: |
           {
             echo "### ${{ matrix.os }}"
@@ -62,7 +54,6 @@ jobs:
             echo "| OS・CPU | $(node -p 'process.platform + "-" + process.arch') |"
             echo "| Node.js | $(node --version) |"
             echo "| npm | $(npm --version) |"
-            echo "| setup.mjs | ${{ steps.setup.outcome }} |"
             echo "| 起動した版 | $(node setup.mjs --print) |"
           } >> "$GITHUB_STEP_SUMMARY"
 

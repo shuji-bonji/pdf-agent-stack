@@ -19,7 +19,7 @@ npm test
 
 CI（`.github/workflows/e2e.yml`）は、手動（`workflow_dispatch`）と毎週月曜 06:00 JST に公開版で回します。
 
-`.github/workflows/e2e-os-matrix.yml` は、同じテストを ubuntu・macOS・Windows（x64 と arm64）の行列で回します。手動（`workflow_dispatch`）だけで動きます（2026-11 試用の E5・[#47](https://github.com/shuji-bonji/pdf-agent-stack/issues/47)）。`node setup.mjs --print` は、入れる版を出力するだけで何も入れません。
+`.github/workflows/e2e-os-matrix.yml` は、同じテストを ubuntu・macOS・Windows（x64 と arm64）の行列で回します。手動（`workflow_dispatch`）だけで動きます（2026-11 試用の E5・[#47](https://github.com/shuji-bonji/pdf-agent-stack/issues/47)）。`node setup.mjs --print` は、入れる版を出力するだけで何も入れません。 `setup.mjs` は、`npm run setup` から起動されたときは npm の本体（`npm_execpath`）を `node` で実行するので、Windows でも `npm.cmd` を経由しません。
 
 ## シナリオ
 
