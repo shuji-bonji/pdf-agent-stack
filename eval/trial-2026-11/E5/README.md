@@ -40,15 +40,21 @@ arm64 と Intel の macOS のランナーが使えない場合、そのジョブ
 
 準備の途中で F-23 を見つけました（`FINDINGS.md`）。
 
-## 結果
+## 結果（run 41661871087、2026-11-04 00:14 JST に起動）
 
-まだ回していません。push の後に手動で起動し、ここに書きます。
+起動した版は 6 本とも reader 0.18.1・writer 0.23.1・verify 0.32.2・spec 0.11.0 です。
 
-| ランナー | setup.mjs | S0 | S0-paths | S1 | S2 | S3 | S4 | S5（3 件） | selfcheck |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `ubuntu-latest` | | | | | | | | | |
-| `ubuntu-24.04-arm` | | | | | | | | | |
-| `macos-latest` | | | | | | | | | |
-| `macos-15-intel` | | | | | | | | | |
-| `windows-latest` | | | | | | | | | |
-| `windows-11-arm` | | | | | | | | | |
+| ランナー | イメージ | Node.js | setup.mjs | S0（4 件） | S0-paths | S1 | S2 | S3 | S4 | S5（3 件） | selfcheck |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `ubuntu-latest`（linux-x64） | ubuntu-26.04 | 22.23.4 | 通る | 通る | 通る | 通る | 通る | 通る | 通る | 通る | 通る |
+| `ubuntu-24.04-arm`（linux-arm64） | ubuntu-24.04-arm | 22.23.4 | 通る | 通る | 通る | 通る | 通る | 通る | 通る | 通る | 通る |
+| `macos-latest`（darwin-arm64） | — | — | 使えなかった（下記） | — | — | — | — | — | — | — | — |
+| `macos-15-intel`（darwin-x64） | macos-15 | 22.23.2 | 通る | 通る | 通る | 通る | 通る | 通る | 通る | 通る | 通る |
+| `windows-latest`（win32-x64） | windows-2025-vs2026 | 22.23.4 | **止まる**（F-13） | 通る | 通る（`C:/...` 含む） | 通る | 通る | 通る | 飛ばす | 通る | 通る |
+| `windows-11-arm`（win32-arm64） | windows-11-vs2026-arm | 22.23.4 | **止まる**（F-13） | 通る | 通る（`C:/...` 含む） | 通る | 通る | 通る | 飛ばす | 通る | 通る |
+
+- `tools/list` のツール数は、5 本とも reader 18・writer 20・verify 7・spec 8 で、OS と CPU による違いはありませんでした。
+- Windows の 2 本は、`setup.mjs` が `spawnSync npm.cmd EINVAL`（`errno: -4071`）で止まりました。代わりの setup（`npm install --no-save` に `setup.mjs --print` の版を渡す）で同じ版を入れ、テストは通りました。
+- Actions の画面では、setup の手順は `continue-on-error` のため止まっても success と表示されます。止まったかどうかは、代わりの手順が実行されたか（Linux と macOS では skipped）で分かります。
+- `macos-latest` は実行マシンが割り当てられないまま終わりました。Annotations は、エラーが「The job was not acquired by Runner of type hosted even after multiple attempts」と「Internal server error」（Correlation ID: 94bb2aaa-1da9-457c-b8d2-6a5522144785）の 2 件、通知が「Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.」の 3 件でした。GitHub 側の macOS arm64 の空きが足りなかったためで、パッケージの結果ではありません。darwin-arm64 は、手元の Mac で回した E1 で確かめています（ただし E1 は手元のビルドで、公開版ではありません）。
+- パッケージ側の問題は、5 本のどれにも見つかりませんでした。見つかったのは試用の装置の問題（F-13）だけです。
