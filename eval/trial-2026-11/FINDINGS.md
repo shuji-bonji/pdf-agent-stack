@@ -36,6 +36,7 @@
 | F-20 | E3 | pdf-writer-mcp 0.23.1 `ensure_tagged` | `tagged: true` で作った PDF（すでに Lang・DisplayDocTitle・pdfuaid がある） | 足したものだけを `addedRequirements` に返す | `addedRequirements: ["Lang", "ViewerPreferences/DisplayDocTitle", "XMP(pdfuaid:part, dc:title)"]` を返す。入力の `identify_conformance` はすでに PDF/UA-1 を宣言していた。ファイルの中身は書き換わっている（md5 が違う） | 未定 | |
 | F-21 | E3 | pdf-writer-mcp 0.23.1 の編集系 | 署名付きで、空パスワードで暗号化された官報 PDF に `set_metadata` | 編集できない理由を 1 回で返す | 1 回目は `SIGNED_PDF` で、`next_actions` が「`preserveSignatures: true` で再試行」と案内する。案内どおりに再試行すると `ENCRYPTED_PDF`。署名の確認が暗号化の確認より先にある | 未定 | |
 | F-22 | E3 | Claude Desktop の plugin（pdf-writer・pdf-spec） | plugin から起動した writer と spec | 環境変数がサーバーに届く | writer には `PDF_WRITER_FONT` が届かず `FONT_REQUIRED`（`fontPath` で回避できる）。spec には `PDF_SPEC_DIR` が `${PDF_SPEC_DIR}` のまま届き `REGISTRY_ERROR`。2026-10-21 時点の記録と同じで、Grok Build（#37）と同じ形 | 未定（文書） | |
+| F-23 | E5 の準備（Linux・公開版） | pdf-writer-mcp 0.23.1 `set_metadata` | `/Resources` の無いページを持つ PDF（`eval/e2e` の `minimalPdf`）を `inputPath`、別のファイルを `outputPath` | 書き出しを拒否し、どのファイルの何が条件を満たさないかを返す | 拒否は ISO 32000-2 §7.7.3.3（Table 31：`Resources` は Required; inheritable）のとおり。ただしエラー文は `Failed to write "<inputPath>"` で、書いていない入力側のパスを「書けなかった」ファイルとして名指す。出力先のパスはどこにも出ない | 未定 | |
 
 ## E3 で見つからなかったもの
 

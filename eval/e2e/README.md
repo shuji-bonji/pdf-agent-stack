@@ -19,10 +19,13 @@ npm test
 
 CI（`.github/workflows/e2e.yml`）は、手動（`workflow_dispatch`）と毎週月曜 06:00 JST に公開版で回します。
 
+`.github/workflows/e2e-os-matrix.yml` は、同じテストを ubuntu・macOS・Windows（x64 と arm64）の行列で回します。手動（`workflow_dispatch`）だけで動きます（2026-11 試用の E5・[#47](https://github.com/shuji-bonji/pdf-agent-stack/issues/47)）。`node setup.mjs --print` は、入れる版を出力するだけで何も入れません。
+
 ## シナリオ
 
 | ファイル | 確かめること | 関わる Issue |
 | --- | --- | --- |
+| `tests/s0-startup-paths.test.mjs` | 4 サーバーが起動し、`tools/list` が `inputSchema` 付きのツールを返す。空白と日本語を含むパスを writer → reader → verify に渡す（Windows では `C:/...` の書き方でも渡す） | #47 |
 | `tests/s1-publish.test.mjs` | pdf-publish の流れ。writer で書く → reader で読み戻す → verify で採点 → 同じパスに書き直す → reader と verify が書き直した後の内容（題名・ファイルの大きさ）を返す | — |
 | `tests/s2-freshness.test.mjs` | 1 回読んだ PDF を同じパスに 3 回書き直し（メタデータ・注釈・結合）、同じプロセスで読み直す | — |
 | `tests/s3-reader-renderer.test.mjs` | `render_page` を描画の部品（`@hyzyla/pdfium`）無しで呼ぶ → 起動したまま部品を戻す → 呼ぶ | pdf-reader-mcp#34 |

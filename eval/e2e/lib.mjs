@@ -72,6 +72,10 @@ export async function start(key, env = {}) {
         kinds: result.content.map((c) => c.type),
       };
     },
+    /** `tools/list` の応答の tools（名前と inputSchema を持つ） */
+    async listTools() {
+      return (await client.listTools()).tools;
+    },
     close: () => client.close(),
   };
 }

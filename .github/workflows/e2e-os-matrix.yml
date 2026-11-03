@@ -1,0 +1,82 @@
+name: E2E OS matrix (trial 2026-11 E5)
+
+# eval/e2e を 3 OS × CPU の行列で回す（試用 #47 の E5）。起動するのは stack.json の公開版。
+# 確かめること: 4 サーバーの起動と tools/list（S0）、空白・日本語・`C:/` 形式のパス（S0-paths）、S1〜S5。
+# 期待値は e2e.yml と同じく緩めない。落ちたジョブは落ちたまま残す（fail-fast: false）。
+#
+# setup は 2 段にしている。1 段目は eval/e2e/setup.mjs をそのまま回し、止まるかどうかを観測する
+# （F-13: Windows で npm.cmd を shell なしで execFileSync すると Node 20.12 以降は止まる見込み）。
+# 止まったら、2 段目で同じ版（setup.mjs --print）を npm install で入れてテストを続ける。
+# どちらで入れたかはジョブの Summary に書く。
+#
+# ARM64 と Intel の macOS のランナーは、使えない場合ジョブが待ち続ける。そのときは手で取り消す。
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest # x64
+          - ubuntu-24.04-arm # arm64
+          - macos-latest # arm64
+          - macos-15-intel # x64
+          - windows-latest # x64
+          - windows-11-arm # arm64
+    defaults:
+      run:
+        working-directory: eval/e2e
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci --no-audit --no-fund
+
+      - name: setup（そのまま。F-13 の観測）
+        id: setup
+        continue-on-error: true
+        run: npm run setup
+
+      - name: setup（1 段目が止まったときの代わり）
+        if: steps.setup.outcome == 'failure'
+        run: npm install --no-save --no-audit --no-fund $(node setup.mjs --print)
+
+      - name: Summary（環境と setup の結果）
+        run: |
+          {
+            echo "### ${{ matrix.os }}"
+            echo ""
+            echo "| 項目 | 値 |"
+            echo "| --- | --- |"
+            echo "| OS・CPU | $(node -p 'process.platform + "-" + process.arch') |"
+            echo "| Node.js | $(node --version) |"
+            echo "| npm | $(npm --version) |"
+            echo "| setup.mjs | ${{ steps.setup.outcome }} |"
+            echo "| 起動した版 | $(node setup.mjs --print) |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: test
+        run: >
+          node --test --test-concurrency=1 --test-timeout=180000
+          --test-reporter=spec --test-reporter-destination=stdout
+          --test-reporter=junit --test-reporter-destination=junit.xml
+          tests/*.test.mjs
+
+      - name: 結果を保存
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-${{ matrix.os }}
+          path: eval/e2e/junit.xml
+          if-no-files-found: warn
