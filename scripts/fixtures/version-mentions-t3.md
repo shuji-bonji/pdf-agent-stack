@@ -1,7 +1,8 @@
 # version-mentions.mjs を壊して確かめるための検体
 
 `--t3` だけが読む（通常の走査からは外してある。SKIP_DIR の `fixtures`）。
-`__READER_NOW__` は走らせるときに stack.json の pdf-reader-mcp の版に置き換わる。
+`__READER_NOW__` と `__NORMATIVEPDF_NOW__` は、走らせるときに stack.json の
+pdf-reader-mcp と normativepdf の版に置き換わる。
 検体に版を焼き込むと、reader が上がった日にこの検体の意味が変わってしまう。
 
 拾ってほしいもの:
@@ -18,5 +19,5 @@
 - writer の biome 2.5.4（別の道具の版）
 - reader は §9.10.1 に従う（条番号）
 - pdf-reader-mcp 1.9.10.1 は 4 つ組で版ではない
-- ### 3.8.5 normativepdf 0.9.0 に載せる（3.8.5 は見出しの節番号）
+- ### 3.8.5 normativepdf __NORMATIVEPDF_NOW__ に載せる（3.8.5 は見出しの節番号）
 - spec / writer が 4.4.3 は zod の版。version-mentions:ignore

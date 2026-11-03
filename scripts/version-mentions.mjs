@@ -306,7 +306,11 @@ if (t3) {
 function runT3() {
   const fixture = join(ROOT, 'scripts/fixtures/version-mentions-t3.md');
   const now = current.get('pdf-reader-mcp').version;
-  const text = readFileSync(fixture, 'utf8').replaceAll('__READER_NOW__', now);
+  // 🔴 normativepdf の版も焼き込まない。検体に 0.9.0 と書いてあったため、normativepdf が
+  // 0.9.1 に上がった日に「節番号の隣にある本物の版」が past になり、T-3 が落ちた。
+  const text = readFileSync(fixture, 'utf8')
+    .replaceAll('__READER_NOW__', now)
+    .replaceAll('__NORMATIVEPDF_NOW__', current.get('normativepdf').version);
   const got = scan(text, 'version-mentions-t3.md', []);
   const want = [
     ['pdf-reader-mcp', 'v99.0.0', 'future', '存在しない版'],
