@@ -6,8 +6,8 @@ description: Long-term preservation (PDF/A) — producers run attach_file → en
 
 ## Scenario
 
-Leave behind a PDF that still opens, reads, and **verifies** ten years from now. In the Japanese
-e-bookkeeping-law context (bundling machine-readable data) or for public records, the
+Leave behind a PDF that still opens, reads, and **verifies** ten years from now. When an invoice is kept
+together with its machine-readable data, or for public records, the
 **producer** puts the document onto the PDF/A vessel and has veraPDF score it; the **recipient**
 checks whether the document's structure can survive preservation (does LTV data really exist?).
 
@@ -29,7 +29,7 @@ sequenceDiagram
   participant W as pdf-writer
   participant V as pdf-verify (veraPDF)
 
-  Note over W,V: Producer (e-bookkeeping-law pattern)
+  Note over W,V: Producer (invoice + bundled data)
   W->>W: attach_file(CSV, relationship: Data)
   W->>W: ensure_pdfa(pdfa-3b) — after attaching, always last
   W->>V: validate_conformance(pdfa-3b)
@@ -42,7 +42,7 @@ sequenceDiagram
 
 ## Prompt examples
 
-- "Put this invoice, CSV included, into the e-bookkeeping-law preservation format" (→ attach_file + ensure_pdfa(pdfa-3b))
+- "Put this invoice, CSV included, into the e-bookkeeping-law preservation format" (→ first say that neither PDF/A nor attachments is a requirement of the Act, then attach_file + ensure_pdfa(pdfa-3b). Whether the Act's requirements are met is not diagnosed — see [Invoice for Japan's e-Bookkeeping Rules (Denchōhō)](/use-cases/denchoho-invoice))
 - "Will this contract survive ten years? Can the signature still be verified after the certificate expires?" (→ detect_pades_level + DSS check)
 - "Use PDF/A-4" (→ with attachments it must be **`pdfa-4f`** — plain `pdfa-4` requires every attachment to be PDF/A itself)
 

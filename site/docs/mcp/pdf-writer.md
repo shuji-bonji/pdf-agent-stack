@@ -167,12 +167,12 @@ After writing, always measure with pdf-verify's `validate_conformance`, passing 
 **The PDF/A-4 flavours (`pdfa-4` / `pdfa-4f`) additionally set the header to PDF 2.0 and delete the Info dictionary.** PDF/A-4 forbids Info unless the catalog has `/PieceInfo` (veraPDF `ISO 19005-4:2020 6.1.3-4`) — stricter than ISO 32000-2 §14.3.3. Nothing is lost: `xmp:CreateDate` holds the creation date. It writes `pdfaid:rev` and not `pdfaid:conformance` (PDF/A-4 has no conformance level).
 
 ::: warning With attachments, use `"pdfa-4f"`
-Plain `"pdfa-4"` requires **every attachment to be PDF/A itself** (`6.9-3`). That breaks the e-bookkeeping-law pattern of bundling CSV or JSON — use **`"pdfa-4f"`**. Measured: the same document scored 108/109 under `pdfa-4` and **109/109 COMPLIANT** under `pdfa-4f`.
+Plain `"pdfa-4"` requires **every attachment to be PDF/A itself** (`6.9-3`). Bundling CSV or JSON (an invoice PDF that carries its data, for example) breaks that — use **`"pdfa-4f"`**. Measured: the same document scored 108/109 under `pdfa-4` and **109/109 COMPLIANT** under `pdfa-4f`.
 :::
 
 Combining with `preserveSignatures` is **refused for the PDF/A-4 flavours unless the input is already PDF 2.0**: an incremental update cannot rewrite the file header. Rewriting it would invalidate the very signatures being preserved.
 
-In the e-bookkeeping-law context, apply it **after** attaching the machine-readable data with `attach_file`. `attach_file` declares the relationship to the body with `relationship` (`Source` / `Data` / `Alternative` / `Supplement` / `Unspecified`) — **PDF/A-3 requires a meaningful value** (§6.8; omitting it warns).
+When the document carries machine-readable data, apply it **after** attaching that data with `attach_file`. `attach_file` declares the relationship to the body with `relationship` (`Source` / `Data` / `Alternative` / `Supplement` / `Unspecified`) — **PDF/A-3 requires a meaningful value** (§6.8; omitting it warns).
 
 ## Error codes
 

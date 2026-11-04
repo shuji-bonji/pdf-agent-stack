@@ -16,7 +16,8 @@ graph LR
 ## Supported scenarios
 
 - Generating PDF/UA-conformant (tagged) PDFs
-- Japanese e-bookkeeping law (電帳法): PDF/A-3b plus attachments (`attach_file`). When PDF/A-4 is requested, use **`pdfa-4f`** — plain `pdfa-4` requires every attachment to be PDF/A itself, which is incompatible with bundling CSV/XML
+- An invoice bundled with its data: PDF/A-3b plus attachments (`attach_file`). When PDF/A-4 is requested, use **`pdfa-4f`** — plain `pdfa-4` requires every attachment to be PDF/A itself, which is incompatible with bundling CSV/XML
+  - Asked for "an e-bookkeeping-law (電帳法) compliant PDF", the Skill first says that neither PDF/A nor attachments is a requirement of the Act, and asks what is wanted (PDF/A preservation, bundled data, or both) before choosing the level. For electronic transactions the Act asks for a timestamp, a system that records or prevents corrections, or internal rules against unjustified changes (Enforcement Regulation Art. 4(1)). The Publish Report never says the output complies with the Act
 - Making forms PDF/UA-conformant (`tag_form_fields`)
 - General quality-assured delivery
 
@@ -37,7 +38,7 @@ Choose how far to check before delivering — the central setting of this Skill.
 
 ## Measured example — Publish Report summary (2026-08-11)
 
-A demo invoice (Japanese, tagged, CSV attachment — the e-bookkeeping-law pattern) delivered at
+A demo invoice (Japanese, tagged, CSV attachment) delivered at
 gate level `conformance(pdfa-3b + pdfua-1)`:
 
 | Phase | What ran | Result |

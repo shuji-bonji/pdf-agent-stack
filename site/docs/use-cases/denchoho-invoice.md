@@ -7,7 +7,7 @@ description: Invoice for Japan's e-bookkeeping rules (Denchōhō) — attach the
 ::: warning What this page covers
 Only PDF-level operations: attaching a file, labelling the container as PDF/A-3b, and scoring it with veraPDF.
 It does not diagnose whether the file satisfies the retention requirements of Japan's Electronic Books Preservation Act (電子帳簿保存法, "Denchōhō"),
-and it never says the file "complies" with it. Legal requirements are read from the primary text via the [houki MCPs](/guide/agents); the judgement is a human's.
+and it never says the file "complies" with it. Neither PDF/A nor attachments is a requirement of the Act: for electronic transactions it asks for a timestamp, a system that records or prevents corrections, or internal rules against unjustified changes (Enforcement Regulation Art. 4(1)). Legal requirements are read from the primary text via the [houki MCPs](/guide/agents); the judgement is a human's.
 :::
 
 ## Scenario

@@ -1,13 +1,13 @@
 ---
-description: 長期保存 (PDF/A) — 作る側は attach_file → ensure_pdfa → veraPDF 採点、受け取る側は PAdES 構造と LTV データの実在確認。電帳法文脈の実測ログ付き
+description: 長期保存 (PDF/A) — 作る側は attach_file → ensure_pdfa → veraPDF 採点、受け取る側は PAdES 構造と LTV データの実在確認。実測ログ付き
 ---
 
 # 長期保存 (PDF/A)
 
 ## シナリオ
 
-10 年後にも「開ける・読める・検証できる」PDF を残します。電帳法（機械可読データの同梱）や
-公文書の保存文脈で、**作る側**は PDF/A の器に載せて veraPDF で採点し、**受け取る側**は
+10 年後にも「開ける・読める・検証できる」PDF を残します。請求書に機械可読データを同梱して残す場合や、
+公文書の保存で、**作る側**は PDF/A の器に載せて veraPDF で採点し、**受け取る側**は
 その文書が長期保存に耐える構造か（LTV データの実在）を確認します。
 
 以下は **2026-09-04 の実測**です（pdf-verify-mcp v0.26.0 / veraPDF 1.30.0。請求書デモ・インターネット官報・自作検体）。
@@ -27,7 +27,7 @@ sequenceDiagram
   participant W as pdf-writer
   participant V as pdf-verify (veraPDF)
 
-  Note over W,V: 作る側（電帳法パターン）
+  Note over W,V: 作る側（請求書 + データの同梱）
   W->>W: attach_file(CSV, relationship: Data)
   W->>W: ensure_pdfa(pdfa-3b) — 添付の後・必ず最後
   W->>V: validate_conformance(pdfa-3b)
@@ -40,7 +40,7 @@ sequenceDiagram
 
 ## プロンプト例
 
-- 「この請求書、CSV ごと電帳法対応の保存形式にして」（→ attach_file + ensure_pdfa(pdfa-3b)）
+- 「この請求書、CSV ごと電帳法対応の保存形式にして」（→ PDF/A も添付も電帳法の要件ではないと伝えたうえで、attach_file + ensure_pdfa(pdfa-3b)。電帳法の要件を満たすかは診断しない。[電帳法を意識した請求書](/ja/use-cases/denchoho-invoice) を参照）
 - 「この契約書、10 年保存に耐える？署名は失効後も検証できる形？」（→ detect_pades_level + DSS 確認）
 - 「PDF/A-4 で」（→ 添付があるなら **`pdfa-4f`**。素の `pdfa-4` は添付自身が PDF/A であることを要求する）
 

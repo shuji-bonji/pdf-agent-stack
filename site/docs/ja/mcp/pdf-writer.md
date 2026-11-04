@@ -167,12 +167,12 @@ graph TD
 PDF/A-4 系（`pdfa-4` / `pdfa-4f`）は、さらにヘッダを PDF 2.0 にし、Info 辞書を削除します。PDF/A-4 は、catalog に `/PieceInfo` が無い限り Info を許しません（veraPDF `ISO 19005-4:2020 6.1.3-4`）。これは ISO 32000-2 §14.3.3 より厳しい要求です。作成日時は `xmp:CreateDate` が持つので、情報は失われません。`pdfaid:rev` を書き、`pdfaid:conformance` は書きません。PDF/A-4 に conformance level は無いためです。
 
 ::: warning 添付があるなら `"pdfa-4f"`
-素の `"pdfa-4"` は、添付ファイル自身が PDF/A であることを要求します（`6.9-3`）。CSV や JSON を同梱する電帳法の使い方では非適合になるため、`"pdfa-4f"` を使ってください。実測では、同じ文書が `pdfa-4` で 108/109、`pdfa-4f` で 109/109 COMPLIANT でした。
+素の `"pdfa-4"` は、添付ファイル自身が PDF/A であることを要求します（`6.9-3`）。CSV や JSON を同梱する（請求書 PDF にそのデータを添えるなど）と非適合になるため、`"pdfa-4f"` を使ってください。実測では、同じ文書が `pdfa-4` で 108/109、`pdfa-4f` で 109/109 COMPLIANT でした。
 :::
 
 `preserveSignatures` との併用は、PDF/A-4 系では、入力がすでに PDF 2.0 でない限り拒否されます。増分更新では、ファイル先頭のヘッダを書き換えられないためです。書き換えれば、守るはずの署名が無効になります。
 
-電帳法の文脈では、`attach_file` で機械可読データを付けた**あと**に `ensure_pdfa` を掛けます。`attach_file` は `relationship`（`Source` / `Data` / `Alternative` / `Supplement` / `Unspecified`）で、本文との関係を宣言します。PDF/A-3 では、意味のある値が必須です（§6.8。省略すると警告が返ります）。
+機械可読データを添付する文書では、`attach_file` で付けた**あと**に `ensure_pdfa` を掛けます。`attach_file` は `relationship`（`Source` / `Data` / `Alternative` / `Supplement` / `Unspecified`）で、本文との関係を宣言します。PDF/A-3 では、意味のある値が必須です（§6.8。省略すると警告が返ります）。
 
 ## エラーコード
 
