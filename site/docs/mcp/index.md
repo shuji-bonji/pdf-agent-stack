@@ -6,7 +6,7 @@ description: The four MCP servers and their layers — pdf-spec (canon) / pdf-re
 
 | Server | Layer | ver | Tools | One-line definition |
 |---|---|---|---|---|
-| [pdf-spec-mcp](/mcp/pdf-spec) | Canon | 0.11.0 | 8 | What the specification requires |
+| [pdf-spec-mcp](/mcp/pdf-spec) | Canon | 0.12.0 | 8 | What the specification requires |
 | [pdf-reader-mcp](/mcp/pdf-reader) | Substance | 0.18.1 | 18 | The content, and **where it is drawn** |
 | [pdf-verify-mcp](/mcp/pdf-verify) | Authenticity & conformance | 0.33.0 | 7 | Is the signature valid, and does it meet the standard |
 | [pdf-writer-mcp](/mcp/pdf-writer) | Creation | 0.23.2 | 20 | Written the way the spec says |
