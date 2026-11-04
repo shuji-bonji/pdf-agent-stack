@@ -1,5 +1,5 @@
 ---
-description: "pdf-writer-mcp v0.23.1 の全 20 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-writer-mcp v0.23.2 の全 20 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-writer-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-writer-mcp v0.23.1 の全 20 ツールの引数・型・既定
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-**v0.23.1** の `tools/list` ハンドシェイクから自動生成（20 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.23.2** の `tools/list` ハンドシェイクから自動生成（20 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-writer)へ。
@@ -33,8 +33,8 @@ description: "pdf-writer-mcp v0.23.1 の全 20 ツールの引数・型・既定
 | [`flatten_form`](#flatten-form) | 既存 PDF の対話フォーム（AcroForm）をフラット化し、記入済みの見た目を保ったまま非対話にする。 |
 | [`tag_form_fields`](#tag-form-fields) | タグ付き PDF のフォームを PDF/UA-1 準拠へ修復する。 |
 | [`ensure_tagged`](#ensure-tagged) | 既存 PDF を PDF/UA-1 の「器」に載せる。 |
-| [`ensure_pdfa`](#ensure-pdfa) | 既存 PDF を PDF/A の「器」に載せる（ensure_tagged の PDF/A 版）。 |
-| [`attach_file`](#attach-file) | PDF にファイルを埋め込む(添付する)。 |
+| [`ensure_pdfa`](#ensure-pdfa) | Put an existing PDF onto the PDF/A "vessel" (the PDF/A counterpart of ensure_tagged). |
+| [`attach_file`](#attach-file) | Embed (attach) a file into a PDF. |
 | [`rotate_pages`](#rotate-pages) | ページを時計回りに回転する(90/180/270 度)。 |
 
 ## create_text_pdf
@@ -852,30 +852,7 @@ XMP に pdfuaid を書きます。適合していない文書に適用すると�
 
 **Ensure PDF/A (archival conformance scaffold)**
 
-既存 PDF を PDF/A の「器」に載せる（ensure_tagged の PDF/A 版）。
-
-| `flavour` | 名乗らせる内容 |
-| --- | --- |
-| `pdfa-3b` | 既定。PDF 1.7 基盤 |
-| `pdfa-4` | PDF 2.0。添付ファイル自身が PDF/A であること |
-| `pdfa-4f` | PDF 2.0。CSV / JSON などの非 PDF/A 添付向け |
-
-補うのは文書レベルの欠落要件だけである:
-
-- trailer の /ID（ISO 32000-1 14.4）
-- sRGB の OutputIntent（GTS_PDFA1。ICC プロファイルを生成して埋め込む）
-- XMP の pdfaid
-- **-4 系はさらに**ヘッダを PDF 2.0 にし、Info 辞書を削除する（-4 は catalog に /PieceInfo が無い限り Info を許さない）
-
-本文・構造木・フォントには触らない。添付がある文書は "pdfa-4f" を使うこと。素の "pdfa-4" は添付ファイル自身が PDF/A であることを要求するため、CSV や JSON を添える電帳法の使い方では非適合になる。
-
-**重要**: これは「PDF/A を名乗るための下準備」であって、適合の保証ではない。フォント未埋め込み・暗号化・JavaScript・LZW などの違反は直らない。XMP に pdfaid を書くことは、その文書が「PDF/A です」と名乗ることと同じで、適合していない文書に適用すると**嘘を名乗る PDF ができる**（このため適用時は常に警告を返す）。適合したかどうかは pdf-verify-mcp の validate_conformance（flavour: 同じ値）で必ず測ること。判定を下すのは veraPDF である。
-
-運用上の注意:
-
-- 電帳法の文脈では、attach_file で機械可読データを添付した**後**に適用する
-- 署名済み PDF には preserveSignatures: true（承認署名のみ。認証署名は拒否）
-- ただし -4 系 × preserveSignatures は、入力が既に PDF 2.0 でない限り拒否する（増分更新では先頭のヘッダを書き換えられず、書き換えれば署名が壊れるため）
+Put an existing PDF onto the PDF/A "vessel" (the PDF/A counterpart of ensure_tagged). Choose the flavour: "pdfa-3b" (default) / "pdfa-4" / "pdfa-4f". Supplies only the missing document-level requirements: the trailer /ID (ISO 32000-1 14.4), an sRGB OutputIntent (GTS_PDFA1; an ICC profile is generated and embedded), and XMP pdfaid. **The -4 flavours additionally set the header to PDF 2.0 and delete the Info dictionary** (-4 forbids Info unless the catalog has /PieceInfo — stricter than ISO 32000-2 14.3.3). **Content, structure tree and fonts are never touched.** **Documents with attachments must use "pdfa-4f"** — plain "pdfa-4" requires every attachment to be PDF/A itself, so bundling CSV or JSON (e.g. an invoice PDF that carries its data) would not conform. **IMPORTANT**: this is preparation for claiming PDF/A, not a guarantee of conformance. Violations such as unembedded fonts, encryption, JavaScript or LZW are not repaired. **Writing pdfaid into XMP is the document claiming "I am PDF/A"** — applied to a non-conforming document it produces **a PDF that lies about itself** (which is why a warning is always returned). Always confirm with pdf-verify-mcp's validate_conformance (flavour: the same value) — the verdict is veraPDF's, and since ISO 19005 clauses cannot be quoted, the strongest statement is "veraPDF judged it so". When the document carries machine-readable attachments, apply it **after** attach_file. For signed PDFs, preserveSignatures: true (approval signatures only; certification signatures are refused). However, **the -4 flavours combined with preserveSignatures are refused unless the input is already PDF 2.0** (an incremental update cannot rewrite the file header, and rewriting it would break the signatures).
 
 ### 引数
 
@@ -940,7 +917,7 @@ XMP に pdfaid を書きます。フォント未埋め込み・暗号化・JavaS
 
 **Attach File (Embedded File)**
 
-PDF にファイルを埋め込む(添付する)。/Names /EmbeddedFiles と catalog /AF に登録し、AFRelationship を付与する。PDF/A-3(ISO 19005-3)や電子帳簿保存法の文脈で、「人が読む請求書 PDF + 機械可読データ(CSV/XML)」を 1 ファイルに束ねる用途に使う。
+Embed (attach) a file into a PDF. Registers it under /Names /EmbeddedFiles and the catalog /AF, with an AFRelationship. For workflows that bundle "a human-readable invoice PDF + machine-readable data (CSV/XML)" into one file; PDF/A-3 (ISO 19005-3) and PDF/A-4f permit such attachments. Neither PDF/A nor attachments is a requirement of Japan's Electronic Bookkeeping Act (電子帳簿保存法): its rule for electronic transactions (Enforcement Regulation Art. 4(1)) asks for a timestamp, a system that records or prevents corrections, or internal rules against unjustified changes.
 
 ### 引数
 

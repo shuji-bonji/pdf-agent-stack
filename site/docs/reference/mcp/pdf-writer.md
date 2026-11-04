@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-writer-mcp v0.23.1 — parameters, types, defaults and returns of all 20 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-writer-mcp v0.23.2 — parameters, types, defaults and returns of all 20 tools, generated from the server's tools/list."
 ---
 
 # pdf-writer-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-writer-mcp v0.23.1 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.23.1** (20 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.23.2** (20 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-writer).
@@ -903,7 +903,7 @@ That warning is by design, not an anomaly — do not discard it. The verdict is 
 
 **Attach File (Embedded File)**
 
-Embed (attach) a file into a PDF. Registers it under /Names /EmbeddedFiles and the catalog /AF, with an AFRelationship. For PDF/A-3 (ISO 19005-3) and Japanese e-bookkeeping-law (電子帳簿保存法) workflows that bundle "a human-readable invoice PDF + machine-readable data (CSV/XML)" into one file.
+Embed (attach) a file into a PDF. Registers it under /Names /EmbeddedFiles and the catalog /AF, with an AFRelationship. For workflows that bundle "a human-readable invoice PDF + machine-readable data (CSV/XML)" into one file; PDF/A-3 (ISO 19005-3) and PDF/A-4f permit such attachments. Neither PDF/A nor attachments is a requirement of Japan's Electronic Bookkeeping Act (電子帳簿保存法): its rule for electronic transactions (Enforcement Regulation Art. 4(1)) asks for a timestamp, a system that records or prevents corrections, or internal rules against unjustified changes.
 
 ### Parameters
 
