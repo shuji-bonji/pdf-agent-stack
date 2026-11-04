@@ -63,6 +63,7 @@ sponsored 版は、Adobe・Apryse・Foxit などスポンサー企業の拠出�
 | --- | --- | --- |
 | Claude Code | settings.json やシェルの値に展開する | Claude の MCP / プラグイン設定の `env` |
 | Grok Build 1.0.30 | プラグイン env では展開しない。リテラルのまま渡ると起動に失敗する（実測: `REGISTRY_ERROR`） | `~/.grok/config.toml` の `[mcp_servers.pdf-spec]` |
+| Claude デスクトップアプリで「このコンピュータにリンク」したクラウドセッション（2026-11 実測） | プラグイン env では展開しない。`${PDF_SPEC_DIR}` という文字列のまま渡り、`REGISTRY_ERROR` になる | プラグインとは別に、`env` に絶対パスを書いた pdf-spec をデスクトップアプリのローカル MCP 設定に登録する（実測はこの形で確かめた） |
 
 Grok Build の `config.toml` では、同じキーの `${VAR}` は展開します。プラグイン経由と、`config.toml` 直書きでは扱いが違います。実測では `config.toml` に絶対パスを書いたあと、`grok inspect` の出典が `config` になり、`list_specs` が 17 文書を返しました。
 
@@ -74,6 +75,8 @@ env = { PDF_SPEC_DIR = "/absolute/path/to/pdf-specs" }
 ```
 
 `PDF_WRITER_FONT` も同じ差があります。Claude Code の `settings.json` に書いた値は、Grok Build が起動した pdf-writer プロセスには乗りません。Grok Build では `[mcp_servers.pdf-writer]` の `env` に絶対パスを書くか、呼び出しのたびに `fontPath` を付けます。未設定の日本語生成は `FONT_REQUIRED` です。
+
+同じクラウドセッションでは、プラグインの pdf-writer にも `PDF_WRITER_FONT` は届きませんでした（2026-11 実測。最初の生成が `FONT_REQUIRED`）。呼び出しに `fontPath` を付ければ生成できます。
 
 ## Step 3 — pdf-verify（veraPDF と信頼アンカー）
 

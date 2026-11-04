@@ -63,6 +63,7 @@ Even after `/plugin install pdf-spec-mcp@shuji-bonji`, write `PDF_SPEC_DIR` as a
 | --- | --- | --- |
 | Claude Code | Expanded from settings.json or the shell | The `env` of Claude's MCP / plugin config |
 | Grok Build 1.0.30 | Not expanded in plugin env. Passing the literal fails startup (measured: `REGISTRY_ERROR`) | `[mcp_servers.pdf-spec]` in `~/.grok/config.toml` |
+| Cloud session linked through the Claude desktop app ("Link to this computer", measured 2026-11) | Not expanded in plugin env. The literal `${PDF_SPEC_DIR}` arrives and the server answers `REGISTRY_ERROR` | Register a separate pdf-spec in the desktop app's local MCP config with an absolute path in `env` (this is how the measurement was done) |
 
 Grok Build does expand `${VAR}` of the same key in `config.toml`. Plugin env and a direct `config.toml` entry are treated differently. After writing an absolute path in `config.toml`, `grok inspect` reported the source as `config` and `list_specs` returned 17 documents.
 
@@ -74,6 +75,8 @@ env = { PDF_SPEC_DIR = "/absolute/path/to/pdf-specs" }
 ```
 
 `PDF_WRITER_FONT` has the same gap. A value in Claude Code's `settings.json` does not reach the pdf-writer process Grok Build spawns. On Grok Build, put an absolute path in `[mcp_servers.pdf-writer]` `env`, or pass `fontPath` on every call. Japanese output without a font is `FONT_REQUIRED`.
+
+In the same linked cloud session, `PDF_WRITER_FONT` did not reach the plugin's pdf-writer either (measured 2026-11: the first create call returned `FONT_REQUIRED`). Passing `fontPath` on the call works.
 
 ## Step 3 — pdf-verify (veraPDF and trust anchors)
 

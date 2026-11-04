@@ -28,7 +28,7 @@ normativepdf は 0.9.1 で、依存する 5 パッケージ（recover・pdf-cons
 | --- | --- | --- |
 | A. 配布の形 | 手元のビルド（dev）／npm の公開版（npx）／plugin 経由 | pdf-spec-mcp 0.4.0 は単体テストと e2e がすべて通っていたが、公開版を npx で起動して同じ節を 2 回引いたとき、表の行が増えていた |
 | B. OS・ランタイム | macOS／Linux／Windows、Node の版、Java（veraPDF） | macOS 用の `node_modules` が Linux で動かない。pdfjs + `@napi-rs/canvas` が画像ページで segfault した |
-| C. ホスト（MCP を起動する側） | Claude Code・Claude Desktop／Grok Build | plugin.json の `env` に書いた `${VAR}` を、Claude も Grok も展開しない。Grok は `~/.grok/config.toml` に書けば展開する |
+| C. ホスト（MCP を起動する側） | Claude Code・Claude Desktop／Grok Build | plugin.json の `env` に書いた `${VAR}` を、Claude Code のターミナルは展開する（pdf-spec-mcp の README）。デスクトップアプリで「このコンピュータにリンク」したクラウドセッションと Grok は展開しない。Grok は `~/.grok/config.toml` に書けば展開する |
 
 ## 環境と担当
 
