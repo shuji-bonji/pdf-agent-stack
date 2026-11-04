@@ -836,7 +836,7 @@ Content, structure tree and fonts are never touched.
 
 This is preparation for claiming PDF/A, not a guarantee of conformance. Unembedded fonts, encryption, JavaScript and LZW are not repaired. Writing pdfaid is the document claiming "I am PDF/A"; applied to a non-conforming file it produces a PDF that lies about itself (a warning is always returned). Measure with pdf-verify-mcp `validate_conformance` (same flavour). The verdict is veraPDF's.
 
-- Apply **after** `attach_file` in the e-bookkeeping-law context
+- Apply **after** `attach_file` when the document carries machine-readable attachments
 - Signed PDFs: `preserveSignatures: true` (approval signatures only; certification refused)
 - `-4` × `preserveSignatures` is refused unless the input is already PDF 2.0
 
@@ -925,7 +925,7 @@ Pass `Source` / `Data` / `Alternative` / `Supplement`. Omitting it warns and the
 :::
 
 ::: warning With attachments, PDF/A-4 must be `"pdfa-4f"`
-Plain `"pdfa-4"` requires every attachment to be PDF/A itself. Bundling CSV or JSON means `ensure_pdfa` flavour `"pdfa-4f"`. In the e-bookkeeping-law pattern, apply `ensure_pdfa` **after** the attachment.
+Plain `"pdfa-4"` requires every attachment to be PDF/A itself. Bundling CSV or JSON means `ensure_pdfa` flavour `"pdfa-4f"`. Apply `ensure_pdfa` **after** the attachment.
 :::
 
 ::: warning Always pass `outputPath`

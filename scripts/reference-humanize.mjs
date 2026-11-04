@@ -553,7 +553,7 @@ ${flavoursEn}
 
 This is preparation for claiming PDF/A, not a guarantee of conformance. Unembedded fonts, encryption, JavaScript and LZW are not repaired. Writing pdfaid is the document claiming "I am PDF/A"; applied to a non-conforming file it produces a PDF that lies about itself (a warning is always returned). Measure with pdf-verify-mcp \`validate_conformance\` (same flavour). The verdict is veraPDF's.
 
-- Apply **after** \`attach_file\` in the e-bookkeeping-law context
+- Apply **after** \`attach_file\` when the document carries machine-readable attachments
 - Signed PDFs: \`preserveSignatures: true\` (approval signatures only; certification refused)
 - \`-4\` × \`preserveSignatures\` is refused unless the input is already PDF 2.0`
     );

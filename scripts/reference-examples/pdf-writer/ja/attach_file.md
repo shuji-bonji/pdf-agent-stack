@@ -3,7 +3,7 @@
 :::
 
 ::: warning 添付があるなら PDF/A-4 は `"pdfa-4f"`
-素の `"pdfa-4"` は添付ファイル自身が PDF/A であることを要求します。CSV や JSON を同梱するなら `ensure_pdfa` の flavour は `"pdfa-4f"` です。電帳法の文脈では添付の**後**に `ensure_pdfa` を掛けます。
+素の `"pdfa-4"` は添付ファイル自身が PDF/A であることを要求します。CSV や JSON を同梱するなら `ensure_pdfa` の flavour は `"pdfa-4f"` です。`ensure_pdfa` は添付の**後**に掛けます。
 :::
 
 ::: warning `outputPath` は必ず渡す

@@ -3,7 +3,7 @@ Pass `Source` / `Data` / `Alternative` / `Supplement`. Omitting it warns and the
 :::
 
 ::: warning With attachments, PDF/A-4 must be `"pdfa-4f"`
-Plain `"pdfa-4"` requires every attachment to be PDF/A itself. Bundling CSV or JSON means `ensure_pdfa` flavour `"pdfa-4f"`. In the e-bookkeeping-law pattern, apply `ensure_pdfa` **after** the attachment.
+Plain `"pdfa-4"` requires every attachment to be PDF/A itself. Bundling CSV or JSON means `ensure_pdfa` flavour `"pdfa-4f"`. Apply `ensure_pdfa` **after** the attachment.
 :::
 
 ::: warning Always pass `outputPath`

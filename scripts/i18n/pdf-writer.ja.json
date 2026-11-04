@@ -68,12 +68,12 @@
     "text": "既存 PDF を PDF/UA-1 の「器」に載せる。\n\n- 既にタグ付きの文書: 構造木には触らず、欠落した文書レベル要件（MarkInfo・Lang・DisplayDocTitle・XMP の pdfuaid:part / dc:title）だけを補う\n- タグ無しの文書: 最小限の構造木（各ページ = 1 つの P 要素）を新設し、本文を支援技術から到達可能にする\n\n**重要**: 機械は意味を推定できないため、見出し・表・リスト・読み順・図の代替テキストは作られない。新設されるのは「足場」であって「アクセシブルな文書」ではなく、人手のレビューが要る。構造を最初から正しく作れるなら create 系の tagged: true を使うこと。\n\n署名済み PDF には preserveSignatures: true（承認署名のみ。認証署名は拒否）。"
   },
   "ensure_pdfa|prose": {
-    "src": "a63ffe124f127630107a3fd293bd1718",
-    "text": "既存 PDF を PDF/A の「器」に載せる（ensure_tagged の PDF/A 版）。flavour で \"pdfa-3b\"（既定）/ \"pdfa-4\" / \"pdfa-4f\" を選ぶ。\n\n補うのは文書レベルの欠落要件だけである:\n\n- trailer の /ID（ISO 32000-1 14.4）\n- sRGB の OutputIntent（GTS_PDFA1。ICC プロファイルを生成して埋め込む）\n- XMP の pdfaid\n- **-4 系はさらに**ヘッダを PDF 2.0 にし、Info 辞書を削除する（-4 は catalog に /PieceInfo が無い限り Info を許さない）\n\n本文・構造木・フォントには触らない。添付がある文書は \"pdfa-4f\" を使うこと。素の \"pdfa-4\" は添付ファイル自身が PDF/A であることを要求するため、CSV や JSON を添える電帳法の使い方では非適合になる。\n\n**重要**: これは「PDF/A を名乗るための下準備」であって、適合の保証ではない。フォント未埋め込み・暗号化・JavaScript・LZW などの違反は直らない。XMP に pdfaid を書くことは、その文書が「PDF/A です」と名乗ることと同じで、適合していない文書に適用すると**嘘を名乗る PDF ができる**（このため適用時は常に警告を返す）。適合したかどうかは pdf-verify-mcp の validate_conformance（flavour: 同じ値）で必ず測ること。判定を下すのは veraPDF である。\n\n運用上の注意:\n\n- 電帳法の文脈では、attach_file で機械可読データを添付した**後**に適用する\n- 署名済み PDF には preserveSignatures: true（承認署名のみ。認証署名は拒否）\n- ただし -4 系 × preserveSignatures は、入力が既に PDF 2.0 でない限り拒否する（増分更新では先頭のヘッダを書き換えられず、書き換えれば署名が壊れるため）"
+    "src": "9aec498821015ae4212d9fb47d00ca08",
+    "text": "既存 PDF を PDF/A の「器」に載せる（ensure_tagged の PDF/A 版）。flavour で \"pdfa-3b\"（既定）/ \"pdfa-4\" / \"pdfa-4f\" を選ぶ。\n\n補うのは文書レベルの欠落要件だけである:\n\n- trailer の /ID（ISO 32000-1 14.4）\n- sRGB の OutputIntent（GTS_PDFA1。ICC プロファイルを生成して埋め込む）\n- XMP の pdfaid\n- **-4 系はさらに**ヘッダを PDF 2.0 にし、Info 辞書を削除する（-4 は catalog に /PieceInfo が無い限り Info を許さない）\n\n本文・構造木・フォントには触らない。添付がある文書は \"pdfa-4f\" を使うこと。素の \"pdfa-4\" は添付ファイル自身が PDF/A であることを要求するため、CSV や JSON を同梱する（請求書 PDF にそのデータを添えるなど）と非適合になる。\n\n**重要**: これは「PDF/A を名乗るための下準備」であって、適合の保証ではない。フォント未埋め込み・暗号化・JavaScript・LZW などの違反は直らない。XMP に pdfaid を書くことは、その文書が「PDF/A です」と名乗ることと同じで、適合していない文書に適用すると**嘘を名乗る PDF ができる**（このため適用時は常に警告を返す）。適合したかどうかは pdf-verify-mcp の validate_conformance（flavour: 同じ値）で必ず測ること。判定を下すのは veraPDF で、ISO 19005 の条文は引用できないため、言えるのは「veraPDF がそう判定した」までである。\n\n運用上の注意:\n\n- 機械可読データを添付する文書では、attach_file の**後**に適用する\n- 署名済み PDF には preserveSignatures: true（承認署名のみ。認証署名は拒否）\n- ただし -4 系 × preserveSignatures は、入力が既に PDF 2.0 でない限り拒否する（増分更新では先頭のヘッダを書き換えられず、書き換えれば署名が壊れるため）"
   },
   "attach_file|prose": {
-    "src": "5f9687b42012cbb05c2cd75f07c5096f",
-    "text": "PDF にファイルを埋め込む(添付する)。/Names /EmbeddedFiles と catalog /AF に登録し、AFRelationship を付与する。PDF/A-3(ISO 19005-3)や電子帳簿保存法の文脈で、「人が読む請求書 PDF + 機械可読データ(CSV/XML)」を 1 ファイルに束ねる用途に使う。"
+    "src": "d4cd7329b4704600cfb2f7dfe92d13c8",
+    "text": "PDF にファイルを埋め込む(添付する)。/Names /EmbeddedFiles と catalog /AF に登録し、AFRelationship を付与する。「人が読む請求書 PDF + 機械可読データ(CSV/XML)」を 1 ファイルに束ねる用途に使う。PDF/A-3(ISO 19005-3)と PDF/A-4f は、この形の添付を認めている。PDF/A も添付も、電子帳簿保存法の要件ではない。電子取引のデータの保存について同法が求めるのは(施行規則 4 条 1 項)、タイムスタンプ、訂正・削除を記録するか防ぐシステム、正当な理由のない訂正・削除を防ぐ事務処理規程のいずれかである。"
   },
   "rotate_pages|prose": {
     "src": "2b80dd93ad7f3049e246fbb08a74167c",
@@ -676,8 +676,8 @@
     "text": "対象 PDF の絶対パス。"
   },
   "ensure_pdfa|param:flavour": {
-    "src": "d132059d876d33bb106d77b61acb7e5a",
-    "text": "名乗らせる PDF/A。既定 \"pdfa-3b\"。\"pdfa-4\"(ISO 19005-4) は PDF 2.0 基盤なので、/ID・OutputIntent・XMP pdfaid に加えて**ヘッダを 2.0 にし、Info 辞書を落とす**(-4 は PieceInfo が無い限り Info を許さない)。**-4 は conformance level を持たない**ため pdfaid:conformance を書かず pdfaid:rev を書く。**添付がある文書は \"pdfa-4f\" を使うこと** — 素の \"pdfa-4\" は添付ファイル自身が PDF/A であることを要求するので、JSON や CSV を添える電帳法の使い方では非適合になる。署名保持(preserveSignatures)との併用は、入力が既に PDF 2.0 でない限り拒否する(増分更新では先頭のヘッダを書き換えられず、書き換えれば署名が壊れるため)。"
+    "src": "98c82805abafcf18d433c21461fa7305",
+    "text": "名乗らせる PDF/A。既定 \"pdfa-3b\"。\"pdfa-4\"(ISO 19005-4) は PDF 2.0 基盤なので、/ID・OutputIntent・XMP pdfaid に加えて**ヘッダを 2.0 にし、Info 辞書を落とす**(-4 は PieceInfo が無い限り Info を許さない)。**-4 は conformance level を持たない**ため pdfaid:conformance を書かず pdfaid:rev を書く。**添付がある文書は \"pdfa-4f\" を使うこと** — 素の \"pdfa-4\" は添付ファイル自身が PDF/A であることを要求するので、JSON や CSV を同梱する(請求書 PDF にそのデータを添えるなど)と非適合になる。署名保持(preserveSignatures)との併用は、入力が既に PDF 2.0 でない限り拒否する(増分更新では先頭のヘッダを書き換えられず、書き換えれば署名が壊れるため)。"
   },
   "ensure_pdfa|param:preserveSignatures": {
     "src": "495804bcd9b910874f476c3d6b77c264",
