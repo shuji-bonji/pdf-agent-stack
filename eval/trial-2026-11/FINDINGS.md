@@ -46,7 +46,7 @@
 | F-30 | E4（UC05） | pdf-spec-mcp 0.11.0 `search_spec`・`get_requirements`・`get_section` | `spec` を省いて呼ぶ | 使った spec の id が応答にある | どの応答にも使った spec の id が無い（既定は `list_specs` の 1 件目の `iso32000-2`） | OpenSpec | [pdf-spec-mcp#32](https://github.com/shuji-bonji/pdf-spec-mcp/issues/32) |
 | F-31 | E4（UC03） | pdf-writer-mcp 0.23.1 `ensure_pdfa` | PDF/A-3b を宣言した文書に `pdfa-4f` | `wasDeclared` が、要求した flavour と同じ宣言があったかを返す | `wasDeclared: true`。前の宣言は part 3・conformance B で、要求した flavour とは違う。「何かの pdfaid があった」と「同じ宣言があった」を分けていない | OpenSpec | [pdf-writer-mcp#11](https://github.com/shuji-bonji/pdf-writer-mcp/issues/11) |
 | F-32 | E4（UC08） | pdf-reader-mcp 0.18.1 `inspect_structure` | 添付付きの PDF | 添付の名前と `AFRelationship` を返す | 展開しない | 対応しない（添付の名前と `AFRelationship` は `inspect_catalog` が返す） |  |
-| F-33 | E4（UC08） | pdf-writer-mcp 0.23.1 `ensure_pdfa`・`attach_file` のツールの説明文 | — | 電子帳簿保存法と PDF/A・添付を、別の話題として書く | 説明文が「the Japanese e-bookkeeping-law pattern」「電子帳簿保存法 workflows」として、PDF/A-3・`pdfa-4f` と添付の組み合わせを電帳法と結びつけている | 文書（法令が求めることかを条文で確かめてから、説明文を直す）。電帳法施行規則 4 条 1 項は、タイムスタンプ・訂正削除の記録か防止・事務処理規程のいずれかを求め、PDF/A も添付も求めていない。2026-11-04 に writer の `definitions.ts`・`validation.ts`・`doc-level.ts` の説明文と CHANGELOG を直した（未 commit） |  |
+| F-33 | E4（UC08） | pdf-writer-mcp 0.23.1 `ensure_pdfa`・`attach_file` のツールの説明文 | — | 電子帳簿保存法と PDF/A・添付を、別の話題として書く | 説明文が「the Japanese e-bookkeeping-law pattern」「電子帳簿保存法 workflows」として、PDF/A-3・`pdfa-4f` と添付の組み合わせを電帳法と結びつけている | 文書（法令が求めることかを条文で確かめてから、説明文を直す）。電帳法施行規則 4 条 1 項は、タイムスタンプ・訂正削除の記録か防止・事務処理規程のいずれかを求め、PDF/A も添付も求めていない。2026-11-04 に writer の `definitions.ts`・`validation.ts`・`doc-level.ts` の説明文と CHANGELOG を直した。pdf-publish Skill の SKILL.md・references・plugin.json の同じ書き方も直し、「電帳法対応」と頼まれたときの確かめ方を足した（どちらも未 commit） |  |
 
 ## E3 で見つからなかったもの
 
