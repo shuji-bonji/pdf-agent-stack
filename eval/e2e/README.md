@@ -41,6 +41,10 @@ CI（`.github/workflows/e2e.yml`）は、手動（`workflow_dispatch`）と毎�
 - S4 は `PDF_VERIFY_VERAPDF` の経路で測ります。PATH と決まった場所の経路は、Homebrew の veraPDF がある手元と無い CI で結果が変わるためです。
 - S3 は、部品が最初から入っていない環境では飛ばします（戻すものが無いため）。
 
+## 2026-11-06 の結果（S6）
+
+9 件の Issue を直した公開版（reader 0.21.0・writer 0.23.3 → 0.24.0・verify 0.35.0・spec 0.14.0）に向けて、S6 に 3 件を足しました。ファイルシステムのエラー（reader の読み取り権限の無いファイル、writer の書けない出力先）と、spec の知らない `spec` の id です。公開版では 26 件すべて通りました。足した 3 件は、前の版（reader 0.20.1・writer 0.23.3・spec 0.13.0。`PDF_E2E_<KEY>_DIR`）に向けると 3 件とも落ち、残りの 23 件は通りました。reader の件は、Windows と root では `chmod 000` が読み取りを止めないので飛ばします。同じ日に S0・S1・S2・S5 も公開版で 10 件すべて通りました。
+
 ## 2026-11-05 の結果（S6）
 
 公開版（reader 0.20.0・writer 0.23.3・verify 0.33.0・spec 0.12.0）で 23 件すべて通りました。旧名を外した verify 0.34.0・spec 0.13.0（reader 0.20.1・writer 0.23.3）でも 23 件すべて通りました。足した `read_url` の 5 件を reader 0.19.0（`PDF_E2E_READER_DIR`）に向けると 4 件が落ち、0.19.0 の時点で正しかった HTTP 404 だけが通りました。時間切れ（`SOURCE_TIMEOUT`）は、`read_url` の時間切れが 30 秒で引数から変えられないので、S6 では測らず、reader の単体テスト（`tests/e2e/19-read-url-network-errors.test.ts`）に任せています。

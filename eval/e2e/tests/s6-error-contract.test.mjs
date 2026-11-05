@@ -19,7 +19,7 @@
  * ハンドラの失敗ではないので、その旨を出力して形の検査はしない。
  */
 import assert from 'node:assert/strict';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer as createHttpServer } from 'node:http';
 import { createServer as createHttpsServer } from 'node:https';
 import { createServer as createNetServer } from 'node:net';
@@ -246,7 +246,75 @@ test('S6-spec 仕様書のフォルダーが無い → 契約どおりの REGIST
   const res = await conn('spec').call('get_section', { section: '7.1' });
   const violations = contractViolations('spec', res);
   if (res.json?.code !== 'REGISTRY_ERROR') violations.push(`code が \`${res.json?.code}\`（REGISTRY_ERROR を期待）`);
+  // 0.14.0 から REGISTRY_ERROR は常に再試行できない（code ごとに固定）
+  if (res.json?.retryable !== false) violations.push(`retryable が ${res.json?.retryable}（false を期待）`);
   assert.deepEqual(violations, [], `本文: ${res.text.slice(0, 400)}`);
+});
+
+/**
+ * ファイルシステムのエラー（2026-11-06 の family の決定。pdf-reader-mcp#49・pdf-writer-mcp#10 の F-23）。
+ *
+ * 入力を読めない・出力を書けないは `INVALID_ARGUMENT`（`retryable: true`）で、`detail.reason`・
+ * `detail.path`・`detail.cause` を書く。`reason` の値は reader と writer で同じ。
+ * reader 0.20.x は `INTERNAL_ERROR`、writer 0.23.x は `INTERNAL_ERROR`（書き出しの例外の素通し）だった。
+ */
+const NO_CHMOD = process.platform === 'win32' || process.getuid?.() === 0;
+
+test('S6-reader 読み取り権限の無いファイル → INVALID_ARGUMENT（PERMISSION_DENIED）', { skip: NO_CHMOD && 'Windows か root では chmod 000 が読み取りを止めない' }, async () => {
+  const locked = join(work.dir, 'no-permission.pdf');
+  writeFileSync(locked, '%PDF-1.7\n');
+  chmodSync(locked, 0o000);
+  try {
+    const res = await conn('reader').call('get_page_count', { file_path: locked });
+    const violations = contractViolations('reader', res);
+    if (res.json?.code !== 'INVALID_ARGUMENT') violations.push(`code が \`${res.json?.code}\`（INVALID_ARGUMENT を期待）`);
+    if (res.json?.retryable !== true) violations.push(`retryable が ${res.json?.retryable}（true を期待）`);
+    if (res.json?.detail?.reason !== 'PERMISSION_DENIED') violations.push(`detail.reason が ${res.json?.detail?.reason}`);
+    if (res.json?.detail?.path !== locked) violations.push('detail.path が渡したパスでない');
+    assert.deepEqual(violations, [], `本文: ${res.text.slice(0, 400)}`);
+  } finally {
+    chmodSync(locked, 0o600);
+  }
+});
+
+test('S6-writer 出力のフォルダーの位置にファイルがある → INVALID_ARGUMENT で出力のパスを名指す', async () => {
+  const input = join(work.dir, 'writer-input.pdf');
+  const made = await conn('writer').call('create_text_pdf', { text: 'S6', outputPath: input });
+  assert.equal(made.isError, false, made.text);
+  const blocker = join(work.dir, 'a-file.txt');
+  writeFileSync(blocker, 'not a folder\n');
+  const outputPath = join(blocker, 'out.pdf');
+  const res = await conn('writer').call('rotate_pages', { inputPath: input, rotation: 90, outputPath });
+  const violations = contractViolations('writer', res);
+  if (res.json?.code !== 'INVALID_ARGUMENT') violations.push(`code が \`${res.json?.code}\`（INVALID_ARGUMENT を期待）`);
+  if (res.json?.retryable !== true) violations.push(`retryable が ${res.json?.retryable}（true を期待）`);
+  if (res.json?.detail?.path !== outputPath) violations.push(`detail.path が出力のパスでない（${res.json?.detail?.path}）`);
+  if (typeof res.json?.detail?.reason !== 'string') violations.push('detail.reason が無い');
+  if (process.platform !== 'win32' && res.json?.detail?.reason !== 'NOT_A_DIRECTORY')
+    violations.push(`detail.reason が ${res.json?.detail?.reason}（NOT_A_DIRECTORY を期待）`);
+  if (!String(res.json?.error ?? '').includes(outputPath)) violations.push('error が出力のパスを名指していない');
+  assert.deepEqual(violations, [], `本文: ${res.text.slice(0, 400)}`);
+});
+
+/**
+ * spec の `retryable` を `code` ごとに固定した（pdf-spec-mcp 0.14.0）。
+ * 知らない `spec` の id は `REGISTRY_ERROR`（0.13.x では `retryable: true`）から `INVALID_ARGUMENT` に移った。
+ * 仕様書は中身を読まない（名前でパターンに当てるだけ）ので、空のファイルを置いたフォルダーで起動する。
+ */
+test('S6-spec 知らない spec の id → INVALID_ARGUMENT（retryable: true）', async () => {
+  const dir = join(work.dir, 'spec-dir');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'ISO_32000-2_sponsored-ec2.pdf'), '');
+  const spec = await start('spec', { PDF_SPEC_DIR: dir, PDF_SPEC_CACHE: 'off' });
+  try {
+    const res = await spec.call('get_section', { section: '7.1', spec: 'no-such-spec' });
+    const violations = contractViolations('spec', res);
+    if (res.json?.code !== 'INVALID_ARGUMENT') violations.push(`code が \`${res.json?.code}\`（INVALID_ARGUMENT を期待）`);
+    if (res.json?.retryable !== true) violations.push(`retryable が ${res.json?.retryable}（true を期待）`);
+    assert.deepEqual(violations, [], `本文: ${res.text.slice(0, 400)}`);
+  } finally {
+    await spec.close();
+  }
 });
 
 /** 宣言に無いキー: SDK の前段で落ち、SDK の文言のまま返る（§2.11） */
