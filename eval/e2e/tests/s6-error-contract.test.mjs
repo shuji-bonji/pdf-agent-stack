@@ -19,8 +19,12 @@
  * ハンドラの失敗ではないので、その旨を出力して形の検査はしない。
  */
 import assert from 'node:assert/strict';
-import { writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { createServer as createHttpServer } from 'node:http';
+import { createServer as createHttpsServer } from 'node:https';
+import { createServer as createNetServer } from 'node:net';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { after, before, test } from 'node:test';
 import { start, WRITER_ENV, workDir } from '../lib.mjs';
 
@@ -40,7 +44,7 @@ const COMMON = new Set([
 
 /** サーバー固有のコード（共通語彙の意味に当たらないものだけ） */
 const SPECIFIC = {
-  reader: [],
+  reader: ['RENDERER_NOT_AVAILABLE'],
   writer: ['SIGNED_PDF', 'TAGGED_PDF', 'FONT_REQUIRED', 'FONT_NOT_FOUND', 'MISSING_GLYPH'],
   verify: ['INVALID_BYTE_RANGE', 'WRONG_PASSWORD', 'VERAPDF_NOT_FOUND', 'VERAPDF_NOT_AVAILABLE', 'VERAPDF_NO_RESULT'],
   spec: ['REGISTRY_ERROR', 'CONTENT_ERROR', 'PREREQUISITE_ERROR'],
@@ -156,6 +160,86 @@ for (const server of Object.keys(FILE_TOOL)) {
       assert.deepEqual(violations, [], `${server} ${tool} ${label}\n本文: ${res.text.slice(0, 400)}`);
     });
   }
+}
+
+/**
+ * reader の `read_url` の取得の失敗（pdf-reader-mcp#46。0.20.0 で直した）。
+ *
+ * 外の網には触れない。127.0.0.1 に立てたサーバーと、名前解決の段階で失敗する `.invalid` だけを使う。
+ * 時間切れ（`SOURCE_TIMEOUT`）は、`read_url` の時間切れが 30 秒で引数から変えられないので、
+ * ここでは測らない（reader の単体テストが測る）。
+ */
+const TLS = join(dirname(fileURLToPath(import.meta.url)), '..', 'fixtures', 'tls');
+const listen = (server) =>
+  new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(server.address().port)));
+const closeServer = (server) =>
+  new Promise((resolve) => {
+    server.closeAllConnections?.();
+    server.close(() => resolve());
+  });
+
+async function closedPort() {
+  const s = createNetServer();
+  const port = await listen(s);
+  await new Promise((r) => s.close(() => r()));
+  return port;
+}
+
+const READ_URL_CASES = [
+  {
+    label: '接続を拒まれる',
+    expected: 'SOURCE_UNAVAILABLE',
+    retryable: true,
+    url: async () => ({ url: `http://127.0.0.1:${await closedPort()}/x.pdf` }),
+  },
+  {
+    label: 'ホスト名を引けない',
+    expected: 'SOURCE_UNAVAILABLE',
+    retryable: true,
+    url: async () => ({ url: 'http://no-such-host.invalid/x.pdf' }),
+  },
+  {
+    label: 'HTTP 404',
+    expected: 'SOURCE_API_ERROR',
+    retryable: false,
+    url: async () => {
+      const server = createHttpServer((_req, res) => res.writeHead(404).end('not found'));
+      return { url: `http://127.0.0.1:${await listen(server)}/x.pdf`, server };
+    },
+  },
+  {
+    label: '証明書を検証できない（自己署名）',
+    expected: 'SOURCE_API_ERROR',
+    retryable: false,
+    url: async () => {
+      const server = createHttpsServer(
+        { key: readFileSync(join(TLS, 'self-signed.key')), cert: readFileSync(join(TLS, 'self-signed.pem')) },
+        (_req, res) => res.end('%PDF-'),
+      );
+      return { url: `https://127.0.0.1:${await listen(server)}/x.pdf`, server };
+    },
+  },
+  {
+    label: 'fetch が断るポート（9）',
+    expected: 'INVALID_ARGUMENT',
+    retryable: true,
+    url: async () => ({ url: 'http://127.0.0.1:9/x.pdf' }),
+  },
+];
+
+for (const { label, expected, retryable, url } of READ_URL_CASES) {
+  test(`S6-reader read_url ${label} → ${expected}`, async () => {
+    const { url: target, server } = await url();
+    try {
+      const res = await conn('reader').call('read_url', { url: target });
+      const violations = contractViolations('reader', res);
+      if (res.json?.code !== expected) violations.push(`code が \`${res.json?.code}\`（同じ状況の共通語彙は \`${expected}\`）`);
+      if (res.json?.retryable !== retryable) violations.push(`retryable が ${res.json?.retryable}（${retryable} を期待）`);
+      assert.deepEqual(violations, [], `reader read_url ${label}\n本文: ${res.text.slice(0, 400)}`);
+    } finally {
+      if (server) await closeServer(server);
+    }
+  });
 }
 
 test('S6-spec 仕様書のフォルダーが無い → 契約どおりの REGISTRY_ERROR', async () => {

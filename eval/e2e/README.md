@@ -31,7 +31,7 @@ CI（`.github/workflows/e2e.yml`）は、手動（`workflow_dispatch`）と毎�
 | `tests/s3-reader-renderer.test.mjs` | `render_page` を描画の部品（`@hyzyla/pdfium`）無しで呼ぶ → 起動したまま部品を戻す → 呼ぶ | pdf-reader-mcp#34 |
 | `tests/s4-verify-verapdf.test.mjs` | `validate_conformance` を veraPDF 無しで呼ぶ → 起動したまま置く → 呼ぶ | pdf-verify-mcp#24 |
 | `tests/s5-spec-dir.test.mjs` | `PDF_SPEC_DIR` の仕様書を、壊れたものから直す・ページ数の違うものに差し替える・足す | pdf-spec-mcp#29・#30 |
-| `tests/s6-error-contract.test.mjs` | 4 サーバーに同じ種類の失敗の入力（存在しないパス・PDF でないファイル・0 バイトのファイル・相対パス・宣言に無いキー）を渡し、エラーの本文が family の形（docs/specs/06 §2.3：`error`・`code`・`retryable` が必須、文は英語）か、同じ状況に同じコードを返すかを照合する。宣言に無いキーは SDK の文言のまま返ることを確かめる | #48 |
+| `tests/s6-error-contract.test.mjs` | 4 サーバーに同じ種類の失敗の入力（存在しないパス・PDF でないファイル・0 バイトのファイル・相対パス・宣言に無いキー）を渡し、エラーの本文が family の形（docs/specs/06 §2.3：`error`・`code`・`retryable` が必須、文は英語）か、同じ状況に同じコードを返すかを照合する。宣言に無いキーは SDK の文言のまま返ることを確かめる。reader の `read_url` には取得の失敗を 5 種類（接続拒否・名前解決の失敗・HTTP 404・自己署名の証明書・fetch が断るポート）起こし、`code` と `retryable` を照合する（127.0.0.1 と `.invalid` だけを使い、外の網には触れない。証明書は `fixtures/tls/`） | #48・pdf-reader-mcp#46 |
 | `tests/selfcheck.test.mjs` | テスト自体の確かめ。2 回目に 1 回目の応答を返す読み手に S2 の検査を当て、食い違いを報告することを確かめる | — |
 
 ## 期待値の決まり
@@ -40,6 +40,10 @@ CI（`.github/workflows/e2e.yml`）は、手動（`workflow_dispatch`）と毎�
 - 本物の仕様書は配布できないので、S5 は仕様の名前を付けた最小の PDF を使います。S5 はディスクの索引キャッシュを切って（`PDF_SPEC_CACHE=off`）、メモリの層を測ります。
 - S4 は `PDF_VERIFY_VERAPDF` の経路で測ります。PATH と決まった場所の経路は、Homebrew の veraPDF がある手元と無い CI で結果が変わるためです。
 - S3 は、部品が最初から入っていない環境では飛ばします（戻すものが無いため）。
+
+## 2026-11-05 の結果（S6）
+
+公開版（reader 0.20.0・writer 0.23.3・verify 0.33.0・spec 0.12.0）で 23 件すべて通りました。足した `read_url` の 5 件を reader 0.19.0（`PDF_E2E_READER_DIR`）に向けると 4 件が落ち、0.19.0 の時点で正しかった HTTP 404 だけが通りました。時間切れ（`SOURCE_TIMEOUT`）は、`read_url` の時間切れが 30 秒で引数から変えられないので、S6 では測らず、reader の単体テスト（`tests/e2e/19-read-url-network-errors.test.ts`）に任せています。
 
 ## 2026-11-04 の結果（S6）
 
