@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-reader-mcp v0.19.0 — parameters, types, defaults and returns of all 18 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-reader-mcp v0.20.0 — parameters, types, defaults and returns of all 18 tools, generated from the server's tools/list."
 ---
 
 # pdf-reader-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-reader-mcp v0.19.0 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.19.0** (18 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.20.0** (18 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-reader).
@@ -48,10 +48,17 @@ This is a lightweight operation that only reads the PDF header, not the full con
 | Parameter | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `file_path` | string (minLength 1) | **yes** |  | Absolute path to a local PDF file (e.g., "/path/to/document.pdf") |
+| `response_format` | `"markdown"` \| `"json"` | no | `"markdown"` | Output format: "markdown" for human-readable, "json" for structured data |
 
 ### Returns
 
-Page count as a number.
+markdown (default) — the page count as a bare number, e.g. "126". This is the number the
+pages arguments of the other tools are checked against.
+json — { pageCount, scope }. scope.declaredCount is the /Count the root page tree node
+declares (ISO 32000-2 §7.7.3.2), scope.pagesReached is the number of pages reached by
+walking the page tree, and scope.pageTree says whether that walk could be done. The two
+numbers can differ in a file whose writer got /Count wrong; this server reports both and
+does not judge which is right. A value that could not be read is null, not 0.
 
 Examples:
 - Quick check before deciding which pages to extract
@@ -82,6 +89,9 @@ Lightweight: header only.
 
 **Get PDF Metadata**
 
+::: warning Deprecated
+:::
+
 Extract metadata from a PDF document including title, author, creation date, page count, PDF version, and structural information.
 
 ### Parameters
@@ -94,6 +104,9 @@ Extract metadata from a PDF document including title, author, creation date, pag
 ### Returns
 
 Metadata including: title, author, subject, keywords, creator, producer, creation/modification dates, page count, PDF version, linearized/encrypted/tagged/signature flags, file size.
+
+The eight document-level fields are read from both the document information dictionary (ISO 32000-2 §14.3.3) and the XMP metadata stream (§14.3.2: dc:title, dc:creator, dc:description, pdf:Keywords, xmp:CreatorTool, pdf:Producer, xmp:CreateDate, xmp:ModifyDate). When both hold a value, PDF 2.0 and later use the XMP value (§14.3.3 deprecates the dictionary for this in PDF 2.0) and earlier versions use the dictionary. Values are returned as written: dictionary dates look like "D:20260915100000+09'00'", XMP dates like "2026-09-15T10:00:00+09:00".
+metadataSources names the source of each field ("info", "xmp" or null). metadataConflicts lists fields where the two sources differ (dates compared as instants) — this server does not say which one is right. xmpMetadata says whether the stream was read, is absent, or is present but could not be read; "could not be read" is not "absent".
 
 Examples:
 - Get document properties for cataloging
@@ -369,7 +382,7 @@ Rendering uses PDFium compiled to WebAssembly (optional dependency `@hyzyla/pdfi
 
 ### Returns
 
-A text block with per-page metadata (point size, pixel size, effective dpi, bytes) and any omissions, then one image content block per rendered page.
+A text block that starts with "## Scope of this reading" (the pages requested, the pages rendered, and each page not rendered with the reason — present even when every page was rendered), then per-page metadata (point size, pixel size, effective dpi, bytes) and any omissions, then one image content block per rendered page.
 
 Rasterising a page can take unbounded time — a tiling pattern (ISO 32000-2 §8.7.3.1) whose `/XStep` or `/YStep` is a near-zero magnitude asks for an astronomical number of tiles, and the clause forbids only zero. Each page therefore gets 20 seconds (`PDF_READER_RENDER_TIMEOUT_MS` overrides it); the rendering runs off the main thread, so a page that does not finish is stopped and named in the omissions rather than taking the server down with it. The pages rendered before it are still returned, and the pages after it are reported separately as not attempted — "could not be rendered" and "never started" are different answers.
 
@@ -550,6 +563,7 @@ Analyze the Tagged PDF structure tree for accessibility assessment.
 ### Returns
 
 Whether the PDF is tagged, the structure tree hierarchy with roles, max nesting depth, total element count, and role distribution (e.g., Document, P, H1, Table, Figure).
+For an encrypted PDF whose key cannot be derived from the empty user password, isTagged and the counts are null and a note says why: the structure tree could not be read, which is not the same answer as "not tagged".
 
 Examples:
 - Check if a PDF is tagged for accessibility (PDF/UA)
@@ -813,6 +827,9 @@ in logical content order, document-wide.
 
 Limitations:
 - Untagged PDFs return an empty result and a `note`.
+- An encrypted PDF whose key cannot be derived from the empty user password returns
+  `isTagged`, `tables` and `totalTables` as `null` with a `note`: the structure
+  tree could not be read, which is not the same answer as "not tagged".
 - colspan/rowspan are not honoured (cells are listed in source order).
 - Nested tables are not emitted separately (their text appears in the outer cell).
 

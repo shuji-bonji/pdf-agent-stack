@@ -1,0 +1,38 @@
+[
+  {
+    "key": "get_page_count|returns",
+    "src": "3167469d68a2406e6eafd37f976d2772",
+    "en": "markdown (default) — the page count as a bare number, e.g. \"126\". This is the number the\npages arguments of the other tools are checked against.\njson — { pageCount, scope }. scope.declaredCount is the /Count the root page tree node\ndeclares (ISO 32000-2 §7.7.3.2), scope.pagesReached is the number of pages reached by\nwalking the page tree, and scope.pageTree says whether that walk could be done. The two\nnumbers can differ in a file whose writer got /Count wrong; this server reports both and\ndoes not judge which is right. A value that could not be read is null, not 0.\n\nExamples:\n- Quick check before deciding which pages to extract\n- Validate a PDF file is readable",
+    "stale": true
+  },
+  {
+    "key": "get_page_count|param:response_format",
+    "src": "c7a8f32a1936716e2c56515f7cab88d9",
+    "en": "Output format: \"markdown\" for human-readable, \"json\" for structured data",
+    "stale": false
+  },
+  {
+    "key": "get_metadata|returns",
+    "src": "5e0631d5ef5f9901dca813f665e0fd37",
+    "en": "Metadata including: title, author, subject, keywords, creator, producer, creation/modification dates, page count, PDF version, linearized/encrypted/tagged/signature flags, file size.\n\nThe eight document-level fields are read from both the document information dictionary (ISO 32000-2 §14.3.3) and the XMP metadata stream (§14.3.2: dc:title, dc:creator, dc:description, pdf:Keywords, xmp:CreatorTool, pdf:Producer, xmp:CreateDate, xmp:ModifyDate). When both hold a value, PDF 2.0 and later use the XMP value (§14.3.3 deprecates the dictionary for this in PDF 2.0) and earlier versions use the dictionary. Values are returned as written: dictionary dates look like \"D:20260915100000+09'00'\", XMP dates like \"2026-09-15T10:00:00+09:00\".\nmetadataSources names the source of each field (\"info\", \"xmp\" or null). metadataConflicts lists fields where the two sources differ (dates compared as instants) — this server does not say which one is right. xmpMetadata says whether the stream was read, is absent, or is present but could not be read; \"could not be read\" is not \"absent\".\n\nExamples:\n- Get document properties for cataloging\n- Check if a PDF is tagged (accessibility)\n- Verify PDF version compatibility",
+    "stale": true
+  },
+  {
+    "key": "render_page|returns",
+    "src": "0de768bfd0f6e6100df5d1dd0a3a0981",
+    "en": "A text block that starts with \"## Scope of this reading\" (the pages requested, the pages rendered, and each page not rendered with the reason — present even when every page was rendered), then per-page metadata (point size, pixel size, effective dpi, bytes) and any omissions, then one image content block per rendered page.\n\nRasterising a page can take unbounded time — a tiling pattern (ISO 32000-2 §8.7.3.1) whose `/XStep` or `/YStep` is a near-zero magnitude asks for an astronomical number of tiles, and the clause forbids only zero. Each page therefore gets 20 seconds (`PDF_READER_RENDER_TIMEOUT_MS` overrides it); the rendering runs off the main thread, so a page that does not finish is stopped and named in the omissions rather than taking the server down with it. The pages rendered before it are still returned, and the pages after it are reported separately as not attempted — \"could not be rendered\" and \"never started\" are different answers.\n\nExamples:\n- A scanned page: { file_path: \"/path/to/scan.pdf\", pages: \"1\", format: \"jpeg\" }\n- A diagram at high detail: { file_path: \"/path/to/doc.pdf\", pages: \"3\", dpi: 300 }",
+    "stale": true
+  },
+  {
+    "key": "inspect_tags|returns",
+    "src": "87610a8f9f76408984f19843d698245e",
+    "en": "Whether the PDF is tagged, the structure tree hierarchy with roles, max nesting depth, total element count, and role distribution (e.g., Document, P, H1, Table, Figure).\nFor an encrypted PDF whose key cannot be derived from the empty user password, isTagged and the counts are null and a note says why: the structure tree could not be read, which is not the same answer as \"not tagged\".\n\nExamples:\n- Check if a PDF is tagged for accessibility (PDF/UA)\n- Inspect the tag hierarchy and role distribution\n- Assess document structure quality",
+    "stale": true
+  },
+  {
+    "key": "extract_tables|returns",
+    "src": "6b7b53b91874865cc689c3ff2dbe8c56",
+    "en": "Markdown — `# Extracted Tables` summary block followed by one\n`## Table N — Page(s) …` section per table with a GFM table.\n\nJSON — `{ isTagged, tables: [{ pages, index, headerRows, bodyRows, footerRows }],\ntotalTables, pagesScanned, note? }`. `index` is the table's 1-based position\nin logical content order, document-wide.\n\nLimitations:\n- Untagged PDFs return an empty result and a `note`.\n- An encrypted PDF whose key cannot be derived from the empty user password returns\n  `isTagged`, `tables` and `totalTables` as `null` with a `note`: the structure\n  tree could not be read, which is not the same answer as \"not tagged\".\n- colspan/rowspan are not honoured (cells are listed in source order).\n- Nested tables are not emitted separately (their text appears in the outer cell).\n\nExamples:\n- Pull 新旧対照表 from a kaisei tsutatsu PDF for diffing\n- Convert 帳票 (form template) tables into structured data",
+    "stale": true
+  }
+]

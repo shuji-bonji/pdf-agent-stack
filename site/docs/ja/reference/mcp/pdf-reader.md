@@ -1,5 +1,5 @@
 ---
-description: "pdf-reader-mcp v0.19.0 の全 18 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-reader-mcp v0.20.0 の全 18 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-reader-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-reader-mcp v0.19.0 の全 18 ツールの引数・型・既定
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-**v0.19.0** の `tools/list` ハンドシェイクから自動生成（18 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.20.0** の `tools/list` ハンドシェイクから自動生成（18 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-reader)へ。
@@ -48,14 +48,21 @@ PDF ヘッダのみを読む軽量な操作で、本文全体は読まない。
 | 引数 | 型 | 必須 | 既定値 | 説明 |
 |---|---|---|---|---|
 | `file_path` | string (minLength 1) | **必須** |  | ローカル PDF ファイルへの絶対パス（例: "/path/to/document.pdf"） |
+| `response_format` | `"markdown"` \| `"json"` | 任意 | `"markdown"` | Output format: "markdown" for human-readable, "json" for structured data |
 
 ### 戻り値
 
-ページ数（数値）。
+markdown (default) — the page count as a bare number, e.g. "126". This is the number the
+pages arguments of the other tools are checked against.
+json — { pageCount, scope }. scope.declaredCount is the /Count the root page tree node
+declares (ISO 32000-2 §7.7.3.2), scope.pagesReached is the number of pages reached by
+walking the page tree, and scope.pageTree says whether that walk could be done. The two
+numbers can differ in a file whose writer got /Count wrong; this server reports both and
+does not judge which is right. A value that could not be read is null, not 0.
 
-例:
-- どのページを抽出するか決める前の簡易チェック
-- PDF ファイルが読めるかの確認
+Examples:
+- Quick check before deciding which pages to extract
+- Validate a PDF file is readable
 
 ::: details 呼び出し例 — 「ページ数だけ教えて」
 - 実測: v0.15.0
@@ -82,6 +89,9 @@ PDF ヘッダのみを読む軽量な操作で、本文全体は読まない。
 
 **Get PDF Metadata**
 
+::: warning 非推奨
+:::
+
 タイトル・作成者・作成日・ページ数・PDF バージョン・構造情報など、PDF 文書のメタデータを抽出する。
 
 ### 引数
@@ -93,12 +103,15 @@ PDF ヘッダのみを読む軽量な操作で、本文全体は読まない。
 
 ### 戻り値
 
-メタデータ一式: タイトル・作成者・件名・キーワード・作成アプリ・生成アプリ・作成/更新日時・ページ数・PDF バージョン・linearized/暗号化/タグ付き/署名フラグ・ファイルサイズ。
+Metadata including: title, author, subject, keywords, creator, producer, creation/modification dates, page count, PDF version, linearized/encrypted/tagged/signature flags, file size.
 
-例:
-- 台帳管理用に文書プロパティを取得
-- タグ付き PDF か確認（アクセシビリティ）
-- PDF バージョン互換性の確認
+The eight document-level fields are read from both the document information dictionary (ISO 32000-2 §14.3.3) and the XMP metadata stream (§14.3.2: dc:title, dc:creator, dc:description, pdf:Keywords, xmp:CreatorTool, pdf:Producer, xmp:CreateDate, xmp:ModifyDate). When both hold a value, PDF 2.0 and later use the XMP value (§14.3.3 deprecates the dictionary for this in PDF 2.0) and earlier versions use the dictionary. Values are returned as written: dictionary dates look like "D:20260915100000+09'00'", XMP dates like "2026-09-15T10:00:00+09:00".
+metadataSources names the source of each field ("info", "xmp" or null). metadataConflicts lists fields where the two sources differ (dates compared as instants) — this server does not say which one is right. xmpMetadata says whether the stream was read, is absent, or is present but could not be read; "could not be read" is not "absent".
+
+Examples:
+- Get document properties for cataloging
+- Check if a PDF is tagged (accessibility)
+- Verify PDF version compatibility
 
 ::: details 呼び出し例 — 「タイトルとタグの有無を」
 - 実測: v0.15.0
@@ -369,13 +382,13 @@ PDF のページを PNG または JPEG 画像にラスタライズし、MCP の 
 
 ### 戻り値
 
-ページごとのメタ情報（pt 寸法・ピクセル寸法・実効 dpi・バイト数）と省略の一覧を載せた text ブロック、続いて描画したページ 1 つにつき 1 つの image コンテンツブロック。
+A text block that starts with "## Scope of this reading" (the pages requested, the pages rendered, and each page not rendered with the reason — present even when every page was rendered), then per-page metadata (point size, pixel size, effective dpi, bytes) and any omissions, then one image content block per rendered page.
 
-ページのラスタライズには上限のない時間がかかることがある。タイリングパターン（ISO 32000-2 §8.7.3.1）の `/XStep` や `/YStep` が 0 に近い大きさだと、天文学的な枚数のタイルを敷くことになる —— 条文が禁じているのは 0 だけである。そのため 1 ページにつき 20 秒の予算を置いてある（`PDF_READER_RENDER_TIMEOUT_MS` で変えられる）。描画は主スレッドの外で走るので、終わらないページがあってもサーバは応答を返し続ける。そのページはそこで止めて、省略の一覧に理由とともに出す。その前に描けたページはそのまま返り、後ろのページは「始めなかった」として別に報告される —— 「描けなかった」と「始めなかった」は別の答えである。
+Rasterising a page can take unbounded time — a tiling pattern (ISO 32000-2 §8.7.3.1) whose `/XStep` or `/YStep` is a near-zero magnitude asks for an astronomical number of tiles, and the clause forbids only zero. Each page therefore gets 20 seconds (`PDF_READER_RENDER_TIMEOUT_MS` overrides it); the rendering runs off the main thread, so a page that does not finish is stopped and named in the omissions rather than taking the server down with it. The pages rendered before it are still returned, and the pages after it are reported separately as not attempted — "could not be rendered" and "never started" are different answers.
 
-例:
-- スキャンページ: { file_path: "/path/to/scan.pdf", pages: "1", format: "jpeg" }
-- 図面を高精細で: { file_path: "/path/to/doc.pdf", pages: "3", dpi: 300 }
+Examples:
+- A scanned page: { file_path: "/path/to/scan.pdf", pages: "1", format: "jpeg" }
+- A diagram at high detail: { file_path: "/path/to/doc.pdf", pages: "3", dpi: 300 }
 
 ## summarize
 
@@ -549,12 +562,13 @@ catalog 辞書（ISO 32000-2 §7.7.2、Table 29）に連なる文書レベルの
 
 ### 戻り値
 
-タグ付きかどうか・role 付き構造ツリー階層・最大ネスト深さ・要素総数・role 分布（例: Document, P, H1, Table, Figure）。
+Whether the PDF is tagged, the structure tree hierarchy with roles, max nesting depth, total element count, and role distribution (e.g., Document, P, H1, Table, Figure).
+For an encrypted PDF whose key cannot be derived from the empty user password, isTagged and the counts are null and a note says why: the structure tree could not be read, which is not the same answer as "not tagged".
 
-例:
-- アクセシビリティ（PDF/UA）向けにタグ付きか確認
-- タグ階層と role 分布を調べる
-- 文書構造の品質を評価する
+Examples:
+- Check if a PDF is tagged for accessibility (PDF/UA)
+- Inspect the tag hierarchy and role distribution
+- Assess document structure quality
 
 ::: details 呼び出し例 — 「タグ構造を観測して」
 - 実測: v0.15.0
@@ -797,18 +811,24 @@ PDF 文書のデジタル署名フィールドを調べる。
 
 ### 戻り値
 
-Markdown — `# Extracted Tables` の要約ブロックに続き、表ごとに GFM 表付きの `## Table N — Page(s) …` 節。
+Markdown — `# Extracted Tables` summary block followed by one
+`## Table N — Page(s) …` section per table with a GFM table.
 
-JSON — `{ isTagged, tables: [{ pages, index, headerRows, bodyRows, footerRows }], totalTables, pagesScanned, note? }`。`index` は文書全体の論理コンテンツ順での 1 始まりの位置。
+JSON — `{ isTagged, tables: [{ pages, index, headerRows, bodyRows, footerRows }],
+totalTables, pagesScanned, note? }`. `index` is the table's 1-based position
+in logical content order, document-wide.
 
-制限:
-- タグなし PDF は空の結果と `note` を返す。
-- colspan/rowspan は反映されない（セルはソース順に列挙）。
-- 入れ子の表は個別に出力されない（テキストは外側のセルに現れる）。
+Limitations:
+- Untagged PDFs return an empty result and a `note`.
+- An encrypted PDF whose key cannot be derived from the empty user password returns
+  `isTagged`, `tables` and `totalTables` as `null` with a `note`: the structure
+  tree could not be read, which is not the same answer as "not tagged".
+- colspan/rowspan are not honoured (cells are listed in source order).
+- Nested tables are not emitted separately (their text appears in the outer cell).
 
-例:
-- 改正通達 PDF から新旧対照表を取り出して差分を取る
-- 帳票（様式）の表を構造化データに変換する
+Examples:
+- Pull 新旧対照表 from a kaisei tsutatsu PDF for diffing
+- Convert 帳票 (form template) tables into structured data
 
 ::: details 呼び出し例 — 「この表を構造化して」
 - 実測: v0.15.0
