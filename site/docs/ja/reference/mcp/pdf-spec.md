@@ -1,5 +1,5 @@
 ---
-description: "pdf-spec-mcp v0.13.0 の全 8 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-spec-mcp v0.14.0 の全 8 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-spec-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-spec-mcp v0.13.0 の全 8 ツールの引数・型・既定値
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-**v0.13.0** の `tools/list` ハンドシェイクから自動生成（8 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.14.0** の `tools/list` ハンドシェイクから自動生成（8 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-spec)へ。
@@ -16,7 +16,7 @@ description: "pdf-spec-mcp v0.13.0 の全 8 ツールの引数・型・既定値
 
 | ツール | 概要 |
 |---|---|
-| [`list_specs`](#list-specs) | 利用可能な PDF 仕様文書を一覧する。 |
+| [`list_specs`](#list-specs) | List all available PDF specification documents. |
 | [`get_structure`](#get-structure) | PDF 仕様（ISO 32000-2）の節階層を取得する。 |
 | [`get_section`](#get-section) | PDF 仕様（ISO 32000-2）の指定節の本文を取得する。 |
 | [`search_spec`](#search-spec) | PDF 仕様（ISO 32000-2）をキーワード・フレーズで検索する。 |
@@ -29,7 +29,7 @@ description: "pdf-spec-mcp v0.13.0 の全 8 ツールの引数・型・既定値
 
 **List available specifications**
 
-利用可能な PDF 仕様文書を一覧する。文書 ID・タイトル・ページ数・カテゴリに加え、`coverage.gaps` — このコーパスに**存在しない**規範領域（PDF/A・PAdES）— を返す。「要求が存在しない」と結論づける前に gaps を読むこと。返された ID は他ツールの `spec` 引数に使う。
+List all available PDF specification documents. Returns document IDs, titles, page counts, and categories, plus `coverage.gaps` — the normative areas this corpus does NOT contain (PDF/A, PAdES). Read the gaps before concluding that a requirement does not exist. Use the returned IDs as the `spec` parameter in other tools. `unrecognizedFiles` names the PDFs in PDF_SPEC_DIR that no pattern recognised — they were NOT read. Every other tool returns the id of the spec it read as `spec` (the default when `spec` was omitted); compare_versions returns `specs`.
 
 ### 引数
 

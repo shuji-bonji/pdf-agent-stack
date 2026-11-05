@@ -1,5 +1,5 @@
 ---
-description: "pdf-verify-mcp v0.34.0 の全 7 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-verify-mcp v0.35.0 の全 7 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-verify-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-verify-mcp v0.34.0 の全 7 ツールの引数・型・既定�
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-**v0.34.0** の `tools/list` ハンドシェイクから自動生成（7 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.35.0** の `tools/list` ハンドシェイクから自動生成（7 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-verify)へ。
@@ -54,19 +54,19 @@ PDF 文書の電子署名を暗号学的に検証する。各署名について�
 
 ### 戻り値
 
-`scope.reconstructed` が true のとき、組み直しが届かなかった署名は一覧に出ない。短い一覧や空の一覧は「ファイルにほかの署名が無い」ことの証明にならない。
+An object of the form { scope, signatures: [...] }. The top level changed from an array to an object in v0.21.0 - read .signatures for the list. signatures is null - not [] - when the document is encrypted and the key could not be derived (supply password); note then says why. [] means the fields were looked for and none is signed (v0.35.0).
 
-返るのは `{ scope, signatures: [...] }` の形の辞書である。**v0.21.0 で最上位が配列から辞書に変わった** —— 一覧は `.signatures` にある。
+Size (v0.29.0): a JSON response is never cut by length. At most 32 signature fields are verified (file order); when the file has more, signaturesTruncated = { returned, total } is set and the remaining fields are NOT verified — evaluate_policy verifies every field. A markdown response is cut at 50,000 characters with a visible marker.
 
-大きさ（v0.29.0）: JSON の応答は文字数では切らない。検証する署名フィールドはファイル順に最大 32 件で、それより多いときは signaturesTruncated = { returned, total } を出し、残りのフィールドは**検証しない**（evaluate_policy は全フィールドを検証する）。markdown の応答は 50,000 文字で切り、切ったことを本文に示す。
+Every report begins with file_path (the path as received, so answers to side-by-side calls can be matched to their inputs; markdown shows it as "File:" under the heading), then a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table. For this tool it matters most: when scope.reconstructed is true, a signature the rebuild did not reach is absent from the list, so a short or empty list is not proof that the file carries no other signatures.
 
-署名ごとの判定（'valid' / 'invalid' / 'indeterminate'）、信頼状態（'trusted' / 'untrusted' / 'not_evaluated'・証明書パス付き）、失効状態（'good' / 'revoked' / 'revoked_after_validation_time' / 'unknown' / 'not_checked'。check_revocation が 'none' のときは 'not_checked'）とその取得元（source）・置き場所（origin: 'dss' / 'cms_signed_data' / 'cms_revocation_info_archival'）・失効日時（revocationTime）・判定に使った失効情報の発行時刻と次回更新時刻（thisUpdate・nextUpdate）、中間 CA ごとの失効確認の結果（trust.chainRevocation）、検証時刻（validationTime: { time, source: 'signature_timestamp' | 'document_timestamp' | 'current_time' }）、署名タイムスタンプの検証結果。
+Per-signature verdict ('valid' / 'invalid' / 'indeterminate'), trust status ('trusted' / 'untrusted' / 'not_evaluated' with certificate path), revocation status ('good' / 'revoked' / 'revoked_after_validation_time' / 'unknown' / 'not_checked'; 'not_checked' when check_revocation is 'none') with source, origin ('dss' / 'cms_signed_data' / 'cms_revocation_info_archival'), revocationTime, thisUpdate and nextUpdate, per-intermediate-CA results in trust.chainRevocation, validationTime ({ time, source: 'signature_timestamp' | 'document_timestamp' | 'current_time' }), and signature timestamp verification.
 
-検証時刻: 検証できたタイムスタンプ（署名自身のもの。無ければ、その署名を覆う文書タイムスタンプのうち最も早いもの）の時刻。どちらも無ければ現在時刻。CMS の signingTime 属性は署名者が書く値なので使わない。署名者証明書が失効している場合、判定は 'indeterminate' になる。ただし、タイムスタンプが失効より前の署名であることを示していれば、失効状態は 'revoked_after_validation_time' になり、判定は変わらない。署名を検証できない CRL と OCSP 応答、検証時刻より前に期限が切れたもの、検証時刻より revocation_freshness 秒以上前に発行されたものは 'unknown' になる。
+Validation time: a verified timestamp (the signature's own, else the earliest document timestamp covering it) or, without one, the current time. The CMS signingTime attribute is written by the signer and is never used. A revoked signer certificate makes the verdict 'indeterminate' unless a timestamp proves the signature predates the revocation (then the status is 'revoked_after_validation_time' and the verdict is unchanged). CRLs and OCSP responses whose signatures cannot be verified, that expired before the validation time, or that were issued more than revocation_freshness seconds before it give 'unknown'.
 
-注意: trust_anchors（または環境変数）なしでは trust は not_evaluated と報告される —— そのときの 'valid' は暗号学的完全性を意味し、署名者の本人性を保証しない。
+Note: without trust_anchors (or the env var), trust is reported as not_evaluated — a 'valid' verdict then means cryptographic integrity, not signer identity assurance.
 
-構造だけを調べる pdf-reader-mcp の inspect_signatures を補完する。
+Complements pdf-reader-mcp's inspect_signatures, which inspects structure only.
 
 ::: warning `valid` は本人ではない
 `verdict`（暗号計算の一致）と `trust`（証明書チェーン）と失効状態は独立です。`trust_anchors`（または `PDF_VERIFY_TRUST_ANCHORS`）を渡さなければ `trust` は `not_evaluated` のままです。そのときの `valid` はダイジェストが一致した、という意味であって、署名者が本人であることの証明ではありません。
@@ -185,9 +185,13 @@ boolean の violatedByLaterChanges は後方互換のため indeterminate を fa
 
 ### 戻り値
 
-大きさ（v0.29.0）: revisions は新しい順に最大 32 リビジョン、各リビジョンの変更は最大 25 件。切ったときは revisionsTruncated / changesTruncated で示す。revisionCount と revisionChain は歩いた全体を表す。JSON は文字数では切らない。
+Every report begins with file_path (the path as received, so answers to side-by-side calls can be matched to their inputs; markdown shows it as "File:" under the heading), then a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
 
-完全性レポート。revisionChain: { status, missing } を含む —— リビジョン一覧をファイルの全履歴として扱う前に読むこと。revisionCountAgreement: { status, causes } も含む —— revisionCount を「保存された回数」として引用する前に読むこと。署名後の増分更新は PDF として正当である点に注意（署名の追加・DSS/LTV データ）—— 検出結果は「レビューすべき点」を示すのであって、自動的に改ざんを意味しない。
+Size (v0.29.0): revisions lists at most 32 revisions (newest first) and 25 changes per revision; revisionsTruncated / changesTruncated say when a list was cut. revisionCount and revisionChain cover the whole walk. JSON is never cut by length.
+
+signatureCount counts signatures and leaves out document timestamps, which are counted in documentTimestampCount (v0.35.0: the same meaning as evaluate_policy facts.signatureCount).
+
+Integrity report, including revisionChain: { status, missing } — read it before treating the revision list as the file's whole history — and revisionCountAgreement: { status, causes } — read it before quoting revisionCount as the number of times the file was saved. Note that incremental updates after signing are legal in PDF (adding signatures, DSS/LTV data) — findings indicate what to review, not automatically tampering.
 
 ::: warning 増分更新は改ざんではない
 署名の追加や DSS / 文書タイムスタンプの付与は PDF として正当です。返るのは「レビューすべき点」であって、自動的に改ざんを意味しません。
@@ -260,13 +264,15 @@ boolean の violatedByLaterChanges は後方互換のため indeterminate を fa
 
 ### 戻り値
 
-返るのは `{ scope, levels: [...] }` の形の辞書である。**v0.21.0 で最上位が配列から辞書に変わった** —— 一覧は `.levels` にある。
+An object of the form { scope, levels: [...] }. The top level changed from an array to an object in v0.21.0 - read .levels for the list.
 
-大きさ（v0.29.0）: 一覧は最大 32 署名。切ったときは levelsTruncated = { returned, total } を出す。JSON は文字数では切らない。
+Size (v0.29.0): at most 32 signatures are listed; levelsTruncated = { returned, total } says when the list was cut. JSON is never cut by length.
 
-署名ごとのレベルと根拠（署名タイムスタンプ・DSS・VRI・文書タイムスタンプの有無）。
+Every report begins with file_path (the path as received, so answers to side-by-side calls can be matched to their inputs; markdown shows it as "File:" under the heading), then a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
 
-注意: B-LT / B-LTA はさらに、DSS の失効データが署名者証明書を実際に覆っていること（内容レベルの LTV 検証）を要求する。満たさない場合レベルは B-T に頭打ちされる。
+Per-signature level with evidence (signature timestamp, DSS, VRI, document timestamp presence).
+
+Note: B-LT / B-LTA additionally require that the DSS revocation data actually covers the signer certificate (content-level LTV validation); otherwise the level is capped at B-T.
 
 ::: warning T3 — 準拠とは書かない
 ETSI EN 319 142 はコーパスに無く、第三者検証器もありません。結果は「構造が B-T に一致する」であって「PAdES B-T に準拠」ではありません。全件に `normativeBasis: "T3"` が付きます。
@@ -330,11 +336,13 @@ PDF の XMP メタデータに書いてある PDF/A（pdfaid）・PDF/UA（pdfua
 
 ### 戻り値
 
-書いてある PDF/A の part / conformance level と PDF/UA の part、および PDF バージョン。
+Every report begins with file_path (the path as received, so answers to side-by-side calls can be matched to their inputs; markdown shows it as "File:" under the heading), then a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
 
-xmpNamespaces（v0.31.0）: パケットが宣言するすべての名前空間。それぞれに predefined（XMP Specification / ISO 19005 が定義済み）、describedByExtensionSchema（パケット内の pdfaSchema:namespaceURI がその URI を挙げている）、known（この family が何であるか言えるもの —— 例: W3C TDMRep の名前空間、pdfuaid）を付ける。PDF/A を宣言しているのに、定義済みでも記述済みでもない名前空間があれば、PDF/A の検証器は ISO 19005-2 6.6.2.3（19005-1 では 6.7.8）の違反として報告する。note はその旨を書くが、これは宣言レベルの観測であり、検証結果ではない。
+Declared PDF/A part/conformance level and PDF/UA part, plus the PDF version.
 
-重要: 本ツールはラベルを**読むだけ**である —— 書いてあることは証拠にならない。規格どおりかどうかの検査は validate_conformance ツールを使うこと（ネイティブのルールサブセット、または veraPDF がインストールされていればそちら）。
+xmpNamespaces (v0.31.0): every namespace the packet declares, each marked predefined (XMP Specification / ISO 19005), describedByExtensionSchema (a pdfaSchema:namespaceURI in the packet names it), and known (what this family can say it is — e.g. the W3C TDMRep namespace, or pdfuaid). A PDF/A declaration together with a namespace that is neither predefined nor described is what a PDF/A validator reports under ISO 19005-2 6.6.2.3 (19005-1 6.7.8); the note says so, as a declaration-level observation, not a validation result.
+
+IMPORTANT: This tool only IDENTIFIES the declared conformance — a declaration does not guarantee actual conformance. For real PDF/A rule checking use the validate_conformance tool (native rule subset, or veraPDF when installed).
 
 ::: warning 宣言は証拠ではない
 このツールは XMP の pdfaid / pdfuaid を**読むだけ**です。「私は PDF/A です」と書いてあることと、規格どおりであることは別です。ルール検査は [`validate_conformance`](#validate-conformance) です。
@@ -392,27 +400,29 @@ PDF/A フレーバー（ISO 19005・長期保存）または PDF/UA フレーバ
 | `response_format` | `"markdown"` \| `"json"` | 任意 | `"markdown"` | 出力形式: "markdown" は人が読む用、"json" は構造化データ |
 | `flavour` | string | 任意 |  | 検証するフレーバー。PDF/A: "pdfa-1b", "pdfa-1a", "pdfa-2b", "pdfa-2u", "pdfa-3b" など。PDF/A-4 は conformance level を取らない —— "pdfa-4"、または変種の "pdfa-4e" / "pdfa-4f" を使う（"pdfa-4b" は存在しない）。PDF/UA: "pdfua-1", "pdfua-2"。省略時は文書の XMP 宣言を使う（両方宣言されていれば PDF/A 優先。無ければ pdfa-2b にフォールバック）。 |
 | `engine` | `"auto"` \| `"native"` \| `"verapdf"` | 任意 | `"auto"` | 検証エンジン: "auto"（veraPDF があればそちら、無ければネイティブサブセット）、"verapdf"（veraPDF 必須）、"native"（内蔵ルールサブセット）。 |
-| `password` | string | 任意 |  | 暗号化 PDF のパスワード（PDF/UA 検証のみ —— 構造依存ルールの検査前に文書を復号する）。権限のみの暗号化 PDF では省略可（空のユーザーパスワードを自動で試す）。 |
+| `password` | string | 任意 |  | Password for an encrypted PDF. Omit for permission-encrypted PDFs (an empty user password is tried automatically). Without it, a PDF/A validation of a document whose key cannot be derived returns ENCRYPTED_PDF whatever the engine (v0.35.0); PDF/UA validation reports the structure-dependent rules as not checked. |
 
 ### 戻り値
 
-大きさ（v0.29.0）: violations は最大 200 件。failedRules と compliant は全件で計算し、切ったときは violationsTruncated = { returned, total } を出す。JSON は文字数では切らない。
+Every report begins with file_path (the path as received, so answers to side-by-side calls can be matched to their inputs; markdown shows it as "File:" under the heading), then a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
 
-ISO 条文参照付きのルール別結果。
+Size (v0.29.0): violations lists at most 200 entries; failedRules and compliant are computed over all of them and violationsTruncated = { returned, total } says when the list was cut. JSON is never cut by length.
 
-| エンジン | `compliant` |
+Per-rule results with ISO clause references.
+
+| Engine | `compliant` |
 | --- | --- |
 | veraPDF | `true` / `false` |
-| native | `false` = 決定的な違反あり。`null` = 検査したサブセット内で違反なし（認証ではない） |
+| native | `false` = a decisive violation; `null` = no violation in the checked subset (not certification) |
 
-| PDF/UA ネイティブ `severity` | 意味 |
+| PDF/UA native `severity` | Meaning |
 | --- | --- |
-| `error` | 非準拠を証明できる |
-| `warning` | 人のレビューが要る |
+| `error` | proves non-conformance |
+| `warning` | needs human review |
 
-復号できない暗号化 PDF では、構造依存の PDF/UA ルールは違反ではなく skippedRules（未検査）として報告される。PDF/A のフォント埋め込みルールは、実際に描画されたフォントを見る（テキスト描画モード 3 は不可視で、埋め込まれたプログラムを必要としない。ISO 32000-2 9.3.6）。内容ストリームをそこまで読めず判断できないときは、推測せずそのルールを skippedRules に報告する。
+For an encrypted PDF that cannot be decrypted, structure-dependent PDF/UA rules are reported in skippedRules (not checked) rather than as violations. The PDF/A font-embedding rule looks at fonts that are actually rendered (text rendering mode 3 is invisible and needs no embedded program, ISO 32000-2 9.3.6); when the content streams cannot be read far enough to tell, that rule is reported in skippedRules instead of guessing.
 
-注意: PDF/UA は機械だけでは決定できない —— 代替テキストが「存在するか」は検査できるが、「意味があるか」はできない。構造ツリー自体の観測は pdf-reader-mcp の inspect_tags へ。
+Note: PDF/UA cannot be fully decided by machine — whether alt text is *present* is checkable, whether it is *meaningful* is not. Use pdf-reader-mcp's inspect_tags to examine the structure tree itself.
 
 ::: warning T2（PDF/A）— 「veraPDF が COMPLIANT と判定」まで
 ISO 19005 はコーパスにありません。PDF/A の結果は veraPDF の判定です。「ISO 19005 に適合する」とは書きません。
@@ -483,22 +493,26 @@ veraPDF が見ない領域を覆う。veraPDF は PDF/A・PDF/UA プロファイ
 
 ### 戻り値
 
-大きさ（v0.29.0）: results はファイル順に最大 200 件。violations と notDecided は全件で数え、切ったときは resultsTruncated = { returned, total } を出す。JSON は文字数では切らない。
+Every report begins with file_path (the path as received, so answers to side-by-side calls can be matched to their inputs; markdown shows it as "File:" under the heading), then a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
 
-制約ごとの結果と、その出どころの条文 ID。
+Size (v0.29.0): results lists at most 200 entries (file order); violations and notDecided are counted over all of them and resultsTruncated = { returned, total } says when the list was cut. JSON is never cut by length.
 
-| 状態 | 意味 |
+Per-constraint results with the clause IDs they come from.
+
+| Status | Meaning |
 | --- | --- |
-| `pass` | この制約では規格破りは見つからなかった |
-| `fail` | 規格破りが見つかった。根拠として事実と実測値が付く |
-| `not_applicable` | 条文がこの文書に適用されない |
-| `needs_external_fact` | ファイル外の事実が与えられず決定しなかった（合格に既定しない） |
+| `pass` | nothing in this constraint could be disproved |
+| `fail` | disproved, with the fact and its measured value |
+| `not_applicable` | the clause does not apply to this document |
+| `needs_external_fact` | a fact outside the file was not supplied, so it was not decided (never defaulted to pass) |
 
-これらは T1 条文なので、失敗は条文 ID を引用して言い切れる —— 文言は pdf-spec-mcp の get_requirements で取得すること。trace 印の失敗は別物である: その条文は PDF **処理系**への要求であり、ファイルは誰かが破ったことを示すだけで、最後に書いた者が破ったとは限らない。
+Because these are T1 clauses, a failure can be stated plainly and the clause ID quoted — retrieve the wording with pdf-spec-mcp's get_requirements. Failures marked as traces are different: the clause addresses the PDF *processor*, so the file only shows that someone broke it, not that the last writer did.
 
-一部の失敗には Context 注記が付く。条文は実在し失敗も実在するが、業界が意図的に逸脱している —— テキストマークアップの QuadPoints はほぼ全ての生成系が Z 順で書く。条文どおりに書くと主要ビューアで描画が壊れるからである。Context は必ず一緒に伝えること。Context を落として報告すると、正しい記述が欠陥として読まれる。
+Some failures carry a Context note. Those clauses are real and the failure is real, but the industry deviates from them deliberately — text markup QuadPoints are written in Z order by nearly every writer because following the clause literally breaks rendering in major viewers. Pass the context on; a failure reported without it reads as a defect.
 
-**失敗ゼロは規格どおりであることの証明ではない** —— 同梱した検査の範囲で、規格破りは見つからなかった、というだけである。
+Every result also carries `observation` — how far the reading got: whether the revision chain could be walked to the end, how many objects the cross-reference tables list, and whether the page tree was reached. **This is the scope of the verdict, not a verdict.** A subject count of zero means "not looked at" when the page tree was not reached; a chain that stopped early means the constraints were applied to part of the file. Read it before the numbers.
+
+**A result with no failures is not proof of conformance** — only that nothing in the bundled constraints could be disproved.
 
 ::: warning 失敗無し ≠ 適合
 bundled の制約だけを見ます。失敗が無いことは適合の証明ではありません。
@@ -567,18 +581,22 @@ PDF に対する決定論的な 4 値信頼判定を下す。
 
 ### 戻り値
 
-大きさ（v0.29.0）: 判定は**すべての署名**で計算する。facts.signatures の一覧は最大 32 件で、切ったときは facts.signaturesTruncated = { returned, total } を出す。JSON は文字数では切らない。
+Every report begins with file_path (the path as received, so answers to side-by-side calls can be matched to their inputs; markdown shows it as "File:" under the heading), then a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
 
-| フィールド | 内容 |
+Size (v0.29.0): the verdict is computed over EVERY signature; facts.signatures lists at most 32 of them and facts.signaturesTruncated = { returned, total } says when it was cut. JSON is never cut by length.
+
+facts.signatureCount counts signatures and leaves out document timestamps (facts.documentTimestampCount); facts.signatures lists both, so its length can be larger. When the document is encrypted and the key could not be derived, the three are null with facts.note, POL-CAUTION-UNSIGNED does not fire, and POL-REVIEW-SIGNATURES-NOT-READ (human_review_required) does instead (v0.35.0): "could not look" is not "unsigned".
+
+| Field | Content |
 | --- | --- |
-| `verdict` | 上の 4 値のいずれか |
-| `firedRules` | ルール ID とルール別の判定・理由 |
-| `advisories` | 判定に影響しない推奨 |
-| facts | 根拠となった事実の要約 |
+| `verdict` | one of the four values above |
+| `firedRules` | rule IDs with per-rule verdict and reason |
+| `advisories` | recommendations that do not affect the verdict |
+| facts | underlying facts summary |
 
-内容の棚卸し（v0.30.0）: facts.content は、文書が持つ「動作するもの」と「未完のもの」を ISO 32000-2 §12.8.7 Table 264 と同じ区分で数える —— JavaScriptActions・LaunchActions・URIActions・GoToRemoteActions・HideAnnotationActions・MovieActions・SoundActions、加えて SubmitFormActions。併せて JavaScript の総バイト数、URI のホスト、/OpenAction または文書の /AA の有無、注釈の数、ファイルに残っている /Subtype /Redact 注釈の数を返す。これを読むルールは 2 つ: POL-CAUTION-REDACT-PENDING（Redact 注釈が残っている。ISO 32000-2 §12.5.6.23 により、その注釈が指す内容は削除されていない）と POL-CAUTION-ACTIVE-CONTENT（ECMAScript・Launch・リモート GoTo・SubmitForm/ImportData のアクションがある）。どちらも use_with_caution。URI アクションは判定を変えず、ホストを advisory に出す。棚卸しができなかったときは facts.content が null になり、advisories に「not counted」と書く —— 0 にはしない。
+Content inventory (v0.30.0): facts.content counts what the document carries that acts or is unfinished, the way ISO 32000-2 §12.8.7 Table 264 does — JavaScriptActions, LaunchActions, URIActions, GoToRemoteActions, HideAnnotationActions, MovieActions, SoundActions, plus SubmitFormActions — with the JavaScript byte total, URI hosts, whether /OpenAction or a document /AA is present, the annotation count, and the number of /Subtype /Redact annotations still in the file. Two rules read it: POL-CAUTION-REDACT-PENDING (a redaction annotation is still present, so per ISO 32000-2 §12.5.6.23 the content it marks was never removed) and POL-CAUTION-ACTIVE-CONTENT (ECMAScript, Launch, remote go-to or SubmitForm/ImportData actions present). Both are use_with_caution. URI actions never change the verdict; their hosts go to an advisory. facts.content is null when the inventory could not be taken, and the advisories then say "not counted" — never 0.
 
-PDF/A と XMP 拡張スキーマ（v0.31.0）: 長期保存の検査で ISO 19005 の拡張スキーマ規則（19005-2/-3/-4 の 6.6.2.3、19005-1 の 6.7.8）に違反が出たとき、違反の detail と advisory に原因の名前空間を書く —— 例: W3C TDMRep の名前空間。PDF/A は pdfaExtension:schemas で記述されている場合に限りこれを受け入れる。
+PDF/A and XMP extension schemas (v0.31.0): when the long-term check finds the ISO 19005 extension-schema rule failing (19005-2/-3/-4 6.6.2.3, 19005-1 6.7.8), the violation detail and an advisory name the namespace behind it — e.g. the W3C TDMRep namespace, which PDF/A accepts only when pdfaExtension:schemas describes it.
 
 ::: warning 判定は `evaluate_policy` が返す。LLM は説明文だけを書く
 `firedRules` / `advisories` は結果の説明に使います。判定の上書きには使いません。advisory を失敗と読まないでください。advisory が無いことを合格と読まないでください。

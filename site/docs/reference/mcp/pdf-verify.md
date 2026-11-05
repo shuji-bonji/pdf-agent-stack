@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-verify-mcp v0.34.0 — parameters, types, defaults and returns of all 7 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-verify-mcp v0.35.0 — parameters, types, defaults and returns of all 7 tools, generated from the server's tools/list."
 ---
 
 # pdf-verify-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-verify-mcp v0.34.0 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.34.0** (7 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.35.0** (7 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-verify).
@@ -58,9 +58,11 @@ For each signature this tool:
 
 When `scope.reconstructed` is true, a signature the rebuild did not reach is absent from the list. A short or empty list is not proof that the file carries no other signatures.
 
-An object of the form { scope, signatures: [...] }. The top level changed from an array to an object in v0.21.0 - read .signatures for the list.
+An object of the form { scope, signatures: [...] }. The top level changed from an array to an object in v0.21.0 - read .signatures for the list. signatures is null - not [] - when the document is encrypted and the key could not be derived (supply password); note then says why. [] means the fields were looked for and none is signed (v0.35.0).
 
 Size (v0.29.0): a JSON response is never cut by length. At most 32 signature fields are verified (file order); when the file has more, signaturesTruncated = { returned, total } is set and the remaining fields are NOT verified — evaluate_policy verifies every field. A markdown response is cut at 50,000 characters with a visible marker.
+
+Every report begins with file_path (the path as received, so answers to side-by-side calls can be matched to their inputs; markdown shows it as "File:" under the heading), then a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
 
 Per-signature verdict ('valid' / 'invalid' / 'indeterminate'), trust status ('trusted' / 'untrusted' / 'not_evaluated' with certificate path), revocation status ('good' / 'revoked' / 'revoked_after_validation_time' / 'unknown' / 'not_checked'; 'not_checked' when check_revocation is 'none') with source, origin ('dss' / 'cms_signed_data' / 'cms_revocation_info_archival'), revocationTime, thisUpdate and nextUpdate, per-intermediate-CA results in trust.chainRevocation, validationTime ({ time, source: 'signature_timestamp' | 'document_timestamp' | 'current_time' }), and signature timestamp verification.
 
@@ -188,7 +190,11 @@ Limits of the diff — it is an observation, never a verdict:
 
 ### Returns
 
+Every report begins with file_path (the path as received, so answers to side-by-side calls can be matched to their inputs; markdown shows it as "File:" under the heading), then a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
+
 Size (v0.29.0): revisions lists at most 32 revisions (newest first) and 25 changes per revision; revisionsTruncated / changesTruncated say when a list was cut. revisionCount and revisionChain cover the whole walk. JSON is never cut by length.
+
+signatureCount counts signatures and leaves out document timestamps, which are counted in documentTimestampCount (v0.35.0: the same meaning as evaluate_policy facts.signatureCount).
 
 Integrity report, including revisionChain: { status, missing } — read it before treating the revision list as the file's whole history — and revisionCountAgreement: { status, causes } — read it before quoting revisionCount as the number of times the file was saved. Note that incremental updates after signing are legal in PDF (adding signatures, DSS/LTV data) — findings indicate what to review, not automatically tampering.
 
@@ -267,6 +273,8 @@ An object of the form { scope, levels: [...] }. The top level changed from an ar
 
 Size (v0.29.0): at most 32 signatures are listed; levelsTruncated = { returned, total } says when the list was cut. JSON is never cut by length.
 
+Every report begins with file_path (the path as received, so answers to side-by-side calls can be matched to their inputs; markdown shows it as "File:" under the heading), then a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
+
 Per-signature level with evidence (signature timestamp, DSS, VRI, document timestamp presence).
 
 Note: B-LT / B-LTA additionally require that the DSS revocation data actually covers the signer certificate (content-level LTV validation); otherwise the level is capped at B-T.
@@ -333,6 +341,8 @@ Identify declared PDF/A (pdfaid) and PDF/UA (pdfuaid) conformance in a PDF's XMP
 
 ### Returns
 
+Every report begins with file_path (the path as received, so answers to side-by-side calls can be matched to their inputs; markdown shows it as "File:" under the heading), then a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
+
 Declared PDF/A part/conformance level and PDF/UA part, plus the PDF version.
 
 xmpNamespaces (v0.31.0): every namespace the packet declares, each marked predefined (XMP Specification / ISO 19005), describedByExtensionSchema (a pdfaSchema:namespaceURI in the packet names it), and known (what this family can say it is — e.g. the W3C TDMRep namespace, or pdfuaid). A PDF/A declaration together with a namespace that is neither predefined nor described is what a PDF/A validator reports under ISO 19005-2 6.6.2.3 (19005-1 6.7.8); the note says so, as a declaration-level observation, not a validation result.
@@ -395,9 +405,11 @@ Hybrid engine: veraPDF when installed (`PDF_VERIFY_VERAPDF` or PATH) for an auth
 | `response_format` | `"markdown"` \| `"json"` | no | `"markdown"` | Output format: "markdown" for human-readable, "json" for structured data |
 | `flavour` | string | no |  | Flavour to validate against. PDF/A: "pdfa-1b", "pdfa-1a", "pdfa-2b", "pdfa-2u", "pdfa-3b", etc. PDF/A-4 takes no conformance level — use "pdfa-4", or "pdfa-4e" / "pdfa-4f" for the variants ("pdfa-4b" does not exist). PDF/UA: "pdfua-1", "pdfua-2". Omit to use the document's XMP declaration (PDF/A takes precedence when both are declared; falls back to pdfa-2b). |
 | `engine` | `"auto"` \| `"native"` \| `"verapdf"` | no | `"auto"` | Validation engine: "auto" (veraPDF when installed, else native subset), "verapdf" (require veraPDF), "native" (built-in rule subset). |
-| `password` | string | no |  | Password for an encrypted PDF (PDF/UA validation only — the document is decrypted before checking structure-dependent rules). Omit for permission-encrypted PDFs (an empty user password is tried automatically). |
+| `password` | string | no |  | Password for an encrypted PDF. Omit for permission-encrypted PDFs (an empty user password is tried automatically). Without it, a PDF/A validation of a document whose key cannot be derived returns ENCRYPTED_PDF whatever the engine (v0.35.0); PDF/UA validation reports the structure-dependent rules as not checked. |
 
 ### Returns
+
+Every report begins with file_path (the path as received, so answers to side-by-side calls can be matched to their inputs; markdown shows it as "File:" under the heading), then a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
 
 Size (v0.29.0): violations lists at most 200 entries; failedRules and compliant are computed over all of them and violationsTruncated = { returned, total } says when the list was cut. JSON is never cut by length.
 
@@ -486,6 +498,8 @@ Bundled domains: font-embedding, document-metadata, annotation
 
 ### Returns
 
+Every report begins with file_path (the path as received, so answers to side-by-side calls can be matched to their inputs; markdown shows it as "File:" under the heading), then a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
+
 Size (v0.29.0): results lists at most 200 entries (file order); violations and notDecided are counted over all of them and resultsTruncated = { returned, total } says when the list was cut. JSON is never cut by length.
 
 Per-constraint results with the clause IDs they come from.
@@ -572,7 +586,11 @@ Runs verify_signatures, verify_integrity and detect_pades_level internally (plus
 
 ### Returns
 
+Every report begins with file_path (the path as received, so answers to side-by-side calls can be matched to their inputs; markdown shows it as "File:" under the heading), then a "scope" object - how far the reading got, not a verdict: whether the cross-reference chain could be walked to the end (chainStop), whether this tool had to rebuild the cross-reference table itself (reconstructed - when true, the table is this tool's reconstruction and not the one the file carries), how many objects and sections were read, and whether an encrypted document could be opened. Read it before the verdict: "no violations" over a rebuilt table is not the same statement as "no violations" over the file's own table.
+
 Size (v0.29.0): the verdict is computed over EVERY signature; facts.signatures lists at most 32 of them and facts.signaturesTruncated = { returned, total } says when it was cut. JSON is never cut by length.
+
+facts.signatureCount counts signatures and leaves out document timestamps (facts.documentTimestampCount); facts.signatures lists both, so its length can be larger. When the document is encrypted and the key could not be derived, the three are null with facts.note, POL-CAUTION-UNSIGNED does not fire, and POL-REVIEW-SIGNATURES-NOT-READ (human_review_required) does instead (v0.35.0): "could not look" is not "unsigned".
 
 | Field | Content |
 | --- | --- |

@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-spec-mcp v0.13.0 — parameters, types, defaults and returns of all 8 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-spec-mcp v0.14.0 — parameters, types, defaults and returns of all 8 tools, generated from the server's tools/list."
 ---
 
 # pdf-spec-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-spec-mcp v0.13.0 — parameters, types, de
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.13.0** (8 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.14.0** (8 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-spec).
@@ -29,7 +29,7 @@ Auto-generated from the `tools/list` handshake of **v0.13.0** (8 tools). Do not 
 
 **List available specifications**
 
-List all available PDF specification documents. Returns document IDs, titles, page counts, and categories, plus `coverage.gaps` — the normative areas this corpus does NOT contain (PDF/A, PAdES). Read the gaps before concluding that a requirement does not exist. Use the returned IDs as the `spec` parameter in other tools.
+List all available PDF specification documents. Returns document IDs, titles, page counts, and categories, plus `coverage.gaps` — the normative areas this corpus does NOT contain (PDF/A, PAdES). Read the gaps before concluding that a requirement does not exist. Use the returned IDs as the `spec` parameter in other tools. `unrecognizedFiles` names the PDFs in PDF_SPEC_DIR that no pattern recognised — they were NOT read. Every other tool returns the id of the spec it read as `spec` (the default when `spec` was omitted); compare_versions returns `specs`.
 
 ### Parameters
 
