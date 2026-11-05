@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-reader-mcp v0.20.0 — parameters, types, defaults and returns of all 18 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-reader-mcp v0.20.1 — parameters, types, defaults and returns of all 18 tools, generated from the server's tools/list."
 ---
 
 # pdf-reader-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-reader-mcp v0.20.0 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.20.0** (18 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.20.1** (18 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-reader).
@@ -105,7 +105,7 @@ Extract metadata from a PDF document including title, author, creation date, pag
 
 Metadata including: title, author, subject, keywords, creator, producer, creation/modification dates, page count, PDF version, linearized/encrypted/tagged/signature flags, file size.
 
-The eight document-level fields are read from both the document information dictionary (ISO 32000-2 §14.3.3) and the XMP metadata stream (§14.3.2: dc:title, dc:creator, dc:description, pdf:Keywords, xmp:CreatorTool, pdf:Producer, xmp:CreateDate, xmp:ModifyDate). When both hold a value, PDF 2.0 and later use the XMP value (§14.3.3 deprecates the dictionary for this in PDF 2.0) and earlier versions use the dictionary. Values are returned as written: dictionary dates look like "D:20260915100000+09'00'", XMP dates like "2026-09-15T10:00:00+09:00".
+The eight document-level fields are read from both the document information dictionary (ISO 32000-2 §14.3.3) and the XMP metadata stream (§14.3.2: dc:title, dc:creator, dc:description, pdf:Keywords, xmp:CreatorTool, pdf:Producer, xmp:CreateDate, xmp:ModifyDate). When both hold a value, PDF 2.0 and later use the XMP value (§14.3.3 deprecates the dictionary for this in PDF 2.0) and earlier versions use the dictionary — except the two dates, which use the dictionary in every version: §14.3.3 does not deprecate CreationDate and ModDate, and §14.5 compares PieceInfo's LastModified with the dictionary's ModDate. Values are returned as written: dictionary dates look like "D:20260915100000+09'00'", XMP dates like "2026-09-15T10:00:00+09:00".
 metadataSources names the source of each field ("info", "xmp" or null). metadataConflicts lists fields where the two sources differ (dates compared as instants) — this server does not say which one is right. xmpMetadata says whether the stream was read, is absent, or is present but could not be read; "could not be read" is not "absent".
 
 Examples:
