@@ -1,5 +1,5 @@
 ---
-description: "pdf-writer-mcp v0.24.0 の全 20 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-writer-mcp v0.25.0 の全 20 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-writer-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-writer-mcp v0.24.0 の全 20 ツールの引数・型・既定
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-**v0.24.0** の `tools/list` ハンドシェイクから自動生成（20 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.25.0** の `tools/list` ハンドシェイクから自動生成（20 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-writer)へ。
@@ -17,7 +17,7 @@ description: "pdf-writer-mcp v0.24.0 の全 20 ツールの引数・型・既定
 | ツール | 概要 |
 |---|---|
 | [`create_text_pdf`](#create-text-pdf) | プレーンテキストから PDF を生成する。 |
-| [`create_markdown_pdf`](#create-markdown-pdf) | Markdown から PDF を生成する。 |
+| [`create_markdown_pdf`](#create-markdown-pdf) | Create a PDF from Markdown. |
 | [`create_table_pdf`](#create-table-pdf) | ヘッダと行データから罫線付きの表 PDF を生成する。 |
 | [`set_metadata`](#set-metadata) | 既存 PDF のメタデータ(Info 辞書)を更新する。 |
 | [`merge_pdfs`](#merge-pdfs) | 複数の PDF を指定順に 1 つへ結合する。 |
@@ -114,7 +114,7 @@ description: "pdf-writer-mcp v0.24.0 の全 20 ツールの引数・型・既定
 
 **Create PDF from Markdown**
 
-Markdown から PDF を生成する。見出し・段落・箇条書き/番号リスト・コードブロック・引用・水平線・表に対応。インライン装飾の記号は除去し字面のみ反映する(単一フォントのため)。
+Create a PDF from Markdown. Supports headings, paragraphs, bullet/numbered lists, code blocks, quotes, horizontal rules and tables. Inline decoration markers are stripped and the text rendered plain (single font). Nested lists keep their nesting, and wrapped list text lines up after the bullet or number. With tagged: true each item is LI > Lbl (bullet/number) + LBody, a nested list sits inside its parent LBody, and each L states ListNumbering (Decimal or Disc) (v0.25.0).
 
 ### 引数
 
@@ -774,7 +774,7 @@ labels でスクリーンリーダー向けの人間可読な名前を渡すこ�
 
 **Ensure Tagged (PDF/UA scaffold & repair)**
 
-Put an existing PDF onto the PDF/UA-1 "vessel". If it is already tagged, the structure tree is untouched and only missing document-level requirements are supplied (MarkInfo / Lang / DisplayDocTitle / XMP pdfuaid:part and dc:title). For untagged documents, a minimal structure tree (each page = one P element) is created so the content becomes reachable by assistive technology. **IMPORTANT**: machines cannot infer meaning — headings, tables, lists, reading order and figure alt text are NOT created. The new tree is a scaffold, not an accessible document; it needs human review. If you can build the structure right from the start, use the create tools' tagged: true. For signed PDFs, preserveSignatures: true (approval signatures only; certification signatures are refused). The result separates addedRequirements (absent from the input) from replacedRequirements (present with a different value, rewritten); a requirement already present with the same value is neither rewritten nor listed. requirementsChanged is false when nothing was added, replaced or created — the output file is still written (v0.24.0).
+Put an existing PDF onto the PDF/UA-1 "vessel". If it is already tagged, the structure tree is untouched and only missing document-level requirements are supplied (MarkInfo / Lang / DisplayDocTitle / XMP pdfuaid:part and dc:title). For untagged documents, a minimal structure tree (each page = one P element) is created so the content becomes reachable by assistive technology. **IMPORTANT**: machines cannot infer meaning — headings, tables, lists, reading order and figure alt text are NOT created. The new tree is a scaffold, not an accessible document; it needs human review. If you can build the structure right from the start, use the create tools' tagged: true. For signed PDFs, preserveSignatures: true (approval signatures only; certification signatures are refused). The result separates addedRequirements (absent from the input) from replacedRequirements (present with a different value, rewritten); a requirement already present with the same value is neither rewritten nor listed. requirementsChanged is false when nothing was added, replaced or created — the output file is still written (v0.24.0). A PDF 2.0 input (header or catalog /Version) is refused as INVALID_ARGUMENT before anything is written: PDF/UA-1 allows only PDF 1.0 to 1.7 (ISO 14289-1 §6.1) (v0.25.0).
 
 ### 引数
 
