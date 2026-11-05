@@ -54,8 +54,10 @@ flowchart TB
 | E1 | Mac・手元のビルド（`pdf-*-local`） | 全ツール。E2 との突き合わせ | Claude（手元に登録した MCP） |
 | E3 | Mac・Claude の plugin | Skill 3 本、UC01〜UC10 | Claude |
 | E4 | Mac・別のホスト（2026-11 は Grok Build） | UC01〜UC10 | 本人 |
-| E5 | GitHub Actions の ubuntu / macos / windows | `eval/e2e` を OS の行列で（`e2e-os-matrix.yml`、手動） | Claude がワークフローを書き、本人が回す |
+| E5 | GitHub Actions の ubuntu / macos / windows | `eval/e2e` を OS の行列で（`e2e-os-matrix.yml`、手動）。**実機は要らない** | Claude がワークフローを書き、起動する |
 | E6 | Windows・ホスト | plugin の登録、パスと環境変数、UC を数本 | **保留**（Windows の実機が手に入るまで。検討して採らなかった方法は [2026-11 の README](trial-2026-11/README.md) の「E6 を保留にした理由」） |
+
+**E5 と E6 を混同しない。** E5 はパッケージが各 OS で起動して応答するかを確かめるもので、GitHub Actions の仮想マシンで回せます。実機が要るのは E6（ホストのアプリに plugin を登録したときの、パスと環境変数の渡し方）だけです。2026-11 は「Windows の実機が無いので当分実施しない」を E5 の範囲の項目（S6 を Windows で回す）にも当てかけ、翌日に E5 で回し直しました。
 
 E1 と E2 の結果が一致すれば、パッケージは配布の形に左右されません。E3 と E4 で結果が分かれれば、原因はホストの側にあります。
 

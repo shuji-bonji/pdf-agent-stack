@@ -152,5 +152,5 @@ E1〜E5 を回し、所見 33 件（F-01〜F-33）をすべて振り分けまし
 | もの | 状態 |
 | --- | --- |
 | E6 Windows・ホスト | **保留**。Windows の実機を手に入れる目処が立っていないので、当分は実施しない |
-| S6 の `read_url` の 5 件を macOS・Windows で回す | 未実施。Linux でだけ確かめた。E5 の行列（`e2e-os-matrix.yml`、GitHub Actions のランナー）で回せる |
+| S6 の `read_url` の 5 件を macOS・Windows で回す | **済み**（2026-11-06、[run 42054610824](https://github.com/shuji-bonji/pdf-agent-stack/actions/runs/42054610824)）。E5 の行列 6 環境（ubuntu x64・arm64、macOS arm64・x64、Windows x64・arm64）で 36 件が通った。Windows の 2 環境は S4 の 1 件を飛ばす（S4 が `win32` では飛ばす作りで、11-03 と同じ） |
 | 所見から起票した Issue のうち直していないもの | pdf-writer-mcp#9・#10・#11・#12、pdf-verify-mcp#31・#33・#34、pdf-spec-mcp#32 |
