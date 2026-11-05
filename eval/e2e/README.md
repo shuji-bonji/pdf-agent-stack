@@ -43,7 +43,7 @@ CI（`.github/workflows/e2e.yml`）は、手動（`workflow_dispatch`）と毎�
 
 ## 2026-11-05 の結果（S6）
 
-公開版（reader 0.20.0・writer 0.23.3・verify 0.33.0・spec 0.12.0）で 23 件すべて通りました。足した `read_url` の 5 件を reader 0.19.0（`PDF_E2E_READER_DIR`）に向けると 4 件が落ち、0.19.0 の時点で正しかった HTTP 404 だけが通りました。時間切れ（`SOURCE_TIMEOUT`）は、`read_url` の時間切れが 30 秒で引数から変えられないので、S6 では測らず、reader の単体テスト（`tests/e2e/19-read-url-network-errors.test.ts`）に任せています。
+公開版（reader 0.20.0・writer 0.23.3・verify 0.33.0・spec 0.12.0）で 23 件すべて通りました。旧名を外した verify 0.34.0・spec 0.13.0（reader 0.20.1・writer 0.23.3）でも 23 件すべて通りました。足した `read_url` の 5 件を reader 0.19.0（`PDF_E2E_READER_DIR`）に向けると 4 件が落ち、0.19.0 の時点で正しかった HTTP 404 だけが通りました。時間切れ（`SOURCE_TIMEOUT`）は、`read_url` の時間切れが 30 秒で引数から変えられないので、S6 では測らず、reader の単体テスト（`tests/e2e/19-read-url-network-errors.test.ts`）に任せています。
 
 ## 2026-11-04 の結果（S6）
 

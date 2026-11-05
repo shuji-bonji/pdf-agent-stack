@@ -79,15 +79,14 @@ Fetch Standard が接続を断るポート（9 など）を指す URL は、`SOU
 | `CONTENT_ERROR` | 節・表・ページが見つからないか読めない | 原因による（別の引数で成功しうるときは `true`） |
 | `PREREQUISITE_ERROR` | ツールに要る仕様書や部品が無い。`next_actions` に入れるものが書いてある | `false` |
 
-## 移行のあいだの旧名
+## 旧い名前（外した）
 
-verify 0.33.x と spec 0.12.x は新しいコードを返し、1 つの minor のあいだだけ旧名を `detail.legacyCode` に残しています。Skill は `code` で分岐してください。旧名はなくなります。
+verify 0.33.x と spec 0.12.x は移行の版で、新しいコードを返しながら、旧名を `detail.legacyCode` に残していました。**verify 0.34.0 と spec 0.13.0 で旧名を外しました。** 分岐は `code` で行ってください。旧名を読んでいた場合は、次のように置き換えてください。
 
-| サーバー | 旧名（`detail.legacyCode`） | いまのコード |
-|---|---|---|
-| verify | `FILE_NOT_FOUND` | `DOC_NOT_FOUND` |
-| verify | `PARSE_FAILED` | `INVALID_PDF` |
-| verify | `MISSING_PATH` / `RELATIVE_PATH` / `NOT_A_FILE` / `INVALID_FLAVOUR` | `INVALID_ARGUMENT`（旧名は `detail.reason` にもある） |
-| spec | `VALIDATION_ERROR` | `INVALID_ARGUMENT` |
-
-verify 0.33.x は、`message`（`error` と同じ値）と `suggestion`（`hint` と同じ値）もまだ返します。`error` と `hint` を読んでください。
+| サーバー | 旧名 | いまの名前 | 外した版 |
+|---|---|---|---|
+| verify | `FILE_NOT_FOUND` | `DOC_NOT_FOUND` | 0.34.0 |
+| verify | `PARSE_FAILED` | `INVALID_PDF` | 0.34.0 |
+| verify | `MISSING_PATH` / `RELATIVE_PATH` / `NOT_A_FILE` / `INVALID_FLAVOUR` | `INVALID_ARGUMENT`（旧名は `detail.reason` にある） | 0.34.0 |
+| verify | `message` / `suggestion` | `error` / `hint` | 0.34.0 |
+| spec | `VALIDATION_ERROR` | `INVALID_ARGUMENT` | 0.13.0 |

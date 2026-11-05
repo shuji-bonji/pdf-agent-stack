@@ -85,17 +85,16 @@ Used only where no common code fits.
 | `CONTENT_ERROR` | A section, table or page could not be found or read | depends on the cause (`true` when another argument can succeed) |
 | `PREREQUISITE_ERROR` | A tool needs a specification or dependency that is not available. `next_actions` names what to install | `false` |
 
-## Old names during the migration
+## Old names (removed)
 
-verify 0.33.x and spec 0.12.x return the new codes, and keep the old name in `detail.legacyCode`
-for one minor version. A Skill should branch on `code`; the old names will be removed.
+verify 0.33.x and spec 0.12.x were transition releases: they returned the new codes and kept the
+old name in `detail.legacyCode`. **verify 0.34.0 and spec 0.13.0 removed the old names**, so branch
+on `code`. If you still read an old name, this is what it became:
 
-| Server | Old name (`detail.legacyCode`) | Now |
-|---|---|---|
-| verify | `FILE_NOT_FOUND` | `DOC_NOT_FOUND` |
-| verify | `PARSE_FAILED` | `INVALID_PDF` |
-| verify | `MISSING_PATH` / `RELATIVE_PATH` / `NOT_A_FILE` / `INVALID_FLAVOUR` | `INVALID_ARGUMENT` (the old name is also in `detail.reason`) |
-| spec | `VALIDATION_ERROR` | `INVALID_ARGUMENT` |
-
-verify 0.33.x also still sends `message` (same as `error`) and `suggestion` (same as `hint`). Read
-`error` and `hint`.
+| Server | Old name | Now | Removed in |
+|---|---|---|---|
+| verify | `FILE_NOT_FOUND` | `DOC_NOT_FOUND` | 0.34.0 |
+| verify | `PARSE_FAILED` | `INVALID_PDF` | 0.34.0 |
+| verify | `MISSING_PATH` / `RELATIVE_PATH` / `NOT_A_FILE` / `INVALID_FLAVOUR` | `INVALID_ARGUMENT` (the old name is in `detail.reason`) | 0.34.0 |
+| verify | `message` / `suggestion` | `error` / `hint` | 0.34.0 |
+| spec | `VALIDATION_ERROR` | `INVALID_ARGUMENT` | 0.13.0 |
