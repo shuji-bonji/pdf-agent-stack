@@ -130,3 +130,27 @@ pdf-read・pdf-trust・pdf-publish の手順書の記述が、いまのツール
 - E1〜E5 の結果がそろっている（実施しなかったものは理由を書く）
 - `FINDINGS.md` のすべての行に振り分けがある
 - E6 は、実機が用意できなければ「保留」と理由を書いて閉じる
+
+## 結果（2026-11-05 に閉じた）
+
+E1〜E5 を回し、所見 33 件（F-01〜F-33）をすべて振り分けました。追跡用の [#47](https://github.com/shuji-bonji/pdf-agent-stack/issues/47) と、エラーの契約をそろえた [#48](https://github.com/shuji-bonji/pdf-agent-stack/issues/48) を 2026-11-05 に閉じました。進め方と分かったことは [`../TRIAL-PLAYBOOK.md`](../TRIAL-PLAYBOOK.md) にまとめてあり、次の試用はそれに沿って計画します。
+
+### 直して公開したもの
+
+| パッケージ | 版 | 閉じた Issue |
+| --- | --- | --- |
+| pdf-reader-mcp | 0.19.0・0.20.0・0.20.1 | #39・#40・#41・#42・#43・#44・#46 |
+| pdf-writer-mcp | 0.23.3 | #13・#14 |
+| pdf-verify-mcp | 0.33.0・0.34.0 | #32・#35 |
+| pdf-spec-mcp | 0.12.0・0.13.0 | #33 |
+| pdf-publish Skill | 0.7.2 | — |
+
+エラーの応答は 4 サーバーとも family の形（docs `specs/06` §2.3）にそろい、S6（`e2e/tests/s6-error-contract.test.mjs`）が公開版の 4 サーバーで 23 件すべて通ります（2026-11-05、reader 0.20.1・writer 0.23.3・verify 0.34.0・spec 0.13.0）。
+
+### 残っているもの
+
+| もの | 状態 |
+| --- | --- |
+| E6 Windows・ホスト | **保留**。Windows の実機を手に入れる目処が立っていないので、当分は実施しない |
+| S6 の `read_url` の 5 件を macOS・Windows で回す | 未実施。Linux でだけ確かめた。E5 の行列（`e2e-os-matrix.yml`、GitHub Actions のランナー）で回せる |
+| 所見から起票した Issue のうち直していないもの | pdf-writer-mcp#9・#10・#11・#12、pdf-verify-mcp#31・#33・#34、pdf-spec-mcp#32 |
