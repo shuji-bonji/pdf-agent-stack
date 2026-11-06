@@ -58,9 +58,9 @@ Fetch Standard が接続を断るポート（9 など）を指す URL は、`SOU
 |---|---|---|
 | `SIGNED_PDF` | 署名を守るために止めた。注釈の追加なら、まず `preserveSignatures: true`（増分更新。タグの無い文書だけ）。それ以外は利用者に確かめてから `allowBreakingSignatures: true` | `true` |
 | `TAGGED_PDF` | 構造木を壊す操作（flatten など）なので止めた。先に代わりの手を示し、利用者の了解があれば `allowBreakingTags: true` | `true` |
-| `FONT_REQUIRED` | ラテン文字以外の文字があるのにフォントが無い → `fontPath` か `PDF_WRITER_FONT` | `true` |
+| `FONT_REQUIRED` | フォントが指定されておらず、標準フォント（Helvetica、WinAnsiEncoding）で書けない字がある → `fontPath` か `PDF_WRITER_FONT`。0.26.0 から、断るのは WinAnsiEncoding に符号の無い U+0100 以上の字（日本語・`ł`・`✔` など）だけで、`“` `—` `€` `…` `™` は描ける。原因の字は `detail.characters`（`U+XXXX`）と `detail.count` に入る | `true` |
 | `FONT_NOT_FOUND` | フォントのパスが誤っている → 実在するフォントを渡す | `true` |
-| `MISSING_GLYPH` | フォントに無い文字がある → 別のフォントか、`onMissingGlyph: "replace"` / `"ignore"` | `true` |
+| `MISSING_GLYPH` | フォントに無い文字がある → 別のフォントか、`onMissingGlyph: "replace"` / `"ignore"`。0.26.0 から、原因の字は `detail.characters`（`U+XXXX`、最大 1,000 字）と `detail.count` に入る。`error` の文は 10 字で切れる | `true` |
 
 ### pdf-verify-mcp
 

@@ -64,16 +64,16 @@
     "text": "2 つの PDF 文書の内部構造を比較し、差分を特定する。"
   },
   "get_page_count|returns": {
-    "src": "8629310666429786e6250173da651571",
-    "text": "ページ数（数値）。\n\n例:\n- どのページを抽出するか決める前の簡易チェック\n- PDF ファイルが読めるかの確認"
+    "src": "3167469d68a2406e6eafd37f976d2772",
+    "text": "markdown（既定）— ページ数を数値だけで返す（例: \"126\"）。ほかのツールの pages 引数は、この数と照らして検査される。\njson — { pageCount, scope }。scope.declaredCount はページツリーの根のノードが宣言する /Count（ISO 32000-2 §7.7.3.2）、scope.pagesReached はページツリーを辿って到達したページの数、scope.pageTree はその辿りができたかを示す。/Count を誤って書いたファイルでは、2 つの数が食い違うことがある。このサーバは両方を報告し、どちらが正しいかは判定しない。読めなかった値は 0 ではなく null になる。\n\n例:\n- どのページを抽出するか決める前の簡易チェック\n- PDF ファイルが読めるかの確認"
   },
   "get_page_count|param:file_path": {
     "src": "1c06f136e55f5c125a42c9f2a76f12f6",
     "text": "ローカル PDF ファイルへの絶対パス（例: \"/path/to/document.pdf\"）"
   },
   "get_metadata|returns": {
-    "src": "5b60463e5f7b6d0ce94639a775520618",
-    "text": "メタデータ一式: タイトル・作成者・件名・キーワード・作成アプリ・生成アプリ・作成/更新日時・ページ数・PDF バージョン・linearized/暗号化/タグ付き/署名フラグ・ファイルサイズ。\n\n例:\n- 台帳管理用に文書プロパティを取得\n- タグ付き PDF か確認（アクセシビリティ）\n- PDF バージョン互換性の確認"
+    "src": "06c00a2d36f374cab2520a09ac259dd3",
+    "text": "メタデータ一式: タイトル・作成者・件名・キーワード・作成アプリ・生成アプリ・作成/更新日時・ページ数・PDF バージョン・linearized/暗号化/タグ付き/署名フラグ・ファイルサイズ。\n\n文書レベルの 8 項目は、文書情報辞書（ISO 32000-2 §14.3.3）と XMP メタデータストリーム（§14.3.2: dc:title・dc:creator・dc:description・pdf:Keywords・xmp:CreatorTool・pdf:Producer・xmp:CreateDate・xmp:ModifyDate）の両方から読む。両方に値があるとき、PDF 2.0 以降は XMP の値を使い（§14.3.3 は PDF 2.0 でこの用途の辞書を非推奨にしている）、それより前の版は辞書の値を使う。ただし 2 つの日付は、どの版でも辞書の値を使う: §14.3.3 は CreationDate と ModDate を非推奨にしておらず、§14.5 は PieceInfo の LastModified を辞書の ModDate と比べるからである。値は書かれたまま返す: 辞書の日付は \"D:20260915100000+09'00'\"、XMP の日付は \"2026-09-15T10:00:00+09:00\" のような形になる。\nmetadataSources は各項目の出どころ（\"info\"・\"xmp\"・null）を示す。metadataConflicts は 2 つの出どころで値が食い違う項目を列挙する（日付は時刻として比べる）— どちらが正しいかは、このサーバは言わない。xmpMetadata は、ストリームを読めたか・無いか・あるが読めなかったかを示す。「読めなかった」は「無い」ではない。\n\n例:\n- 台帳管理用に文書プロパティを取得\n- タグ付き PDF か確認（アクセシビリティ）\n- PDF バージョン互換性の確認"
   },
   "get_metadata|param:file_path": {
     "src": "1c06f136e55f5c125a42c9f2a76f12f6",
@@ -196,8 +196,8 @@
     "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
   },
   "inspect_tags|returns": {
-    "src": "170a3fdb12a77c397c2205d1755cfee7",
-    "text": "タグ付きかどうか・role 付き構造ツリー階層・最大ネスト深さ・要素総数・role 分布（例: Document, P, H1, Table, Figure）。\n\n例:\n- アクセシビリティ（PDF/UA）向けにタグ付きか確認\n- タグ階層と role 分布を調べる\n- 文書構造の品質を評価する"
+    "src": "87610a8f9f76408984f19843d698245e",
+    "text": "タグ付きかどうか・role 付き構造ツリー階層・最大ネスト深さ・要素総数・role 分布（例: Document, P, H1, Table, Figure）。\n暗号化 PDF で、空の利用者パスワードから鍵を導けないときは、isTagged と各数が null になり、note が理由を述べる: 構造ツリーを読めなかったということで、「タグ付きでない」とは別の答えである。\n\n例:\n- アクセシビリティ（PDF/UA）向けにタグ付きか確認\n- タグ階層と role 分布を調べる\n- 文書構造の品質を評価する"
   },
   "inspect_tags|param:file_path": {
     "src": "1c06f136e55f5c125a42c9f2a76f12f6",
@@ -248,8 +248,8 @@
     "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
   },
   "extract_tables|returns": {
-    "src": "fed7179a767567ce0827389f2c9942d1",
-    "text": "Markdown — `# Extracted Tables` の要約ブロックに続き、表ごとに GFM 表付きの `## Table N — Page(s) …` 節。\n\nJSON — `{ isTagged, tables: [{ pages, index, headerRows, bodyRows, footerRows }], totalTables, pagesScanned, note? }`。`index` は文書全体の論理コンテンツ順での 1 始まりの位置。\n\n制限:\n- タグなし PDF は空の結果と `note` を返す。\n- colspan/rowspan は反映されない（セルはソース順に列挙）。\n- 入れ子の表は個別に出力されない（テキストは外側のセルに現れる）。\n\n例:\n- 改正通達 PDF から新旧対照表を取り出して差分を取る\n- 帳票（様式）の表を構造化データに変換する"
+    "src": "6b7b53b91874865cc689c3ff2dbe8c56",
+    "text": "Markdown — `# Extracted Tables` の要約ブロックに続き、表ごとに GFM 表付きの `## Table N — Page(s) …` 節。\n\nJSON — `{ isTagged, tables: [{ pages, index, headerRows, bodyRows, footerRows }], totalTables, pagesScanned, note? }`。`index` は文書全体の論理コンテンツ順での 1 始まりの位置。\n\n制限:\n- タグなし PDF は空の結果と `note` を返す。\n- 暗号化 PDF で、空の利用者パスワードから鍵を導けないときは、`isTagged`・`tables`・`totalTables` を `null` にして `note` を付ける: 構造ツリーを読めなかったということで、「タグ付きでない」とは別の答えである。\n- colspan/rowspan は反映されない（セルはソース順に列挙）。\n- 入れ子の表は個別に出力されない（テキストは外側のセルに現れる）。\n\n例:\n- 改正通達 PDF から新旧対照表を取り出して差分を取る\n- 帳票（様式）の表を構造化データに変換する"
   },
   "extract_tables|param:file_path": {
     "src": "1c06f136e55f5c125a42c9f2a76f12f6",
@@ -264,8 +264,8 @@
     "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
   },
   "extract_structured_text|returns": {
-    "src": "10d1fcffa3799902d60ef5efc64c6851",
-    "text": "isTagged・文書の言語・論理コンテンツ順の要素のフラットなリスト。\n各要素は role・depth（ネスト。トップレベルは 0）・text・pages と、必要に応じて alt / label / rows / boxes / boxNote を持つ。\n\n`scope` は、この答えの背後にある 2 つの読みのどちらが行われたかを言う —— 構造ツリーを読むことと、その下の文字が Unicode に変換できるかを観測すること（ISO 32000-2 §9.10.1）である。構造ツリーを読めなかったときは、`isTagged` と `elements` が `false` と `[]` ではなく `null` になる。「読んでいない」と「読んでタグが無かった」は別の答えである。\n\nリストは入れ子ではなく depth フィールド付きのフラット構造である — 深さ優先の行きがけ順 + depth で木は正確に符号化され、失われるものはない。例外は Table で、rows を持つ。表は二次元であり、depth では「2 行目の 3 列目」を表せないからである。\n\n主な性質:\n- 順序は文書の構造ツリーの深さ優先走査で、ISO 32000-2 §14.8.2.5 が定義する論理コンテンツ順そのものである。\n- ページをまたぐ要素は 1 つの要素のまま（pages は配列）。改ページで分かれた段落は 2 つではなく 1 つの段落として返る。\n- ActualText があればグリフを置き換える（§14.9.4:「説明ではなく置換」）。Alt は alt に分けて報告され、text には決して入らない — テキストを持たない内容の説明であり（§14.9.3）、本文に漏れてはならない。\n- Lbl（リストの行頭記号や番号）は label に報告され、text には混ざらない。\n- アーティファクト（ページ番号・柱）は除外される: §14.8.2.5 NOTE 3 が論理コンテンツ順の外に置いている。\n\ninclude_bbox 付き（「この段落はどこにあるか」に答え、注釈を置けるようにする）:\n各要素に boxes が付く — ページごとに 1 矩形。ページをまたぐ要素に単一の矩形は無いからである。各矩形は PDF 既定ユーザー空間（原点は左下・pt・正規化済み）の { page, rect: {x1,y1,x2,y2}, basis } で、pdf-writer-mcp の add_annotation がそのまま受け取る形 — 途中で座標系を解釈し直す必要はない。/Rotate やずれた /CropBox の影響も受けない。\n\nbasis は主張の強さを示し、両者は同じ種類の主張ではない:\n  - layout-attribute-bbox — ファイルが要素について宣言する /BBox（ISO 32000-2 Table 379）。生成者による自己申告の幾何で、そのまま報告される。テキストを持たない内容ではこれが唯一の情報源。\n  - text-extent — 要素が持つテキストから実測した値: ベースライン原点とフォントの ascent/descent。つまり行ボックスであり、グリフの輪郭ではない。画像やベクター描画は寄与しない。\n\n宣言された /BBox が中で実測されたテキストを覆わない場合、その食い違いは均されず boxNote で報告される。\n\n矩形を持たない要素は boxes を持たず、理由を述べる boxNote が付く — 画像 1 つを持つ Figure が典型である（§14.8.4.8.5: そのような要素は「BBox 属性を持つべき」）。「無い」は「大きさゼロ」ではなく、推測もしない。\n\nタグなし PDF は理由付きの isTagged: false を返し、要素は返さない。座標からの推測は行わない — §14.8.2.5 NOTE 1 はページ順が論理順と一致するとは限らないと明記しており、推測は信頼できないからである。構造の足場を足すには pdf-writer-mcp の ensure_tagged を使って再試行すること。\n\n例:\n- 文書のアウトラインを抽出: { file_path: \"/doc.pdf\", roles: [\"H1\",\"H2\",\"H3\"] }\n- リフロー/変換用に構造を保ったまま内容を取得: { file_path: \"/doc.pdf\" }\n- 特定の節のページのテキストを読む: { file_path: \"/doc.pdf\", pages: \"4-6\" }\n- 注釈を置く場所を探す:\n  { file_path: \"/doc.pdf\", roles: [\"P\"], include_bbox: true } → 矩形をそのまま pdf-writer-mcp の add_annotation へ。逆方向（差分が報告したオブジェクト番号 → 矩形）は locate_objects を使う。"
+    "src": "5baf6868368e83ac46ea5c6578323612",
+    "text": "isTagged・文書の言語・論理コンテンツ順の要素のフラットなリスト。\n各要素は role・depth（ネスト。トップレベルは 0）・text・pages と、必要に応じて alt / label / rows / boxes / boxNote を持つ。\n\n`scope` は、この答えの背後にある 2 つの読みのどちらが行われたかを言う —— 構造ツリーを読むことと、その下の文字が Unicode に変換できるかを観測すること（ISO 32000-2 §9.10.1）である。構造ツリーを読めなかったときは、`isTagged` と `elements` が `false` と `[]` ではなく `null` になる。「読んでいない」と「読んでタグが無かった」は別の答えである。\n\nリストは入れ子ではなく depth フィールド付きのフラット構造である — 深さ優先の行きがけ順 + depth で木は正確に符号化され、失われるものはない。例外は Table で、rows を持つ。表は二次元であり、depth では「2 行目の 3 列目」を表せないからである。\n\n主な性質:\n- 順序は文書の構造ツリーの深さ優先走査で、ISO 32000-2 §14.8.2.5 が定義する論理コンテンツ順そのものである。\n- ページをまたぐ要素は 1 つの要素のまま（pages は配列）。改ページで分かれた段落は 2 つではなく 1 つの段落として返る。\n- ActualText があればグリフを置き換える（§14.9.4:「説明ではなく置換」）。Alt は alt に分けて報告され、text には決して入らない — テキストを持たない内容の説明であり（§14.9.3）、本文に漏れてはならない。\n- Lbl（リストの行頭記号や番号）は label に報告され、text には混ざらない。\n- 項目の中の入れ子のリストは、親の項目の直後に独自の L・LI の要素として返り、項目の text には決して畳まれない。項目の LBody の中にあるとき（ISO 32000-1 Table 336）は、LBody 自体を返さないので LI の 1 段下に置かれる。親の L の直接の子のとき（ISO 32000-2 §14.8.4.8.2）は LI と同じ段に置かれる。\n- アーティファクト（ページ番号・柱）は除外される: §14.8.2.5 NOTE 3 が論理コンテンツ順の外に置いている。\n\ninclude_bbox 付き（「この段落はどこにあるか」に答え、注釈を置けるようにする）:\n各要素に boxes が付く — ページごとに 1 矩形。ページをまたぐ要素に単一の矩形は無いからである。各矩形は PDF 既定ユーザー空間（原点は左下・pt・正規化済み）の { page, rect: {x1,y1,x2,y2}, basis } で、pdf-writer-mcp の add_annotation がそのまま受け取る形 — 途中で座標系を解釈し直す必要はない。/Rotate やずれた /CropBox の影響も受けない。\n\nbasis は主張の強さを示し、両者は同じ種類の主張ではない:\n  - layout-attribute-bbox — ファイルが要素について宣言する /BBox（ISO 32000-2 Table 379）。生成者による自己申告の幾何で、そのまま報告される。テキストを持たない内容ではこれが唯一の情報源。\n  - text-extent — 要素が持つテキストから実測した値: ベースライン原点とフォントの ascent/descent。つまり行ボックスであり、グリフの輪郭ではない。画像やベクター描画は寄与しない。\n\n宣言された /BBox が中で実測されたテキストを覆わない場合、その食い違いは均されず boxNote で報告される。\n\n矩形を持たない要素は boxes を持たず、理由を述べる boxNote が付く — 画像 1 つを持つ Figure が典型である（§14.8.4.8.5: そのような要素は「BBox 属性を持つべき」）。「無い」は「大きさゼロ」ではなく、推測もしない。\n\nタグなし PDF は理由付きの isTagged: false を返し、要素は返さない。座標からの推測は行わない — §14.8.2.5 NOTE 1 はページ順が論理順と一致するとは限らないと明記しており、推測は信頼できないからである。構造の足場を足すには pdf-writer-mcp の ensure_tagged を使って再試行すること。\n\n例:\n- 文書のアウトラインを抽出: { file_path: \"/doc.pdf\", roles: [\"H1\",\"H2\",\"H3\"] }\n- リフロー/変換用に構造を保ったまま内容を取得: { file_path: \"/doc.pdf\" }\n- 特定の節のページのテキストを読む: { file_path: \"/doc.pdf\", pages: \"4-6\" }\n- 注釈を置く場所を探す:\n  { file_path: \"/doc.pdf\", roles: [\"P\"], include_bbox: true } → 矩形をそのまま pdf-writer-mcp の add_annotation へ。逆方向（差分が報告したオブジェクト番号 → 矩形）は locate_objects を使う。"
   },
   "extract_structured_text|param:file_path": {
     "src": "1c06f136e55f5c125a42c9f2a76f12f6",
@@ -340,8 +340,8 @@
     "text": "この高さを超える画像を縮小する。拡大は決してしない。"
   },
   "render_page|returns": {
-    "src": "a7a52efecee3e8862fc11d4c6557d064",
-    "text": "ページごとのメタ情報（pt 寸法・ピクセル寸法・実効 dpi・バイト数）と省略の一覧を載せた text ブロック、続いて描画したページ 1 つにつき 1 つの image コンテンツブロック。\n\nページのラスタライズには上限のない時間がかかることがある。タイリングパターン（ISO 32000-2 §8.7.3.1）の `/XStep` や `/YStep` が 0 に近い大きさだと、天文学的な枚数のタイルを敷くことになる —— 条文が禁じているのは 0 だけである。そのため 1 ページにつき 20 秒の予算を置いてある（`PDF_READER_RENDER_TIMEOUT_MS` で変えられる）。描画は主スレッドの外で走るので、終わらないページがあってもサーバは応答を返し続ける。そのページはそこで止めて、省略の一覧に理由とともに出す。その前に描けたページはそのまま返り、後ろのページは「始めなかった」として別に報告される —— 「描けなかった」と「始めなかった」は別の答えである。\n\n例:\n- スキャンページ: { file_path: \"/path/to/scan.pdf\", pages: \"1\", format: \"jpeg\" }\n- 図面を高精細で: { file_path: \"/path/to/doc.pdf\", pages: \"3\", dpi: 300 }"
+    "src": "0de768bfd0f6e6100df5d1dd0a3a0981",
+    "text": "text ブロック 1 つ。先頭は \"## Scope of this reading\"（求められたページ・描画したページ・描画しなかった各ページとその理由。すべてのページを描画したときも出す）で、続いてページごとのメタ情報（pt 寸法・ピクセル寸法・実効 dpi・バイト数）と省略の一覧を載せる。その後に、描画したページ 1 つにつき 1 つの image コンテンツブロック。\n\nページのラスタライズには上限のない時間がかかることがある。タイリングパターン（ISO 32000-2 §8.7.3.1）の `/XStep` や `/YStep` が 0 に近い大きさだと、天文学的な枚数のタイルを敷くことになる —— 条文が禁じているのは 0 だけである。そのため 1 ページにつき 20 秒の予算を置いてある（`PDF_READER_RENDER_TIMEOUT_MS` で変えられる）。描画は主スレッドの外で走るので、終わらないページがあってもサーバは応答を返し続ける。そのページはそこで止めて、省略の一覧に理由とともに出す。その前に描けたページはそのまま返り、後ろのページは「始めなかった」として別に報告される —— 「描けなかった」と「始めなかった」は別の答えである。\n\n例:\n- スキャンページ: { file_path: \"/path/to/scan.pdf\", pages: \"1\", format: \"jpeg\" }\n- 図面を高精細で: { file_path: \"/path/to/doc.pdf\", pages: \"3\", dpi: 300 }"
   },
   "render_page|param:file_path": {
     "src": "1c06f136e55f5c125a42c9f2a76f12f6",
@@ -386,5 +386,9 @@
   "inspect_catalog|param:response_format": {
     "src": "c7a8f32a1936716e2c56515f7cab88d9",
     "text": "出力形式: \"markdown\" は人が読む用、\"json\" は構造化データ"
+  },
+  "get_page_count|param:response_format": {
+    "src": "c7a8f32a1936716e2c56515f7cab88d9",
+    "text": "出力形式: \"markdown\" は人が読む形、\"json\" は構造化データ"
   }
 }

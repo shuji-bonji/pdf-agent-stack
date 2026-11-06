@@ -81,4 +81,4 @@ Repository: [shuji-bonji/pdf-publish-skill](https://github.com/shuji-bonji/pdf-p
 - pdf-writer not connected → cannot proceed; the Skill says so and stops
 - pdf-verify not connected → `conformance`-level jobs are **aborted** (continuing requires agreeing to downgrade to `readback`). Any job that uses `ensure_pdfa` / `ensure_tagged` requires verify regardless of level — if it cannot be measured, the label is not written
 - pdf-reader not connected → read-back recorded as "not performed (tool not connected)"
-- Non-Latin text without an embeddable font → `FONT_REQUIRED` (structured error); resolved via `fontPath` or the `PDF_WRITER_FONT` environment variable
+- Text with characters the standard font cannot encode (Japanese, for example; WinAnsiEncoding covers `“` `—` `€` since writer 0.26.0) and no embeddable font → `FONT_REQUIRED` (structured error; `detail.characters` names the characters); resolved via `fontPath` or the `PDF_WRITER_FONT` environment variable

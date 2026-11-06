@@ -79,4 +79,4 @@ graph LR
 - pdf-writer 未接続 → 成立しません。接続を案内して停止します
 - pdf-verify 未接続 → `conformance` 水準は**中止**します（`readback` に下げる合意が取れれば続行）。`ensure_pdfa` / `ensure_tagged` を使う案件は水準にかかわらず verify 必須です — 検査できないならラベルも書きません
 - pdf-reader 未接続 → 読み戻しを「未実施（ツール未接続）」と明記し、できる範囲で続行します
-- 日本語を含むのに埋め込みフォントが無い → `FONT_REQUIRED`（構造化エラー）。`fontPath` か環境変数 `PDF_WRITER_FONT` で解決します
+- 標準フォントで書けない字（日本語など）を含むのに埋め込みフォントが無い → `FONT_REQUIRED`（構造化エラー。原因の字は `detail.characters` に入ります）。`fontPath` か環境変数 `PDF_WRITER_FONT` で解決します。writer 0.26.0 から、`“` `—` `€` などの WinAnsiEncoding の字は標準フォントで描けます

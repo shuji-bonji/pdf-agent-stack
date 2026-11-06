@@ -1,7 +1,7 @@
 {
  "list_specs|prose": {
-  "src": "6f95f39f59dcf66e2dd85415208eea4f",
-  "text": "利用可能な PDF 仕様文書を一覧する。文書 ID・タイトル・ページ数・カテゴリに加え、`coverage.gaps` — このコーパスに**存在しない**規範領域（PDF/A・PAdES）— を返す。「要求が存在しない」と結論づける前に gaps を読むこと。返された ID は他ツールの `spec` 引数に使う。"
+  "src": "d97eb788566fe80713da437db292c4de",
+  "text": "利用可能な PDF 仕様文書を一覧する。文書 ID・タイトル・ページ数・カテゴリに加え、`coverage.gaps` — このコーパスに**存在しない**規範領域（PDF/A・PAdES）— を返す。「要求が存在しない」と結論づける前に gaps を読むこと。返された ID は他ツールの `spec` 引数に使う。`unrecognizedFiles` は、PDF_SPEC_DIR にある PDF のうち、どのパターンにも当てはまらなかったものを名指す — それらは読んでいない。ほかのツールはすべて、読んだ仕様の ID を `spec` として返す（`spec` を省いたときは既定の仕様）。compare_versions は `specs` を返す。"
  },
  "get_structure|prose": {
   "src": "c480222542e97150e23ca3d7ec9a3a71",

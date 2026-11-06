@@ -16,7 +16,7 @@ description: "pdf-spec-mcp v0.14.0 の全 8 ツールの引数・型・既定値
 
 | ツール | 概要 |
 |---|---|
-| [`list_specs`](#list-specs) | List all available PDF specification documents. |
+| [`list_specs`](#list-specs) | 利用可能な PDF 仕様文書を一覧する。 |
 | [`get_structure`](#get-structure) | PDF 仕様（ISO 32000-2）の節階層を取得する。 |
 | [`get_section`](#get-section) | PDF 仕様（ISO 32000-2）の指定節の本文を取得する。 |
 | [`search_spec`](#search-spec) | PDF 仕様（ISO 32000-2）をキーワード・フレーズで検索する。 |
@@ -29,7 +29,7 @@ description: "pdf-spec-mcp v0.14.0 の全 8 ツールの引数・型・既定値
 
 **List available specifications**
 
-List all available PDF specification documents. Returns document IDs, titles, page counts, and categories, plus `coverage.gaps` — the normative areas this corpus does NOT contain (PDF/A, PAdES). Read the gaps before concluding that a requirement does not exist. Use the returned IDs as the `spec` parameter in other tools. `unrecognizedFiles` names the PDFs in PDF_SPEC_DIR that no pattern recognised — they were NOT read. Every other tool returns the id of the spec it read as `spec` (the default when `spec` was omitted); compare_versions returns `specs`.
+利用可能な PDF 仕様文書を一覧する。文書 ID・タイトル・ページ数・カテゴリに加え、`coverage.gaps` — このコーパスに**存在しない**規範領域（PDF/A・PAdES）— を返す。「要求が存在しない」と結論づける前に gaps を読むこと。返された ID は他ツールの `spec` 引数に使う。`unrecognizedFiles` は、PDF_SPEC_DIR にある PDF のうち、どのパターンにも当てはまらなかったものを名指す — それらは読んでいない。ほかのツールはすべて、読んだ仕様の ID を `spec` として返す（`spec` を省いたときは既定の仕様）。compare_versions は `specs` を返す。
 
 ### 引数
 

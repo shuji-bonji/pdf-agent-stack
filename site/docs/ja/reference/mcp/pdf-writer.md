@@ -17,7 +17,7 @@ description: "pdf-writer-mcp v0.26.0 の全 20 ツールの引数・型・既定
 | ツール | 概要 |
 |---|---|
 | [`create_text_pdf`](#create-text-pdf) | プレーンテキストから PDF を生成する。 |
-| [`create_markdown_pdf`](#create-markdown-pdf) | Create a PDF from Markdown. |
+| [`create_markdown_pdf`](#create-markdown-pdf) | Markdown から PDF を生成する。 |
 | [`create_table_pdf`](#create-table-pdf) | ヘッダと行データから罫線付きの表 PDF を生成する。 |
 | [`set_metadata`](#set-metadata) | 既存 PDF のメタデータ(Info 辞書)を更新する。 |
 | [`merge_pdfs`](#merge-pdfs) | 複数の PDF を指定順に 1 つへ結合する。 |
@@ -32,8 +32,8 @@ description: "pdf-writer-mcp v0.26.0 の全 20 ツールの引数・型・既定
 | [`fill_form`](#fill-form) | 既存 PDF の対話フォーム（AcroForm）にフィールド値を流し込む。 |
 | [`flatten_form`](#flatten-form) | 既存 PDF の対話フォーム（AcroForm）をフラット化し、記入済みの見た目を保ったまま非対話にする。 |
 | [`tag_form_fields`](#tag-form-fields) | タグ付き PDF のフォームを PDF/UA-1 準拠へ修復する。 |
-| [`ensure_tagged`](#ensure-tagged) | Put an existing PDF onto the PDF/UA-1 "vessel". |
-| [`ensure_pdfa`](#ensure-pdfa) | Put an existing PDF onto the PDF/A "vessel" (the PDF/A counterpart of ensure_tagged). |
+| [`ensure_tagged`](#ensure-tagged) | 既存 PDF を PDF/UA-1 の「器」に載せる。 |
+| [`ensure_pdfa`](#ensure-pdfa) | 既存 PDF を PDF/A の「器」に載せる（ensure_tagged の PDF/A 版）。 |
 | [`attach_file`](#attach-file) | PDF にファイルを埋め込む(添付する)。 |
 | [`rotate_pages`](#rotate-pages) | ページを時計回りに回転する(90/180/270 度)。 |
 
@@ -114,7 +114,7 @@ description: "pdf-writer-mcp v0.26.0 の全 20 ツールの引数・型・既定
 
 **Create PDF from Markdown**
 
-Create a PDF from Markdown. Supports headings, paragraphs, bullet/numbered lists, code blocks, quotes, horizontal rules and tables. Inline decoration markers are stripped and the text rendered plain (single font). Nested lists keep their nesting, and wrapped list text lines up after the bullet or number. With tagged: true each item is LI > Lbl (bullet/number) + LBody, a nested list sits inside its parent LBody, and each L states ListNumbering (Decimal or Disc) (v0.25.0).
+Markdown から PDF を生成する。見出し・段落・箇条書き/番号リスト・コードブロック・引用・水平線・表に対応。インライン装飾の記号は除去し字面のみ反映する(単一フォントのため)。入れ子のリストは入れ子のまま描き、折り返したリストの文は行頭記号や番号の後ろにそろえる。tagged: true では各項目を LI > Lbl（記号/番号）+ LBody にし、入れ子のリストは親の LBody の中に置き、各 L に ListNumbering（Decimal か Disc）を書く（v0.25.0）。
 
 ### 引数
 
@@ -774,7 +774,16 @@ labels でスクリーンリーダー向けの人間可読な名前を渡すこ�
 
 **Ensure Tagged (PDF/UA scaffold & repair)**
 
-Put an existing PDF onto the PDF/UA-1 "vessel". If it is already tagged, the structure tree is untouched and only missing document-level requirements are supplied (MarkInfo / Lang / DisplayDocTitle / XMP pdfuaid:part and dc:title). For untagged documents, a minimal structure tree (each page = one P element) is created so the content becomes reachable by assistive technology. **IMPORTANT**: machines cannot infer meaning — headings, tables, lists, reading order and figure alt text are NOT created. The new tree is a scaffold, not an accessible document; it needs human review. If you can build the structure right from the start, use the create tools' tagged: true. For signed PDFs, preserveSignatures: true (approval signatures only; certification signatures are refused). The result separates addedRequirements (absent from the input) from replacedRequirements (present with a different value, rewritten); a requirement already present with the same value is neither rewritten nor listed. requirementsChanged is false when nothing was added, replaced or created — the output file is still written (v0.24.0). A PDF 2.0 input (header or catalog /Version) is refused as INVALID_ARGUMENT before anything is written: PDF/UA-1 allows only PDF 1.0 to 1.7 (ISO 14289-1 §6.1) (v0.25.0).
+既存 PDF を PDF/UA-1 の「器」に載せる。
+
+- 既にタグ付きの文書: 構造木には触らず、欠落した文書レベル要件（MarkInfo・Lang・DisplayDocTitle・XMP の pdfuaid:part / dc:title）だけを補う
+- タグ無しの文書: 最小限の構造木（各ページ = 1 つの P 要素）を新設し、本文を支援技術から到達可能にする
+
+**重要**: 機械は意味を推定できないため、見出し・表・リスト・読み順・図の代替テキストは作られない。新設されるのは「足場」であって「アクセシブルな文書」ではなく、人手のレビューが要る。構造を最初から正しく作れるなら create 系の tagged: true を使うこと。
+
+署名済み PDF には preserveSignatures: true（承認署名のみ。認証署名は拒否）。
+
+結果は addedRequirements（入力に無かったもの）と replacedRequirements（別の値で入っていたものを書き換えたもの）を分けて返す。同じ値で既に入っていた要件は、書き換えも列挙もしない。何も足さず、書き換えず、新設もしなかったときは requirementsChanged が false になる — それでも出力のファイルは書き出す（v0.24.0）。PDF 2.0 の入力（ヘッダか catalog の /Version）は、何かを書き出す前に INVALID_ARGUMENT で断る。PDF/UA-1 が認めるのは PDF 1.0〜1.7 だけだからである（ISO 14289-1 §6.1）（v0.25.0）。
 
 ### 引数
 
@@ -845,7 +854,33 @@ XMP に pdfuaid を書きます。適合していない文書に適用すると�
 
 **Ensure PDF/A (archival conformance scaffold)**
 
-Put an existing PDF onto the PDF/A "vessel" (the PDF/A counterpart of ensure_tagged). Choose the flavour: "pdfa-3b" (default) / "pdfa-4" / "pdfa-4f". Supplies only the missing document-level requirements: the trailer /ID (ISO 32000-1 14.4), an sRGB OutputIntent (GTS_PDFA1; an ICC profile is generated and embedded), and XMP pdfaid. **The -4 flavours additionally set the header to PDF 2.0 and delete the Info dictionary** (-4 forbids Info unless the catalog has /PieceInfo — stricter than ISO 32000-2 14.3.3). **Content, structure tree and fonts are never touched.** **Documents with attachments must use "pdfa-4f"** — plain "pdfa-4" requires every attachment to be PDF/A itself, so bundling CSV or JSON (e.g. an invoice PDF that carries its data) would not conform. **IMPORTANT**: this is preparation for claiming PDF/A, not a guarantee of conformance. Violations such as unembedded fonts, encryption, JavaScript or LZW are not repaired. **Writing pdfaid into XMP is the document claiming "I am PDF/A"** — applied to a non-conforming document it produces **a PDF that lies about itself** (which is why a warning is always returned). Always confirm with pdf-verify-mcp's validate_conformance (flavour: the same value) — the verdict is veraPDF's, and since ISO 19005 clauses cannot be quoted, the strongest statement is "veraPDF judged it so". When the document carries machine-readable attachments, apply it **after** attach_file. For signed PDFs, preserveSignatures: true (approval signatures only; certification signatures are refused). However, **the -4 flavours combined with preserveSignatures are refused unless the input is already PDF 2.0** (an incremental update cannot rewrite the file header, and rewriting it would break the signatures). **The -4 flavours are refused (INVALID_ARGUMENT, next_actions: flavour "pdfa-3b") when the input declares PDF/UA**: PDF/A-4 needs a PDF 2.0 header and PDF/UA-1 allows only 1.0 to 1.7 (ISO 14289-1 §6.1). The result reports previousDeclaration — the PDF/A the input already claimed, { part, conformance } or null (it replaced wasDeclared in v0.24.0).
+既存 PDF を PDF/A の「器」に載せる（ensure_tagged の PDF/A 版）。
+
+| `flavour` | 名乗らせる内容 |
+| --- | --- |
+| `pdfa-3b` | 既定。PDF 1.7 基盤 |
+| `pdfa-4` | PDF 2.0。添付ファイル自身が PDF/A であること |
+| `pdfa-4f` | PDF 2.0。CSV / JSON などの非 PDF/A 添付向け |
+
+補うのは文書レベルの欠落要件だけである:
+
+- trailer の /ID（ISO 32000-1 14.4）
+- sRGB の OutputIntent（GTS_PDFA1。ICC プロファイルを生成して埋め込む）
+- XMP の pdfaid
+- **-4 系はさらに**ヘッダを PDF 2.0 にし、Info 辞書を削除する（-4 は catalog に /PieceInfo が無い限り Info を許さない。ISO 32000-2 14.3.3 より厳しい）
+
+本文・構造木・フォントには触らない。添付がある文書は "pdfa-4f" を使うこと。素の "pdfa-4" は添付ファイル自身が PDF/A であることを要求するため、CSV や JSON を同梱する（請求書 PDF にそのデータを添えるなど）と非適合になる。
+
+**重要**: これは「PDF/A を名乗るための下準備」であって、適合の保証ではない。フォント未埋め込み・暗号化・JavaScript・LZW などの違反は直らない。XMP に pdfaid を書くことは、その文書が「PDF/A です」と名乗ることと同じで、適合していない文書に適用すると**嘘を名乗る PDF ができる**（このため適用時は常に警告を返す）。適合したかどうかは pdf-verify-mcp の validate_conformance（flavour: 同じ値）で必ず測ること。判定を下すのは veraPDF で、ISO 19005 の条文は引用できないため、言えるのは「veraPDF がそう判定した」までである。
+
+運用上の注意:
+
+- 機械可読データを添付する文書では、attach_file の**後**に適用する
+- 署名済み PDF には preserveSignatures: true（承認署名のみ。認証署名は拒否）
+- ただし -4 系 × preserveSignatures は、入力が既に PDF 2.0 でない限り拒否する（増分更新では先頭のヘッダを書き換えられず、書き換えれば署名が壊れるため）
+- 入力が PDF/UA を宣言しているときは、-4 系を拒否する（INVALID_ARGUMENT。next_actions は flavour "pdfa-3b"）。PDF/A-4 は PDF 2.0 のヘッダを要し、PDF/UA-1 が認めるのは 1.0〜1.7 だけだからである（ISO 14289-1 §6.1）
+
+結果は previousDeclaration を返す — 入力が既に名乗っていた PDF/A で、{ part, conformance } か null（v0.24.0 で wasDeclared を置き換えた）。
 
 ### 引数
 

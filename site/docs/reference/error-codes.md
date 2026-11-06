@@ -64,9 +64,9 @@ Used only where no common code fits.
 |---|---|---|
 | `SIGNED_PDF` | Signature guard. For annotations, try `preserveSignatures: true` first (incremental update, untagged files only). Otherwise ask the user, then `allowBreakingSignatures: true` | `true` |
 | `TAGGED_PDF` | Tag guard (flatten and the like would break the structure tree). Offer an alternative first; with the user's consent, `allowBreakingTags: true` | `true` |
-| `FONT_REQUIRED` | Non-Latin text with no font → `fontPath` or `PDF_WRITER_FONT` | `true` |
+| `FONT_REQUIRED` | No font was given and the text has a character the standard font (Helvetica, WinAnsiEncoding) cannot encode → `fontPath` or `PDF_WRITER_FONT`. Since 0.26.0 only characters from U+0100 up with no WinAnsiEncoding code (Japanese, `ł`, `✔` …) are refused; `“` `—` `€` `…` `™` are drawn. `detail.characters` (`U+XXXX`) and `detail.count` name the characters | `true` |
 | `FONT_NOT_FOUND` | The font path is wrong → pass an existing font | `true` |
-| `MISSING_GLYPH` | The font lacks a character → another font, or `onMissingGlyph: "replace"` / `"ignore"` | `true` |
+| `MISSING_GLYPH` | The font lacks a character → another font, or `onMissingGlyph: "replace"` / `"ignore"`. Since 0.26.0 `detail.characters` (`U+XXXX`, up to 1,000) and `detail.count` name the characters; the message stops after 10 | `true` |
 
 ### pdf-verify-mcp
 
