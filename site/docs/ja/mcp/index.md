@@ -7,9 +7,9 @@ description: 4 つの MCP サーバーの一覧と層構成 — pdf-spec（正�
 | サーバー                             | 層             | ver    | ツール数 | 一行定義                         |
 | ------------------------------------ | -------------- | ------ | -------- | -------------------------------- |
 | [pdf-spec-mcp](/ja/mcp/pdf-spec)     | 正典           | 0.14.0  | 8        | 仕様は何を要求するか             |
-| [pdf-reader-mcp](/ja/mcp/pdf-reader) | 実体           | 0.21.0 | 18       | 中身と、**その描画位置**を返す   |
+| [pdf-reader-mcp](/ja/mcp/pdf-reader) | 実体           | 0.22.0 | 18       | 中身と、**その描画位置**を返す   |
 | [pdf-verify-mcp](/ja/mcp/pdf-verify) | 真正性・準拠性 | 0.35.0 | 7        | 署名が有効か、規格に適っているか |
-| [pdf-writer-mcp](/ja/mcp/pdf-writer) | 生成           | 0.25.1 | 20       | 仕様通りに書けるか               |
+| [pdf-writer-mcp](/ja/mcp/pdf-writer) | 生成           | 0.26.0 | 20       | 仕様通りに書けるか               |
 
 層の呼び名（正典・実体・真正性/準拠性・生成）は [4 層モデル](/ja/guide/architecture#_4-層モデル-—-どの-skill-がどの-mcp-を呼ぶか)で定義しています。
 

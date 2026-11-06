@@ -1,5 +1,5 @@
 ---
-description: "pdf-reader-mcp v0.21.0 の全 18 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-reader-mcp v0.22.0 の全 18 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-reader-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-reader-mcp v0.21.0 の全 18 ツールの引数・型・既定
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-**v0.21.0** の `tools/list` ハンドシェイクから自動生成（18 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.22.0** の `tools/list` ハンドシェイクから自動生成（18 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-reader)へ。
@@ -904,39 +904,67 @@ Examples:
 
 ### 戻り値
 
-isTagged・文書の言語・論理コンテンツ順の要素のフラットなリスト。
-各要素は role・depth（ネスト。トップレベルは 0）・text・pages と、必要に応じて alt / label / rows / boxes / boxNote を持つ。
+isTagged, the document language, and a flat list of elements in logical content order.
+Each element has: role, depth (nesting; top level is 0), text, pages, and optionally
+alt / label / rows / boxes / boxNote.
 
-`scope` は、この答えの背後にある 2 つの読みのどちらが行われたかを言う —— 構造ツリーを読むことと、その下の文字が Unicode に変換できるかを観測すること（ISO 32000-2 §9.10.1）である。構造ツリーを読めなかったときは、`isTagged` と `elements` が `false` と `[]` ではなく `null` になる。「読んでいない」と「読んでタグが無かった」は別の答えである。
+`scope` says which of the two readings behind that answer were done — reading the structure tree, and observing whether the characters under it have a route to Unicode (ISO 32000-2 §9.10.1). When the structure tree could not be read, `isTagged` and `elements` are `null` rather than `false` and `[]`: "not read" and "read and found no tags" are different answers.
 
-リストは入れ子ではなく depth フィールド付きのフラット構造である — 深さ優先の行きがけ順 + depth で木は正確に符号化され、失われるものはない。例外は Table で、rows を持つ。表は二次元であり、depth では「2 行目の 3 列目」を表せないからである。
+The list is flat with a depth field rather than nested — a depth-first pre-order plus
+depth encodes the tree exactly, so nothing is lost. Table is the exception and carries
+rows, because a table is two-dimensional and depth cannot express "row 2, column 3".
 
-主な性質:
-- 順序は文書の構造ツリーの深さ優先走査で、ISO 32000-2 §14.8.2.5 が定義する論理コンテンツ順そのものである。
-- ページをまたぐ要素は 1 つの要素のまま（pages は配列）。改ページで分かれた段落は 2 つではなく 1 つの段落として返る。
-- ActualText があればグリフを置き換える（§14.9.4:「説明ではなく置換」）。Alt は alt に分けて報告され、text には決して入らない — テキストを持たない内容の説明であり（§14.9.3）、本文に漏れてはならない。
-- Lbl（リストの行頭記号や番号）は label に報告され、text には混ざらない。
-- アーティファクト（ページ番号・柱）は除外される: §14.8.2.5 NOTE 3 が論理コンテンツ順の外に置いている。
+Key properties:
+- Order is a depth-first traversal of the document's structure tree, which is how
+  ISO 32000-2 §14.8.2.5 defines logical content order.
+- An element that spans pages stays ONE element (pages is an array). A paragraph
+  split across a page break is returned as one paragraph, not two.
+- ActualText replaces the glyphs when present (§14.9.4: "a replacement, not a
+  description"). Alt is reported separately in alt and never as text — it describes
+  content that has no text (§14.9.3), so it must not leak into the body.
+- Lbl (a list bullet or number) is reported in label, not mixed into text.
+- A list nested in an item is returned as its own L and LI elements right after the
+  parent item, never folded into the item's text. Inside the item's LBody (ISO 32000-1
+  Table 336) it sits one level below the LI, since LBody itself is not returned; as a
+  direct child of the parent L (ISO 32000-2 §14.8.4.8.2) it sits at the LI's level.
+- Artifacts (page numbers, running heads) are excluded: §14.8.2.5 NOTE 3 puts them
+  outside the logical content order.
 
-include_bbox 付き（「この段落はどこにあるか」に答え、注釈を置けるようにする）:
-各要素に boxes が付く — ページごとに 1 矩形。ページをまたぐ要素に単一の矩形は無いからである。各矩形は PDF 既定ユーザー空間（原点は左下・pt・正規化済み）の { page, rect: {x1,y1,x2,y2}, basis } で、pdf-writer-mcp の add_annotation がそのまま受け取る形 — 途中で座標系を解釈し直す必要はない。/Rotate やずれた /CropBox の影響も受けない。
+With include_bbox (answers "where is this paragraph?", so an annotation can be placed on it):
+Each element gains boxes — ONE RECTANGLE PER PAGE, because an element that spans pages
+has no single rectangle. Each is { page, rect: {x1,y1,x2,y2}, basis } in PDF default user
+space (origin bottom-left, pt, already normalised), which is exactly what pdf-writer-mcp
+add_annotation takes: no coordinate system has to be reinterpreted in between. /Rotate and
+a shifted /CropBox do not affect it.
 
-basis は主張の強さを示し、両者は同じ種類の主張ではない:
-  - layout-attribute-bbox — ファイルが要素について宣言する /BBox（ISO 32000-2 Table 379）。生成者による自己申告の幾何で、そのまま報告される。テキストを持たない内容ではこれが唯一の情報源。
-  - text-extent — 要素が持つテキストから実測した値: ベースライン原点とフォントの ascent/descent。つまり行ボックスであり、グリフの輪郭ではない。画像やベクター描画は寄与しない。
+basis says how strong the claim is, and the two are not the same kind of claim:
+  - layout-attribute-bbox — the /BBox the file DECLARES for the element (ISO 32000-2
+    Table 379). A statement by the producer about its own geometry, reported as-is.
+    This is the only source for content that has no text.
+  - text-extent — MEASURED from the text the element owns: baseline origin plus the
+    font's ascent/descent. That is the line box, not the glyph outlines. Images and
+    vector drawings contribute nothing to it.
 
-宣言された /BBox が中で実測されたテキストを覆わない場合、その食い違いは均されず boxNote で報告される。
+When a declared /BBox does not cover the text measured inside it, that disagreement is
+reported in boxNote rather than smoothed over.
 
-矩形を持たない要素は boxes を持たず、理由を述べる boxNote が付く — 画像 1 つを持つ Figure が典型である（§14.8.4.8.5: そのような要素は「BBox 属性を持つべき」）。「無い」は「大きさゼロ」ではなく、推測もしない。
+An element with no rectangle has no boxes and carries boxNote saying why — a Figure
+holding one image is the usual case (§14.8.4.8.5: such an element "should have a BBox
+attribute"). Absent is not zero-sized, and neither is guessed at.
 
-タグなし PDF は理由付きの isTagged: false を返し、要素は返さない。座標からの推測は行わない — §14.8.2.5 NOTE 1 はページ順が論理順と一致するとは限らないと明記しており、推測は信頼できないからである。構造の足場を足すには pdf-writer-mcp の ensure_tagged を使って再試行すること。
+Untagged PDFs return isTagged: false with a reason and no elements. Nothing is guessed
+from coordinates — §14.8.2.5 NOTE 1 is explicit that page order need not match logical
+order, so a guess could not be trusted. To add a structure scaffold, use pdf-writer-mcp
+ensure_tagged and retry.
 
-例:
-- 文書のアウトラインを抽出: { file_path: "/doc.pdf", roles: ["H1","H2","H3"] }
-- リフロー/変換用に構造を保ったまま内容を取得: { file_path: "/doc.pdf" }
-- 特定の節のページのテキストを読む: { file_path: "/doc.pdf", pages: "4-6" }
-- 注釈を置く場所を探す:
-  { file_path: "/doc.pdf", roles: ["P"], include_bbox: true } → 矩形をそのまま pdf-writer-mcp の add_annotation へ。逆方向（差分が報告したオブジェクト番号 → 矩形）は locate_objects を使う。
+Examples:
+- Extract a document outline: { file_path: "/doc.pdf", roles: ["H1","H2","H3"] }
+- Get content for reflow / conversion, structure preserved: { file_path: "/doc.pdf" }
+- Read the text of a specific section's pages: { file_path: "/doc.pdf", pages: "4-6" }
+- Find where to put an annotation:
+  { file_path: "/doc.pdf", roles: ["P"], include_bbox: true } → hand a box straight to
+  pdf-writer-mcp add_annotation. To go the other way, from an object number a diff
+  reported to a rectangle, use locate_objects.
 
 ::: details 呼び出し例 — 「見出しと段落を論理読み順で、位置付きで」
 - 実測: v0.15.0
