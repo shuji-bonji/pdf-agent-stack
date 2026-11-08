@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-writer-mcp v0.26.1 — parameters, types, defaults and returns of all 20 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-writer-mcp v0.27.0 — parameters, types, defaults and returns of all 20 tools, generated from the server's tools/list."
 ---
 
 # pdf-writer-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-writer-mcp v0.26.1 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.26.1** (20 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.27.0** (20 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-writer).
@@ -32,7 +32,7 @@ Auto-generated from the `tools/list` handshake of **v0.26.1** (20 tools). Do not
 | [`fill_form`](#fill-form) | Fill field values into an existing PDF's interactive form (AcroForm). |
 | [`flatten_form`](#flatten-form) | Flatten an existing PDF's interactive form (AcroForm), keeping the filled appearance while removing interactivity. |
 | [`tag_form_fields`](#tag-form-fields) | Repair a tagged PDF's form to PDF/UA-1: enclose Widget annotations in Form structure elements (7.18.4-1), set /Tabs S on the affected pages (7.18.3-1), and give fields alternate names /TU (7.18.1-3). |
-| [`ensure_tagged`](#ensure-tagged) | Put an existing PDF onto the PDF/UA-1 "vessel". |
+| [`ensure_tagged`](#ensure-tagged) | Put an existing PDF onto the PDF/UA "vessel". |
 | [`ensure_pdfa`](#ensure-pdfa) | Put an existing PDF onto the PDF/A "vessel" (the PDF/A counterpart of ensure_tagged). |
 | [`attach_file`](#attach-file) | Embed (attach) a file into a PDF. |
 | [`rotate_pages`](#rotate-pages) | Rotate pages clockwise (90/180/270 degrees). |
@@ -55,12 +55,12 @@ Create a PDF from plain text. Honours line breaks (\n) and treats blank lines as
 | `pageSize` | `"A4"` \| `"A3"` \| `"A5"` \| `"LETTER"` \| `"LEGAL"` | no |  | Page size. Default A4. |
 | `margin` | number (0–300) | no |  | Margin on all sides (pt). Default 56 (about 20 mm). Range 0-300. |
 | `title` | string | no |  | PDF title. Always set in the metadata, and drawn as a heading at the top of the body unless drawTitle is false. |
-| `drawTitle` | boolean | no |  | Whether to draw title as a heading at the top of the body. Default true. Pass false when the body already starts with its own heading (e.g. a Markdown "# ..." line): the title then goes into the metadata only (Info /Title, and XMP dc:title when tagged), so tagged output keeps the dc:title PDF/UA-1 (ISO 14289-1, 7.1) requires without a duplicated H1. |
+| `drawTitle` | boolean | no |  | Whether to draw title as a heading at the top of the body. Default true. Pass false when the body already starts with its own heading (e.g. a Markdown "# ..." line): the title then goes into the metadata only (Info /Title, and XMP dc:title when tagged), so tagged output keeps the dc:title PDF/UA requires (ISO 14289-1 7.1 / ISO 14289-2 8.11.1) without a duplicated heading. |
 | `author` | string | no |  | PDF author (metadata). |
 | `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | no |  | What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning (? when the font lacks 〓, so always ? with the standard font) / ignore = render as blanks with a warning. |
-| `tagged` | boolean | no |  | Generate as a tagged PDF (PDF/UA-1, ISO 14289). Default false. When true, a structure tree, the PDF/UA declaration, /Lang and DisplayDocTitle are added, making the document readable by screen readers. PDF/UA requires a title, so title becomes required. |
+| `tagged` | boolean | no |  | Generate as a tagged PDF (PDF/UA, ISO 14289). Default false. When true, a structure tree, the PDF/UA declaration, /Lang and DisplayDocTitle are added, making the document readable by screen readers. PDF/UA requires a title, so title becomes required. Which part is declared follows pdfVersion: PDF/UA-1 (ISO 14289-1) on the default 1.7, PDF/UA-2 (ISO 14289-2, pdfuaid:part 2 and rev 2024) with pdfVersion "2.0". Under PDF/UA-2 the drawn title is a Title element (not H1), Markdown headings keep their own level, and structure elements are placed in the PDF 2.0 namespace (BlockQuote and Code, which it lacks, stay in the PDF 1.7 one). |
 | `lang` | string | no |  | Natural language of the document (BCP 47, e.g. "ja" / "en-US"). When omitted with tagged, it is inferred from the text and the guess is reported in warnings. A wrong language declaration makes screen readers misread — state it explicitly when you know it. |
-| `pdfVersion` | `"1.7"` \| `"2.0"` | no |  | PDF version to output. Default "1.7". "2.0" (ISO 32000-2) satisfies not just the version claim but the duties bound to it: a trailer /ID is added (Required per Table 15), and the Info dictionary is trimmed to CreationDate / ModDate with title, author and Producer moved to XMP (§14.3.3). Cannot be combined with tagged: true (the only declaration the writer can produce is PDF/UA-1, built on PDF 1.7). |
+| `pdfVersion` | `"1.7"` \| `"2.0"` | no |  | PDF version to output. Default "1.7". "2.0" (ISO 32000-2) satisfies not just the version claim but the duties bound to it: a trailer /ID is added (Required per Table 15), and the Info dictionary is trimmed to CreationDate / ModDate with title, author and Producer moved to XMP (§14.3.3). With tagged: true, "2.0" declares PDF/UA-2 instead of PDF/UA-1 (PDF/UA-1 allows only PDF 1.0 to 1.7, ISO 14289-1 §6.1). |
 
 ::: warning Always pass `outputPath`
 Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
@@ -114,7 +114,7 @@ The standard font is not embedded, so veraPDF will not pass PDF/UA-1 7.21.4.1. F
 
 **Create PDF from Markdown**
 
-Create a PDF from Markdown. Supports headings, paragraphs, bullet/numbered lists, code blocks, quotes, horizontal rules and tables. Inline decoration markers are stripped and the text rendered plain (single font). Nested lists keep their nesting, and wrapped list text lines up after the bullet or number. With tagged: true each item is LI > Lbl (bullet/number) + LBody, a nested list sits inside its parent LBody, and each L states ListNumbering (Decimal or Disc) (v0.25.0).
+Create a PDF from Markdown. Supports headings, paragraphs, bullet/numbered lists, code blocks, quotes, horizontal rules and tables. Inline decoration markers are stripped and the text rendered plain (single font). Nested lists keep their nesting, and wrapped list text lines up after the bullet or number. With tagged: true each item is LI > Lbl (bullet/number) + LBody and each L states ListNumbering (Decimal or Disc) (v0.25.0). A nested list sits inside its parent LBody under PDF/UA-1, and directly in the parent L right after the item under PDF/UA-2 (pdfVersion "2.0"; ISO 32000-2 §14.8.4.8.2) (v0.27.0).
 
 ### Parameters
 
@@ -128,12 +128,12 @@ Create a PDF from Markdown. Supports headings, paragraphs, bullet/numbered lists
 | `pageSize` | `"A4"` \| `"A3"` \| `"A5"` \| `"LETTER"` \| `"LEGAL"` | no |  | Page size. Default A4. |
 | `margin` | number (0–300) | no |  | Margin on all sides (pt). Default 56 (about 20 mm). Range 0-300. |
 | `title` | string | no |  | PDF title. Always set in the metadata, and drawn as a heading at the top of the body unless drawTitle is false. |
-| `drawTitle` | boolean | no |  | Whether to draw title as a heading at the top of the body. Default true. Pass false when the body already starts with its own heading (e.g. a Markdown "# ..." line): the title then goes into the metadata only (Info /Title, and XMP dc:title when tagged), so tagged output keeps the dc:title PDF/UA-1 (ISO 14289-1, 7.1) requires without a duplicated H1. |
+| `drawTitle` | boolean | no |  | Whether to draw title as a heading at the top of the body. Default true. Pass false when the body already starts with its own heading (e.g. a Markdown "# ..." line): the title then goes into the metadata only (Info /Title, and XMP dc:title when tagged), so tagged output keeps the dc:title PDF/UA requires (ISO 14289-1 7.1 / ISO 14289-2 8.11.1) without a duplicated heading. |
 | `author` | string | no |  | PDF author (metadata). |
 | `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | no |  | What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning (? when the font lacks 〓, so always ? with the standard font) / ignore = render as blanks with a warning. |
-| `tagged` | boolean | no |  | Generate as a tagged PDF (PDF/UA-1, ISO 14289). Default false. When true, a structure tree, the PDF/UA declaration, /Lang and DisplayDocTitle are added, making the document readable by screen readers. PDF/UA requires a title, so title becomes required. |
+| `tagged` | boolean | no |  | Generate as a tagged PDF (PDF/UA, ISO 14289). Default false. When true, a structure tree, the PDF/UA declaration, /Lang and DisplayDocTitle are added, making the document readable by screen readers. PDF/UA requires a title, so title becomes required. Which part is declared follows pdfVersion: PDF/UA-1 (ISO 14289-1) on the default 1.7, PDF/UA-2 (ISO 14289-2, pdfuaid:part 2 and rev 2024) with pdfVersion "2.0". Under PDF/UA-2 the drawn title is a Title element (not H1), Markdown headings keep their own level, and structure elements are placed in the PDF 2.0 namespace (BlockQuote and Code, which it lacks, stay in the PDF 1.7 one). |
 | `lang` | string | no |  | Natural language of the document (BCP 47, e.g. "ja" / "en-US"). When omitted with tagged, it is inferred from the text and the guess is reported in warnings. A wrong language declaration makes screen readers misread — state it explicitly when you know it. |
-| `pdfVersion` | `"1.7"` \| `"2.0"` | no |  | PDF version to output. Default "1.7". "2.0" (ISO 32000-2) satisfies not just the version claim but the duties bound to it: a trailer /ID is added (Required per Table 15), and the Info dictionary is trimmed to CreationDate / ModDate with title, author and Producer moved to XMP (§14.3.3). Cannot be combined with tagged: true (the only declaration the writer can produce is PDF/UA-1, built on PDF 1.7). |
+| `pdfVersion` | `"1.7"` \| `"2.0"` | no |  | PDF version to output. Default "1.7". "2.0" (ISO 32000-2) satisfies not just the version claim but the duties bound to it: a trailer /ID is added (Required per Table 15), and the Info dictionary is trimmed to CreationDate / ModDate with title, author and Producer moved to XMP (§14.3.3). With tagged: true, "2.0" declares PDF/UA-2 instead of PDF/UA-1 (PDF/UA-1 allows only PDF 1.0 to 1.7, ISO 14289-1 §6.1). |
 
 ::: warning Always pass `outputPath`
 Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
@@ -168,12 +168,12 @@ Create a ruled table PDF from headers and row data. Column widths are computed f
 | `pageSize` | `"A4"` \| `"A3"` \| `"A5"` \| `"LETTER"` \| `"LEGAL"` | no |  | Page size. Default A4. |
 | `margin` | number (0–300) | no |  | Margin on all sides (pt). Default 56 (about 20 mm). Range 0-300. |
 | `title` | string | no |  | PDF title. Always set in the metadata, and drawn as a heading at the top of the body unless drawTitle is false. |
-| `drawTitle` | boolean | no |  | Whether to draw title as a heading at the top of the body. Default true. Pass false when the body already starts with its own heading (e.g. a Markdown "# ..." line): the title then goes into the metadata only (Info /Title, and XMP dc:title when tagged), so tagged output keeps the dc:title PDF/UA-1 (ISO 14289-1, 7.1) requires without a duplicated H1. |
+| `drawTitle` | boolean | no |  | Whether to draw title as a heading at the top of the body. Default true. Pass false when the body already starts with its own heading (e.g. a Markdown "# ..." line): the title then goes into the metadata only (Info /Title, and XMP dc:title when tagged), so tagged output keeps the dc:title PDF/UA requires (ISO 14289-1 7.1 / ISO 14289-2 8.11.1) without a duplicated heading. |
 | `author` | string | no |  | PDF author (metadata). |
 | `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | no |  | What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning (? when the font lacks 〓, so always ? with the standard font) / ignore = render as blanks with a warning. |
-| `tagged` | boolean | no |  | Generate as a tagged PDF (PDF/UA-1, ISO 14289). Default false. When true, a structure tree, the PDF/UA declaration, /Lang and DisplayDocTitle are added, making the document readable by screen readers. PDF/UA requires a title, so title becomes required. |
+| `tagged` | boolean | no |  | Generate as a tagged PDF (PDF/UA, ISO 14289). Default false. When true, a structure tree, the PDF/UA declaration, /Lang and DisplayDocTitle are added, making the document readable by screen readers. PDF/UA requires a title, so title becomes required. Which part is declared follows pdfVersion: PDF/UA-1 (ISO 14289-1) on the default 1.7, PDF/UA-2 (ISO 14289-2, pdfuaid:part 2 and rev 2024) with pdfVersion "2.0". Under PDF/UA-2 the drawn title is a Title element (not H1), Markdown headings keep their own level, and structure elements are placed in the PDF 2.0 namespace (BlockQuote and Code, which it lacks, stay in the PDF 1.7 one). |
 | `lang` | string | no |  | Natural language of the document (BCP 47, e.g. "ja" / "en-US"). When omitted with tagged, it is inferred from the text and the guess is reported in warnings. A wrong language declaration makes screen readers misread — state it explicitly when you know it. |
-| `pdfVersion` | `"1.7"` \| `"2.0"` | no |  | PDF version to output. Default "1.7". "2.0" (ISO 32000-2) satisfies not just the version claim but the duties bound to it: a trailer /ID is added (Required per Table 15), and the Info dictionary is trimmed to CreationDate / ModDate with title, author and Producer moved to XMP (§14.3.3). Cannot be combined with tagged: true (the only declaration the writer can produce is PDF/UA-1, built on PDF 1.7). |
+| `pdfVersion` | `"1.7"` \| `"2.0"` | no |  | PDF version to output. Default "1.7". "2.0" (ISO 32000-2) satisfies not just the version claim but the duties bound to it: a trailer /ID is added (Required per Table 15), and the Info dictionary is trimmed to CreationDate / ModDate with title, author and Producer moved to XMP (§14.3.3). With tagged: true, "2.0" declares PDF/UA-2 instead of PDF/UA-1 (PDF/UA-1 allows only PDF 1.0 to 1.7, ISO 14289-1 §6.1). |
 
 ::: warning Always pass `outputPath`
 Omitting it returns the whole PDF as base64 and will overflow the chat. Pass an absolute destination path.
@@ -428,7 +428,7 @@ This is not a signature-preserving operation. Set `allowBreakingSignatures: true
 
 **Add Bookmarks (Outline)**
 
-Set the bookmarks (outline) of a PDF. Existing bookmarks are replaced. Nest with children. For signed PDFs, preserveSignatures: true sets them while keeping the signatures intact.
+Set the bookmarks (outline) of a PDF. Existing bookmarks are replaced. Nest with children. For signed PDFs, preserveSignatures: true sets them while keeping the signatures intact. When the input declares PDF/UA-2, each bookmark goes to a structure destination as ISO 14289-2 §8.8 requires: a GoTo action whose SD names the structure element that starts on the target page, with D kept as the page destination for viewers that do not read SD. A page with no structure content gets a page destination and is named in warnings (v0.27.0).
 
 ### Parameters
 
@@ -748,15 +748,15 @@ To keep signatures, pass `preserveSignatures: true` (approval signatures only; c
 
 **Ensure Tagged (PDF/UA scaffold & repair)**
 
-Put an existing PDF onto the PDF/UA-1 "vessel". If it is already tagged, the structure tree is untouched and only missing document-level requirements are supplied (MarkInfo / Lang / DisplayDocTitle / XMP pdfuaid:part and dc:title). For untagged documents, a minimal structure tree (each page = one P element) is created so the content becomes reachable by assistive technology. **IMPORTANT**: machines cannot infer meaning — headings, tables, lists, reading order and figure alt text are NOT created. The new tree is a scaffold, not an accessible document; it needs human review. If you can build the structure right from the start, use the create tools' tagged: true. For signed PDFs, preserveSignatures: true (approval signatures only; certification signatures are refused). The result separates addedRequirements (absent from the input) from replacedRequirements (present with a different value, rewritten); a requirement already present with the same value is neither rewritten nor listed. requirementsChanged is false when nothing was added, replaced or created — the output file is still written (v0.24.0). A PDF 2.0 input (header or catalog /Version) is refused as INVALID_ARGUMENT before anything is written: PDF/UA-1 allows only PDF 1.0 to 1.7 (ISO 14289-1 §6.1) (v0.25.0).
+Put an existing PDF onto the PDF/UA "vessel". If it is already tagged, the structure tree is untouched and only missing document-level requirements are supplied (MarkInfo / Lang / DisplayDocTitle / XMP pdfuaid and dc:title). For untagged documents, a minimal structure tree (each page = one P element) is created so the content becomes reachable by assistive technology. **IMPORTANT**: machines cannot infer meaning — headings, tables, lists, reading order and figure alt text are NOT created. The new tree is a scaffold, not an accessible document; it needs human review. If you can build the structure right from the start, use the create tools' tagged: true. For signed PDFs, preserveSignatures: true (approval signatures only; certification signatures are refused). The result separates addedRequirements (absent from the input) from replacedRequirements (present with a different value, rewritten); a requirement already present with the same value is neither rewritten nor listed. requirementsChanged is false when nothing was added, replaced or created — the output file is still written (v0.24.0). The declared part follows the input version (header or catalog /Version), which is never changed: PDF/UA-1 (pdfuaid:part 1) for PDF 1.0 to 1.7 (ISO 14289-1 §6.1), PDF/UA-2 (pdfuaid:part 2, rev 2024) for PDF 2.0 (ISO 14289-2 §6.1). For PDF 2.0, a new tree puts Document and P in the PDF 2.0 namespace; an existing tree whose root is not a single Document in that namespace (ISO 14289-2 §8.2.5.2) is left as it is and named in warnings (v0.27.0).
 
 ### Parameters
 
 | Parameter | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `inputPath` | string (minLength 1) | **yes** |  | Absolute path of the target PDF. |
-| `title` | string (minLength 1) | no |  | Document title (required by PDF/UA-1 7.1). Falls back to the existing Info Title. |
-| `lang` | string | no |  | Natural language of the document (BCP 47, e.g. "ja"). Required by PDF/UA-1 7.2. |
+| `title` | string (minLength 1) | no |  | Document title (required by PDF/UA-1 7.1 / PDF/UA-2 8.11.1). Falls back to the existing Info Title, then the XMP dc:title. |
+| `lang` | string | no |  | Natural language of the document (BCP 47, e.g. "ja"). Required by PDF/UA-1 7.2 / PDF/UA-2 8.4.4. |
 | `preserveSignatures` | boolean | no |  | Edit a signed PDF via an incremental update (appending) without invalidating existing signatures. Default false. The original bytes are untouched, so /ByteRange holds. Changes beyond the certification (DocMDP) permission level are refused. |
 | `outputPath` | string (minLength 1) | no |  | Destination file path (absolute). When omitted, a base64 string is returned instead. |
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
@@ -838,7 +838,7 @@ This is preparation for claiming PDF/A, not a guarantee of conformance. Unembedd
 
 - Apply **after** `attach_file` when the document carries machine-readable attachments
 - Signed PDFs: `preserveSignatures: true` (approval signatures only; certification refused)
-- `-4` × `preserveSignatures` is refused unless the input is already PDF 2.0 **The -4 flavours are refused (INVALID_ARGUMENT, next_actions: flavour "pdfa-3b") when the input declares PDF/UA**: PDF/A-4 needs a PDF 2.0 header and PDF/UA-1 allows only 1.0 to 1.7 (ISO 14289-1 §6.1). The result reports previousDeclaration — the PDF/A the input already claimed, { part, conformance } or null (it replaced wasDeclared in v0.24.0).
+- `-4` × `preserveSignatures` is refused unless the input is already PDF 2.0 **The -4 flavours are refused (INVALID_ARGUMENT, next_actions: flavour "pdfa-3b") when the input declares PDF/UA-1**: PDF/A-4 needs a PDF 2.0 header and PDF/UA-1 allows only 1.0 to 1.7 (ISO 14289-1 §6.1). Conversely, **"pdfa-3b" is refused (next_actions: flavour "pdfa-4") when the input declares PDF/UA-2**, which requires PDF 2.0 (ISO 14289-2 §6.1) while PDF/A-3 requires a PDF 1.x header. PDF/A-4 and PDF/UA-2 can both hold (v0.27.0). The result reports previousDeclaration — the PDF/A the input already claimed, { part, conformance } or null (it replaced wasDeclared in v0.24.0).
 
 ### Parameters
 
