@@ -1,0 +1,62 @@
+[
+  {
+    "key": "create_text_pdf|param:fontPath",
+    "src": "658b82c028fdf0886665a93bc5c23527",
+    "en": "Absolute path of the font file to embed (.ttf / .otf). Required for characters outside WinAnsiEncoding (Japanese, for example). .ttc (TrueType Collection) is not supported. Can also be set via the PDF_WRITER_FONT environment variable.",
+    "stale": true
+  },
+  {
+    "key": "create_text_pdf|param:onMissingGlyph",
+    "src": "c21d5d38f7ce1a32827ec01e3c829a0d",
+    "en": "What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning (? when the font lacks 〓, so always ? with the standard font) / ignore = render as blanks with a warning.",
+    "stale": true
+  },
+  {
+    "key": "create_markdown_pdf|param:fontPath",
+    "src": "658b82c028fdf0886665a93bc5c23527",
+    "en": "Absolute path of the font file to embed (.ttf / .otf). Required for characters outside WinAnsiEncoding (Japanese, for example). .ttc (TrueType Collection) is not supported. Can also be set via the PDF_WRITER_FONT environment variable.",
+    "stale": true
+  },
+  {
+    "key": "create_markdown_pdf|param:onMissingGlyph",
+    "src": "c21d5d38f7ce1a32827ec01e3c829a0d",
+    "en": "What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning (? when the font lacks 〓, so always ? with the standard font) / ignore = render as blanks with a warning.",
+    "stale": true
+  },
+  {
+    "key": "create_table_pdf|param:fontPath",
+    "src": "658b82c028fdf0886665a93bc5c23527",
+    "en": "Absolute path of the font file to embed (.ttf / .otf). Required for characters outside WinAnsiEncoding (Japanese, for example). .ttc (TrueType Collection) is not supported. Can also be set via the PDF_WRITER_FONT environment variable.",
+    "stale": true
+  },
+  {
+    "key": "create_table_pdf|param:onMissingGlyph",
+    "src": "c21d5d38f7ce1a32827ec01e3c829a0d",
+    "en": "What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning (? when the font lacks 〓, so always ? with the standard font) / ignore = render as blanks with a warning.",
+    "stale": true
+  },
+  {
+    "key": "stamp_page_numbers|param:fontPath",
+    "src": "c7d7f792ebdae28da6c76869696f0b81",
+    "en": "Font to embed (.ttf/.otf). Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Required for formats containing characters outside WinAnsiEncoding (CJK, for example).",
+    "stale": true
+  },
+  {
+    "key": "add_watermark|param:fontPath",
+    "src": "ad0f6cead11bc38a550ed8e69adf7b81",
+    "en": "Font to embed (.ttf/.otf). Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Required for watermarks containing characters outside WinAnsiEncoding (CJK, for example).",
+    "stale": true
+  },
+  {
+    "key": "fill_form|param:fontPath",
+    "src": "366250c9fa489fa5c5ce696ea58cc5a2",
+    "en": "Font used to render values (.ttf/.otf). Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Required for values containing characters outside WinAnsiEncoding (CJK, for example).",
+    "stale": true
+  },
+  {
+    "key": "flatten_form|param:fontPath",
+    "src": "39cac9bf0abca128fe992e63b96686b9",
+    "en": "Font for appearance regeneration. Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Not needed when existing appearances can be reused, but required when appearances must be regenerated for values containing characters outside WinAnsiEncoding (CJK, for example).",
+    "stale": true
+  }
+]

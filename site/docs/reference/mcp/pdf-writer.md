@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-writer-mcp v0.26.0 — parameters, types, defaults and returns of all 20 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-writer-mcp v0.26.1 — parameters, types, defaults and returns of all 20 tools, generated from the server's tools/list."
 ---
 
 # pdf-writer-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-writer-mcp v0.26.0 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.26.0** (20 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.26.1** (20 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-writer).
@@ -50,14 +50,14 @@ Create a PDF from plain text. Honours line breaks (\n) and treats blank lines as
 | `text` | string | **yes** |  | Body text. \n breaks lines; blank lines separate paragraphs. |
 | `outputPath` | string (minLength 1) | no |  | Destination file path (absolute). When omitted, a base64 string is returned instead. |
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
-| `fontPath` | string (minLength 1) | no |  | Absolute path of the font file to embed (.ttf / .otf). Required for non-Latin text such as Japanese. .ttc (TrueType Collection) is not supported. Can also be set via the PDF_WRITER_FONT environment variable. |
+| `fontPath` | string (minLength 1) | no |  | Absolute path of the font file to embed (.ttf / .otf). Required for characters outside WinAnsiEncoding (Japanese, for example). .ttc (TrueType Collection) is not supported. Can also be set via the PDF_WRITER_FONT environment variable. |
 | `fontSize` | number (4–96) | no |  | Body font size (pt). Default 11. Range 4-96. |
 | `pageSize` | `"A4"` \| `"A3"` \| `"A5"` \| `"LETTER"` \| `"LEGAL"` | no |  | Page size. Default A4. |
 | `margin` | number (0–300) | no |  | Margin on all sides (pt). Default 56 (about 20 mm). Range 0-300. |
 | `title` | string | no |  | PDF title. Always set in the metadata, and drawn as a heading at the top of the body unless drawTitle is false. |
 | `drawTitle` | boolean | no |  | Whether to draw title as a heading at the top of the body. Default true. Pass false when the body already starts with its own heading (e.g. a Markdown "# ..." line): the title then goes into the metadata only (Info /Title, and XMP dc:title when tagged), so tagged output keeps the dc:title PDF/UA-1 (ISO 14289-1, 7.1) requires without a duplicated H1. |
 | `author` | string | no |  | PDF author (metadata). |
-| `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | no |  | What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning / ignore = render as blanks with a warning. |
+| `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | no |  | What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning (? when the font lacks 〓, so always ? with the standard font) / ignore = render as blanks with a warning. |
 | `tagged` | boolean | no |  | Generate as a tagged PDF (PDF/UA-1, ISO 14289). Default false. When true, a structure tree, the PDF/UA declaration, /Lang and DisplayDocTitle are added, making the document readable by screen readers. PDF/UA requires a title, so title becomes required. |
 | `lang` | string | no |  | Natural language of the document (BCP 47, e.g. "ja" / "en-US"). When omitted with tagged, it is inferred from the text and the guess is reported in warnings. A wrong language declaration makes screen readers misread — state it explicitly when you know it. |
 | `pdfVersion` | `"1.7"` \| `"2.0"` | no |  | PDF version to output. Default "1.7". "2.0" (ISO 32000-2) satisfies not just the version claim but the duties bound to it: a trailer /ID is added (Required per Table 15), and the Info dictionary is trimmed to CreationDate / ModDate with title, author and Producer moved to XMP (§14.3.3). Cannot be combined with tagged: true (the only declaration the writer can produce is PDF/UA-1, built on PDF 1.7). |
@@ -123,14 +123,14 @@ Create a PDF from Markdown. Supports headings, paragraphs, bullet/numbered lists
 | `markdown` | string | **yes** |  | Markdown string. |
 | `outputPath` | string (minLength 1) | no |  | Destination file path (absolute). When omitted, a base64 string is returned instead. |
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
-| `fontPath` | string (minLength 1) | no |  | Absolute path of the font file to embed (.ttf / .otf). Required for non-Latin text such as Japanese. .ttc (TrueType Collection) is not supported. Can also be set via the PDF_WRITER_FONT environment variable. |
+| `fontPath` | string (minLength 1) | no |  | Absolute path of the font file to embed (.ttf / .otf). Required for characters outside WinAnsiEncoding (Japanese, for example). .ttc (TrueType Collection) is not supported. Can also be set via the PDF_WRITER_FONT environment variable. |
 | `fontSize` | number (4–96) | no |  | Body font size (pt). Default 11. Range 4-96. |
 | `pageSize` | `"A4"` \| `"A3"` \| `"A5"` \| `"LETTER"` \| `"LEGAL"` | no |  | Page size. Default A4. |
 | `margin` | number (0–300) | no |  | Margin on all sides (pt). Default 56 (about 20 mm). Range 0-300. |
 | `title` | string | no |  | PDF title. Always set in the metadata, and drawn as a heading at the top of the body unless drawTitle is false. |
 | `drawTitle` | boolean | no |  | Whether to draw title as a heading at the top of the body. Default true. Pass false when the body already starts with its own heading (e.g. a Markdown "# ..." line): the title then goes into the metadata only (Info /Title, and XMP dc:title when tagged), so tagged output keeps the dc:title PDF/UA-1 (ISO 14289-1, 7.1) requires without a duplicated H1. |
 | `author` | string | no |  | PDF author (metadata). |
-| `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | no |  | What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning / ignore = render as blanks with a warning. |
+| `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | no |  | What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning (? when the font lacks 〓, so always ? with the standard font) / ignore = render as blanks with a warning. |
 | `tagged` | boolean | no |  | Generate as a tagged PDF (PDF/UA-1, ISO 14289). Default false. When true, a structure tree, the PDF/UA declaration, /Lang and DisplayDocTitle are added, making the document readable by screen readers. PDF/UA requires a title, so title becomes required. |
 | `lang` | string | no |  | Natural language of the document (BCP 47, e.g. "ja" / "en-US"). When omitted with tagged, it is inferred from the text and the guess is reported in warnings. A wrong language declaration makes screen readers misread — state it explicitly when you know it. |
 | `pdfVersion` | `"1.7"` \| `"2.0"` | no |  | PDF version to output. Default "1.7". "2.0" (ISO 32000-2) satisfies not just the version claim but the duties bound to it: a trailer /ID is added (Required per Table 15), and the Info dictionary is trimmed to CreationDate / ModDate with title, author and Producer moved to XMP (§14.3.3). Cannot be combined with tagged: true (the only declaration the writer can produce is PDF/UA-1, built on PDF 1.7). |
@@ -163,14 +163,14 @@ Create a ruled table PDF from headers and row data. Column widths are computed f
 | `rows` | string[][] | **yes** |  | Data rows. Each row is an array of strings; the same column count as headers is recommended. |
 | `outputPath` | string (minLength 1) | no |  | Destination file path (absolute). When omitted, a base64 string is returned instead. |
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
-| `fontPath` | string (minLength 1) | no |  | Absolute path of the font file to embed (.ttf / .otf). Required for non-Latin text such as Japanese. .ttc (TrueType Collection) is not supported. Can also be set via the PDF_WRITER_FONT environment variable. |
+| `fontPath` | string (minLength 1) | no |  | Absolute path of the font file to embed (.ttf / .otf). Required for characters outside WinAnsiEncoding (Japanese, for example). .ttc (TrueType Collection) is not supported. Can also be set via the PDF_WRITER_FONT environment variable. |
 | `fontSize` | number (4–96) | no |  | Body font size (pt). Default 11. Range 4-96. |
 | `pageSize` | `"A4"` \| `"A3"` \| `"A5"` \| `"LETTER"` \| `"LEGAL"` | no |  | Page size. Default A4. |
 | `margin` | number (0–300) | no |  | Margin on all sides (pt). Default 56 (about 20 mm). Range 0-300. |
 | `title` | string | no |  | PDF title. Always set in the metadata, and drawn as a heading at the top of the body unless drawTitle is false. |
 | `drawTitle` | boolean | no |  | Whether to draw title as a heading at the top of the body. Default true. Pass false when the body already starts with its own heading (e.g. a Markdown "# ..." line): the title then goes into the metadata only (Info /Title, and XMP dc:title when tagged), so tagged output keeps the dc:title PDF/UA-1 (ISO 14289-1, 7.1) requires without a duplicated H1. |
 | `author` | string | no |  | PDF author (metadata). |
-| `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | no |  | What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning / ignore = render as blanks with a warning. |
+| `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | no |  | What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning (? when the font lacks 〓, so always ? with the standard font) / ignore = render as blanks with a warning. |
 | `tagged` | boolean | no |  | Generate as a tagged PDF (PDF/UA-1, ISO 14289). Default false. When true, a structure tree, the PDF/UA declaration, /Lang and DisplayDocTitle are added, making the document readable by screen readers. PDF/UA requires a title, so title becomes required. |
 | `lang` | string | no |  | Natural language of the document (BCP 47, e.g. "ja" / "en-US"). When omitted with tagged, it is inferred from the text and the guess is reported in warnings. A wrong language declaration makes screen readers misread — state it explicitly when you know it. |
 | `pdfVersion` | `"1.7"` \| `"2.0"` | no |  | PDF version to output. Default "1.7". "2.0" (ISO 32000-2) satisfies not just the version claim but the duties bound to it: a trailer /ID is added (Required per Table 15), and the Info dictionary is trimmed to CreationDate / ModDate with title, author and Producer moved to XMP (§14.3.3). Cannot be combined with tagged: true (the only declaration the writer can produce is PDF/UA-1, built on PDF 1.7). |
@@ -542,7 +542,7 @@ Stamp a page number on each page. In tagged PDFs the stamp is wrapped as an Arti
 | `margin` | number (0–300) | no |  | Margin from the edge (pt). Default 24. Range 0-300. |
 | `fontSize` | number (4–96) | no |  | Font size (pt). Default 9. Range 4-96. |
 | `color` | string (minLength 1) | no |  | #rrggbb. Default #666666. |
-| `fontPath` | string (minLength 1) | no |  | Font to embed (.ttf/.otf). Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Required for formats containing CJK text. |
+| `fontPath` | string (minLength 1) | no |  | Font to embed (.ttf/.otf). Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Required for formats containing characters outside WinAnsiEncoding (CJK, for example). |
 | `pages` | string (minLength 1) | no |  | Pages to stamp, "1,3-5,8-" (1-based). All when omitted. Use "2-" to skip a cover page. |
 | `startAt` | integer (-9007199254740991–9007199254740991) | no |  | First number to stamp. Default 1. Useful to start at 1 after skipping a cover page. |
 | `preserveSignatures` | boolean | no |  | Edit a signed PDF via an incremental update (appending) without invalidating existing signatures. Default false. The original bytes are untouched, so /ByteRange holds. Changes beyond the certification (DocMDP) permission level are refused. |
@@ -579,7 +579,7 @@ Overlay a diagonal watermark across the middle of each page ("社外秘" / "DRAF
 | `opacity` | number (0–1) | no |  | Opacity, 0 (transparent) to 1 (opaque). Default 0.15 — faint enough to keep the content readable. |
 | `angle` | number | no |  | Counter-clockwise angle (degrees). Default 45. 0 = horizontal. |
 | `behind` | boolean | no |  | Draw behind the content. Default true. false draws over it (to strengthen the tamper-deterrent claim). |
-| `fontPath` | string (minLength 1) | no |  | Font to embed (.ttf/.otf). Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Required for CJK watermarks. |
+| `fontPath` | string (minLength 1) | no |  | Font to embed (.ttf/.otf). Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Required for watermarks containing characters outside WinAnsiEncoding (CJK, for example). |
 | `pages` | string (minLength 1) | no |  | Target pages, "1,3-5,8-" (1-based). All when omitted. |
 | `preserveSignatures` | boolean | no |  | Edit a signed PDF via an incremental update (appending) without invalidating existing signatures. Default false. The original bytes are untouched, so /ByteRange holds. Changes beyond the certification (DocMDP) permission level are refused. |
 | `outputPath` | string (minLength 1) | no |  | Destination file path (absolute). When omitted, a base64 string is returned instead. |
@@ -640,7 +640,7 @@ Fill field values into an existing PDF's interactive form (AcroForm). If you do 
 |---|---|---|---|---|
 | `inputPath` | string (minLength 1) | **yes** |  | Absolute path of the target PDF. |
 | `fields` | object | **yes** |  | Object of field name → value. Value type matches the field kind: text = string or number / checkbox = boolean / dropdown, optionlist = string or string array / radio = string. Example: {"user.name": "山田 太郎", "agree": true, "plan": "A"} |
-| `fontPath` | string (minLength 1) | no |  | Font used to render values (.ttf/.otf). Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Required for CJK values. |
+| `fontPath` | string (minLength 1) | no |  | Font used to render values (.ttf/.otf). Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Required for values containing characters outside WinAnsiEncoding (CJK, for example). |
 | `flatten` | boolean | no |  | Flatten to non-interactive after filling. Default false. When true, values can no longer be edited. |
 | `allowBreakingTags` | boolean | no |  | Allow flattening even on a tagged PDF. Default false. When true, PDF/UA-1 conformance breaks. |
 | `outputPath` | string (minLength 1) | no |  | Destination file path (absolute). When omitted, a base64 string is returned instead. |
@@ -697,7 +697,7 @@ Flatten an existing PDF's interactive form (AcroForm), keeping the filled appear
 | Parameter | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `inputPath` | string (minLength 1) | **yes** |  | Absolute path of the target PDF. |
-| `fontPath` | string (minLength 1) | no |  | Font for appearance regeneration. Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Not needed when existing appearances can be reused, but required for CJK forms that need regeneration. |
+| `fontPath` | string (minLength 1) | no |  | Font for appearance regeneration. Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Not needed when existing appearances can be reused, but required when appearances must be regenerated for values containing characters outside WinAnsiEncoding (CJK, for example). |
 | `allowBreakingTags` | boolean | no |  | Allow flattening even on a tagged PDF. Default false. |
 | `outputPath` | string (minLength 1) | no |  | Destination file path (absolute). When omitted, a base64 string is returned instead. |
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |

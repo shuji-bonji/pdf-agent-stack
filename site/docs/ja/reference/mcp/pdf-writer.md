@@ -1,5 +1,5 @@
 ---
-description: "pdf-writer-mcp v0.26.0 の全 20 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-writer-mcp v0.26.1 の全 20 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-writer-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-writer-mcp v0.26.0 の全 20 ツールの引数・型・既定
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-**v0.26.0** の `tools/list` ハンドシェイクから自動生成（20 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.26.1** の `tools/list` ハンドシェイクから自動生成（20 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-writer)へ。
@@ -50,14 +50,14 @@ description: "pdf-writer-mcp v0.26.0 の全 20 ツールの引数・型・既定
 | `text` | string | **必須** |  | 本文テキスト。\n で改行、空行で段落区切り。 |
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
-| `fontPath` | string (minLength 1) | 任意 |  | 埋め込むフォントファイル(.ttf / .otf)の絶対パス。日本語など非ラテン文字を含む場合は必須。.ttc(TrueTypeCollection)は非対応。環境変数 PDF_WRITER_FONT でも指定可。 |
+| `fontPath` | string (minLength 1) | 任意 |  | Absolute path of the font file to embed (.ttf / .otf). Required for characters outside WinAnsiEncoding (Japanese, for example). .ttc (TrueType Collection) is not supported. Can also be set via the PDF_WRITER_FONT environment variable. |
 | `fontSize` | number (4–96) | 任意 |  | 本文フォントサイズ(pt)。既定 11。範囲 4〜96。 |
 | `pageSize` | `"A4"` \| `"A3"` \| `"A5"` \| `"LETTER"` \| `"LEGAL"` | 任意 |  | ページサイズ。既定 A4。 |
 | `margin` | number (0–300) | 任意 |  | 上下左右マージン(pt)。既定 56(≒20mm)。範囲 0〜300。 |
 | `title` | string | 任意 |  | PDF のタイトル。常にメタデータに書き、drawTitle が false でなければ本文の冒頭にも見出しとして描く。 |
 | `drawTitle` | boolean | 任意 |  | title を本文の冒頭に見出しとして描くか。既定 true。本文が自前の見出し（Markdown の「# ...」の行など）で始まるときは false を渡す。タイトルはメタデータ（Info /Title、tagged のときは XMP の dc:title）にだけ入るので、タグ付きの出力は PDF/UA-1（ISO 14289-1 7.1）が求める dc:title を保ったまま、H1 が重複しない。 |
 | `author` | string | 任意 |  | PDF 作成者(メタデータ)。 |
-| `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | 任意 |  | フォントに存在しない文字(例: Noto Sans JP に無い ✔ U+2714)の扱い。error(既定)=欠落文字を列挙してエラー / replace=〓 に置換して警告 / ignore=空白のまま描画して警告。 |
+| `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | 任意 |  | What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning (? when the font lacks 〓, so always ? with the standard font) / ignore = render as blanks with a warning. |
 | `tagged` | boolean | 任意 |  | タグ付き PDF(PDF/UA-1・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。 |
 | `lang` | string | 任意 |  | 文書の自然言語(BCP 47。例 "ja" / "en-US")。tagged 時に省略すると本文から推定し、推定結果を warnings で報告する。誤った言語宣言はスクリーンリーダの誤読を招くため、確実な場合は明示すること。 |
 | `pdfVersion` | `"1.7"` \| `"2.0"` | 任意 |  | 出力する PDF の版。既定 "1.7"。"2.0"(ISO 32000-2)にすると版の宣言だけでなく、版に紐づく義務も満たす: trailer /ID を付与し(Table 15 で Required)、Info 辞書を CreationDate / ModDate に絞って題名・作成者・Producer は XMP へ移す(§14.3.3)。tagged: true とは併用できない(writer が書けるのは PDF 1.7 基盤の PDF/UA-1 宣言のみ)。 |
@@ -123,14 +123,14 @@ Markdown から PDF を生成する。見出し・段落・箇条書き/番号�
 | `markdown` | string | **必須** |  | Markdown 文字列。 |
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
-| `fontPath` | string (minLength 1) | 任意 |  | 埋め込むフォントファイル(.ttf / .otf)の絶対パス。日本語など非ラテン文字を含む場合は必須。.ttc(TrueTypeCollection)は非対応。環境変数 PDF_WRITER_FONT でも指定可。 |
+| `fontPath` | string (minLength 1) | 任意 |  | Absolute path of the font file to embed (.ttf / .otf). Required for characters outside WinAnsiEncoding (Japanese, for example). .ttc (TrueType Collection) is not supported. Can also be set via the PDF_WRITER_FONT environment variable. |
 | `fontSize` | number (4–96) | 任意 |  | 本文フォントサイズ(pt)。既定 11。範囲 4〜96。 |
 | `pageSize` | `"A4"` \| `"A3"` \| `"A5"` \| `"LETTER"` \| `"LEGAL"` | 任意 |  | ページサイズ。既定 A4。 |
 | `margin` | number (0–300) | 任意 |  | 上下左右マージン(pt)。既定 56(≒20mm)。範囲 0〜300。 |
 | `title` | string | 任意 |  | PDF のタイトル。常にメタデータに書き、drawTitle が false でなければ本文の冒頭にも見出しとして描く。 |
 | `drawTitle` | boolean | 任意 |  | title を本文の冒頭に見出しとして描くか。既定 true。本文が自前の見出し（Markdown の「# ...」の行など）で始まるときは false を渡す。タイトルはメタデータ（Info /Title、tagged のときは XMP の dc:title）にだけ入るので、タグ付きの出力は PDF/UA-1（ISO 14289-1 7.1）が求める dc:title を保ったまま、H1 が重複しない。 |
 | `author` | string | 任意 |  | PDF 作成者(メタデータ)。 |
-| `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | 任意 |  | フォントに存在しない文字(例: Noto Sans JP に無い ✔ U+2714)の扱い。error(既定)=欠落文字を列挙してエラー / replace=〓 に置換して警告 / ignore=空白のまま描画して警告。 |
+| `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | 任意 |  | What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning (? when the font lacks 〓, so always ? with the standard font) / ignore = render as blanks with a warning. |
 | `tagged` | boolean | 任意 |  | タグ付き PDF(PDF/UA-1・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。 |
 | `lang` | string | 任意 |  | 文書の自然言語(BCP 47。例 "ja" / "en-US")。tagged 時に省略すると本文から推定し、推定結果を warnings で報告する。誤った言語宣言はスクリーンリーダの誤読を招くため、確実な場合は明示すること。 |
 | `pdfVersion` | `"1.7"` \| `"2.0"` | 任意 |  | 出力する PDF の版。既定 "1.7"。"2.0"(ISO 32000-2)にすると版の宣言だけでなく、版に紐づく義務も満たす: trailer /ID を付与し(Table 15 で Required)、Info 辞書を CreationDate / ModDate に絞って題名・作成者・Producer は XMP へ移す(§14.3.3)。tagged: true とは併用できない(writer が書けるのは PDF 1.7 基盤の PDF/UA-1 宣言のみ)。 |
@@ -163,14 +163,14 @@ Markdown から PDF を生成する。見出し・段落・箇条書き/番号�
 | `rows` | string[][] | **必須** |  | データ行の配列。各行は文字列の配列で、headers と同じ列数を推奨。 |
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
-| `fontPath` | string (minLength 1) | 任意 |  | 埋め込むフォントファイル(.ttf / .otf)の絶対パス。日本語など非ラテン文字を含む場合は必須。.ttc(TrueTypeCollection)は非対応。環境変数 PDF_WRITER_FONT でも指定可。 |
+| `fontPath` | string (minLength 1) | 任意 |  | Absolute path of the font file to embed (.ttf / .otf). Required for characters outside WinAnsiEncoding (Japanese, for example). .ttc (TrueType Collection) is not supported. Can also be set via the PDF_WRITER_FONT environment variable. |
 | `fontSize` | number (4–96) | 任意 |  | 本文フォントサイズ(pt)。既定 11。範囲 4〜96。 |
 | `pageSize` | `"A4"` \| `"A3"` \| `"A5"` \| `"LETTER"` \| `"LEGAL"` | 任意 |  | ページサイズ。既定 A4。 |
 | `margin` | number (0–300) | 任意 |  | 上下左右マージン(pt)。既定 56(≒20mm)。範囲 0〜300。 |
 | `title` | string | 任意 |  | PDF のタイトル。常にメタデータに書き、drawTitle が false でなければ本文の冒頭にも見出しとして描く。 |
 | `drawTitle` | boolean | 任意 |  | title を本文の冒頭に見出しとして描くか。既定 true。本文が自前の見出し（Markdown の「# ...」の行など）で始まるときは false を渡す。タイトルはメタデータ（Info /Title、tagged のときは XMP の dc:title）にだけ入るので、タグ付きの出力は PDF/UA-1（ISO 14289-1 7.1）が求める dc:title を保ったまま、H1 が重複しない。 |
 | `author` | string | 任意 |  | PDF 作成者(メタデータ)。 |
-| `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | 任意 |  | フォントに存在しない文字(例: Noto Sans JP に無い ✔ U+2714)の扱い。error(既定)=欠落文字を列挙してエラー / replace=〓 に置換して警告 / ignore=空白のまま描画して警告。 |
+| `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | 任意 |  | What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning (? when the font lacks 〓, so always ? with the standard font) / ignore = render as blanks with a warning. |
 | `tagged` | boolean | 任意 |  | タグ付き PDF(PDF/UA-1・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。 |
 | `lang` | string | 任意 |  | 文書の自然言語(BCP 47。例 "ja" / "en-US")。tagged 時に省略すると本文から推定し、推定結果を warnings で報告する。誤った言語宣言はスクリーンリーダの誤読を招くため、確実な場合は明示すること。 |
 | `pdfVersion` | `"1.7"` \| `"2.0"` | 任意 |  | 出力する PDF の版。既定 "1.7"。"2.0"(ISO 32000-2)にすると版の宣言だけでなく、版に紐づく義務も満たす: trailer /ID を付与し(Table 15 で Required)、Info 辞書を CreationDate / ModDate に絞って題名・作成者・Producer は XMP へ移す(§14.3.3)。tagged: true とは併用できない(writer が書けるのは PDF 1.7 基盤の PDF/UA-1 宣言のみ)。 |
@@ -554,7 +554,7 @@ PDF にしおり(アウトライン)を設定する。既存のしおりは置�
 | `margin` | number (0–300) | 任意 |  | 端からの余白(pt)。既定 24。範囲 0〜300。 |
 | `fontSize` | number (4–96) | 任意 |  | フォントサイズ(pt)。既定 9。範囲 4〜96。 |
 | `color` | string (minLength 1) | 任意 |  | #rrggbb。既定 #666666。 |
-| `fontPath` | string (minLength 1) | 任意 |  | 埋め込むフォント(.ttf/.otf)。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。日本語を含む書式には必須。 |
+| `fontPath` | string (minLength 1) | 任意 |  | Font to embed (.ttf/.otf). Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Required for formats containing characters outside WinAnsiEncoding (CJK, for example). |
 | `pages` | string (minLength 1) | 任意 |  | 番号を刻むページ指定。"1,3-5,8-" 形式(1 始まり)。省略時は全ページ。表紙を除くなら "2-" のように指定する。 |
 | `startAt` | integer (-9007199254740991–9007199254740991) | 任意 |  | 最初に刻む番号。既定 1。表紙を除いて 1 から始めたい場合などに使う。 |
 | `preserveSignatures` | boolean | 任意 |  | 署名済み PDF に対し、既存署名を無効化せず増分更新（末尾追記）で編集する。既定 false。元のバイト列には一切触れないため /ByteRange が保たれる。認証署名（DocMDP）の許可レベルに反する変更は拒否される。 |
@@ -591,7 +591,7 @@ PDF にしおり(アウトライン)を設定する。既存のしおりは置�
 | `opacity` | number (0–1) | 任意 |  | 不透明度 0(透明)〜1(不透明)。既定 0.15。本文を読める程度に薄くする。 |
 | `angle` | number | 任意 |  | 反時計回りの角度(度)。既定 45。0 で水平。 |
 | `behind` | boolean | 任意 |  | 本文の背面に敷くか。既定 true。false にすると本文の上に重なる(改ざん防止の主張を強めたい場合)。 |
-| `fontPath` | string (minLength 1) | 任意 |  | 埋め込むフォント(.ttf/.otf)。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。日本語の透かしには必須。 |
+| `fontPath` | string (minLength 1) | 任意 |  | Font to embed (.ttf/.otf). Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Required for watermarks containing characters outside WinAnsiEncoding (CJK, for example). |
 | `pages` | string (minLength 1) | 任意 |  | 対象ページ指定。"1,3-5,8-" 形式(1 始まり)。省略時は全ページ。 |
 | `preserveSignatures` | boolean | 任意 |  | 署名済み PDF に対し、既存署名を無効化せず増分更新（末尾追記）で編集する。既定 false。元のバイト列には一切触れないため /ByteRange が保たれる。認証署名（DocMDP）の許可レベルに反する変更は拒否される。 |
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
@@ -656,7 +656,7 @@ PDF にしおり(アウトライン)を設定する。既存のしおりは置�
 |---|---|---|---|---|
 | `inputPath` | string (minLength 1) | **必須** |  | 対象 PDF の絶対パス。 |
 | `fields` | object | **必須** |  | フィールド名 → 値のオブジェクト。値の型はフィールド種別に対応する: text=文字列か数値 / checkbox=真偽値 / dropdown・optionlist=文字列か文字列配列 / radio=文字列。例: {"user.name": "山田 太郎", "agree": true, "plan": "A"} |
-| `fontPath` | string (minLength 1) | 任意 |  | 値の描画に使うフォント(.ttf/.otf)。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。日本語の値には必須。 |
+| `fontPath` | string (minLength 1) | 任意 |  | Font used to render values (.ttf/.otf). Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Required for values containing characters outside WinAnsiEncoding (CJK, for example). |
 | `flatten` | boolean | 任意 |  | 記入後にフラット化して非対話にするか。既定 false。true にすると値は編集できなくなる。 |
 | `allowBreakingTags` | boolean | 任意 |  | タグ付き PDF でもフラット化を許すか。既定 false。true にすると PDF/UA-1 準拠が壊れる。 |
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
@@ -715,7 +715,7 @@ AcroForm だけです。`flatten: true` をタグ付き PDF に使うと PDF/UA 
 | 引数 | 型 | 必須 | 既定値 | 説明 |
 |---|---|---|---|---|
 | `inputPath` | string (minLength 1) | **必須** |  | 対象 PDF の絶対パス。 |
-| `fontPath` | string (minLength 1) | 任意 |  | 外観生成に使うフォント。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。既存の外観をそのまま使える場合は不要だが、再生成が必要な日本語フォームでは要る。 |
+| `fontPath` | string (minLength 1) | 任意 |  | Font for appearance regeneration. Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Not needed when existing appearances can be reused, but required when appearances must be regenerated for values containing characters outside WinAnsiEncoding (CJK, for example). |
 | `allowBreakingTags` | boolean | 任意 |  | タグ付き PDF でもフラット化を許すか。既定 false。 |
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
