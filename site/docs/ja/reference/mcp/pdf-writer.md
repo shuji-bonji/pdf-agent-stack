@@ -1,5 +1,5 @@
 ---
-description: "pdf-writer-mcp v0.27.0 の全 20 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-writer-mcp v0.28.0 の全 20 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-writer-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-writer-mcp v0.27.0 の全 20 ツールの引数・型・既定
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-**v0.27.0** の `tools/list` ハンドシェイクから自動生成（20 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.28.0** の `tools/list` ハンドシェイクから自動生成（20 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-writer)へ。
@@ -19,8 +19,8 @@ description: "pdf-writer-mcp v0.27.0 の全 20 ツールの引数・型・既定
 | [`create_text_pdf`](#create-text-pdf) | プレーンテキストから PDF を生成する。 |
 | [`create_markdown_pdf`](#create-markdown-pdf) | Create a PDF from Markdown. |
 | [`create_table_pdf`](#create-table-pdf) | ヘッダと行データから罫線付きの表 PDF を生成する。 |
-| [`set_metadata`](#set-metadata) | 既存 PDF のメタデータ(Info 辞書)を更新する。 |
-| [`merge_pdfs`](#merge-pdfs) | 複数の PDF を指定順に 1 つへ結合する。 |
+| [`set_metadata`](#set-metadata) | Update an existing PDF's metadata (the Info dictionary). |
+| [`merge_pdfs`](#merge-pdfs) | Merge multiple PDFs into one, in the given order. |
 | [`split_pdf`](#split-pdf) | PDF をページ範囲ごとに複数ファイルへ分割する。 |
 | [`extract_pages`](#extract-pages) | 指定ページだけを含む新しい PDF を作る。 |
 | [`delete_pages`](#delete-pages) | 指定ページを削除した新しい PDF を作る。 |
@@ -193,7 +193,10 @@ Create a PDF from Markdown. Supports headings, paragraphs, bullet/numbered lists
 
 **Set PDF Metadata**
 
-既存 PDF のメタデータ(Info 辞書)を更新する。指定したフィールドのみ変更し、他は保持する。title / author / subject / keywords / creator / tdmReservation のうち最低 1 つが必要。XMP(/Metadata)を持つ文書では dc:title 等も同期して不整合を防ぐ。tdmReservation（0 | 1）と tdmPolicy（URL）は W3C TDM Reservation Protocol の意思表示を XMP に書く（tdm:reservation / tdm:policy、名前空間 http://www.w3.org/ns/tdmrep/）。XMP を持たない文書には新しく作る。文書が PDF/A を宣言している場合は tdmrep スキーマを pdfaExtension:schemas にも記述するため、veraPDF が ISO 19005-2 6.6.2.3 で落とすことはない。署名済み PDF には preserveSignatures: true で署名を保持したまま更新できる。
+::: warning 非推奨
+:::
+
+Update an existing PDF's metadata (the Info dictionary). Only the given fields change; the rest are preserved. At least one of title / author / subject / keywords / creator / tdmReservation is required. In documents with XMP (/Metadata), dc:title etc. are synchronized to prevent divergence; XMP values you did not pass are carried over as written (other languages of dc:title, every dc:creator, unknown namespaces). On a PDF 2.0 input the values go to XMP and no new Info entries are added (ISO 32000-2 14.3.3 deprecates Info metadata); on a PDF/UA-2 input the existing Info entries are moved to XMP and removed. The output keeps the version of its input. tdmReservation (0 | 1) and tdmPolicy (URL) write the W3C TDM Reservation Protocol statement to XMP (tdm:reservation / tdm:policy, namespace http://www.w3.org/ns/tdmrep/); a document without XMP gets one. When the document declares PDF/A, the tdmrep schema is also described in pdfaExtension:schemas, so veraPDF does not fail ISO 19005-2 6.6.2.3 on it. For signed PDFs, preserveSignatures: true updates while keeping the signatures intact.
 
 ### 引数
 
@@ -228,15 +231,14 @@ Info 辞書だけを変えて XMP と食い違わないようにします。`tit
 
 **Merge PDFs**
 
-複数の PDF を指定順に 1 つへ結合する。文書メタデータは先頭ファイルから引き継ぐ。
-
-ページを新しい文書へ複製するため、文書レベルの情報（タグ付き構造・XMP・添付・AcroForm・しおり等）は引き継がれない。失われたものは warnings で報告されるので、必要なら出力に attach_file / ensure_tagged / add_bookmarks / set_metadata を後がけする。
+Merge multiple PDFs into one, in the given order. Document metadata is carried over from the first file. The output keeps the version of the inputs; when they mix PDF 2.0 and PDF 1.x the call is refused unless pdfVersion is given — "2.0" is an explicit conversion, and versions are never lowered. Pages are copied into a new document, so document-level information (tagged structure, XMP, attachments, AcroForm, bookmarks, etc.) is not carried over. Anything lost is reported in warnings; follow up on the output with attach_file / ensure_tagged / add_bookmarks / set_metadata as needed.
 
 ### 引数
 
 | 引数 | 型 | 必須 | 既定値 | 説明 |
 |---|---|---|---|---|
 | `inputPaths` | string (minLength 1)[] | **必須** |  | 結合する PDF の絶対パスの配列(結合順・2 件以上)。 |
+| `pdfVersion` | `"1.7"` \| `"2.0"` | 任意 |  | Version of the merged file. Omit it to keep the version of the inputs (the first input decides among PDF 1.x versions). Required when the inputs mix PDF 2.0 and PDF 1.x: "2.0" converts the merged file to PDF 2.0 (trailer /ID, Info metadata moved to XMP). "1.7" is refused when any input is PDF 2.0 — versions are never lowered. |
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
@@ -845,7 +847,7 @@ XMP に pdfuaid を書きます。適合していない文書に適用すると�
 
 **Ensure PDF/A (archival conformance scaffold)**
 
-Put an existing PDF onto the PDF/A "vessel" (the PDF/A counterpart of ensure_tagged). Choose the flavour: "pdfa-3b" (default) / "pdfa-4" / "pdfa-4f". Supplies only the missing document-level requirements: the trailer /ID (ISO 32000-1 14.4), an sRGB OutputIntent (GTS_PDFA1; an ICC profile is generated and embedded), and XMP pdfaid. **The -4 flavours additionally set the header to PDF 2.0 and delete the Info dictionary** (-4 forbids Info unless the catalog has /PieceInfo — stricter than ISO 32000-2 14.3.3). **Content, structure tree and fonts are never touched.** **Documents with attachments must use "pdfa-4f"** — plain "pdfa-4" requires every attachment to be PDF/A itself, so bundling CSV or JSON (e.g. an invoice PDF that carries its data) would not conform. **IMPORTANT**: this is preparation for claiming PDF/A, not a guarantee of conformance. Violations such as unembedded fonts, encryption, JavaScript or LZW are not repaired. **Writing pdfaid into XMP is the document claiming "I am PDF/A"** — applied to a non-conforming document it produces **a PDF that lies about itself** (which is why a warning is always returned). Always confirm with pdf-verify-mcp's validate_conformance (flavour: the same value) — the verdict is veraPDF's, and since ISO 19005 clauses cannot be quoted, the strongest statement is "veraPDF judged it so". When the document carries machine-readable attachments, apply it **after** attach_file. For signed PDFs, preserveSignatures: true (approval signatures only; certification signatures are refused). However, **the -4 flavours combined with preserveSignatures are refused unless the input is already PDF 2.0** (an incremental update cannot rewrite the file header, and rewriting it would break the signatures). **The -4 flavours are refused (INVALID_ARGUMENT, next_actions: flavour "pdfa-3b") when the input declares PDF/UA-1**: PDF/A-4 needs a PDF 2.0 header and PDF/UA-1 allows only 1.0 to 1.7 (ISO 14289-1 §6.1). Conversely, **"pdfa-3b" is refused (next_actions: flavour "pdfa-4") when the input declares PDF/UA-2**, which requires PDF 2.0 (ISO 14289-2 §6.1) while PDF/A-3 requires a PDF 1.x header. PDF/A-4 and PDF/UA-2 can both hold (v0.27.0). The result reports previousDeclaration — the PDF/A the input already claimed, { part, conformance } or null (it replaced wasDeclared in v0.24.0).
+Put an existing PDF onto the PDF/A "vessel" (the PDF/A counterpart of ensure_tagged). Choose the flavour: "pdfa-3b" (default) / "pdfa-4" / "pdfa-4f". Supplies only the missing document-level requirements: the trailer /ID (ISO 32000-1 14.4), an sRGB OutputIntent (GTS_PDFA1; an ICC profile is generated and embedded), and XMP pdfaid. **The -4 flavours additionally set the header to PDF 2.0 and delete the Info dictionary** — this is the explicit conversion to PDF 2.0. "pdfa-3b" is refused on a PDF 2.0 input (PDF/A-3 needs a %PDF-1.n header and versions are never lowered). (-4 forbids Info unless the catalog has /PieceInfo — stricter than ISO 32000-2 14.3.3). **Content, structure tree and fonts are never touched.** **Documents with attachments must use "pdfa-4f"** — plain "pdfa-4" requires every attachment to be PDF/A itself, so bundling CSV or JSON (e.g. an invoice PDF that carries its data) would not conform. **IMPORTANT**: this is preparation for claiming PDF/A, not a guarantee of conformance. Violations such as unembedded fonts, encryption, JavaScript or LZW are not repaired. **Writing pdfaid into XMP is the document claiming "I am PDF/A"** — applied to a non-conforming document it produces **a PDF that lies about itself** (which is why a warning is always returned). Always confirm with pdf-verify-mcp's validate_conformance (flavour: the same value) — the verdict is veraPDF's, and since ISO 19005 clauses cannot be quoted, the strongest statement is "veraPDF judged it so". When the document carries machine-readable attachments, apply it **after** attach_file. For signed PDFs, preserveSignatures: true (approval signatures only; certification signatures are refused). However, **the -4 flavours combined with preserveSignatures are refused unless the input is already PDF 2.0** (an incremental update cannot rewrite the file header, and rewriting it would break the signatures). **The -4 flavours are refused (INVALID_ARGUMENT, next_actions: flavour "pdfa-3b") when the input declares PDF/UA-1**: PDF/A-4 needs a PDF 2.0 header and PDF/UA-1 allows only 1.0 to 1.7 (ISO 14289-1 §6.1). Conversely, **"pdfa-3b" is refused (next_actions: flavour "pdfa-4") when the input declares PDF/UA-2**, which requires PDF 2.0 (ISO 14289-2 §6.1) while PDF/A-3 requires a PDF 1.x header. PDF/A-4 and PDF/UA-2 can both hold (v0.27.0). The result reports previousDeclaration — the PDF/A the input already claimed, { part, conformance } or null (it replaced wasDeclared in v0.24.0).
 
 ### 引数
 

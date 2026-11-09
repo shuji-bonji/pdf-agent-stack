@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-writer-mcp v0.27.0 — parameters, types, defaults and returns of all 20 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-writer-mcp v0.28.0 — parameters, types, defaults and returns of all 20 tools, generated from the server's tools/list."
 ---
 
 # pdf-writer-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-writer-mcp v0.27.0 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.27.0** (20 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.28.0** (20 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-writer).
@@ -193,7 +193,10 @@ The call shape matches [`create_text_pdf`](#create-text-pdf) (`headers` and `row
 
 **Set PDF Metadata**
 
-Update an existing PDF's metadata (the Info dictionary). Only the given fields change; the rest are preserved. At least one of title / author / subject / keywords / creator / tdmReservation is required. In documents with XMP (/Metadata), dc:title etc. are synchronized to prevent divergence. tdmReservation (0 | 1) and tdmPolicy (URL) write the W3C TDM Reservation Protocol statement to XMP (tdm:reservation / tdm:policy, namespace http://www.w3.org/ns/tdmrep/); a document without XMP gets one. When the document declares PDF/A, the tdmrep schema is also described in pdfaExtension:schemas, so veraPDF does not fail ISO 19005-2 6.6.2.3 on it. For signed PDFs, preserveSignatures: true updates while keeping the signatures intact.
+::: warning Deprecated
+:::
+
+Update an existing PDF's metadata (the Info dictionary). Only the given fields change; the rest are preserved. At least one of title / author / subject / keywords / creator / tdmReservation is required. In documents with XMP (/Metadata), dc:title etc. are synchronized to prevent divergence; XMP values you did not pass are carried over as written (other languages of dc:title, every dc:creator, unknown namespaces). On a PDF 2.0 input the values go to XMP and no new Info entries are added (ISO 32000-2 14.3.3 deprecates Info metadata); on a PDF/UA-2 input the existing Info entries are moved to XMP and removed. The output keeps the version of its input. tdmReservation (0 | 1) and tdmPolicy (URL) write the W3C TDM Reservation Protocol statement to XMP (tdm:reservation / tdm:policy, namespace http://www.w3.org/ns/tdmrep/); a document without XMP gets one. When the document declares PDF/A, the tdmrep schema is also described in pdfaExtension:schemas, so veraPDF does not fail ISO 19005-2 6.6.2.3 on it. For signed PDFs, preserveSignatures: true updates while keeping the signatures intact.
 
 ### Parameters
 
@@ -228,13 +231,14 @@ To keep signatures, pass `preserveSignatures: true` (incremental update). Set `a
 
 **Merge PDFs**
 
-Merge multiple PDFs into one, in the given order. Document metadata is carried over from the first file. Pages are copied into a new document, so document-level information (tagged structure, XMP, attachments, AcroForm, bookmarks, etc.) is not carried over. Anything lost is reported in warnings; follow up on the output with attach_file / ensure_tagged / add_bookmarks / set_metadata as needed.
+Merge multiple PDFs into one, in the given order. Document metadata is carried over from the first file. The output keeps the version of the inputs; when they mix PDF 2.0 and PDF 1.x the call is refused unless pdfVersion is given — "2.0" is an explicit conversion, and versions are never lowered. Pages are copied into a new document, so document-level information (tagged structure, XMP, attachments, AcroForm, bookmarks, etc.) is not carried over. Anything lost is reported in warnings; follow up on the output with attach_file / ensure_tagged / add_bookmarks / set_metadata as needed.
 
 ### Parameters
 
 | Parameter | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `inputPaths` | string (minLength 1)[] | **yes** |  | Absolute paths of the PDFs to merge (in merge order, 2 or more). |
+| `pdfVersion` | `"1.7"` \| `"2.0"` | no |  | Version of the merged file. Omit it to keep the version of the inputs (the first input decides among PDF 1.x versions). Required when the inputs mix PDF 2.0 and PDF 1.x: "2.0" converts the merged file to PDF 2.0 (trailer /ID, Info metadata moved to XMP). "1.7" is refused when any input is PDF 2.0 — versions are never lowered. |
 | `outputPath` | string (minLength 1) | no |  | Destination file path (absolute). When omitted, a base64 string is returned instead. |
 | `returnBase64` | boolean | no |  | When true, include a base64 string in the result in addition to saving. |
 | `allowBreakingSignatures` | boolean | no |  | When the target is digitally signed (detected via /ByteRange), the default is an error. Set true to proceed, accepting that the signatures become invalid. |
