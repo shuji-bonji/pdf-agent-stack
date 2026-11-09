@@ -1,5 +1,5 @@
 ---
-description: "pdf-writer-mcp v0.28.0 の全 20 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
+description: "pdf-writer-mcp v0.28.1 の全 20 ツールの引数・型・既定値・戻り値（tools/list から自動生成）"
 ---
 
 # pdf-writer-mcp — ツールリファレンス
@@ -7,7 +7,7 @@ description: "pdf-writer-mcp v0.28.0 の全 20 ツールの引数・型・既定
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-**v0.28.0** の `tools/list` ハンドシェイクから自動生成（20 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
+**v0.28.1** の `tools/list` ハンドシェイクから自動生成（20 ツール）。手で編集しない — 再生成は `node scripts/generate-reference.mjs`。日本語訳は翻訳メモリ（scripts/i18n）から適用され、原文が更新された項目は同期されるまで英語で表示される。
 :::
 
 **このページは自動生成リファレンス** — 全ツールの引数・型・既定値・戻り値を `tools/list`（正典 = サーバー実装）から写したもの。責務・設計思想・使いどころの解説は[解説ページ](/ja/mcp/pdf-writer)へ。
@@ -31,7 +31,7 @@ description: "pdf-writer-mcp v0.28.0 の全 20 ツールの引数・型・既定
 | [`add_watermark`](#add-watermark) | 各ページの中央に斜めの透かし文字を重ねる("社外秘" / "DRAFT" / "COPY" 等)。 |
 | [`fill_form`](#fill-form) | 既存 PDF の対話フォーム（AcroForm）にフィールド値を流し込む。 |
 | [`flatten_form`](#flatten-form) | 既存 PDF の対話フォーム（AcroForm）をフラット化し、記入済みの見た目を保ったまま非対話にする。 |
-| [`tag_form_fields`](#tag-form-fields) | タグ付き PDF のフォームを PDF/UA-1 準拠へ修復する。 |
+| [`tag_form_fields`](#tag-form-fields) | Repair a tagged PDF's form to PDF/UA-1: enclose Widget annotations in Form structure elements (7.18.4-1), set /Tabs S on the affected pages (7.18.3-1), and give fields alternate names /TU (7.18.1-3). |
 | [`ensure_tagged`](#ensure-tagged) | Put an existing PDF onto the PDF/UA "vessel". |
 | [`ensure_pdfa`](#ensure-pdfa) | Put an existing PDF onto the PDF/A "vessel" (the PDF/A counterpart of ensure_tagged). |
 | [`attach_file`](#attach-file) | PDF にファイルを埋め込む(添付する)。 |
@@ -487,7 +487,7 @@ Set the bookmarks (outline) of a PDF. Existing bookmarks are replaced. Nest with
 | `rect.y2` | number | **必須** |  |  |
 | `contents` | string | 任意 |  | 注釈の本文(日本語可)。 |
 | `author` | string | 任意 |  | 作成者名。 |
-| `alt` | string | 任意 |  | 支援技術向けの代替テキスト。タグ付き PDF では注釈が Annot 構造要素に内包される(PDF/UA 7.18.1-1)ため、その要素の /Alt になる。タグ無し文書では無視される。 |
+| `alt` | string | 任意 |  | Alt text for assistive technology. In tagged PDFs the annotation is enclosed in an Annot structure element (PDF/UA 7.18.1-1) and this becomes that element's /Alt. Ignored in untagged documents. On a PDF/UA-2 document the annotation's Contents must equal the Alt (ISO 14289-2 §8.9.4.2): alt alone is also written as Contents, and a different contents is refused. |
 | `color` | string | 任意 |  | #rrggbb 形式。既定は type ごと(text=#ffd400 / highlight=#ffff00 / square=#ff0000)。 |
 | `interiorColor` | string | 任意 |  | square の塗り色(#rrggbb)。 |
 | `icon` | `"Note"` \| `"Comment"` \| `"Key"` \| `"Help"` \| `"NewParagraph"` \| `"Paragraph"` \| `"Insert"` | 任意 |  | text のアイコン。既定 Note。 |
@@ -739,15 +739,7 @@ Widget 注釈が消えて Form 構造要素が宙に浮くためです。`allowB
 
 **Tag Form Fields (PDF/UA repair)**
 
-タグ付き PDF のフォームを PDF/UA-1 準拠へ修復する。行うのは次の 3 つ:
-
-- Widget 注釈を Form 構造要素に内包する（7.18.4-1）
-- 対象ページに /Tabs S を立てる（7.18.3-1）
-- フィールドに代替名 /TU を付与する（7.18.1-3）
-
-labels でスクリーンリーダー向けの人間可読な名前を渡すこと。既に構造木に結ばれた Widget はスキップするため、何度実行しても安全である。タグ無し文書は対象外（create 系の tagged: true でゼロから作る）。
-
-署名済み PDF には preserveSignatures: true で署名を保持したまま修復できる（承認署名のみ。認証署名は拒否）。
+Repair a tagged PDF's form to PDF/UA-1: enclose Widget annotations in Form structure elements (7.18.4-1), set /Tabs S on the affected pages (7.18.3-1), and give fields alternate names /TU (7.18.1-3). Pass human-readable names for screen readers via labels. On a PDF/UA-2 document each newly bound widget without /Contents also gets one (ISO 14289-2 §8.10.2.3; no Lbl is created): the label, else the existing /TU, else the field name. Widgets already bound to the structure tree are skipped, so it is safe to run repeatedly. Untagged documents are out of scope (rebuild with the create tools' tagged: true, or run ensure_tagged first). For signed PDFs, preserveSignatures: true repairs while keeping the signatures intact (approval signatures only; certification signatures are refused).
 
 ### 引数
 

@@ -1,5 +1,5 @@
 ---
-description: "Tools reference for pdf-writer-mcp v0.28.0 — parameters, types, defaults and returns of all 20 tools, generated from the server's tools/list."
+description: "Tools reference for pdf-writer-mcp v0.28.1 — parameters, types, defaults and returns of all 20 tools, generated from the server's tools/list."
 ---
 
 # pdf-writer-mcp — Tools Reference
@@ -7,7 +7,7 @@ description: "Tools reference for pdf-writer-mcp v0.28.0 — parameters, types, 
 <!-- GENERATED FILE — do not edit. Parameters and returns: the server. Worked examples: scripts/reference-examples/. -->
 
 ::: info
-Auto-generated from the `tools/list` handshake of **v0.28.0** (20 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
+Auto-generated from the `tools/list` handshake of **v0.28.1** (20 tools). Do not edit by hand — regenerate with `node scripts/generate-reference.mjs`.
 :::
 
 **This page is the generated reference** — every tool's parameters, types, defaults and returns, transcribed from the server's `tools/list` (the source of truth is the server itself). For the server's responsibilities, boundaries and how to use it, see the [guide page](/mcp/pdf-writer).
@@ -477,7 +477,7 @@ Add one annotation to a page: sticky note (text), highlight, or rectangle (squar
 | `rect.y2` | number | **yes** |  |  |
 | `contents` | string | no |  | Annotation body text (CJK fine). |
 | `author` | string | no |  | Author name. |
-| `alt` | string | no |  | Alt text for assistive technology. In tagged PDFs the annotation is enclosed in an Annot structure element (PDF/UA 7.18.1-1) and this becomes that element's /Alt. Ignored in untagged documents. |
+| `alt` | string | no |  | Alt text for assistive technology. In tagged PDFs the annotation is enclosed in an Annot structure element (PDF/UA 7.18.1-1) and this becomes that element's /Alt. Ignored in untagged documents. On a PDF/UA-2 document the annotation's Contents must equal the Alt (ISO 14289-2 §8.9.4.2): alt alone is also written as Contents, and a different contents is refused. |
 | `color` | string | no |  | #rrggbb. Defaults per type (text=#ffd400 / highlight=#ffff00 / square=#ff0000). |
 | `interiorColor` | string | no |  | Fill colour for square (#rrggbb). |
 | `icon` | `"Note"` \| `"Comment"` \| `"Key"` \| `"Help"` \| `"NewParagraph"` \| `"Paragraph"` \| `"Insert"` | no |  | Icon for text notes. Default Note. |
@@ -723,7 +723,7 @@ This is not a signature-preserving operation. Set `allowBreakingSignatures: true
 
 **Tag Form Fields (PDF/UA repair)**
 
-Repair a tagged PDF's form to PDF/UA-1: enclose Widget annotations in Form structure elements (7.18.4-1), set /Tabs S on the affected pages (7.18.3-1), and give fields alternate names /TU (7.18.1-3). Pass human-readable names for screen readers via labels. Widgets already bound to the structure tree are skipped, so it is safe to run repeatedly. Untagged documents are out of scope (rebuild with the create tools' tagged: true, or run ensure_tagged first). For signed PDFs, preserveSignatures: true repairs while keeping the signatures intact (approval signatures only; certification signatures are refused).
+Repair a tagged PDF's form to PDF/UA-1: enclose Widget annotations in Form structure elements (7.18.4-1), set /Tabs S on the affected pages (7.18.3-1), and give fields alternate names /TU (7.18.1-3). Pass human-readable names for screen readers via labels. On a PDF/UA-2 document each newly bound widget without /Contents also gets one (ISO 14289-2 §8.10.2.3; no Lbl is created): the label, else the existing /TU, else the field name. Widgets already bound to the structure tree are skipped, so it is safe to run repeatedly. Untagged documents are out of scope (rebuild with the create tools' tagged: true, or run ensure_tagged first). For signed PDFs, preserveSignatures: true repairs while keeping the signatures intact (approval signatures only; certification signatures are refused).
 
 ### Parameters
 

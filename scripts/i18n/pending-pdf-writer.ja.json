@@ -24,6 +24,12 @@
     "stale": true
   },
   {
+    "key": "tag_form_fields|prose",
+    "src": "f6feaed69f64b8d1e4fd3e0b918d264d",
+    "en": "Repair a tagged PDF's form to PDF/UA-1: enclose Widget annotations in Form structure elements (7.18.4-1), set /Tabs S on the affected pages (7.18.3-1), and give fields alternate names /TU (7.18.1-3). Pass human-readable names for screen readers via labels. On a PDF/UA-2 document each newly bound widget without /Contents also gets one (ISO 14289-2 §8.10.2.3; no Lbl is created): the label, else the existing /TU, else the field name. Widgets already bound to the structure tree are skipped, so it is safe to run repeatedly. Untagged documents are out of scope (rebuild with the create tools' tagged: true, or run ensure_tagged first). For signed PDFs, preserveSignatures: true repairs while keeping the signatures intact (approval signatures only; certification signatures are refused).",
+    "stale": true
+  },
+  {
     "key": "ensure_tagged|prose",
     "src": "0822258ca0382b4e1298b0b956cce3b2",
     "en": "Put an existing PDF onto the PDF/UA \"vessel\". If it is already tagged, the structure tree is untouched and only missing document-level requirements are supplied (MarkInfo / Lang / DisplayDocTitle / XMP pdfuaid and dc:title). For untagged documents, a minimal structure tree (each page = one P element) is created so the content becomes reachable by assistive technology. **IMPORTANT**: machines cannot infer meaning — headings, tables, lists, reading order and figure alt text are NOT created. The new tree is a scaffold, not an accessible document; it needs human review. If you can build the structure right from the start, use the create tools' tagged: true. For signed PDFs, preserveSignatures: true (approval signatures only; certification signatures are refused). The result separates addedRequirements (absent from the input) from replacedRequirements (present with a different value, rewritten); a requirement already present with the same value is neither rewritten nor listed. requirementsChanged is false when nothing was added, replaced or created — the output file is still written (v0.24.0). The declared part follows the input version (header or catalog /Version), which is never changed: PDF/UA-1 (pdfuaid:part 1) for PDF 1.0 to 1.7 (ISO 14289-1 §6.1), PDF/UA-2 (pdfuaid:part 2, rev 2024) for PDF 2.0 (ISO 14289-2 §6.1). For PDF 2.0, a new tree puts Document and P in the PDF 2.0 namespace; an existing tree whose root is not a single Document in that namespace (ISO 14289-2 §8.2.5.2) is left as it is and named in warnings (v0.27.0).",
@@ -130,6 +136,12 @@
     "src": "dba4c242f394721f44787c3f822f26f3",
     "en": "Version of the merged file. Omit it to keep the version of the inputs (the first input decides among PDF 1.x versions). Required when the inputs mix PDF 2.0 and PDF 1.x: \"2.0\" converts the merged file to PDF 2.0 (trailer /ID, Info metadata moved to XMP). \"1.7\" is refused when any input is PDF 2.0 — versions are never lowered.",
     "stale": false
+  },
+  {
+    "key": "add_annotation|param:alt",
+    "src": "e385f465d6b86f43e7597f4b1131729b",
+    "en": "Alt text for assistive technology. In tagged PDFs the annotation is enclosed in an Annot structure element (PDF/UA 7.18.1-1) and this becomes that element's /Alt. Ignored in untagged documents. On a PDF/UA-2 document the annotation's Contents must equal the Alt (ISO 14289-2 §8.9.4.2): alt alone is also written as Contents, and a different contents is refused.",
+    "stale": true
   },
   {
     "key": "stamp_page_numbers|param:fontPath",
