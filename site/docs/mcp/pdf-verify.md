@@ -131,6 +131,23 @@ Per-tool cautions and prompt → parameters → returned JSON are at the end of 
 
 Without trust anchors (`trust_anchors` or `PDF_VERIFY_TRUST_ANCHORS`), `trust` stays `not_evaluated`. That `valid` means the digest matched; it does not prove the signer is who they claim to be. `evaluate_policy` then stops at `use_with_caution`.
 
+`signatureCount` counts signed signature dictionaries other than `/Type /DocTimeStamp`, and means the same in every tool (since 0.35.0). Document timestamps are counted separately in `documentTimestampCount` (`verify_integrity` and the `facts` of `evaluate_policy`). Until 0.34.0, `verify_integrity` reported `signatureCount: 2` for a file with one signature and one document timestamp, while `evaluate_policy` reported `1`.
+
+Every successful response starts with `file_path`, the path as received (since 0.35.0), so results from several files can be told apart.
+
+#### Encrypted documents whose key cannot be derived
+
+Without `password`, an encrypted document whose key cannot be derived is not reported as unsigned or as failing rules that could not be read (since 0.35.0).
+
+| Tool | What it returns |
+| --- | --- |
+| `verify_signatures` | `signatures: null` with a `note`, not `[]` |
+| `verify_integrity` | `signatureCount` and `documentTimestampCount` as `null` |
+| `evaluate_policy` | `facts.signatures`, `facts.signatureCount` and `facts.documentTimestampCount` as `null` with `facts.note`. `POL-CAUTION-UNSIGNED` and `POL-REVIEW-UNSIGNED-REQUIRED` do not fire; `POL-REVIEW-SIGNATURES-NOT-READ` fires instead, and the verdict is `human_review_required` |
+| `validate_conformance` (PDF/A) | `ENCRYPTED_PDF` (`retryable: true`) with whichever engine; `next_actions` shows the same call with `password`. PDF/UA reports the structure rules as not checked |
+
+"Not read" is not "unsigned". Until 0.34.0, the same document came out as `use_with_caution` through `POL-CAUTION-UNSIGNED`.
+
 #### What signature verification checks
 
 `verify_signatures` checks each signature in the order below. The only steps that reach outside the PDF are ③ and ④, and only with `check_revocation: "online"`. Everything else is decided from data inside the PDF and the trust anchors you supply.

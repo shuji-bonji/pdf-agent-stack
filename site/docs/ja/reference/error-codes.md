@@ -20,7 +20,7 @@ description: PDF family の 4 サーバーに共通のエラー応答の形、�
 ```
 
 - `code`・`next_actions[].action`・`example` のキーは、Skill が分岐と再試行に使います。値を変えるのは破壊的変更として扱います。
-- reader・writer・verify では `retryable` の値が `code` ごとに 1 つに決まっていて、同じコードなら同じ値です。spec だけは、エラーを投げる箇所によって値が変わります（下の表）。
+- 4 サーバーとも `retryable` の値は `code` ごとに 1 つに決まっていて、同じコードなら同じ値です（spec は 0.14.0 から。0.13.x までは、エラーを投げる箇所によって値が変わっていました）。
 - ハンドラに届く前に MCP の SDK が拒んだ要求（必須の引数が無い・ツールが宣言していないキーを渡した）は、この形ではなく、SDK の `Input validation error: …` の文のまま返ります。
 
 ## 共通のコード
@@ -75,9 +75,11 @@ Fetch Standard が接続を断るポート（9 など）を指す URL は、`SOU
 
 | `code` | 使う状況・対処 | `retryable` |
 |---|---|---|
-| `REGISTRY_ERROR` | 仕様書のフォルダーが設定されていないか読めない、または `spec` の id を知らない。`next_actions` に従う（`PDF_SPEC_DIR` を設定する、`list_specs` を呼ぶ） | 原因による。フォルダーは `false`、知らない id は `true` |
-| `CONTENT_ERROR` | 節・表・ページが見つからないか読めない | 原因による（別の引数で成功しうるときは `true`） |
+| `REGISTRY_ERROR` | 仕様書のフォルダーが設定されていないか読めない。`next_actions` に従う（`PDF_SPEC_DIR` を設定する） | `false` |
+| `CONTENT_ERROR` | コードとしては残っているが、0.14.0 から返す箇所は無い | `false` |
 | `PREREQUISITE_ERROR` | ツールに要る仕様書や部品が無い。`next_actions` に入れるものが書いてある | `false` |
+
+0.14.0 から、引数が指しているのに存在しないものは、共通の `INVALID_ARGUMENT`（`retryable: true`）で返します。知らない `spec` の id（`next_actions` は `list_specs` を示します）、無い節（`get_section`・`get_requirements`）、範囲外の `table_index`（`get_tables`）、ISO 32000-2 / PDF 1.7 以外の仕様書への `get_definitions` です。0.13.x までは `REGISTRY_ERROR` か `CONTENT_ERROR` でした。
 
 ## 旧い名前（外した）
 

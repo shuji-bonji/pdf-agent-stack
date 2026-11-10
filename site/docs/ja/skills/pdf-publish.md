@@ -15,7 +15,7 @@ graph LR
 
 ## 対応シナリオ
 
-- PDF/UA 準拠（タグ付き）PDF の生成
+- PDF/UA 準拠（タグ付き）PDF の生成（PDF 1.7 では PDF/UA-1、PDF 2.0 では PDF/UA-2）
 - 請求書とデータの同梱: PDF/A-3b + 添付ファイル（`attach_file`）。PDF/A-4 を求められた場合は **`pdfa-4f`**（素の `pdfa-4` は添付自身が PDF/A であることを要求するため、CSV/XML の同梱と両立しません）
   - 「電帳法対応の PDF」と頼まれたときは、PDF/A も添付も電帳法の要件ではないことを伝え、何を求めているか（PDF/A で残したいのか、データを同梱したいのか）を確かめてから水準を決めます。電子取引のデータの保存で電帳法が求めるのは、タイムスタンプ・訂正削除の記録か防止ができるシステム・事務処理規程のいずれかの措置です（電子帳簿保存法施行規則 4 条 1 項）。Publish Report に「電帳法に対応した」とは書きません
 - フォームの PDF/UA 化（`tag_form_fields`）
@@ -29,12 +29,26 @@ graph LR
 |---|---|---|
 | `none` | 生成のみ。ゲートなし（下書き・使い捨て向け） | writer |
 | `readback` | reader で読み戻し、意図どおり出力されたかを観測するまで | writer + reader |
-| `conformance(flavour)` | veraPDF の採点で COMPLIANT になるまで。flavour は測る規格（`pdfa-3b` / `pdfa-4f` / `pdfua-1` など） | writer + verify（veraPDF 推奨） |
+| `conformance(flavour)` | veraPDF の採点で COMPLIANT になるまで。flavour は測る規格（`pdfa-3b` / `pdfa-4` / `pdfa-4f` / `pdfua-1` / `pdfua-2`） | writer + verify（veraPDF 推奨） |
 
 ## 要点
 
 - ラベル（`ensure_pdfa` / `ensure_tagged`）を書いたら必ず対応する flavour で `validate_conformance` を実行します — **測れないならラベルを書きません**
 - 判定は veraPDF のものです。「veraPDF が COMPLIANT と判定」と報告し「ISO 19005 準拠」とは書きません
+- **測る flavour は、最後に書いた writer の結果の `output.declares` から決めます**（writer 0.28.0 から）。頼まれた内容からは決めません。宣言されているものはすべて測ります。`pdfua: 1` なら `pdfua-1`、`pdfua: 2` なら `pdfua-2`、`pdfa: "3b"` / `"4"` / `"4f"` なら対応する `pdfa-*` です。`declares` はファイルの自己申告で、合否は `validate_conformance` で決まります
+
+## 組み合わせられる規格
+
+PDF/UA-1 は PDF 1.0〜1.7 を基盤とし（ISO 14289-1 §6.1）、PDF/UA-2 は PDF 2.0 を基盤とします（ISO 14289-2 §6.1）。PDF/A-3 は PDF 1.x のヘッダを、PDF/A-4 は 2.0 を要求するので、アクセシビリティの規格が PDF/A の規格を決めます。
+
+| PDF の版 | アクセシビリティ | 長期保存 | 手順 | 実測（veraPDF 1.30.0） |
+|---|---|---|---|---|
+| 1.7 | PDF/UA-1（`pdfua-1`） | PDF/A-3b（`pdfa-3b`） | `create_*(tagged)` → `ensure_pdfa` | 106/106・146/146 |
+| 2.0 | PDF/UA-2（`pdfua-2`） | PDF/A-4（`pdfa-4` / `pdfa-4f`） | `create_*(tagged, pdfVersion: "2.0")` → `ensure_pdfa(flavour: "pdfa-4")` | 1,728/1,728・109/109 |
+
+これ以外の組み合わせは、writer が `INVALID_ARGUMENT` で断ります。`ensure_pdfa` が `next_actions[0].action: "retry_with_flavour"` を返したら、Skill は従う前に `example.flavour` を読みます。`pdfa-3b` なら入力が PDF/UA-1 を宣言している、`pdfa-4` なら入力が PDF 2.0 である、という意味です。目標の規格を黙って変えることはせず、変えるかどうかは利用者に確かめます。アクセシビリティと PDF/A-4 の両方を求められたら、新しく作る文書は PDF 2.0 で作ります。既存の PDF/UA-1 文書なら、「PDF/A-3b + PDF/UA-1」にするか、PDF 2.0 で作り直すかを利用者に選んでもらいます。
+
+`merge_pdfs` は、PDF 2.0 と PDF 1.x が混ざった入力を、`pdfVersion` が無ければ断ります。`pdfVersion: "2.0"` は明示的な変換なので、PDF/A-3b を目標にしている案件では、使う前に利用者に確かめます。
 
 ## 実測例 — Publish Report 要旨（2026-08-11）
 
@@ -54,6 +68,10 @@ graph LR
 
 これは異常ではなく設計です。ラベルを書いた瞬間に検証が省略不能になります —
 この warning を Report に転記し、対応する flavour を測ってから納品します。
+
+### 2 つ目の実測例 — PDF/UA-2 + PDF/A-4（2026-11-10）
+
+pdf-publish 0.8.0 と writer 0.28.1 で、`create_markdown_pdf(tagged, pdfVersion: "2.0", lang: "ja", drawTitle: false)` → `add_bookmarks` → `ensure_pdfa(flavour: "pdfa-4")` の順に実行しました。`output.declares` は `{pdfua: 2}` → `{pdfua: 2}` → `{pdfua: 2, pdfa: "4"}` と変わり、Skill はここから `pdfua-2` と `pdfa-4` を測りました。`identify_conformance` の自己申告とも一致しています。**veraPDF 1.30.0 は PDF/UA-2 を COMPLIANT（1,728/1,728）、PDF/A-4 を COMPLIANT（109/109）と判定**し、修正ループは 0 回でした。
 
 ## ループ打ち切り条件
 

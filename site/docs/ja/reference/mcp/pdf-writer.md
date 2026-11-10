@@ -17,23 +17,23 @@ description: "pdf-writer-mcp v0.28.1 の全 20 ツールの引数・型・既定
 | ツール | 概要 |
 |---|---|
 | [`create_text_pdf`](#create-text-pdf) | プレーンテキストから PDF を生成する。 |
-| [`create_markdown_pdf`](#create-markdown-pdf) | Create a PDF from Markdown. |
+| [`create_markdown_pdf`](#create-markdown-pdf) | Markdown から PDF を生成する。 |
 | [`create_table_pdf`](#create-table-pdf) | ヘッダと行データから罫線付きの表 PDF を生成する。 |
-| [`set_metadata`](#set-metadata) | Update an existing PDF's metadata (the Info dictionary). |
-| [`merge_pdfs`](#merge-pdfs) | Merge multiple PDFs into one, in the given order. |
+| [`set_metadata`](#set-metadata) | 既存 PDF のメタデータ(Info 辞書)を更新する。 |
+| [`merge_pdfs`](#merge-pdfs) | 複数の PDF を指定順に 1 つへ結合する。 |
 | [`split_pdf`](#split-pdf) | PDF をページ範囲ごとに複数ファイルへ分割する。 |
 | [`extract_pages`](#extract-pages) | 指定ページだけを含む新しい PDF を作る。 |
 | [`delete_pages`](#delete-pages) | 指定ページを削除した新しい PDF を作る。 |
 | [`reorder_pages`](#reorder-pages) | ページを並べ替える。 |
-| [`add_bookmarks`](#add-bookmarks) | Set the bookmarks (outline) of a PDF. |
+| [`add_bookmarks`](#add-bookmarks) | PDF にしおり(アウトライン)を設定する。 |
 | [`add_annotation`](#add-annotation) | ページに注釈を 1 つ追加する。 |
 | [`stamp_page_numbers`](#stamp-page-numbers) | 各ページにページ番号を刻む。 |
 | [`add_watermark`](#add-watermark) | 各ページの中央に斜めの透かし文字を重ねる("社外秘" / "DRAFT" / "COPY" 等)。 |
 | [`fill_form`](#fill-form) | 既存 PDF の対話フォーム（AcroForm）にフィールド値を流し込む。 |
 | [`flatten_form`](#flatten-form) | 既存 PDF の対話フォーム（AcroForm）をフラット化し、記入済みの見た目を保ったまま非対話にする。 |
-| [`tag_form_fields`](#tag-form-fields) | Repair a tagged PDF's form to PDF/UA-1: enclose Widget annotations in Form structure elements (7.18.4-1), set /Tabs S on the affected pages (7.18.3-1), and give fields alternate names /TU (7.18.1-3). |
-| [`ensure_tagged`](#ensure-tagged) | Put an existing PDF onto the PDF/UA "vessel". |
-| [`ensure_pdfa`](#ensure-pdfa) | Put an existing PDF onto the PDF/A "vessel" (the PDF/A counterpart of ensure_tagged). |
+| [`tag_form_fields`](#tag-form-fields) | タグ付き PDF のフォームを PDF/UA-1 準拠へ修復する。 |
+| [`ensure_tagged`](#ensure-tagged) | 既存 PDF に、PDF/UA の宣言と文書レベルの要件を足す。 |
+| [`ensure_pdfa`](#ensure-pdfa) | 既存 PDF に、PDF/A の宣言と文書レベルの要件を足す（ensure_tagged の PDF/A 版）。 |
 | [`attach_file`](#attach-file) | PDF にファイルを埋め込む(添付する)。 |
 | [`rotate_pages`](#rotate-pages) | ページを時計回りに回転する(90/180/270 度)。 |
 
@@ -50,17 +50,17 @@ description: "pdf-writer-mcp v0.28.1 の全 20 ツールの引数・型・既定
 | `text` | string | **必須** |  | 本文テキスト。\n で改行、空行で段落区切り。 |
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
-| `fontPath` | string (minLength 1) | 任意 |  | Absolute path of the font file to embed (.ttf / .otf). Required for characters outside WinAnsiEncoding (Japanese, for example). .ttc (TrueType Collection) is not supported. Can also be set via the PDF_WRITER_FONT environment variable. |
+| `fontPath` | string (minLength 1) | 任意 |  | 埋め込むフォントファイル(.ttf / .otf)の絶対パス。WinAnsiEncoding に無い文字（日本語など）を含む場合は必須。.ttc(TrueTypeCollection)は非対応。環境変数 PDF_WRITER_FONT でも指定可。 |
 | `fontSize` | number (4–96) | 任意 |  | 本文フォントサイズ(pt)。既定 11。範囲 4〜96。 |
 | `pageSize` | `"A4"` \| `"A3"` \| `"A5"` \| `"LETTER"` \| `"LEGAL"` | 任意 |  | ページサイズ。既定 A4。 |
 | `margin` | number (0–300) | 任意 |  | 上下左右マージン(pt)。既定 56(≒20mm)。範囲 0〜300。 |
 | `title` | string | 任意 |  | PDF のタイトル。常にメタデータに書き、drawTitle が false でなければ本文の冒頭にも見出しとして描く。 |
-| `drawTitle` | boolean | 任意 |  | Whether to draw title as a heading at the top of the body. Default true. Pass false when the body already starts with its own heading (e.g. a Markdown "# ..." line): the title then goes into the metadata only (Info /Title, and XMP dc:title when tagged), so tagged output keeps the dc:title PDF/UA requires (ISO 14289-1 7.1 / ISO 14289-2 8.11.1) without a duplicated heading. |
+| `drawTitle` | boolean | 任意 |  | title を本文の冒頭に見出しとして描くか。既定 true。本文が自前の見出し（Markdown の「# ...」の行など）で始まるときは false を渡す。タイトルはメタデータ（Info /Title、tagged のときは XMP の dc:title）にだけ入るので、タグ付きの出力は PDF/UA が求める dc:title（ISO 14289-1 7.1 / ISO 14289-2 8.11.1）を保ったまま、見出しが重複しない。 |
 | `author` | string | 任意 |  | PDF 作成者(メタデータ)。 |
-| `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | 任意 |  | What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning (? when the font lacks 〓, so always ? with the standard font) / ignore = render as blanks with a warning. |
-| `tagged` | boolean | 任意 |  | Generate as a tagged PDF (PDF/UA, ISO 14289). Default false. When true, a structure tree, the PDF/UA declaration, /Lang and DisplayDocTitle are added, making the document readable by screen readers. PDF/UA requires a title, so title becomes required. Which part is declared follows pdfVersion: PDF/UA-1 (ISO 14289-1) on the default 1.7, PDF/UA-2 (ISO 14289-2, pdfuaid:part 2 and rev 2024) with pdfVersion "2.0". Under PDF/UA-2 the drawn title is a Title element (not H1), Markdown headings keep their own level, and structure elements are placed in the PDF 2.0 namespace (BlockQuote and Code, which it lacks, stay in the PDF 1.7 one). |
+| `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | 任意 |  | フォントに存在しない文字(例: Noto Sans JP に無い ✔ U+2714)の扱い。error(既定)=欠落文字を列挙してエラー / replace=〓 に置換して警告（フォントに 〓 が無ければ ?。標準フォントでは常に ?） / ignore=空白のまま描画して警告。 |
+| `tagged` | boolean | 任意 |  | タグ付き PDF(PDF/UA・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。宣言する部は pdfVersion で決まる: 既定の 1.7 では PDF/UA-1（ISO 14289-1）、pdfVersion "2.0" では PDF/UA-2（ISO 14289-2。pdfuaid:part 2 と rev 2024）。PDF/UA-2 では、描いた題名は H1 ではなく Title 要素になり、Markdown の見出しは書かれたレベルのまま残り、構造要素は PDF 2.0 の名前空間に置かれる（PDF 2.0 の名前空間に無い BlockQuote と Code は PDF 1.7 の名前空間に残る）。 |
 | `lang` | string | 任意 |  | 文書の自然言語(BCP 47。例 "ja" / "en-US")。tagged 時に省略すると本文から推定し、推定結果を warnings で報告する。誤った言語宣言はスクリーンリーダの誤読を招くため、確実な場合は明示すること。 |
-| `pdfVersion` | `"1.7"` \| `"2.0"` | 任意 |  | PDF version to output. Default "1.7". "2.0" (ISO 32000-2) satisfies not just the version claim but the duties bound to it: a trailer /ID is added (Required per Table 15), and the Info dictionary is trimmed to CreationDate / ModDate with title, author and Producer moved to XMP (§14.3.3). With tagged: true, "2.0" declares PDF/UA-2 instead of PDF/UA-1 (PDF/UA-1 allows only PDF 1.0 to 1.7, ISO 14289-1 §6.1). |
+| `pdfVersion` | `"1.7"` \| `"2.0"` | 任意 |  | 出力する PDF の版。既定 "1.7"。"2.0"(ISO 32000-2)にすると版の宣言だけでなく、版に紐づく義務も満たす: trailer /ID を付与し(Table 15 で Required)、Info 辞書を CreationDate / ModDate に絞って題名・作成者・Producer は XMP へ移す(§14.3.3)。tagged: true と組み合わせると、PDF/UA-1 ではなく PDF/UA-2 を宣言する（PDF/UA-1 が認めるのは PDF 1.0〜1.7 だけである。ISO 14289-1 §6.1）。 |
 
 ::: warning `outputPath` は必ず渡す
 省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
@@ -114,7 +114,7 @@ description: "pdf-writer-mcp v0.28.1 の全 20 ツールの引数・型・既定
 
 **Create PDF from Markdown**
 
-Create a PDF from Markdown. Supports headings, paragraphs, bullet/numbered lists, code blocks, quotes, horizontal rules and tables. Inline decoration markers are stripped and the text rendered plain (single font). Nested lists keep their nesting, and wrapped list text lines up after the bullet or number. With tagged: true each item is LI > Lbl (bullet/number) + LBody and each L states ListNumbering (Decimal or Disc) (v0.25.0). A nested list sits inside its parent LBody under PDF/UA-1, and directly in the parent L right after the item under PDF/UA-2 (pdfVersion "2.0"; ISO 32000-2 §14.8.4.8.2) (v0.27.0).
+Markdown から PDF を生成する。見出し・段落・箇条書き/番号リスト・コードブロック・引用・水平線・表に対応。インライン装飾の記号は除去し字面のみ反映する(単一フォントのため)。入れ子のリストは入れ子のまま描き、折り返したリストの文は行頭記号や番号の後ろにそろえる。tagged: true では各項目を LI > Lbl（記号/番号）+ LBody にし、各 L に ListNumbering（Decimal か Disc）を書く（v0.25.0）。入れ子のリストは、PDF/UA-1 では親の LBody の中に、PDF/UA-2（pdfVersion "2.0"）では親の L の直接の子として項目の直後に置く（ISO 32000-2 §14.8.4.8.2）（v0.27.0）。
 
 ### 引数
 
@@ -123,17 +123,17 @@ Create a PDF from Markdown. Supports headings, paragraphs, bullet/numbered lists
 | `markdown` | string | **必須** |  | Markdown 文字列。 |
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
-| `fontPath` | string (minLength 1) | 任意 |  | Absolute path of the font file to embed (.ttf / .otf). Required for characters outside WinAnsiEncoding (Japanese, for example). .ttc (TrueType Collection) is not supported. Can also be set via the PDF_WRITER_FONT environment variable. |
+| `fontPath` | string (minLength 1) | 任意 |  | 埋め込むフォントファイル(.ttf / .otf)の絶対パス。WinAnsiEncoding に無い文字（日本語など）を含む場合は必須。.ttc(TrueTypeCollection)は非対応。環境変数 PDF_WRITER_FONT でも指定可。 |
 | `fontSize` | number (4–96) | 任意 |  | 本文フォントサイズ(pt)。既定 11。範囲 4〜96。 |
 | `pageSize` | `"A4"` \| `"A3"` \| `"A5"` \| `"LETTER"` \| `"LEGAL"` | 任意 |  | ページサイズ。既定 A4。 |
 | `margin` | number (0–300) | 任意 |  | 上下左右マージン(pt)。既定 56(≒20mm)。範囲 0〜300。 |
 | `title` | string | 任意 |  | PDF のタイトル。常にメタデータに書き、drawTitle が false でなければ本文の冒頭にも見出しとして描く。 |
-| `drawTitle` | boolean | 任意 |  | Whether to draw title as a heading at the top of the body. Default true. Pass false when the body already starts with its own heading (e.g. a Markdown "# ..." line): the title then goes into the metadata only (Info /Title, and XMP dc:title when tagged), so tagged output keeps the dc:title PDF/UA requires (ISO 14289-1 7.1 / ISO 14289-2 8.11.1) without a duplicated heading. |
+| `drawTitle` | boolean | 任意 |  | title を本文の冒頭に見出しとして描くか。既定 true。本文が自前の見出し（Markdown の「# ...」の行など）で始まるときは false を渡す。タイトルはメタデータ（Info /Title、tagged のときは XMP の dc:title）にだけ入るので、タグ付きの出力は PDF/UA が求める dc:title（ISO 14289-1 7.1 / ISO 14289-2 8.11.1）を保ったまま、見出しが重複しない。 |
 | `author` | string | 任意 |  | PDF 作成者(メタデータ)。 |
-| `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | 任意 |  | What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning (? when the font lacks 〓, so always ? with the standard font) / ignore = render as blanks with a warning. |
-| `tagged` | boolean | 任意 |  | Generate as a tagged PDF (PDF/UA, ISO 14289). Default false. When true, a structure tree, the PDF/UA declaration, /Lang and DisplayDocTitle are added, making the document readable by screen readers. PDF/UA requires a title, so title becomes required. Which part is declared follows pdfVersion: PDF/UA-1 (ISO 14289-1) on the default 1.7, PDF/UA-2 (ISO 14289-2, pdfuaid:part 2 and rev 2024) with pdfVersion "2.0". Under PDF/UA-2 the drawn title is a Title element (not H1), Markdown headings keep their own level, and structure elements are placed in the PDF 2.0 namespace (BlockQuote and Code, which it lacks, stay in the PDF 1.7 one). |
+| `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | 任意 |  | フォントに存在しない文字(例: Noto Sans JP に無い ✔ U+2714)の扱い。error(既定)=欠落文字を列挙してエラー / replace=〓 に置換して警告（フォントに 〓 が無ければ ?。標準フォントでは常に ?） / ignore=空白のまま描画して警告。 |
+| `tagged` | boolean | 任意 |  | タグ付き PDF(PDF/UA・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。宣言する部は pdfVersion で決まる: 既定の 1.7 では PDF/UA-1（ISO 14289-1）、pdfVersion "2.0" では PDF/UA-2（ISO 14289-2。pdfuaid:part 2 と rev 2024）。PDF/UA-2 では、描いた題名は H1 ではなく Title 要素になり、Markdown の見出しは書かれたレベルのまま残り、構造要素は PDF 2.0 の名前空間に置かれる（PDF 2.0 の名前空間に無い BlockQuote と Code は PDF 1.7 の名前空間に残る）。 |
 | `lang` | string | 任意 |  | 文書の自然言語(BCP 47。例 "ja" / "en-US")。tagged 時に省略すると本文から推定し、推定結果を warnings で報告する。誤った言語宣言はスクリーンリーダの誤読を招くため、確実な場合は明示すること。 |
-| `pdfVersion` | `"1.7"` \| `"2.0"` | 任意 |  | PDF version to output. Default "1.7". "2.0" (ISO 32000-2) satisfies not just the version claim but the duties bound to it: a trailer /ID is added (Required per Table 15), and the Info dictionary is trimmed to CreationDate / ModDate with title, author and Producer moved to XMP (§14.3.3). With tagged: true, "2.0" declares PDF/UA-2 instead of PDF/UA-1 (PDF/UA-1 allows only PDF 1.0 to 1.7, ISO 14289-1 §6.1). |
+| `pdfVersion` | `"1.7"` \| `"2.0"` | 任意 |  | 出力する PDF の版。既定 "1.7"。"2.0"(ISO 32000-2)にすると版の宣言だけでなく、版に紐づく義務も満たす: trailer /ID を付与し(Table 15 で Required)、Info 辞書を CreationDate / ModDate に絞って題名・作成者・Producer は XMP へ移す(§14.3.3)。tagged: true と組み合わせると、PDF/UA-1 ではなく PDF/UA-2 を宣言する（PDF/UA-1 が認めるのは PDF 1.0〜1.7 だけである。ISO 14289-1 §6.1）。 |
 
 ::: warning `outputPath` は必ず渡す
 省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
@@ -163,17 +163,17 @@ Create a PDF from Markdown. Supports headings, paragraphs, bullet/numbered lists
 | `rows` | string[][] | **必須** |  | データ行の配列。各行は文字列の配列で、headers と同じ列数を推奨。 |
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
-| `fontPath` | string (minLength 1) | 任意 |  | Absolute path of the font file to embed (.ttf / .otf). Required for characters outside WinAnsiEncoding (Japanese, for example). .ttc (TrueType Collection) is not supported. Can also be set via the PDF_WRITER_FONT environment variable. |
+| `fontPath` | string (minLength 1) | 任意 |  | 埋め込むフォントファイル(.ttf / .otf)の絶対パス。WinAnsiEncoding に無い文字（日本語など）を含む場合は必須。.ttc(TrueTypeCollection)は非対応。環境変数 PDF_WRITER_FONT でも指定可。 |
 | `fontSize` | number (4–96) | 任意 |  | 本文フォントサイズ(pt)。既定 11。範囲 4〜96。 |
 | `pageSize` | `"A4"` \| `"A3"` \| `"A5"` \| `"LETTER"` \| `"LEGAL"` | 任意 |  | ページサイズ。既定 A4。 |
 | `margin` | number (0–300) | 任意 |  | 上下左右マージン(pt)。既定 56(≒20mm)。範囲 0〜300。 |
 | `title` | string | 任意 |  | PDF のタイトル。常にメタデータに書き、drawTitle が false でなければ本文の冒頭にも見出しとして描く。 |
-| `drawTitle` | boolean | 任意 |  | Whether to draw title as a heading at the top of the body. Default true. Pass false when the body already starts with its own heading (e.g. a Markdown "# ..." line): the title then goes into the metadata only (Info /Title, and XMP dc:title when tagged), so tagged output keeps the dc:title PDF/UA requires (ISO 14289-1 7.1 / ISO 14289-2 8.11.1) without a duplicated heading. |
+| `drawTitle` | boolean | 任意 |  | title を本文の冒頭に見出しとして描くか。既定 true。本文が自前の見出し（Markdown の「# ...」の行など）で始まるときは false を渡す。タイトルはメタデータ（Info /Title、tagged のときは XMP の dc:title）にだけ入るので、タグ付きの出力は PDF/UA が求める dc:title（ISO 14289-1 7.1 / ISO 14289-2 8.11.1）を保ったまま、見出しが重複しない。 |
 | `author` | string | 任意 |  | PDF 作成者(メタデータ)。 |
-| `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | 任意 |  | What to do with characters the font lacks (e.g. ✔ U+2714, missing from Noto Sans JP). error (default) = fail, listing the missing characters / replace = substitute 〓 with a warning (? when the font lacks 〓, so always ? with the standard font) / ignore = render as blanks with a warning. |
-| `tagged` | boolean | 任意 |  | Generate as a tagged PDF (PDF/UA, ISO 14289). Default false. When true, a structure tree, the PDF/UA declaration, /Lang and DisplayDocTitle are added, making the document readable by screen readers. PDF/UA requires a title, so title becomes required. Which part is declared follows pdfVersion: PDF/UA-1 (ISO 14289-1) on the default 1.7, PDF/UA-2 (ISO 14289-2, pdfuaid:part 2 and rev 2024) with pdfVersion "2.0". Under PDF/UA-2 the drawn title is a Title element (not H1), Markdown headings keep their own level, and structure elements are placed in the PDF 2.0 namespace (BlockQuote and Code, which it lacks, stay in the PDF 1.7 one). |
+| `onMissingGlyph` | `"error"` \| `"replace"` \| `"ignore"` | 任意 |  | フォントに存在しない文字(例: Noto Sans JP に無い ✔ U+2714)の扱い。error(既定)=欠落文字を列挙してエラー / replace=〓 に置換して警告（フォントに 〓 が無ければ ?。標準フォントでは常に ?） / ignore=空白のまま描画して警告。 |
+| `tagged` | boolean | 任意 |  | タグ付き PDF(PDF/UA・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。宣言する部は pdfVersion で決まる: 既定の 1.7 では PDF/UA-1（ISO 14289-1）、pdfVersion "2.0" では PDF/UA-2（ISO 14289-2。pdfuaid:part 2 と rev 2024）。PDF/UA-2 では、描いた題名は H1 ではなく Title 要素になり、Markdown の見出しは書かれたレベルのまま残り、構造要素は PDF 2.0 の名前空間に置かれる（PDF 2.0 の名前空間に無い BlockQuote と Code は PDF 1.7 の名前空間に残る）。 |
 | `lang` | string | 任意 |  | 文書の自然言語(BCP 47。例 "ja" / "en-US")。tagged 時に省略すると本文から推定し、推定結果を warnings で報告する。誤った言語宣言はスクリーンリーダの誤読を招くため、確実な場合は明示すること。 |
-| `pdfVersion` | `"1.7"` \| `"2.0"` | 任意 |  | PDF version to output. Default "1.7". "2.0" (ISO 32000-2) satisfies not just the version claim but the duties bound to it: a trailer /ID is added (Required per Table 15), and the Info dictionary is trimmed to CreationDate / ModDate with title, author and Producer moved to XMP (§14.3.3). With tagged: true, "2.0" declares PDF/UA-2 instead of PDF/UA-1 (PDF/UA-1 allows only PDF 1.0 to 1.7, ISO 14289-1 §6.1). |
+| `pdfVersion` | `"1.7"` \| `"2.0"` | 任意 |  | 出力する PDF の版。既定 "1.7"。"2.0"(ISO 32000-2)にすると版の宣言だけでなく、版に紐づく義務も満たす: trailer /ID を付与し(Table 15 で Required)、Info 辞書を CreationDate / ModDate に絞って題名・作成者・Producer は XMP へ移す(§14.3.3)。tagged: true と組み合わせると、PDF/UA-1 ではなく PDF/UA-2 を宣言する（PDF/UA-1 が認めるのは PDF 1.0〜1.7 だけである。ISO 14289-1 §6.1）。 |
 
 ::: warning `outputPath` は必ず渡す
 省略すると PDF 全体が base64 で返り、会話が破綻しやすいです。保存先は絶対パスで渡してください。
@@ -196,7 +196,7 @@ Create a PDF from Markdown. Supports headings, paragraphs, bullet/numbered lists
 ::: warning 非推奨
 :::
 
-Update an existing PDF's metadata (the Info dictionary). Only the given fields change; the rest are preserved. At least one of title / author / subject / keywords / creator / tdmReservation is required. In documents with XMP (/Metadata), dc:title etc. are synchronized to prevent divergence; XMP values you did not pass are carried over as written (other languages of dc:title, every dc:creator, unknown namespaces). On a PDF 2.0 input the values go to XMP and no new Info entries are added (ISO 32000-2 14.3.3 deprecates Info metadata); on a PDF/UA-2 input the existing Info entries are moved to XMP and removed. The output keeps the version of its input. tdmReservation (0 | 1) and tdmPolicy (URL) write the W3C TDM Reservation Protocol statement to XMP (tdm:reservation / tdm:policy, namespace http://www.w3.org/ns/tdmrep/); a document without XMP gets one. When the document declares PDF/A, the tdmrep schema is also described in pdfaExtension:schemas, so veraPDF does not fail ISO 19005-2 6.6.2.3 on it. For signed PDFs, preserveSignatures: true updates while keeping the signatures intact.
+既存 PDF のメタデータ(Info 辞書)を更新する。指定したフィールドのみ変更し、他は保持する。title / author / subject / keywords / creator / tdmReservation のうち最低 1 つが必要。XMP(/Metadata)を持つ文書では dc:title 等も同期して不整合を防ぐ。渡していない XMP の値は書かれていたとおりに残す（dc:title の他の言語、すべての dc:creator、未知の名前空間）。PDF 2.0 の入力では値を XMP に書き、Info には項目を足さない（ISO 32000-2 14.3.3 は Info のメタデータを非推奨にしている）。PDF/UA-2 の入力では、既存の Info の項目を XMP に移してから消す。出力は入力の版のまま。tdmReservation（0 | 1）と tdmPolicy（URL）は W3C TDM Reservation Protocol の意思表示を XMP に書く（tdm:reservation / tdm:policy、名前空間 http://www.w3.org/ns/tdmrep/）。XMP を持たない文書には新しく作る。文書が PDF/A を宣言している場合は tdmrep スキーマを pdfaExtension:schemas にも記述するため、veraPDF が ISO 19005-2 6.6.2.3 で落とすことはない。署名済み PDF には preserveSignatures: true で署名を保持したまま更新できる。
 
 ### 引数
 
@@ -231,14 +231,16 @@ Info 辞書だけを変えて XMP と食い違わないようにします。`tit
 
 **Merge PDFs**
 
-Merge multiple PDFs into one, in the given order. Document metadata is carried over from the first file. The output keeps the version of the inputs; when they mix PDF 2.0 and PDF 1.x the call is refused unless pdfVersion is given — "2.0" is an explicit conversion, and versions are never lowered. Pages are copied into a new document, so document-level information (tagged structure, XMP, attachments, AcroForm, bookmarks, etc.) is not carried over. Anything lost is reported in warnings; follow up on the output with attach_file / ensure_tagged / add_bookmarks / set_metadata as needed.
+複数の PDF を指定順に 1 つへ結合する。文書メタデータは先頭ファイルから引き継ぐ。出力は入力の版のまま。PDF 2.0 と PDF 1.x が混ざっているときは、pdfVersion が無ければ断る — "2.0" は明示的な変換であり、版を下げることはしない。
+
+ページを新しい文書へ複製するため、文書レベルの情報（タグ付き構造・XMP・添付・AcroForm・しおり等）は引き継がれない。失われたものは warnings で報告されるので、必要なら出力に attach_file / ensure_tagged / add_bookmarks / set_metadata を後がけする。
 
 ### 引数
 
 | 引数 | 型 | 必須 | 既定値 | 説明 |
 |---|---|---|---|---|
 | `inputPaths` | string (minLength 1)[] | **必須** |  | 結合する PDF の絶対パスの配列(結合順・2 件以上)。 |
-| `pdfVersion` | `"1.7"` \| `"2.0"` | 任意 |  | Version of the merged file. Omit it to keep the version of the inputs (the first input decides among PDF 1.x versions). Required when the inputs mix PDF 2.0 and PDF 1.x: "2.0" converts the merged file to PDF 2.0 (trailer /ID, Info metadata moved to XMP). "1.7" is refused when any input is PDF 2.0 — versions are never lowered. |
+| `pdfVersion` | `"1.7"` \| `"2.0"` | 任意 |  | 結合したファイルの版。省略すると入力の版のまま（PDF 1.x どうしでは先頭の入力の版）。PDF 2.0 と PDF 1.x が混ざっているときは必須: "2.0" で結合したファイルを PDF 2.0 に変換する（trailer /ID を付け、Info のメタデータを XMP へ移す）。入力に PDF 2.0 が 1 つでもあれば "1.7" は断る — 版を下げることはしない。 |
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
 | `allowBreakingSignatures` | boolean | 任意 |  | 編集対象が電子署名済み(/ByteRange 検知)の場合、既定ではエラーにする。true を指定すると署名が無効化されることを承知の上で編集を続行する。 |
@@ -440,7 +442,7 @@ PDF をページ範囲ごとに複数ファイルへ分割する。ranges の各
 
 **Add Bookmarks (Outline)**
 
-Set the bookmarks (outline) of a PDF. Existing bookmarks are replaced. Nest with children. For signed PDFs, preserveSignatures: true sets them while keeping the signatures intact. When the input declares PDF/UA-2, each bookmark goes to a structure destination as ISO 14289-2 §8.8 requires: a GoTo action whose SD names the structure element that starts on the target page, with D kept as the page destination for viewers that do not read SD. A page with no structure content gets a page destination and is named in warnings (v0.27.0).
+PDF にしおり(アウトライン)を設定する。既存のしおりは置換される。children で入れ子にできる。署名済み PDF には preserveSignatures: true で署名を保持したまま設定できる。入力が PDF/UA-2 を宣言しているときは、ISO 14289-2 §8.8 が求めるとおり、各しおりの行き先を構造の行き先にする: GoTo アクションの SD に対象ページで始まる構造要素を書き、SD を読まないビューアのために D にはページの行き先を残す。構造の内容を持たないページはページの行き先にし、warnings で名指しする（v0.27.0）。
 
 ### 引数
 
@@ -487,7 +489,7 @@ Set the bookmarks (outline) of a PDF. Existing bookmarks are replaced. Nest with
 | `rect.y2` | number | **必須** |  |  |
 | `contents` | string | 任意 |  | 注釈の本文(日本語可)。 |
 | `author` | string | 任意 |  | 作成者名。 |
-| `alt` | string | 任意 |  | Alt text for assistive technology. In tagged PDFs the annotation is enclosed in an Annot structure element (PDF/UA 7.18.1-1) and this becomes that element's /Alt. Ignored in untagged documents. On a PDF/UA-2 document the annotation's Contents must equal the Alt (ISO 14289-2 §8.9.4.2): alt alone is also written as Contents, and a different contents is refused. |
+| `alt` | string | 任意 |  | 支援技術向けの代替テキスト。タグ付き PDF では注釈が Annot 構造要素に内包される(PDF/UA 7.18.1-1)ため、その要素の /Alt になる。タグ無し文書では無視される。PDF/UA-2 の文書では、注釈の Contents は Alt と一致しなければならない（ISO 14289-2 §8.9.4.2）: alt だけを渡せば Contents にも書き、異なる contents は断る。 |
 | `color` | string | 任意 |  | #rrggbb 形式。既定は type ごと(text=#ffd400 / highlight=#ffff00 / square=#ff0000)。 |
 | `interiorColor` | string | 任意 |  | square の塗り色(#rrggbb)。 |
 | `icon` | `"Note"` \| `"Comment"` \| `"Key"` \| `"Help"` \| `"NewParagraph"` \| `"Paragraph"` \| `"Insert"` | 任意 |  | text のアイコン。既定 Note。 |
@@ -556,7 +558,7 @@ Set the bookmarks (outline) of a PDF. Existing bookmarks are replaced. Nest with
 | `margin` | number (0–300) | 任意 |  | 端からの余白(pt)。既定 24。範囲 0〜300。 |
 | `fontSize` | number (4–96) | 任意 |  | フォントサイズ(pt)。既定 9。範囲 4〜96。 |
 | `color` | string (minLength 1) | 任意 |  | #rrggbb。既定 #666666。 |
-| `fontPath` | string (minLength 1) | 任意 |  | Font to embed (.ttf/.otf). Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Required for formats containing characters outside WinAnsiEncoding (CJK, for example). |
+| `fontPath` | string (minLength 1) | 任意 |  | 埋め込むフォント(.ttf/.otf)。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。WinAnsiEncoding に無い文字（日本語など）を含む書式には必須。 |
 | `pages` | string (minLength 1) | 任意 |  | 番号を刻むページ指定。"1,3-5,8-" 形式(1 始まり)。省略時は全ページ。表紙を除くなら "2-" のように指定する。 |
 | `startAt` | integer (-9007199254740991–9007199254740991) | 任意 |  | 最初に刻む番号。既定 1。表紙を除いて 1 から始めたい場合などに使う。 |
 | `preserveSignatures` | boolean | 任意 |  | 署名済み PDF に対し、既存署名を無効化せず増分更新（末尾追記）で編集する。既定 false。元のバイト列には一切触れないため /ByteRange が保たれる。認証署名（DocMDP）の許可レベルに反する変更は拒否される。 |
@@ -593,7 +595,7 @@ Set the bookmarks (outline) of a PDF. Existing bookmarks are replaced. Nest with
 | `opacity` | number (0–1) | 任意 |  | 不透明度 0(透明)〜1(不透明)。既定 0.15。本文を読める程度に薄くする。 |
 | `angle` | number | 任意 |  | 反時計回りの角度(度)。既定 45。0 で水平。 |
 | `behind` | boolean | 任意 |  | 本文の背面に敷くか。既定 true。false にすると本文の上に重なる(改ざん防止の主張を強めたい場合)。 |
-| `fontPath` | string (minLength 1) | 任意 |  | Font to embed (.ttf/.otf). Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Required for watermarks containing characters outside WinAnsiEncoding (CJK, for example). |
+| `fontPath` | string (minLength 1) | 任意 |  | 埋め込むフォント(.ttf/.otf)。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。WinAnsiEncoding に無い文字（日本語など）を含む透かしには必須。 |
 | `pages` | string (minLength 1) | 任意 |  | 対象ページ指定。"1,3-5,8-" 形式(1 始まり)。省略時は全ページ。 |
 | `preserveSignatures` | boolean | 任意 |  | 署名済み PDF に対し、既存署名を無効化せず増分更新（末尾追記）で編集する。既定 false。元のバイト列には一切触れないため /ByteRange が保たれる。認証署名（DocMDP）の許可レベルに反する変更は拒否される。 |
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
@@ -658,7 +660,7 @@ Set the bookmarks (outline) of a PDF. Existing bookmarks are replaced. Nest with
 |---|---|---|---|---|
 | `inputPath` | string (minLength 1) | **必須** |  | 対象 PDF の絶対パス。 |
 | `fields` | object | **必須** |  | フィールド名 → 値のオブジェクト。値の型はフィールド種別に対応する: text=文字列か数値 / checkbox=真偽値 / dropdown・optionlist=文字列か文字列配列 / radio=文字列。例: {"user.name": "山田 太郎", "agree": true, "plan": "A"} |
-| `fontPath` | string (minLength 1) | 任意 |  | Font used to render values (.ttf/.otf). Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Required for values containing characters outside WinAnsiEncoding (CJK, for example). |
+| `fontPath` | string (minLength 1) | 任意 |  | 値の描画に使うフォント(.ttf/.otf)。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。WinAnsiEncoding に無い文字（日本語など）を含む値には必須。 |
 | `flatten` | boolean | 任意 |  | 記入後にフラット化して非対話にするか。既定 false。true にすると値は編集できなくなる。 |
 | `allowBreakingTags` | boolean | 任意 |  | タグ付き PDF でもフラット化を許すか。既定 false。true にすると PDF/UA-1 準拠が壊れる。 |
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
@@ -717,7 +719,7 @@ AcroForm だけです。`flatten: true` をタグ付き PDF に使うと PDF/UA 
 | 引数 | 型 | 必須 | 既定値 | 説明 |
 |---|---|---|---|---|
 | `inputPath` | string (minLength 1) | **必須** |  | 対象 PDF の絶対パス。 |
-| `fontPath` | string (minLength 1) | 任意 |  | Font for appearance regeneration. Falls back to the PDF_WRITER_FONT environment variable, then the standard font. Not needed when existing appearances can be reused, but required when appearances must be regenerated for values containing characters outside WinAnsiEncoding (CJK, for example). |
+| `fontPath` | string (minLength 1) | 任意 |  | 外観生成に使うフォント。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。既存の外観をそのまま使える場合は不要だが、WinAnsiEncoding に無い文字（日本語など）を含む値の外観を作り直すときは要る。 |
 | `allowBreakingTags` | boolean | 任意 |  | タグ付き PDF でもフラット化を許すか。既定 false。 |
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
@@ -739,7 +741,15 @@ Widget 注釈が消えて Form 構造要素が宙に浮くためです。`allowB
 
 **Tag Form Fields (PDF/UA repair)**
 
-Repair a tagged PDF's form to PDF/UA-1: enclose Widget annotations in Form structure elements (7.18.4-1), set /Tabs S on the affected pages (7.18.3-1), and give fields alternate names /TU (7.18.1-3). Pass human-readable names for screen readers via labels. On a PDF/UA-2 document each newly bound widget without /Contents also gets one (ISO 14289-2 §8.10.2.3; no Lbl is created): the label, else the existing /TU, else the field name. Widgets already bound to the structure tree are skipped, so it is safe to run repeatedly. Untagged documents are out of scope (rebuild with the create tools' tagged: true, or run ensure_tagged first). For signed PDFs, preserveSignatures: true repairs while keeping the signatures intact (approval signatures only; certification signatures are refused).
+タグ付き PDF のフォームを PDF/UA-1 準拠へ修復する。行うのは次の 3 つ:
+
+- Widget 注釈を Form 構造要素に内包する（7.18.4-1）
+- 対象ページに /Tabs S を立てる（7.18.3-1）
+- フィールドに代替名 /TU を付与する（7.18.1-3）
+
+labels でスクリーンリーダー向けの人間可読な名前を渡すこと。PDF/UA-2 の文書では、新しく内包した Widget に /Contents が無ければ、それも書く（ISO 14289-2 §8.10.2.3。Lbl は作らない）。値は label、無ければ既存の /TU、それも無ければフィールド名。既に構造木に結ばれた Widget はスキップするため、何度実行しても安全である。タグ無し文書は対象外（create 系の tagged: true で作り直すか、先に ensure_tagged を実行する）。
+
+署名済み PDF には preserveSignatures: true で署名を保持したまま修復できる（承認署名のみ。認証署名は拒否）。
 
 ### 引数
 
@@ -768,15 +778,26 @@ Repair a tagged PDF's form to PDF/UA-1: enclose Widget annotations in Form struc
 
 **Ensure Tagged (PDF/UA scaffold & repair)**
 
-Put an existing PDF onto the PDF/UA "vessel". If it is already tagged, the structure tree is untouched and only missing document-level requirements are supplied (MarkInfo / Lang / DisplayDocTitle / XMP pdfuaid and dc:title). For untagged documents, a minimal structure tree (each page = one P element) is created so the content becomes reachable by assistive technology. **IMPORTANT**: machines cannot infer meaning — headings, tables, lists, reading order and figure alt text are NOT created. The new tree is a scaffold, not an accessible document; it needs human review. If you can build the structure right from the start, use the create tools' tagged: true. For signed PDFs, preserveSignatures: true (approval signatures only; certification signatures are refused). The result separates addedRequirements (absent from the input) from replacedRequirements (present with a different value, rewritten); a requirement already present with the same value is neither rewritten nor listed. requirementsChanged is false when nothing was added, replaced or created — the output file is still written (v0.24.0). The declared part follows the input version (header or catalog /Version), which is never changed: PDF/UA-1 (pdfuaid:part 1) for PDF 1.0 to 1.7 (ISO 14289-1 §6.1), PDF/UA-2 (pdfuaid:part 2, rev 2024) for PDF 2.0 (ISO 14289-2 §6.1). For PDF 2.0, a new tree puts Document and P in the PDF 2.0 namespace; an existing tree whose root is not a single Document in that namespace (ISO 14289-2 §8.2.5.2) is left as it is and named in warnings (v0.27.0).
+既存 PDF に、PDF/UA の宣言と文書レベルの要件を足す。
+
+- 既にタグ付きの文書: 構造木には触らず、欠落した文書レベル要件（MarkInfo・Lang・DisplayDocTitle・XMP の pdfuaid / dc:title）だけを補う
+- タグ無しの文書: 最小限の構造木（各ページ = 1 つの P 要素）を新設し、本文を支援技術から到達可能にする
+
+**重要**: 機械は意味を推定できないため、見出し・表・リスト・読み順・図の代替テキストは作られない。新設されるのは「足場」であって「アクセシブルな文書」ではなく、人手のレビューが要る。構造を最初から正しく作れるなら create 系の tagged: true を使うこと。
+
+署名済み PDF には preserveSignatures: true（承認署名のみ。認証署名は拒否）。
+
+結果は addedRequirements（入力に無かったもの）と replacedRequirements（別の値で入っていたものを書き換えたもの）を分けて返す。同じ値で既に入っていた要件は、書き換えも列挙もしない。何も足さず、書き換えず、新設もしなかったときは requirementsChanged が false になる — それでも出力のファイルは書き出す（v0.24.0）。
+
+宣言する部は入力の版（ヘッダか catalog の /Version）で決まり、版は変えない: PDF 1.0〜1.7 なら PDF/UA-1（pdfuaid:part 1。ISO 14289-1 §6.1）、PDF 2.0 なら PDF/UA-2（pdfuaid:part 2、rev 2024。ISO 14289-2 §6.1）。PDF 2.0 では、新設する構造木の Document と P を PDF 2.0 の名前空間に置く。既存の構造木の根が、その名前空間の Document 1 つでない場合（ISO 14289-2 §8.2.5.2）は、そのまま残して warnings で名指しする（v0.27.0）。
 
 ### 引数
 
 | 引数 | 型 | 必須 | 既定値 | 説明 |
 |---|---|---|---|---|
 | `inputPath` | string (minLength 1) | **必須** |  | 対象 PDF の絶対パス。 |
-| `title` | string (minLength 1) | 任意 |  | Document title (required by PDF/UA-1 7.1 / PDF/UA-2 8.11.1). Falls back to the existing Info Title, then the XMP dc:title. |
-| `lang` | string | 任意 |  | Natural language of the document (BCP 47, e.g. "ja"). Required by PDF/UA-1 7.2 / PDF/UA-2 8.4.4. |
+| `title` | string (minLength 1) | 任意 |  | 文書タイトル(PDF/UA-1 7.1 / PDF/UA-2 8.11.1 で必須)。省略時は既存 Info の Title、無ければ XMP の dc:title を使う。 |
+| `lang` | string | 任意 |  | 文書の自然言語(BCP 47。例 "ja")。PDF/UA-1 7.2 / PDF/UA-2 8.4.4 で必須。 |
 | `preserveSignatures` | boolean | 任意 |  | 署名済み PDF に対し、既存署名を無効化せず増分更新（末尾追記）で編集する。既定 false。元のバイト列には一切触れないため /ByteRange が保たれる。認証署名（DocMDP）の許可レベルに反する変更は拒否される。 |
 | `outputPath` | string (minLength 1) | 任意 |  | 保存先ファイルパス（絶対パス）。省略した場合は base64 文字列を返す。 |
 | `returnBase64` | boolean | 任意 |  | true の場合、保存に加えて base64 文字列も結果に含める。 |
@@ -839,7 +860,34 @@ XMP に pdfuaid を書きます。適合していない文書に適用すると�
 
 **Ensure PDF/A (archival conformance scaffold)**
 
-Put an existing PDF onto the PDF/A "vessel" (the PDF/A counterpart of ensure_tagged). Choose the flavour: "pdfa-3b" (default) / "pdfa-4" / "pdfa-4f". Supplies only the missing document-level requirements: the trailer /ID (ISO 32000-1 14.4), an sRGB OutputIntent (GTS_PDFA1; an ICC profile is generated and embedded), and XMP pdfaid. **The -4 flavours additionally set the header to PDF 2.0 and delete the Info dictionary** — this is the explicit conversion to PDF 2.0. "pdfa-3b" is refused on a PDF 2.0 input (PDF/A-3 needs a %PDF-1.n header and versions are never lowered). (-4 forbids Info unless the catalog has /PieceInfo — stricter than ISO 32000-2 14.3.3). **Content, structure tree and fonts are never touched.** **Documents with attachments must use "pdfa-4f"** — plain "pdfa-4" requires every attachment to be PDF/A itself, so bundling CSV or JSON (e.g. an invoice PDF that carries its data) would not conform. **IMPORTANT**: this is preparation for claiming PDF/A, not a guarantee of conformance. Violations such as unembedded fonts, encryption, JavaScript or LZW are not repaired. **Writing pdfaid into XMP is the document claiming "I am PDF/A"** — applied to a non-conforming document it produces **a PDF that lies about itself** (which is why a warning is always returned). Always confirm with pdf-verify-mcp's validate_conformance (flavour: the same value) — the verdict is veraPDF's, and since ISO 19005 clauses cannot be quoted, the strongest statement is "veraPDF judged it so". When the document carries machine-readable attachments, apply it **after** attach_file. For signed PDFs, preserveSignatures: true (approval signatures only; certification signatures are refused). However, **the -4 flavours combined with preserveSignatures are refused unless the input is already PDF 2.0** (an incremental update cannot rewrite the file header, and rewriting it would break the signatures). **The -4 flavours are refused (INVALID_ARGUMENT, next_actions: flavour "pdfa-3b") when the input declares PDF/UA-1**: PDF/A-4 needs a PDF 2.0 header and PDF/UA-1 allows only 1.0 to 1.7 (ISO 14289-1 §6.1). Conversely, **"pdfa-3b" is refused (next_actions: flavour "pdfa-4") when the input declares PDF/UA-2**, which requires PDF 2.0 (ISO 14289-2 §6.1) while PDF/A-3 requires a PDF 1.x header. PDF/A-4 and PDF/UA-2 can both hold (v0.27.0). The result reports previousDeclaration — the PDF/A the input already claimed, { part, conformance } or null (it replaced wasDeclared in v0.24.0).
+既存 PDF に、PDF/A の宣言と文書レベルの要件を足す（ensure_tagged の PDF/A 版）。
+
+| `flavour` | 名乗らせる内容 |
+| --- | --- |
+| `pdfa-3b` | 既定。PDF 1.7 基盤 |
+| `pdfa-4` | PDF 2.0。添付ファイル自身が PDF/A であること |
+| `pdfa-4f` | PDF 2.0。CSV / JSON などの非 PDF/A 添付向け |
+
+補うのは文書レベルの欠落要件だけである:
+
+- trailer の /ID（ISO 32000-1 14.4）
+- sRGB の OutputIntent（GTS_PDFA1。ICC プロファイルを生成して埋め込む）
+- XMP の pdfaid
+- **-4 系はさらに**ヘッダを PDF 2.0 にし、Info 辞書を削除する。これが PDF 2.0 への明示的な変換である（-4 は catalog に /PieceInfo が無い限り Info を許さない。ISO 32000-2 14.3.3 より厳しい）
+
+PDF 2.0 の入力への "pdfa-3b" は断る（PDF/A-3 は %PDF-1.n のヘッダを要し、版を下げることはしない）。本文・構造木・フォントには触らない。添付がある文書は "pdfa-4f" を使うこと。素の "pdfa-4" は添付ファイル自身が PDF/A であることを要求するため、CSV や JSON を同梱する（請求書 PDF にそのデータを添えるなど）と非適合になる。
+
+**重要**: これは XMP に PDF/A の宣言を書くための下準備であって、適合の保証ではない。フォント未埋め込み・暗号化・JavaScript・LZW などの違反は直らない。XMP に pdfaid を書くと、その文書は自分が PDF/A であると宣言することになる。適合していない文書に適用すると、**適合していないのに XMP には PDF/A と書いてある PDF ができる**（このため適用時は常に警告を返す）。適合したかどうかは pdf-verify-mcp の validate_conformance（flavour: 同じ値）で必ず測ること。判定を下すのは veraPDF で、ISO 19005 の条文は引用できないため、言えるのは「veraPDF がそう判定した」までである。
+
+運用上の注意:
+
+- 機械可読データを添付する文書では、attach_file の**後**に適用する
+- 署名済み PDF には preserveSignatures: true（承認署名のみ。認証署名は拒否）
+- ただし -4 系 × preserveSignatures は、入力が既に PDF 2.0 でない限り拒否する（増分更新では先頭のヘッダを書き換えられず、書き換えれば署名が無効になるため）
+- 入力が PDF/UA-1 を宣言しているときは、-4 系を拒否する（INVALID_ARGUMENT。next_actions は flavour "pdfa-3b"）。PDF/A-4 は PDF 2.0 のヘッダを要し、PDF/UA-1 が認めるのは 1.0〜1.7 だけだからである（ISO 14289-1 §6.1）
+- 逆に、入力が PDF/UA-2 を宣言しているときは "pdfa-3b" を拒否する（next_actions は flavour "pdfa-4"）。PDF/UA-2 は PDF 2.0 を要し（ISO 14289-2 §6.1）、PDF/A-3 は PDF 1.x のヘッダを要するからである。PDF/A-4 と PDF/UA-2 は両立する（v0.27.0）
+
+結果は previousDeclaration を返す — 入力の XMP にすでに書かれていた PDF/A の宣言で、{ part, conformance } か null（v0.24.0 で wasDeclared を置き換えた）。
 
 ### 引数
 

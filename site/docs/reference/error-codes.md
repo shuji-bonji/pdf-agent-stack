@@ -23,8 +23,8 @@ to retry from `retryable`, and follow `next_actions` — do not parse the Englis
 
 - `code`, `next_actions[].action` and the keys of `example` are what a Skill branches and retries
   on. Changing them is a breaking change.
-- `retryable` is fixed per `code` in reader, writer and verify, so the same code always carries the
-  same value there. In spec it depends on where the error is raised (see below).
+- `retryable` is fixed per `code` on all four servers, so the same code always carries the same
+  value (spec since 0.14.0; until 0.13.x spec chose the value where the error was raised).
 - A request rejected by the MCP SDK before the handler runs — a missing required argument, a key the
   tool does not declare — comes back as the SDK's own `Input validation error: …` text, not in this
   shape.
@@ -81,9 +81,15 @@ Used only where no common code fits.
 
 | `code` | When / what to do | `retryable` |
 |---|---|---|
-| `REGISTRY_ERROR` | The specification folder is not set or unreadable, or a `spec` id is unknown. Follow `next_actions` (set `PDF_SPEC_DIR`, or call `list_specs`) | depends on the cause: `false` for the folder, `true` for an unknown id |
-| `CONTENT_ERROR` | A section, table or page could not be found or read | depends on the cause (`true` when another argument can succeed) |
+| `REGISTRY_ERROR` | The specification folder is not set or cannot be read. Follow `next_actions` (set `PDF_SPEC_DIR`) | `false` |
+| `CONTENT_ERROR` | Kept as a code, but no call site raises it since 0.14.0 | `false` |
 | `PREREQUISITE_ERROR` | A tool needs a specification or dependency that is not available. `next_actions` names what to install | `false` |
+
+Since 0.14.0, what the arguments point at but does not exist is the common `INVALID_ARGUMENT`
+(`retryable: true`): an unknown `spec` id (`next_actions` offers `list_specs`), a missing section
+(`get_section`, `get_requirements`), a `table_index` out of range (`get_tables`), and
+`get_definitions` on a spec other than ISO 32000-2 / PDF 1.7. Until 0.13.x these were
+`REGISTRY_ERROR` or `CONTENT_ERROR`.
 
 ## Old names (removed)
 

@@ -140,6 +140,23 @@ graph LR
 
 信頼アンカー（`trust_anchors` または `PDF_VERIFY_TRUST_ANCHORS`）を渡さないと、`trust` は `not_evaluated` のままです。そのときの `valid` は、ダイジェストが一致したという意味であって、署名者が本人であることの証明ではありません。`evaluate_policy` の判定も `use_with_caution` までです。
 
+`signatureCount` が数えるのは、署名済みの署名辞書のうち `/Type /DocTimeStamp` 以外のものです。どのツールでも同じ意味です（0.35.0 から）。文書タイムスタンプは `documentTimestampCount`（`verify_integrity` と `evaluate_policy` の `facts`）で別に数えます。0.34.0 までは、署名 1 つと文書タイムスタンプ 1 つのファイルに対して、`verify_integrity` は `signatureCount: 2`、`evaluate_policy` は `1` を返していました。
+
+成功した応答の先頭には、受け取ったままのパスが `file_path` として入ります（0.35.0 から）。複数のファイルの結果を取り違えないためです。
+
+#### 鍵を導けない暗号化文書
+
+`password` を渡さずに、鍵を導けない暗号化文書を検証したとき、「署名が無い」とも「読めなかったルールに違反している」とも報告しません（0.35.0 から）。
+
+| ツール | 返すもの |
+| --- | --- |
+| `verify_signatures` | `[]` ではなく `signatures: null` と `note` |
+| `verify_integrity` | `signatureCount` と `documentTimestampCount` を `null` |
+| `evaluate_policy` | `facts.signatures`・`facts.signatureCount`・`facts.documentTimestampCount` を `null` にし、`facts.note` を付けます。`firedRules` には `POL-CAUTION-UNSIGNED` と `POL-REVIEW-UNSIGNED-REQUIRED` が入らず、代わりに `POL-REVIEW-SIGNATURES-NOT-READ` が入って、判定は `human_review_required` になります |
+| `validate_conformance`（PDF/A） | エンジンにかかわらず `ENCRYPTED_PDF`（`retryable: true`）。`next_actions` は、同じ呼び出しに `password` を足した例を示します。PDF/UA では、構造のルールを「検査していない」と報告します |
+
+「読めなかった」は「署名が無い」ではありません。0.34.0 までは、同じ文書が `POL-CAUTION-UNSIGNED` によって `use_with_caution` になっていました。
+
 #### 署名の検証で確かめること
 
 `verify_signatures` は、署名 1 つについて次の順に確かめます。PDF の外と通信するのは、`check_revocation: "online"` を指定したときの ③ と ④ だけです。それ以外は、PDF の中のデータと、利用者が渡したトラストアンカーだけで判定します。

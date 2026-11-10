@@ -15,7 +15,7 @@ graph LR
 
 ## Supported scenarios
 
-- Generating PDF/UA-conformant (tagged) PDFs
+- Generating PDF/UA-conformant (tagged) PDFs — PDF/UA-1 on PDF 1.7, PDF/UA-2 on PDF 2.0
 - An invoice bundled with its data: PDF/A-3b plus attachments (`attach_file`). When PDF/A-4 is requested, use **`pdfa-4f`** — plain `pdfa-4` requires every attachment to be PDF/A itself, which is incompatible with bundling CSV/XML
   - Asked for "an e-bookkeeping-law (電帳法) compliant PDF", the Skill first says that neither PDF/A nor attachments is a requirement of the Act, and asks what is wanted (PDF/A preservation, bundled data, or both) before choosing the level. For electronic transactions the Act asks for a timestamp, a system that records or prevents corrections, or internal rules against unjustified changes (Enforcement Regulation Art. 4(1)). The Publish Report never says the output complies with the Act
 - Making forms PDF/UA-conformant (`tag_form_fields`)
@@ -29,12 +29,26 @@ Choose how far to check before delivering — the central setting of this Skill.
 |---|---|---|
 | `none` | Write only, no gate (drafts, throwaways) | writer |
 | `readback` | Read the output back with reader and observe that it matches the intent | writer + reader |
-| `conformance(flavour)` | Until veraPDF scores it COMPLIANT. The flavour names the standard to measure (`pdfa-3b` / `pdfa-4f` / `pdfua-1`, …) | writer + verify (veraPDF recommended) |
+| `conformance(flavour)` | Until veraPDF scores it COMPLIANT. The flavour names the standard to measure (`pdfa-3b` / `pdfa-4` / `pdfa-4f` / `pdfua-1` / `pdfua-2`) | writer + verify (veraPDF recommended) |
 
 ## Key rules
 
 - After writing a label (`ensure_pdfa` / `ensure_tagged`), always run `validate_conformance` with the matching flavour — **if you cannot measure it, do not write the label**
 - The verdict belongs to veraPDF. Report "veraPDF judged it COMPLIANT", never "conforms to ISO 19005"
+- **Decide which flavours to measure from `output.declares`** in the last writer result (writer 0.28.0+), not from what was asked for. Everything declared is measured: `pdfua: 1` → `pdfua-1`, `pdfua: 2` → `pdfua-2`, `pdfa: "3b"` / `"4"` / `"4f"` → the matching `pdfa-*`. `declares` is the file's own claim; the pass or fail comes from `validate_conformance`
+
+## Which standards go together
+
+PDF/UA-1 is built on PDF 1.0–1.7 (ISO 14289-1 §6.1) and PDF/UA-2 on PDF 2.0 (ISO 14289-2 §6.1). PDF/A-3 needs a PDF 1.x header and PDF/A-4 needs 2.0, so the accessibility part decides the PDF/A part:
+
+| PDF version | Accessibility | Long-term preservation | Steps | Measured (veraPDF 1.30.0) |
+|---|---|---|---|---|
+| 1.7 | PDF/UA-1 (`pdfua-1`) | PDF/A-3b (`pdfa-3b`) | `create_*(tagged)` → `ensure_pdfa` | 106/106 · 146/146 |
+| 2.0 | PDF/UA-2 (`pdfua-2`) | PDF/A-4 (`pdfa-4` / `pdfa-4f`) | `create_*(tagged, pdfVersion: "2.0")` → `ensure_pdfa(flavour: "pdfa-4")` | 1,728/1,728 · 109/109 |
+
+The other pairings are refused by the writer with `INVALID_ARGUMENT`. When `ensure_pdfa` returns `next_actions[0].action: "retry_with_flavour"`, the Skill reads `example.flavour` before following it: `pdfa-3b` means the input declares PDF/UA-1, `pdfa-4` means the input is PDF 2.0. It does not switch the target standard silently — the change is the user's to agree to. When both accessibility and PDF/A-4 are asked for, a new document is created as PDF 2.0; for an existing PDF/UA-1 document the user chooses between "PDF/A-3b + PDF/UA-1" and recreating it as PDF 2.0.
+
+`merge_pdfs` refuses a mix of PDF 2.0 and PDF 1.x inputs unless `pdfVersion` is given. `pdfVersion: "2.0"` is an explicit conversion, so the Skill asks before using it on a job that targets PDF/A-3b.
 
 ## Measured example — Publish Report summary (2026-08-11)
 
@@ -56,6 +70,10 @@ gate level `conformance(pdfa-3b + pdfua-1)`:
 This is design, not a defect. The moment a label is written, verification stops being
 optional — the warning is transcribed into the Report, and the matching flavour is measured
 before delivery.
+
+### Second measured example — PDF/UA-2 + PDF/A-4 (2026-11-10)
+
+pdf-publish 0.8.0 with writer 0.28.1: `create_markdown_pdf(tagged, pdfVersion: "2.0", lang: "ja", drawTitle: false)` → `add_bookmarks` → `ensure_pdfa(flavour: "pdfa-4")`. `output.declares` went `{pdfua: 2}` → `{pdfua: 2}` → `{pdfua: 2, pdfa: "4"}`, so the Skill measured `pdfua-2` and `pdfa-4`, which also matched `identify_conformance`. **veraPDF 1.30.0 judged PDF/UA-2 COMPLIANT (1,728/1,728) and PDF/A-4 COMPLIANT (109/109)**, with 0 fix iterations.
 
 ## Loop cutoff conditions
 

@@ -4,20 +4,20 @@
     "text": "プレーンテキストから PDF を生成する。改行(\\n)を尊重し、空行を段落区切りとして扱う。長い行は自動で折り返す。"
   },
   "create_markdown_pdf|prose": {
-    "src": "ccf8e9bd2396b8dd0b310e212f28e898",
-    "text": "Markdown から PDF を生成する。見出し・段落・箇条書き/番号リスト・コードブロック・引用・水平線・表に対応。インライン装飾の記号は除去し字面のみ反映する(単一フォントのため)。入れ子のリストは入れ子のまま描き、折り返したリストの文は行頭記号や番号の後ろにそろえる。tagged: true では各項目を LI > Lbl（記号/番号）+ LBody にし、入れ子のリストは親の LBody の中に置き、各 L に ListNumbering（Decimal か Disc）を書く（v0.25.0）。"
+    "src": "d3ec1b0cbaa07f9b52adde3b3bd6d6a0",
+    "text": "Markdown から PDF を生成する。見出し・段落・箇条書き/番号リスト・コードブロック・引用・水平線・表に対応。インライン装飾の記号は除去し字面のみ反映する(単一フォントのため)。入れ子のリストは入れ子のまま描き、折り返したリストの文は行頭記号や番号の後ろにそろえる。tagged: true では各項目を LI > Lbl（記号/番号）+ LBody にし、各 L に ListNumbering（Decimal か Disc）を書く（v0.25.0）。入れ子のリストは、PDF/UA-1 では親の LBody の中に、PDF/UA-2（pdfVersion \"2.0\"）では親の L の直接の子として項目の直後に置く（ISO 32000-2 §14.8.4.8.2）（v0.27.0）。"
   },
   "create_table_pdf|prose": {
     "src": "256edb9ccd85a456483005d84fef8e15",
     "text": "ヘッダと行データから罫線付きの表 PDF を生成する。列幅は内容から自動算出し、セル内は折り返す。改ページ時はヘッダを再描画する。"
   },
   "set_metadata|prose": {
-    "src": "5d16b1975895914ed11d20909e179513",
-    "text": "既存 PDF のメタデータ(Info 辞書)を更新する。指定したフィールドのみ変更し、他は保持する。title / author / subject / keywords / creator / tdmReservation のうち最低 1 つが必要。XMP(/Metadata)を持つ文書では dc:title 等も同期して不整合を防ぐ。tdmReservation（0 | 1）と tdmPolicy（URL）は W3C TDM Reservation Protocol の意思表示を XMP に書く（tdm:reservation / tdm:policy、名前空間 http://www.w3.org/ns/tdmrep/）。XMP を持たない文書には新しく作る。文書が PDF/A を宣言している場合は tdmrep スキーマを pdfaExtension:schemas にも記述するため、veraPDF が ISO 19005-2 6.6.2.3 で落とすことはない。署名済み PDF には preserveSignatures: true で署名を保持したまま更新できる。"
+    "src": "8e1310044b0fe1c504b65b677267dd92",
+    "text": "既存 PDF のメタデータ(Info 辞書)を更新する。指定したフィールドのみ変更し、他は保持する。title / author / subject / keywords / creator / tdmReservation のうち最低 1 つが必要。XMP(/Metadata)を持つ文書では dc:title 等も同期して不整合を防ぐ。渡していない XMP の値は書かれていたとおりに残す（dc:title の他の言語、すべての dc:creator、未知の名前空間）。PDF 2.0 の入力では値を XMP に書き、Info には項目を足さない（ISO 32000-2 14.3.3 は Info のメタデータを非推奨にしている）。PDF/UA-2 の入力では、既存の Info の項目を XMP に移してから消す。出力は入力の版のまま。tdmReservation（0 | 1）と tdmPolicy（URL）は W3C TDM Reservation Protocol の意思表示を XMP に書く（tdm:reservation / tdm:policy、名前空間 http://www.w3.org/ns/tdmrep/）。XMP を持たない文書には新しく作る。文書が PDF/A を宣言している場合は tdmrep スキーマを pdfaExtension:schemas にも記述するため、veraPDF が ISO 19005-2 6.6.2.3 で落とすことはない。署名済み PDF には preserveSignatures: true で署名を保持したまま更新できる。"
   },
   "merge_pdfs|prose": {
-    "src": "ba0af21de4077f209fd528c26ae54847",
-    "text": "複数の PDF を指定順に 1 つへ結合する。文書メタデータは先頭ファイルから引き継ぐ。\n\nページを新しい文書へ複製するため、文書レベルの情報（タグ付き構造・XMP・添付・AcroForm・しおり等）は引き継がれない。失われたものは warnings で報告されるので、必要なら出力に attach_file / ensure_tagged / add_bookmarks / set_metadata を後がけする。"
+    "src": "43a5fca49e00640dc9102223c80d074e",
+    "text": "複数の PDF を指定順に 1 つへ結合する。文書メタデータは先頭ファイルから引き継ぐ。出力は入力の版のまま。PDF 2.0 と PDF 1.x が混ざっているときは、pdfVersion が無ければ断る — \"2.0\" は明示的な変換であり、版を下げることはしない。\n\nページを新しい文書へ複製するため、文書レベルの情報（タグ付き構造・XMP・添付・AcroForm・しおり等）は引き継がれない。失われたものは warnings で報告されるので、必要なら出力に attach_file / ensure_tagged / add_bookmarks / set_metadata を後がけする。"
   },
   "split_pdf|prose": {
     "src": "07df4d298458fae23c667728f2cd2f98",
@@ -36,8 +36,8 @@
     "text": "ページを並べ替える。order には全ページを新しい順序で 1 回ずつ列挙する。\n\nページを新しい文書へ複製するため、文書レベルの情報（タグ付き構造・XMP・添付・AcroForm・しおり等）は引き継がれない。失われたものは warnings で報告されるので、必要なら出力に attach_file / ensure_tagged / add_bookmarks / set_metadata を後がけする。"
   },
   "add_bookmarks|prose": {
-    "src": "861b83d12ca235e26855242c143d8d97",
-    "text": "PDF にしおり(アウトライン)を設定する。既存のしおりは置換される。children で入れ子にできる。署名済み PDF には preserveSignatures: true で署名を保持したまま設定できる。"
+    "src": "61bf519e0b1944d83b096fcec20d2371",
+    "text": "PDF にしおり(アウトライン)を設定する。既存のしおりは置換される。children で入れ子にできる。署名済み PDF には preserveSignatures: true で署名を保持したまま設定できる。入力が PDF/UA-2 を宣言しているときは、ISO 14289-2 §8.8 が求めるとおり、各しおりの行き先を構造の行き先にする: GoTo アクションの SD に対象ページで始まる構造要素を書き、SD を読まないビューアのために D にはページの行き先を残す。構造の内容を持たないページはページの行き先にし、warnings で名指しする（v0.27.0）。"
   },
   "add_annotation|prose": {
     "src": "54da085554bbc1d95beee2b06caf4578",
@@ -60,16 +60,16 @@
     "text": "既存 PDF の対話フォーム（AcroForm）をフラット化し、記入済みの見た目を保ったまま非対話にする。配布前に値を固定したい場合に使う。\n\n既存の値に日本語が含まれるなら、外観の再生成に備えて fontPath か環境変数 PDF_WRITER_FONT を指定しておくこと。タグ付き PDF では Widget 注釈が消えて Form 構造要素が宙に浮くため、既定では拒否する（allowBreakingTags: true で強行できる）。"
   },
   "tag_form_fields|prose": {
-    "src": "4814f4ef6ad87e0df4f7a9f503c31d28",
-    "text": "タグ付き PDF のフォームを PDF/UA-1 準拠へ修復する。行うのは次の 3 つ:\n\n- Widget 注釈を Form 構造要素に内包する（7.18.4-1）\n- 対象ページに /Tabs S を立てる（7.18.3-1）\n- フィールドに代替名 /TU を付与する（7.18.1-3）\n\nlabels でスクリーンリーダー向けの人間可読な名前を渡すこと。既に構造木に結ばれた Widget はスキップするため、何度実行しても安全である。タグ無し文書は対象外（create 系の tagged: true でゼロから作る）。\n\n署名済み PDF には preserveSignatures: true で署名を保持したまま修復できる（承認署名のみ。認証署名は拒否）。"
+    "src": "f6feaed69f64b8d1e4fd3e0b918d264d",
+    "text": "タグ付き PDF のフォームを PDF/UA-1 準拠へ修復する。行うのは次の 3 つ:\n\n- Widget 注釈を Form 構造要素に内包する（7.18.4-1）\n- 対象ページに /Tabs S を立てる（7.18.3-1）\n- フィールドに代替名 /TU を付与する（7.18.1-3）\n\nlabels でスクリーンリーダー向けの人間可読な名前を渡すこと。PDF/UA-2 の文書では、新しく内包した Widget に /Contents が無ければ、それも書く（ISO 14289-2 §8.10.2.3。Lbl は作らない）。値は label、無ければ既存の /TU、それも無ければフィールド名。既に構造木に結ばれた Widget はスキップするため、何度実行しても安全である。タグ無し文書は対象外（create 系の tagged: true で作り直すか、先に ensure_tagged を実行する）。\n\n署名済み PDF には preserveSignatures: true で署名を保持したまま修復できる（承認署名のみ。認証署名は拒否）。"
   },
   "ensure_tagged|prose": {
-    "src": "ad56b8f68b23136ef88a644f9aeb62a4",
-    "text": "既存 PDF を PDF/UA-1 の「器」に載せる。\n\n- 既にタグ付きの文書: 構造木には触らず、欠落した文書レベル要件（MarkInfo・Lang・DisplayDocTitle・XMP の pdfuaid:part / dc:title）だけを補う\n- タグ無しの文書: 最小限の構造木（各ページ = 1 つの P 要素）を新設し、本文を支援技術から到達可能にする\n\n**重要**: 機械は意味を推定できないため、見出し・表・リスト・読み順・図の代替テキストは作られない。新設されるのは「足場」であって「アクセシブルな文書」ではなく、人手のレビューが要る。構造を最初から正しく作れるなら create 系の tagged: true を使うこと。\n\n署名済み PDF には preserveSignatures: true（承認署名のみ。認証署名は拒否）。\n\n結果は addedRequirements（入力に無かったもの）と replacedRequirements（別の値で入っていたものを書き換えたもの）を分けて返す。同じ値で既に入っていた要件は、書き換えも列挙もしない。何も足さず、書き換えず、新設もしなかったときは requirementsChanged が false になる — それでも出力のファイルは書き出す（v0.24.0）。PDF 2.0 の入力（ヘッダか catalog の /Version）は、何かを書き出す前に INVALID_ARGUMENT で断る。PDF/UA-1 が認めるのは PDF 1.0〜1.7 だけだからである（ISO 14289-1 §6.1）（v0.25.0）。"
+    "src": "0822258ca0382b4e1298b0b956cce3b2",
+    "text": "既存 PDF に、PDF/UA の宣言と文書レベルの要件を足す。\n\n- 既にタグ付きの文書: 構造木には触らず、欠落した文書レベル要件（MarkInfo・Lang・DisplayDocTitle・XMP の pdfuaid / dc:title）だけを補う\n- タグ無しの文書: 最小限の構造木（各ページ = 1 つの P 要素）を新設し、本文を支援技術から到達可能にする\n\n**重要**: 機械は意味を推定できないため、見出し・表・リスト・読み順・図の代替テキストは作られない。新設されるのは「足場」であって「アクセシブルな文書」ではなく、人手のレビューが要る。構造を最初から正しく作れるなら create 系の tagged: true を使うこと。\n\n署名済み PDF には preserveSignatures: true（承認署名のみ。認証署名は拒否）。\n\n結果は addedRequirements（入力に無かったもの）と replacedRequirements（別の値で入っていたものを書き換えたもの）を分けて返す。同じ値で既に入っていた要件は、書き換えも列挙もしない。何も足さず、書き換えず、新設もしなかったときは requirementsChanged が false になる — それでも出力のファイルは書き出す（v0.24.0）。\n\n宣言する部は入力の版（ヘッダか catalog の /Version）で決まり、版は変えない: PDF 1.0〜1.7 なら PDF/UA-1（pdfuaid:part 1。ISO 14289-1 §6.1）、PDF 2.0 なら PDF/UA-2（pdfuaid:part 2、rev 2024。ISO 14289-2 §6.1）。PDF 2.0 では、新設する構造木の Document と P を PDF 2.0 の名前空間に置く。既存の構造木の根が、その名前空間の Document 1 つでない場合（ISO 14289-2 §8.2.5.2）は、そのまま残して warnings で名指しする（v0.27.0）。"
   },
   "ensure_pdfa|prose": {
-    "src": "218327aaf4f6e33a643db47542174f4c",
-    "text": "既存 PDF を PDF/A の「器」に載せる（ensure_tagged の PDF/A 版）。flavour で \"pdfa-3b\"（既定）/ \"pdfa-4\" / \"pdfa-4f\" を選ぶ。\n\n補うのは文書レベルの欠落要件だけである:\n\n- trailer の /ID（ISO 32000-1 14.4）\n- sRGB の OutputIntent（GTS_PDFA1。ICC プロファイルを生成して埋め込む）\n- XMP の pdfaid\n- **-4 系はさらに**ヘッダを PDF 2.0 にし、Info 辞書を削除する（-4 は catalog に /PieceInfo が無い限り Info を許さない。ISO 32000-2 14.3.3 より厳しい）\n\n本文・構造木・フォントには触らない。添付がある文書は \"pdfa-4f\" を使うこと。素の \"pdfa-4\" は添付ファイル自身が PDF/A であることを要求するため、CSV や JSON を同梱する（請求書 PDF にそのデータを添えるなど）と非適合になる。\n\n**重要**: これは「PDF/A を名乗るための下準備」であって、適合の保証ではない。フォント未埋め込み・暗号化・JavaScript・LZW などの違反は直らない。XMP に pdfaid を書くことは、その文書が「PDF/A です」と名乗ることと同じで、適合していない文書に適用すると**嘘を名乗る PDF ができる**（このため適用時は常に警告を返す）。適合したかどうかは pdf-verify-mcp の validate_conformance（flavour: 同じ値）で必ず測ること。判定を下すのは veraPDF で、ISO 19005 の条文は引用できないため、言えるのは「veraPDF がそう判定した」までである。\n\n運用上の注意:\n\n- 機械可読データを添付する文書では、attach_file の**後**に適用する\n- 署名済み PDF には preserveSignatures: true（承認署名のみ。認証署名は拒否）\n- ただし -4 系 × preserveSignatures は、入力が既に PDF 2.0 でない限り拒否する（増分更新では先頭のヘッダを書き換えられず、書き換えれば署名が壊れるため）\n- 入力が PDF/UA を宣言しているときは、-4 系を拒否する（INVALID_ARGUMENT。next_actions は flavour \"pdfa-3b\"）。PDF/A-4 は PDF 2.0 のヘッダを要し、PDF/UA-1 が認めるのは 1.0〜1.7 だけだからである（ISO 14289-1 §6.1）\n\n結果は previousDeclaration を返す — 入力が既に名乗っていた PDF/A で、{ part, conformance } か null（v0.24.0 で wasDeclared を置き換えた）。"
+    "src": "c168b1d8a62f8f757c39e7d6f27cabc1",
+    "text": "既存 PDF に、PDF/A の宣言と文書レベルの要件を足す（ensure_tagged の PDF/A 版）。flavour で \"pdfa-3b\"（既定）/ \"pdfa-4\" / \"pdfa-4f\" を選ぶ。\n\n補うのは文書レベルの欠落要件だけである:\n\n- trailer の /ID（ISO 32000-1 14.4）\n- sRGB の OutputIntent（GTS_PDFA1。ICC プロファイルを生成して埋め込む）\n- XMP の pdfaid\n- **-4 系はさらに**ヘッダを PDF 2.0 にし、Info 辞書を削除する。これが PDF 2.0 への明示的な変換である（-4 は catalog に /PieceInfo が無い限り Info を許さない。ISO 32000-2 14.3.3 より厳しい）\n\nPDF 2.0 の入力への \"pdfa-3b\" は断る（PDF/A-3 は %PDF-1.n のヘッダを要し、版を下げることはしない）。本文・構造木・フォントには触らない。添付がある文書は \"pdfa-4f\" を使うこと。素の \"pdfa-4\" は添付ファイル自身が PDF/A であることを要求するため、CSV や JSON を同梱する（請求書 PDF にそのデータを添えるなど）と非適合になる。\n\n**重要**: これは XMP に PDF/A の宣言を書くための下準備であって、適合の保証ではない。フォント未埋め込み・暗号化・JavaScript・LZW などの違反は直らない。XMP に pdfaid を書くと、その文書は自分が PDF/A であると宣言することになる。適合していない文書に適用すると、**適合していないのに XMP には PDF/A と書いてある PDF ができる**（このため適用時は常に警告を返す）。適合したかどうかは pdf-verify-mcp の validate_conformance（flavour: 同じ値）で必ず測ること。判定を下すのは veraPDF で、ISO 19005 の条文は引用できないため、言えるのは「veraPDF がそう判定した」までである。\n\n運用上の注意:\n\n- 機械可読データを添付する文書では、attach_file の**後**に適用する\n- 署名済み PDF には preserveSignatures: true（承認署名のみ。認証署名は拒否）\n- ただし -4 系 × preserveSignatures は、入力が既に PDF 2.0 でない限り拒否する（増分更新では先頭のヘッダを書き換えられず、書き換えれば署名が無効になるため）\n- 入力が PDF/UA-1 を宣言しているときは、-4 系を拒否する（INVALID_ARGUMENT。next_actions は flavour \"pdfa-3b\"）。PDF/A-4 は PDF 2.0 のヘッダを要し、PDF/UA-1 が認めるのは 1.0〜1.7 だけだからである（ISO 14289-1 §6.1）\n- 逆に、入力が PDF/UA-2 を宣言しているときは \"pdfa-3b\" を拒否する（next_actions は flavour \"pdfa-4\"）。PDF/UA-2 は PDF 2.0 を要し（ISO 14289-2 §6.1）、PDF/A-3 は PDF 1.x のヘッダを要するからである。PDF/A-4 と PDF/UA-2 は両立する（v0.27.0）\n\n結果は previousDeclaration を返す — 入力の XMP にすでに書かれていた PDF/A の宣言で、{ part, conformance } か null（v0.24.0 で wasDeclared を置き換えた）。"
   },
   "attach_file|prose": {
     "src": "d4cd7329b4704600cfb2f7dfe92d13c8",
@@ -92,8 +92,8 @@
     "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
   },
   "create_text_pdf|param:fontPath": {
-    "src": "fce25de803d804b2ab750e1c2ae03295",
-    "text": "埋め込むフォントファイル(.ttf / .otf)の絶対パス。日本語など非ラテン文字を含む場合は必須。.ttc(TrueTypeCollection)は非対応。環境変数 PDF_WRITER_FONT でも指定可。"
+    "src": "658b82c028fdf0886665a93bc5c23527",
+    "text": "埋め込むフォントファイル(.ttf / .otf)の絶対パス。WinAnsiEncoding に無い文字（日本語など）を含む場合は必須。.ttc(TrueTypeCollection)は非対応。環境変数 PDF_WRITER_FONT でも指定可。"
   },
   "create_text_pdf|param:fontSize": {
     "src": "99340cc3d6a94c214fb47c8d87366b2f",
@@ -116,20 +116,20 @@
     "text": "PDF 作成者(メタデータ)。"
   },
   "create_text_pdf|param:onMissingGlyph": {
-    "src": "846c741af154495d473f95ded972162f",
-    "text": "フォントに存在しない文字(例: Noto Sans JP に無い ✔ U+2714)の扱い。error(既定)=欠落文字を列挙してエラー / replace=〓 に置換して警告 / ignore=空白のまま描画して警告。"
+    "src": "c21d5d38f7ce1a32827ec01e3c829a0d",
+    "text": "フォントに存在しない文字(例: Noto Sans JP に無い ✔ U+2714)の扱い。error(既定)=欠落文字を列挙してエラー / replace=〓 に置換して警告（フォントに 〓 が無ければ ?。標準フォントでは常に ?） / ignore=空白のまま描画して警告。"
   },
   "create_text_pdf|param:tagged": {
-    "src": "996104c83e8ecd5d66638b151b0869ec",
-    "text": "タグ付き PDF(PDF/UA-1・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。"
+    "src": "b8a10949726bb8a287cd81a7a9190d47",
+    "text": "タグ付き PDF(PDF/UA・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。宣言する部は pdfVersion で決まる: 既定の 1.7 では PDF/UA-1（ISO 14289-1）、pdfVersion \"2.0\" では PDF/UA-2（ISO 14289-2。pdfuaid:part 2 と rev 2024）。PDF/UA-2 では、描いた題名は H1 ではなく Title 要素になり、Markdown の見出しは書かれたレベルのまま残り、構造要素は PDF 2.0 の名前空間に置かれる（PDF 2.0 の名前空間に無い BlockQuote と Code は PDF 1.7 の名前空間に残る）。"
   },
   "create_text_pdf|param:lang": {
     "src": "3df9b4929b121cc10447b39159b9d21d",
     "text": "文書の自然言語(BCP 47。例 \"ja\" / \"en-US\")。tagged 時に省略すると本文から推定し、推定結果を warnings で報告する。誤った言語宣言はスクリーンリーダの誤読を招くため、確実な場合は明示すること。"
   },
   "create_text_pdf|param:pdfVersion": {
-    "src": "6b82b9af7ea47c71832274ada260f4ba",
-    "text": "出力する PDF の版。既定 \"1.7\"。\"2.0\"(ISO 32000-2)にすると版の宣言だけでなく、版に紐づく義務も満たす: trailer /ID を付与し(Table 15 で Required)、Info 辞書を CreationDate / ModDate に絞って題名・作成者・Producer は XMP へ移す(§14.3.3)。tagged: true とは併用できない(writer が書けるのは PDF 1.7 基盤の PDF/UA-1 宣言のみ)。"
+    "src": "df52ddaa0513a7203f459c1132345b90",
+    "text": "出力する PDF の版。既定 \"1.7\"。\"2.0\"(ISO 32000-2)にすると版の宣言だけでなく、版に紐づく義務も満たす: trailer /ID を付与し(Table 15 で Required)、Info 辞書を CreationDate / ModDate に絞って題名・作成者・Producer は XMP へ移す(§14.3.3)。tagged: true と組み合わせると、PDF/UA-1 ではなく PDF/UA-2 を宣言する（PDF/UA-1 が認めるのは PDF 1.0〜1.7 だけである。ISO 14289-1 §6.1）。"
   },
   "create_markdown_pdf|param:markdown": {
     "src": "fac505aac61bf4a30e2747a63dc04279",
@@ -144,8 +144,8 @@
     "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
   },
   "create_markdown_pdf|param:fontPath": {
-    "src": "fce25de803d804b2ab750e1c2ae03295",
-    "text": "埋め込むフォントファイル(.ttf / .otf)の絶対パス。日本語など非ラテン文字を含む場合は必須。.ttc(TrueTypeCollection)は非対応。環境変数 PDF_WRITER_FONT でも指定可。"
+    "src": "658b82c028fdf0886665a93bc5c23527",
+    "text": "埋め込むフォントファイル(.ttf / .otf)の絶対パス。WinAnsiEncoding に無い文字（日本語など）を含む場合は必須。.ttc(TrueTypeCollection)は非対応。環境変数 PDF_WRITER_FONT でも指定可。"
   },
   "create_markdown_pdf|param:fontSize": {
     "src": "99340cc3d6a94c214fb47c8d87366b2f",
@@ -168,20 +168,20 @@
     "text": "PDF 作成者(メタデータ)。"
   },
   "create_markdown_pdf|param:onMissingGlyph": {
-    "src": "846c741af154495d473f95ded972162f",
-    "text": "フォントに存在しない文字(例: Noto Sans JP に無い ✔ U+2714)の扱い。error(既定)=欠落文字を列挙してエラー / replace=〓 に置換して警告 / ignore=空白のまま描画して警告。"
+    "src": "c21d5d38f7ce1a32827ec01e3c829a0d",
+    "text": "フォントに存在しない文字(例: Noto Sans JP に無い ✔ U+2714)の扱い。error(既定)=欠落文字を列挙してエラー / replace=〓 に置換して警告（フォントに 〓 が無ければ ?。標準フォントでは常に ?） / ignore=空白のまま描画して警告。"
   },
   "create_markdown_pdf|param:tagged": {
-    "src": "996104c83e8ecd5d66638b151b0869ec",
-    "text": "タグ付き PDF(PDF/UA-1・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。"
+    "src": "b8a10949726bb8a287cd81a7a9190d47",
+    "text": "タグ付き PDF(PDF/UA・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。宣言する部は pdfVersion で決まる: 既定の 1.7 では PDF/UA-1（ISO 14289-1）、pdfVersion \"2.0\" では PDF/UA-2（ISO 14289-2。pdfuaid:part 2 と rev 2024）。PDF/UA-2 では、描いた題名は H1 ではなく Title 要素になり、Markdown の見出しは書かれたレベルのまま残り、構造要素は PDF 2.0 の名前空間に置かれる（PDF 2.0 の名前空間に無い BlockQuote と Code は PDF 1.7 の名前空間に残る）。"
   },
   "create_markdown_pdf|param:lang": {
     "src": "3df9b4929b121cc10447b39159b9d21d",
     "text": "文書の自然言語(BCP 47。例 \"ja\" / \"en-US\")。tagged 時に省略すると本文から推定し、推定結果を warnings で報告する。誤った言語宣言はスクリーンリーダの誤読を招くため、確実な場合は明示すること。"
   },
   "create_markdown_pdf|param:pdfVersion": {
-    "src": "6b82b9af7ea47c71832274ada260f4ba",
-    "text": "出力する PDF の版。既定 \"1.7\"。\"2.0\"(ISO 32000-2)にすると版の宣言だけでなく、版に紐づく義務も満たす: trailer /ID を付与し(Table 15 で Required)、Info 辞書を CreationDate / ModDate に絞って題名・作成者・Producer は XMP へ移す(§14.3.3)。tagged: true とは併用できない(writer が書けるのは PDF 1.7 基盤の PDF/UA-1 宣言のみ)。"
+    "src": "df52ddaa0513a7203f459c1132345b90",
+    "text": "出力する PDF の版。既定 \"1.7\"。\"2.0\"(ISO 32000-2)にすると版の宣言だけでなく、版に紐づく義務も満たす: trailer /ID を付与し(Table 15 で Required)、Info 辞書を CreationDate / ModDate に絞って題名・作成者・Producer は XMP へ移す(§14.3.3)。tagged: true と組み合わせると、PDF/UA-1 ではなく PDF/UA-2 を宣言する（PDF/UA-1 が認めるのは PDF 1.0〜1.7 だけである。ISO 14289-1 §6.1）。"
   },
   "create_table_pdf|param:headers": {
     "src": "873796a14e03285fbfb09f99f5f9de72",
@@ -200,8 +200,8 @@
     "text": "true の場合、保存に加えて base64 文字列も結果に含める。"
   },
   "create_table_pdf|param:fontPath": {
-    "src": "fce25de803d804b2ab750e1c2ae03295",
-    "text": "埋め込むフォントファイル(.ttf / .otf)の絶対パス。日本語など非ラテン文字を含む場合は必須。.ttc(TrueTypeCollection)は非対応。環境変数 PDF_WRITER_FONT でも指定可。"
+    "src": "658b82c028fdf0886665a93bc5c23527",
+    "text": "埋め込むフォントファイル(.ttf / .otf)の絶対パス。WinAnsiEncoding に無い文字（日本語など）を含む場合は必須。.ttc(TrueTypeCollection)は非対応。環境変数 PDF_WRITER_FONT でも指定可。"
   },
   "create_table_pdf|param:fontSize": {
     "src": "99340cc3d6a94c214fb47c8d87366b2f",
@@ -224,20 +224,20 @@
     "text": "PDF 作成者(メタデータ)。"
   },
   "create_table_pdf|param:onMissingGlyph": {
-    "src": "846c741af154495d473f95ded972162f",
-    "text": "フォントに存在しない文字(例: Noto Sans JP に無い ✔ U+2714)の扱い。error(既定)=欠落文字を列挙してエラー / replace=〓 に置換して警告 / ignore=空白のまま描画して警告。"
+    "src": "c21d5d38f7ce1a32827ec01e3c829a0d",
+    "text": "フォントに存在しない文字(例: Noto Sans JP に無い ✔ U+2714)の扱い。error(既定)=欠落文字を列挙してエラー / replace=〓 に置換して警告（フォントに 〓 が無ければ ?。標準フォントでは常に ?） / ignore=空白のまま描画して警告。"
   },
   "create_table_pdf|param:tagged": {
-    "src": "996104c83e8ecd5d66638b151b0869ec",
-    "text": "タグ付き PDF(PDF/UA-1・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。"
+    "src": "b8a10949726bb8a287cd81a7a9190d47",
+    "text": "タグ付き PDF(PDF/UA・ISO 14289)として生成する。既定 false。true にすると構造木・PDF/UA 宣言・/Lang・DisplayDocTitle を付与し、スクリーンリーダで読める文書になる。PDF/UA はタイトルを要求するため title が必須。宣言する部は pdfVersion で決まる: 既定の 1.7 では PDF/UA-1（ISO 14289-1）、pdfVersion \"2.0\" では PDF/UA-2（ISO 14289-2。pdfuaid:part 2 と rev 2024）。PDF/UA-2 では、描いた題名は H1 ではなく Title 要素になり、Markdown の見出しは書かれたレベルのまま残り、構造要素は PDF 2.0 の名前空間に置かれる（PDF 2.0 の名前空間に無い BlockQuote と Code は PDF 1.7 の名前空間に残る）。"
   },
   "create_table_pdf|param:lang": {
     "src": "3df9b4929b121cc10447b39159b9d21d",
     "text": "文書の自然言語(BCP 47。例 \"ja\" / \"en-US\")。tagged 時に省略すると本文から推定し、推定結果を warnings で報告する。誤った言語宣言はスクリーンリーダの誤読を招くため、確実な場合は明示すること。"
   },
   "create_table_pdf|param:pdfVersion": {
-    "src": "6b82b9af7ea47c71832274ada260f4ba",
-    "text": "出力する PDF の版。既定 \"1.7\"。\"2.0\"(ISO 32000-2)にすると版の宣言だけでなく、版に紐づく義務も満たす: trailer /ID を付与し(Table 15 で Required)、Info 辞書を CreationDate / ModDate に絞って題名・作成者・Producer は XMP へ移す(§14.3.3)。tagged: true とは併用できない(writer が書けるのは PDF 1.7 基盤の PDF/UA-1 宣言のみ)。"
+    "src": "df52ddaa0513a7203f459c1132345b90",
+    "text": "出力する PDF の版。既定 \"1.7\"。\"2.0\"(ISO 32000-2)にすると版の宣言だけでなく、版に紐づく義務も満たす: trailer /ID を付与し(Table 15 で Required)、Info 辞書を CreationDate / ModDate に絞って題名・作成者・Producer は XMP へ移す(§14.3.3)。tagged: true と組み合わせると、PDF/UA-1 ではなく PDF/UA-2 を宣言する（PDF/UA-1 が認めるのは PDF 1.0〜1.7 だけである。ISO 14289-1 §6.1）。"
   },
   "set_metadata|param:inputPath": {
     "src": "64edc20e69b7b20c039aab144d858e3a",
@@ -424,8 +424,8 @@
     "text": "作成者名。"
   },
   "add_annotation|param:alt": {
-    "src": "3a2a15b8f018131d6de4f7a5bbf30fda",
-    "text": "支援技術向けの代替テキスト。タグ付き PDF では注釈が Annot 構造要素に内包される(PDF/UA 7.18.1-1)ため、その要素の /Alt になる。タグ無し文書では無視される。"
+    "src": "e385f465d6b86f43e7597f4b1131729b",
+    "text": "支援技術向けの代替テキスト。タグ付き PDF では注釈が Annot 構造要素に内包される(PDF/UA 7.18.1-1)ため、その要素の /Alt になる。タグ無し文書では無視される。PDF/UA-2 の文書では、注釈の Contents は Alt と一致しなければならない（ISO 14289-2 §8.9.4.2）: alt だけを渡せば Contents にも書き、異なる contents は断る。"
   },
   "add_annotation|param:color": {
     "src": "4a6f40eb0104eb86760f029e7ba96553",
@@ -484,8 +484,8 @@
     "text": "#rrggbb。既定 #666666。"
   },
   "stamp_page_numbers|param:fontPath": {
-    "src": "d03dc415f0379164850d919005189ce7",
-    "text": "埋め込むフォント(.ttf/.otf)。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。日本語を含む書式には必須。"
+    "src": "c7d7f792ebdae28da6c76869696f0b81",
+    "text": "埋め込むフォント(.ttf/.otf)。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。WinAnsiEncoding に無い文字（日本語など）を含む書式には必須。"
   },
   "stamp_page_numbers|param:pages": {
     "src": "3e81cbd3b6f8d062ddf5305c072b9f9a",
@@ -540,8 +540,8 @@
     "text": "本文の背面に敷くか。既定 true。false にすると本文の上に重なる(改ざん防止の主張を強めたい場合)。"
   },
   "add_watermark|param:fontPath": {
-    "src": "9c708af80a4972f5519ddd74e561ad5d",
-    "text": "埋め込むフォント(.ttf/.otf)。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。日本語の透かしには必須。"
+    "src": "ad0f6cead11bc38a550ed8e69adf7b81",
+    "text": "埋め込むフォント(.ttf/.otf)。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。WinAnsiEncoding に無い文字（日本語など）を含む透かしには必須。"
   },
   "add_watermark|param:pages": {
     "src": "f7acaa8cf26e243b3ce24797beeee13f",
@@ -572,8 +572,8 @@
     "text": "フィールド名 → 値のオブジェクト。値の型はフィールド種別に対応する: text=文字列か数値 / checkbox=真偽値 / dropdown・optionlist=文字列か文字列配列 / radio=文字列。例: {\"user.name\": \"山田 太郎\", \"agree\": true, \"plan\": \"A\"}"
   },
   "fill_form|param:fontPath": {
-    "src": "09e418b466aa2eb2382f3c16958a6dfe",
-    "text": "値の描画に使うフォント(.ttf/.otf)。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。日本語の値には必須。"
+    "src": "366250c9fa489fa5c5ce696ea58cc5a2",
+    "text": "値の描画に使うフォント(.ttf/.otf)。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。WinAnsiEncoding に無い文字（日本語など）を含む値には必須。"
   },
   "fill_form|param:flatten": {
     "src": "5a829c69deacdeab5da4dbf0fe9531cc",
@@ -600,8 +600,8 @@
     "text": "対象 PDF の絶対パス。"
   },
   "flatten_form|param:fontPath": {
-    "src": "286a76a2ffa6a40478c3b95efa59b437",
-    "text": "外観生成に使うフォント。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。既存の外観をそのまま使える場合は不要だが、再生成が必要な日本語フォームでは要る。"
+    "src": "39cac9bf0abca128fe992e63b96686b9",
+    "text": "外観生成に使うフォント。省略時は環境変数 PDF_WRITER_FONT → 標準フォント。既存の外観をそのまま使える場合は不要だが、WinAnsiEncoding に無い文字（日本語など）を含む値の外観を作り直すときは要る。"
   },
   "flatten_form|param:allowBreakingTags": {
     "src": "e52024c5f6fd51a61f972e39ec4bd80d",
@@ -648,12 +648,12 @@
     "text": "対象 PDF の絶対パス。"
   },
   "ensure_tagged|param:title": {
-    "src": "42ae4302d377c37d880b409caa6b1428",
-    "text": "文書タイトル(PDF/UA-1 7.1 で必須)。省略時は既存 Info の Title を使う。"
+    "src": "11ba77d6a07bf3bb19efae3854d2ecc1",
+    "text": "文書タイトル(PDF/UA-1 7.1 / PDF/UA-2 8.11.1 で必須)。省略時は既存 Info の Title、無ければ XMP の dc:title を使う。"
   },
   "ensure_tagged|param:lang": {
-    "src": "b44b74ceb788c49e690facfc6413c0b0",
-    "text": "文書の自然言語(BCP 47。例 \"ja\")。PDF/UA-1 7.2 で必須。"
+    "src": "fe49d11627b80e2bda9f6ce2e7c0e95d",
+    "text": "文書の自然言語(BCP 47。例 \"ja\")。PDF/UA-1 7.2 / PDF/UA-2 8.4.4 で必須。"
   },
   "ensure_tagged|param:preserveSignatures": {
     "src": "495804bcd9b910874f476c3d6b77c264",
@@ -768,15 +768,19 @@
     "text": "TDM ポリシーの URL（tdm:policy）。tdmReservation が必要。"
   },
   "create_text_pdf|param:drawTitle": {
-    "src": "2b9536fe74074f33c1b5250f200cdb8f",
-    "text": "title を本文の冒頭に見出しとして描くか。既定 true。本文が自前の見出し（Markdown の「# ...」の行など）で始まるときは false を渡す。タイトルはメタデータ（Info /Title、tagged のときは XMP の dc:title）にだけ入るので、タグ付きの出力は PDF/UA-1（ISO 14289-1 7.1）が求める dc:title を保ったまま、H1 が重複しない。"
+    "src": "447624cec823b5f55fe957a2de9d039b",
+    "text": "title を本文の冒頭に見出しとして描くか。既定 true。本文が自前の見出し（Markdown の「# ...」の行など）で始まるときは false を渡す。タイトルはメタデータ（Info /Title、tagged のときは XMP の dc:title）にだけ入るので、タグ付きの出力は PDF/UA が求める dc:title（ISO 14289-1 7.1 / ISO 14289-2 8.11.1）を保ったまま、見出しが重複しない。"
   },
   "create_markdown_pdf|param:drawTitle": {
-    "src": "2b9536fe74074f33c1b5250f200cdb8f",
-    "text": "title を本文の冒頭に見出しとして描くか。既定 true。本文が自前の見出し（Markdown の「# ...」の行など）で始まるときは false を渡す。タイトルはメタデータ（Info /Title、tagged のときは XMP の dc:title）にだけ入るので、タグ付きの出力は PDF/UA-1（ISO 14289-1 7.1）が求める dc:title を保ったまま、H1 が重複しない。"
+    "src": "447624cec823b5f55fe957a2de9d039b",
+    "text": "title を本文の冒頭に見出しとして描くか。既定 true。本文が自前の見出し（Markdown の「# ...」の行など）で始まるときは false を渡す。タイトルはメタデータ（Info /Title、tagged のときは XMP の dc:title）にだけ入るので、タグ付きの出力は PDF/UA が求める dc:title（ISO 14289-1 7.1 / ISO 14289-2 8.11.1）を保ったまま、見出しが重複しない。"
   },
   "create_table_pdf|param:drawTitle": {
-    "src": "2b9536fe74074f33c1b5250f200cdb8f",
-    "text": "title を本文の冒頭に見出しとして描くか。既定 true。本文が自前の見出し（Markdown の「# ...」の行など）で始まるときは false を渡す。タイトルはメタデータ（Info /Title、tagged のときは XMP の dc:title）にだけ入るので、タグ付きの出力は PDF/UA-1（ISO 14289-1 7.1）が求める dc:title を保ったまま、H1 が重複しない。"
+    "src": "447624cec823b5f55fe957a2de9d039b",
+    "text": "title を本文の冒頭に見出しとして描くか。既定 true。本文が自前の見出し（Markdown の「# ...」の行など）で始まるときは false を渡す。タイトルはメタデータ（Info /Title、tagged のときは XMP の dc:title）にだけ入るので、タグ付きの出力は PDF/UA が求める dc:title（ISO 14289-1 7.1 / ISO 14289-2 8.11.1）を保ったまま、見出しが重複しない。"
+  },
+  "merge_pdfs|param:pdfVersion": {
+    "src": "dba4c242f394721f44787c3f822f26f3",
+    "text": "結合したファイルの版。省略すると入力の版のまま（PDF 1.x どうしでは先頭の入力の版）。PDF 2.0 と PDF 1.x が混ざっているときは必須: \"2.0\" で結合したファイルを PDF 2.0 に変換する（trailer /ID を付け、Info のメタデータを XMP へ移す）。入力に PDF 2.0 が 1 つでもあれば \"1.7\" は断る — 版を下げることはしない。"
   }
 }
