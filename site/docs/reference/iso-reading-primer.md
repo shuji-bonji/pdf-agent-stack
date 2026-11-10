@@ -1,5 +1,6 @@
 ---
-description: A primer on reading ISO specifications — NOTEs are not normative, only shall is a condition of conformance, definitions override everyday language
+title: How to Read ISO Specs — shall, should, may and Terms and Definitions (Primer)
+description: A primer on reading ISO standards — the difference between shall, should, may and can, how to read the Terms and definitions clause, normative versus informative text, and why a NOTE is not a requirement.
 ---
 
 # How to Read ISO Specs (Primer)

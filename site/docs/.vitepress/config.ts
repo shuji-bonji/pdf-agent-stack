@@ -235,7 +235,9 @@ export default withMermaid(
       }
     },
     themeConfig: {
-      logo: '/images/logo.svg',
+      // 文字列で渡すと VPImage が alt="" を出し、Bing が全ページを「alt が無い」と数える（2026-11-10）。
+      // 隣に siteTitle があるので読み上げは重複するが、alt を持たせる。
+      logo: { src: '/images/logo.svg', alt: 'PDF Agent Stack' },
       search: { provider: 'local' },
       socialLinks: [
         { icon: 'github', link: 'https://github.com/shuji-bonji/pdf-agent-stack' },

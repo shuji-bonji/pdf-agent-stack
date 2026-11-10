@@ -1,5 +1,6 @@
 ---
-description: ISO 仕様書の読み方入門 — NOTE は規範ではない・shall だけが適合の必要条件・定義は日常語を上書きする、等の読解規約
+title: ISO 仕様書の読み方 — shall・should・may と用語の定義（入門）
+description: ISO 規格の仕様書の読み方の入門です。shall・should・may・can の違い、Terms and definitions（用語の定義の章）の読み方、規範（normative）と参考（informative）の見分け方、NOTE が要求ではない理由を説明します。
 ---
 
 # ISO 仕様書の読み方（入門）

@@ -1,5 +1,6 @@
 ---
-description: The structured error response shared by the four PDF family servers, the common codes, and each server's own codes
+title: Error Codes of the PDF Family MCP Servers
+description: The error response shared by the four PDF family MCP servers (pdf-reader, pdf-writer, pdf-verify, pdf-spec), and what each code means and what to do. Not a list of error codes from PDF files or viewers.
 ---
 
 # Error Codes

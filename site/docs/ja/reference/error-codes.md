@@ -1,5 +1,6 @@
 ---
-description: PDF family の 4 サーバーに共通のエラー応答の形、共通のコード、サーバーごとのコード
+title: PDF family の MCP サーバーのエラーコード一覧
+description: PDF family の 4 つの MCP サーバー（pdf-reader・pdf-writer・pdf-verify・pdf-spec）が返すエラーの形と、コードごとの意味と対処。PDF ファイルやビューアのエラーコードの一覧ではありません。
 ---
 
 # エラーコード一覧
